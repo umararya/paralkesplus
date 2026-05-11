@@ -27,11 +27,23 @@ class AuthController extends Controller
             'password.min'      => 'Password minimal 6 karakter.',
         ]);
 
-        if (Auth::attempt(
-            ['username' => $request->username, 'password' => $request->password],
-            $request->boolean('remember')
-        )) {
+        $credentials = [
+            'username' => $request->username,
+            'password' => $request->password,
+        ];
+
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+
+            // Cek apakah user aktif
+            if (!Auth::user()->is_active) {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'username' => 'Akun Anda tidak aktif. Hubungi administrator.',
+                ]);
+            }
+
             $request->session()->regenerate();
+
             Auth::user()->update(['last_login_at' => now()]);
 
             return redirect()->intended(route('dashboard'))
@@ -48,6 +60,8 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login')->with('status', 'Anda berhasil logout.');
+
+        return redirect()->route('login')
+            ->with('status', 'Anda berhasil logout.');
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
 // ── Auth (Guest only) ──
 Route::middleware('guest')->group(function () {
@@ -14,10 +15,15 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
 
+// ── Theme Toggle ──
+Route::post('/theme', function (\Illuminate\Http\Request $request) {
+    session(['theme' => $request->input('theme', 'light')]);
+    return response()->json(['ok' => true]);
+})->middleware('auth');
+
 // ── Protected Routes ──
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
-    // Tambah route lain di sini
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // ── Root redirect ──

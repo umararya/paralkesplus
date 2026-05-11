@@ -12,11 +12,20 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'name', 'username', 'email', 'password',
-        'role', 'is_active', 'last_login_at', 'avatar',
+        'name',
+        'username',
+        'email',
+        'password',
+        'role',
+        'is_active',
+        'last_login_at',
+        'avatar',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     protected function casts(): array
     {
@@ -28,11 +37,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Gunakan 'username' sebagai kolom autentikasi, bukan 'email'
+     * Gunakan 'username' sebagai kolom autentikasi pengganti 'email'
      */
     public function getAuthIdentifierName(): string
     {
         return 'username';
+    }
+
+    /**
+     * Override agar Auth::attempt() mencari by 'username'
+     */
+    public function getAuthPassword(): string
+    {
+        return $this->password;
     }
 
     public function scopeActive($query)
