@@ -11,7 +11,14 @@ class OwnerController extends Controller
 {
     public function userLogin(Request $request)
     {
-        $search = $request->input('search', '');
+        $search  = $request->input('search', '');
+        $perPage = (int) $request->input('per_page', 10);
+
+        // Batasi pilihan per_page yang valid
+        $allowedPerPage = [5, 10, 15, 25, 50];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
+        }
 
         $users = User::query()
             ->when($search, function ($q) use ($search) {
@@ -20,10 +27,10 @@ class OwnerController extends Controller
                   ->orWhere('role', 'like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString(); // pertahankan search & per_page di URL
 
-        return view('owner.user-login', compact('users', 'search'));
+        return view('owner.user-login', compact('users', 'search', 'perPage', 'allowedPerPage'));
     }
 
     public function store(Request $request)
@@ -51,8 +58,10 @@ class OwnerController extends Controller
             'role'     => $request->role,
         ]);
 
-        return redirect()->route('owner.user-login')
-            ->with('success', 'Pengguna berhasil ditambahkan.');
+        return redirect()->route('owner.user-login', [
+            'search'   => $request->input('_search'),
+            'per_page' => $request->input('_per_page', 10),
+        ])->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
     public function edit(User $user)
@@ -93,20 +102,26 @@ class OwnerController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('owner.user-login')
-            ->with('success', 'Pengguna berhasil diperbarui.');
+        return redirect()->route('owner.user-login', [
+            'search'   => $request->input('_search'),
+            'per_page' => $request->input('_per_page', 10),
+        ])->with('success', 'Pengguna berhasil diperbarui.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         if ($user->id === auth()->id()) {
-            return redirect()->route('owner.user-login')
-                ->with('error', 'Tidak dapat menghapus akun yang sedang aktif.');
+            return redirect()->route('owner.user-login', [
+                'search'   => $request->input('_search'),
+                'per_page' => $request->input('_per_page', 10),
+            ])->with('error', 'Tidak dapat menghapus akun yang sedang aktif.');
         }
 
         $user->delete();
 
-        return redirect()->route('owner.user-login')
-            ->with('success', 'Pengguna berhasil dihapus.');
+        return redirect()->route('owner.user-login', [
+            'search'   => $request->input('_search'),
+            'per_page' => $request->input('_per_page', 10),
+        ])->with('success', 'Pengguna berhasil dihapus.');
     }
 }
