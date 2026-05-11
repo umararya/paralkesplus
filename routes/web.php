@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\PenyewaanController;
+use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\InventoryController;
 
 // ── Auth (Guest only) ──
 Route::middleware('guest')->group(function () {
@@ -26,6 +30,18 @@ Route::post('/theme', function (\Illuminate\Http\Request $request) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // ── Penyewaan ──
+    Route::resource('penyewaan', PenyewaanController::class);
+
+    // ── Pembelian Barang ──
+    Route::resource('pembelian', PembelianController::class);
+
+    // ── Penjualan ──
+    Route::resource('penjualan', PenjualanController::class);
+
+    // ── Inventory ──
+    Route::resource('inventory', InventoryController::class);
 
     // ── Owner Routes (hanya role 'owner') ──
     Route::middleware('owner.only')->prefix('owner')->name('owner.')->group(function () {
