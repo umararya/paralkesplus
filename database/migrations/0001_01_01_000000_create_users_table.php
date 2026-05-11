@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'staff', 'manager'])->default('staff');
+            $table->enum('role', ['admin', 'staff', 'manager', 'owner'])->default('staff');
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();
             $table->string('avatar')->nullable();

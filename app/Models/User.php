@@ -11,6 +11,9 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
+    /**
+     * Mass assignable attributes.
+     */
     protected $fillable = [
         'name',
         'username',
@@ -22,48 +25,24 @@ class User extends Authenticatable
         'avatar',
     ];
 
+    /**
+     * Hidden attributes.
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Casts.
+     */
     protected function casts(): array
     {
         return [
-            'password'      => 'hashed',
-            'is_active'     => 'boolean',
-            'last_login_at' => 'datetime',
+            'email_verified_at' => 'datetime',
+            'last_login_at'     => 'datetime',
+            'is_active'         => 'boolean',
+            'password'          => 'hashed',
         ];
-    }
-
-    /**
-     * Gunakan 'username' sebagai kolom autentikasi pengganti 'email'
-     */
-    public function getAuthIdentifierName(): string
-    {
-        return 'username';
-    }
-
-    /**
-     * Override agar Auth::attempt() mencari by 'username'
-     */
-    public function getAuthPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isManager(): bool
-    {
-        return in_array($this->role, ['admin', 'manager']);
     }
 }
