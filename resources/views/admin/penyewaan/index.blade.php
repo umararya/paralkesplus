@@ -44,8 +44,8 @@
     html.dark .badge-count { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
     .data-table { width:100%; border-collapse:collapse; }
     .data-table thead tr { background:var(--bg-primary); border-bottom:2px solid var(--border); }
-    .data-table th { padding:10px 16px; text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); white-space:nowrap; }
-    .data-table td { padding:13px 16px; font-size:13.5px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
+    .data-table th { padding:10px 14px; text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); white-space:nowrap; }
+    .data-table td { padding:11px 14px; font-size:13px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
     .data-table tbody tr:last-child td { border-bottom:none; }
     .data-table tbody tr { transition:background 0.15s; }
     .data-table tbody tr:hover td { background:var(--bg-hover); }
@@ -88,14 +88,26 @@
     .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
-    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:12px; font-weight:600; }
-    .status-aktif   { background:#F0FDF4; color:#16A34A; }
-    .status-selesai { background:#F0F9FF; color:#0369A1; }
-    .status-terlambat { background:#FFF7ED; color:#C2410C; }
-    html.dark .status-aktif   { background:rgba(22,163,74,0.12); color:#4ADE80; }
-    html.dark .status-selesai { background:rgba(3,105,161,0.12); color:#38BDF8; }
-    html.dark .status-terlambat { background:rgba(194,65,12,0.12); color:#FB923C; }
-    .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
+
+    /* Status badges */
+    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:600; white-space:nowrap; }
+    .status-berjalan   { background:#F0FDF4; color:#16A34A; }
+    .status-konfirmasi { background:#FFFBEB; color:#B45309; }
+    .status-selesai    { background:#F0F9FF; color:#0369A1; }
+    html.dark .status-berjalan   { background:rgba(22,163,74,0.12); color:#4ADE80; }
+    html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
+    html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
+
+    /* File preview badges */
+    .file-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:12px; color:var(--text-secondary); text-decoration:none; transition:all 0.2s; }
+    .file-badge:hover { color:var(--brand-500); border-color:var(--brand-200); }
+    .no-file { color:var(--text-muted); font-style:italic; font-size:12.5px; }
+
+    /* Pengiriman badge */
+    .pengiriman-yes { background:#FFF7ED; color:#C2410C; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+    .pengiriman-no  { background:#F0F9FF; color:#0369A1; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+    html.dark .pengiriman-yes { background:rgba(194,65,12,0.12); color:#FB923C; }
+    html.dark .pengiriman-no  { background:rgba(3,105,161,0.12); color:#38BDF8; }
 </style>
 @endpush
 
@@ -120,10 +132,9 @@
 {{-- Table Card --}}
 <div class="table-card">
 
-    {{-- ── TOOLBAR ── --}}
+    {{-- TOOLBAR --}}
     <div class="table-toolbar">
         <div class="toolbar-left">
-
             {{-- Per-page --}}
             <form method="GET" action="{{ route('penyewaan.index') }}" id="perPageForm">
                 <input type="hidden" name="search" value="{{ $search }}">
@@ -142,13 +153,13 @@
             <div class="toolbar-divider"></div>
 
             {{-- Search --}}
-            <form method="GET" action="{{ route('penyewaan.index') }}" class="search-form" id="searchForm">
+            <form method="GET" action="{{ route('penyewaan.index') }}" class="search-form">
                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
-                    <input type="text" name="search" id="searchInput"
+                    <input type="text" name="search"
                            value="{{ $search }}"
-                           placeholder="Cari nama penyewa, alat, status..."
+                           placeholder="Cari nama, telepon, produk, status..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
@@ -169,7 +180,7 @@
         </div>
     </div>
 
-    {{-- ── INFO BAR ── --}}
+    {{-- INFO BAR --}}
     <div class="info-bar">
         <div class="info-bar-text">
             @if($search)
@@ -188,27 +199,36 @@
         @endif
     </div>
 
-    {{-- ── TABLE ── --}}
+    {{-- TABLE --}}
     <div style="overflow-x:auto;">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width:46px;">#</th>
-                    <th>Nama Penyewa</th>
-                    <th>Alat Kesehatan</th>
-                    <th>Tanggal Sewa</th>
-                    <th>Tanggal Kembali</th>
-                    <th>Status</th>
+                    <th style="width:42px;">#</th>
+                    <th>Nama</th>
+                    <th>No. Telepon/HP</th>
+                    <th>Produk Alat Kesehatan</th>
+                    <th class="center">Durasi (Hari)</th>
+                    <th class="center">Pengiriman</th>
+                    <th>Biaya Ongkir</th>
+                    <th>Alamat Penyewa</th>
+                    <th>Metode Pembayaran</th>
+                    <th class="center">Bukti Pembayaran</th>
+                    <th class="center">Foto KTP/SIM</th>
+                    <th class="center">Status</th>
+                    <th>Keterangan</th>
                     <th class="center" style="width:90px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($penyewaans as $item)
                 <tr>
-                    <td style="color:var(--text-muted);font-size:12.5px;font-weight:500;">
+                    <td style="color:var(--text-muted);font-size:12px;font-weight:500;">
                         {{ $penyewaans->firstItem() + $loop->index }}
                     </td>
-                    <td style="font-weight:600;">
+
+                    {{-- Nama --}}
+                    <td style="font-weight:600; white-space:nowrap;">
                         @if($search)
                             {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
                                 '<mark style="background:#FEF08A;border-radius:3px;padding:0 2px;">$1</mark>',
@@ -217,36 +237,91 @@
                             {{ $item->nama_penyewa }}
                         @endif
                     </td>
-                    <td>{{ $item->nama_alat ?? '—' }}</td>
-                    <td>
-                        <span class="tanggal-badge">
-                            <i class="ri-calendar-line" style="font-size:12px;color:var(--text-muted);"></i>
-                            {{ \Carbon\Carbon::parse($item->tanggal_sewa)->format('d M Y') }}
-                        </span>
+
+                    {{-- Nomor Telepon --}}
+                    <td style="white-space:nowrap;">
+                        <a href="tel:{{ $item->nomor_telepon }}"
+                           style="color:var(--text-primary); text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                            <i class="ri-phone-line" style="color:var(--brand-500); font-size:13px;"></i>
+                            {{ $item->nomor_telepon }}
+                        </a>
                     </td>
-                    <td>
-                        @if($item->tanggal_kembali)
-                        <span class="tanggal-badge">
-                            <i class="ri-calendar-check-line" style="font-size:12px;color:var(--text-muted);"></i>
-                            {{ \Carbon\Carbon::parse($item->tanggal_kembali)->format('d M Y') }}
-                        </span>
+
+                    {{-- Produk Alkes --}}
+                    <td>{{ $item->produk_alkes }}</td>
+
+                    {{-- Durasi --}}
+                    <td class="center">
+                        <span style="font-weight:600;">{{ $item->durasi_hari }}</span>
+                        <span style="font-size:11px; color:var(--text-muted);"> hari</span>
+                    </td>
+
+                    {{-- Pengiriman --}}
+                    <td class="center">
+                        @if($item->pengiriman_ditanggung_pelanggan)
+                            <span class="pengiriman-yes">Pelanggan</span>
                         @else
-                            <span style="color:var(--text-muted);font-style:italic;font-size:13px;">—</span>
+                            <span class="pengiriman-no">Toko</span>
                         @endif
                     </td>
-                    <td>
-                        @php
-                            $statusClass = match($item->status ?? '') {
-                                'aktif'     => 'status-aktif',
-                                'selesai'   => 'status-selesai',
-                                'terlambat' => 'status-terlambat',
-                                default     => 'status-aktif',
-                            };
-                        @endphp
-                        <span class="status-badge {{ $statusClass }}">
-                            {{ ucfirst($item->status ?? 'aktif') }}
+
+                    {{-- Biaya Ongkir --}}
+                    <td style="white-space:nowrap;">
+                        {{ $item->biaya_ongkir > 0 ? $item->biaya_ongkir_formatted : '—' }}
+                    </td>
+
+                    {{-- Alamat --}}
+                    <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="{{ $item->alamat_penyewa }}">
+                        {{ $item->alamat_penyewa }}
+                    </td>
+
+                    {{-- Metode Pembayaran --}}
+                    <td style="white-space:nowrap;">
+                        <span style="display:inline-flex; align-items:center; gap:5px;">
+                            <i class="ri-bank-card-line" style="color:var(--brand-500); font-size:13px;"></i>
+                            {{ $item->metode_pembayaran }}
                         </span>
                     </td>
+
+                    {{-- Bukti Pembayaran --}}
+                    <td class="center">
+                        @if($item->bukti_pembayaran)
+                            <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
+                               target="_blank" class="file-badge">
+                                <i class="ri-image-line"></i> Lihat
+                            </a>
+                        @else
+                            <span class="no-file">—</span>
+                        @endif
+                    </td>
+
+                    {{-- Foto KTP/SIM --}}
+                    <td class="center">
+                        @if($item->foto_ktp_sim)
+                            <a href="{{ asset('storage/' . $item->foto_ktp_sim) }}"
+                               target="_blank" class="file-badge">
+                                <i class="ri-id-card-line"></i> Lihat
+                            </a>
+                        @else
+                            <span class="no-file">—</span>
+                        @endif
+                    </td>
+
+                    {{-- Status --}}
+                    <td class="center">
+                        <span class="status-badge {{ $item->status_class }}">
+                            {{ $item->status_label }}
+                        </span>
+                    </td>
+
+                    {{-- Keterangan --}}
+                    <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted); font-size:12.5px;"
+                        title="{{ $item->keterangan }}">
+                        {{ $item->keterangan ?: '—' }}
+                    </td>
+
+                    {{-- Aksi --}}
                     <td class="center">
                         <div class="action-group">
                             <a href="{{ route('penyewaan.edit', $item->id) }}"
@@ -257,17 +332,12 @@
                                     onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
                                 <i class="ri-delete-bin-line"></i>
                             </button>
-                            <form id="formHapus-{{ $item->id }}"
-                                  action="{{ route('penyewaan.destroy', $item->id) }}"
-                                  method="POST" style="display:none;">
-                                @csrf @method('DELETE')
-                            </form>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7">
+                    <td colspan="14">
                         <div class="empty-state">
                             <i class="ri-store-2-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penyewaan' }}</h3>
@@ -280,7 +350,7 @@
         </table>
     </div>
 
-    {{-- ── PAGINATION ── --}}
+    {{-- PAGINATION --}}
     @if($penyewaans->total() > 0)
     <div class="table-footer">
         <div class="pagination-meta">
@@ -300,10 +370,10 @@
                 $pages = []; for ($p=1;$p<=$last;$p++) { if($p===1||$p===$last||($p>=$current-2&&$p<=$current+2)) $pages[]=$p; }
                 $rendered=[]; $prev=null; foreach($pages as $p) { if($prev!==null&&$p-$prev>1) $rendered[]='...'; $rendered[]=$p; $prev=$p; }
             @endphp
-            @foreach($rendered as $item)
-                @if($item==='...') <span class="page-ellipsis">…</span>
-                @elseif($item==$current) <span class="page-btn active">{{ $item }}</span>
-                @else <a class="page-btn" href="{{ $penyewaans->url($item) }}">{{ $item }}</a>
+            @foreach($rendered as $rItem)
+                @if($rItem==='...') <span class="page-ellipsis">…</span>
+                @elseif($rItem==$current) <span class="page-btn active">{{ $rItem }}</span>
+                @else <a class="page-btn" href="{{ $penyewaans->url($rItem) }}">{{ $rItem }}</a>
                 @endif
             @endforeach
             @if($penyewaans->hasMorePages())
