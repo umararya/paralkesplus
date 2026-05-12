@@ -1,14 +1,43 @@
 <?php
+// app/Http/Controllers/PenyewaanController.php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
+// Uncomment baris ini setelah Model dibuat:
+// use App\Models\Penyewaan;
 
 class PenyewaanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.penyewaan.index');
+        $search  = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [5, 10, 25, 50])
+                   ? (int) $request->input('per_page')
+                   : 10;
+
+        // ── Gunakan ini setelah Model Penyewaan dibuat ──
+        // $penyewaans = Penyewaan::query()
+        //     ->when($search, function ($q) use ($search) {
+        //         $q->where('nama_penyewa', 'like', "%{$search}%")
+        //           ->orWhere('nama_alat', 'like', "%{$search}%")
+        //           ->orWhere('status', 'like', "%{$search}%");
+        //     })
+        //     ->orderBy('tanggal_sewa', 'desc')
+        //     ->paginate($perPage)
+        //     ->withQueryString();
+
+        // ── Placeholder sementara (hapus setelah Model dibuat) ──
+        $penyewaans = new LengthAwarePaginator(
+            new Collection([]),
+            0, $perPage, 1,
+            ['path' => route('penyewaan.index')]
+        );
+
+        return view('admin.penyewaan.index', compact('penyewaans', 'search', 'perPage'));
     }
 
     public function create()

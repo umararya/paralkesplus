@@ -1,8 +1,8 @@
-{{-- resources/views/admin/pembelian/create.blade.php --}}
+{{-- resources/views/admin/pembelian/edit.blade.php --}}
 @extends('admin.layouts.app')
 
-@section('title', 'Tambah Pembelian')
-@section('breadcrumb', 'Tambah Pembelian')
+@section('title', 'Edit Pembelian')
+@section('breadcrumb', 'Edit Pembelian')
 
 @section('content')
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
@@ -17,9 +17,11 @@
     </a>
     <div>
         <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">
-            Tambah Pembelian Barang
+            Edit Pembelian Barang
         </h1>
-        <p style="font-size:13px; color:var(--text-muted);">Isi form berikut untuk mencatat pembelian barang baru</p>
+        <p style="font-size:13px; color:var(--text-muted);">
+            Mengedit data: <strong>{{ $pembelian->nama_barang }}</strong>
+        </p>
     </div>
 </div>
 
@@ -39,8 +41,9 @@
 @endif
 
 <div class="card" style="max-width:720px;">
-    <form action="{{ route('pembelian.store') }}" method="POST" id="formPembelian">
+    <form action="{{ route('pembelian.update', $pembelian->id) }}" method="POST" id="formEditPembelian">
         @csrf
+        @method('PUT')
         <div style="display:grid; gap:20px;">
 
             {{-- Tanggal Pembelian --}}
@@ -49,7 +52,7 @@
                     Tanggal Pembelian <span style="color:#EF4444;">*</span>
                 </label>
                 <input type="date" name="tanggal_pembelian"
-                       value="{{ old('tanggal_pembelian', date('Y-m-d')) }}"
+                       value="{{ old('tanggal_pembelian', \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->format('Y-m-d')) }}"
                        style="width:100%; padding:10px 14px; border:1px solid var(--border);
                               border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                               color:var(--text-primary); outline:none; transition:border-color 0.2s;"
@@ -63,7 +66,7 @@
                     Nama Barang <span style="color:#EF4444;">*</span>
                 </label>
                 <input type="text" name="nama_barang"
-                       value="{{ old('nama_barang') }}"
+                       value="{{ old('nama_barang', $pembelian->nama_barang) }}"
                        placeholder="Contoh: Tensimeter Digital, Stetoskop, dll."
                        style="width:100%; padding:10px 14px; border:1px solid var(--border);
                               border-radius:8px; font-size:13.5px; background:var(--bg-primary);
@@ -72,14 +75,14 @@
                        onblur="this.style.borderColor='var(--border)'" required>
             </div>
 
-            {{-- Jumlah & Harga Satuan (2 kolom) --}}
+            {{-- Jumlah & Harga Satuan --}}
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div>
                     <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">
                         Jumlah (Qty) <span style="color:#EF4444;">*</span>
                     </label>
                     <input type="number" name="jumlah" id="inputJumlah"
-                           value="{{ old('jumlah', 1) }}" min="1"
+                           value="{{ old('jumlah', $pembelian->jumlah) }}" min="1"
                            style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                   border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                   color:var(--text-primary); outline:none; transition:border-color 0.2s;"
@@ -92,8 +95,7 @@
                         Harga Satuan (Rp) <span style="color:#EF4444;">*</span>
                     </label>
                     <input type="number" name="harga_satuan" id="inputHarga"
-                           value="{{ old('harga_satuan', 0) }}" min="0"
-                           placeholder="0"
+                           value="{{ old('harga_satuan', $pembelian->harga_satuan) }}" min="0"
                            style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                   border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                   color:var(--text-primary); outline:none; transition:border-color 0.2s;"
@@ -128,7 +130,7 @@
                                  color:var(--text-primary); outline:none; resize:vertical;
                                  transition:border-color 0.2s; font-family:inherit;"
                           onfocus="this.style.borderColor='var(--brand-500)'"
-                          onblur="this.style.borderColor='var(--border)'">{{ old('keterangan') }}</textarea>
+                          onblur="this.style.borderColor='var(--border)'">{{ old('keterangan', $pembelian->keterangan) }}</textarea>
             </div>
 
             {{-- Tombol Aksi --}}
@@ -143,13 +145,13 @@
                     <i class="ri-close-line"></i> Batal
                 </a>
                 <button type="submit"
-                        style="padding:10px 24px; background:var(--brand-500); color:white;
+                        style="padding:10px 24px; background:#F59E0B; color:white;
                                border:none; border-radius:8px; font-size:13px; font-weight:600;
                                cursor:pointer; transition:background 0.2s; display:inline-flex;
                                align-items:center; gap:6px;"
-                        onmouseover="this.style.background='var(--brand-600)'"
-                        onmouseout="this.style.background='var(--brand-500)'">
-                    <i class="ri-save-line"></i> Simpan Data
+                        onmouseover="this.style.background='#D97706'"
+                        onmouseout="this.style.background='#F59E0B'">
+                    <i class="ri-save-line"></i> Update Data
                 </button>
             </div>
 
@@ -165,7 +167,6 @@ function hitungTotal() {
     document.getElementById('previewTotal').textContent =
         'Rp ' + total.toLocaleString('id-ID');
 }
-// Init on page load
 document.addEventListener('DOMContentLoaded', hitungTotal);
 </script>
 @endsection

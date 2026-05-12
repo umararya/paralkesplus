@@ -1,14 +1,44 @@
 <?php
+// app/Http/Controllers/InventoryController.php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
+// Uncomment baris ini setelah Model dibuat:
+// use App\Models\Inventory;
 
 class InventoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.inventory.index');
+        $search  = $request->input('search', '');
+        $perPage = in_array($request->input('per_page'), [5, 10, 25, 50])
+                   ? (int) $request->input('per_page')
+                   : 10;
+
+        // ── Gunakan ini setelah Model Inventory dibuat ──
+        // $inventories = Inventory::query()
+        //     ->when($search, function ($q) use ($search) {
+        //         $q->where('nama_barang', 'like', "%{$search}%")
+        //           ->orWhere('kode_barang', 'like', "%{$search}%")
+        //           ->orWhere('kategori', 'like', "%{$search}%")
+        //           ->orWhere('kondisi', 'like', "%{$search}%");
+        //     })
+        //     ->orderBy('created_at', 'desc')
+        //     ->paginate($perPage)
+        //     ->withQueryString();
+
+        // ── Placeholder sementara (hapus setelah Model dibuat) ──
+        $inventories = new LengthAwarePaginator(
+            new Collection([]),
+            0, $perPage, 1,
+            ['path' => route('inventory.index')]
+        );
+
+        return view('admin.inventory.index', compact('inventories', 'search', 'perPage'));
     }
 
     public function create()
