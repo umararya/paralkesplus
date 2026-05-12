@@ -330,92 +330,32 @@
             </a>
 
             {{-- Penyewaan --}}
-            <div class="nav-dropdown-trigger {{ request()->routeIs('penyewaan.*') ? 'open' : '' }}"
-                 id="penyewaanDropdownTrigger"
-                 onclick="toggleNavDropdown('penyewaanDropdown', 'penyewaanDropdownTrigger')">
+            <a href="{{ route('penyewaan.index') }}"
+               class="nav-item {{ request()->routeIs('penyewaan.*') ? 'active' : '' }}">
                 <i class="ri-store-2-line"></i>
                 <span class="nav-label">Penyewaan</span>
-                <i class="ri-arrow-down-s-line nav-dropdown-arrow"></i>
-            </div>
-            <div class="nav-dropdown-menu {{ request()->routeIs('penyewaan.*') ? 'open' : '' }}"
-                 id="penyewaanDropdown">
-                <a href="{{ route('penyewaan.index') }}"
-                   class="nav-item {{ request()->routeIs('penyewaan.index') ? 'active' : '' }}">
-                    <i class="ri-list-check-2"></i>
-                    <span class="nav-label">Daftar Penyewaan</span>
-                </a>
-                <a href="{{ route('penyewaan.create') }}"
-                   class="nav-item {{ request()->routeIs('penyewaan.create') ? 'active' : '' }}">
-                    <i class="ri-add-circle-line"></i>
-                    <span class="nav-label">Tambah Penyewaan</span>
-                </a>
-            </div>
+            </a>
 
             {{-- Pembelian Barang --}}
-            <div class="nav-dropdown-trigger {{ request()->routeIs('pembelian.*') ? 'open' : '' }}"
-                 id="pembelianDropdownTrigger"
-                 onclick="toggleNavDropdown('pembelianDropdown', 'pembelianDropdownTrigger')">
+            <a href="{{ route('pembelian.index') }}"
+               class="nav-item {{ request()->routeIs('pembelian.*') ? 'active' : '' }}">
                 <i class="ri-shopping-cart-2-line"></i>
                 <span class="nav-label">Pembelian Barang</span>
-                <i class="ri-arrow-down-s-line nav-dropdown-arrow"></i>
-            </div>
-            <div class="nav-dropdown-menu {{ request()->routeIs('pembelian.*') ? 'open' : '' }}"
-                 id="pembelianDropdown">
-                <a href="{{ route('pembelian.index') }}"
-                   class="nav-item {{ request()->routeIs('pembelian.index') ? 'active' : '' }}">
-                    <i class="ri-list-check-2"></i>
-                    <span class="nav-label">Daftar Pembelian</span>
-                </a>
-                <a href="{{ route('pembelian.create') }}"
-                   class="nav-item {{ request()->routeIs('pembelian.create') ? 'active' : '' }}">
-                    <i class="ri-add-circle-line"></i>
-                    <span class="nav-label">Tambah Pembelian</span>
-                </a>
-            </div>
+            </a>
 
             {{-- Penjualan --}}
-            <div class="nav-dropdown-trigger {{ request()->routeIs('penjualan.*') ? 'open' : '' }}"
-                 id="penjualanDropdownTrigger"
-                 onclick="toggleNavDropdown('penjualanDropdown', 'penjualanDropdownTrigger')">
+            <a href="{{ route('penjualan.index') }}"
+               class="nav-item {{ request()->routeIs('penjualan.*') ? 'active' : '' }}">
                 <i class="ri-exchange-dollar-line"></i>
                 <span class="nav-label">Penjualan</span>
-                <i class="ri-arrow-down-s-line nav-dropdown-arrow"></i>
-            </div>
-            <div class="nav-dropdown-menu {{ request()->routeIs('penjualan.*') ? 'open' : '' }}"
-                 id="penjualanDropdown">
-                <a href="{{ route('penjualan.index') }}"
-                   class="nav-item {{ request()->routeIs('penjualan.index') ? 'active' : '' }}">
-                    <i class="ri-list-check-2"></i>
-                    <span class="nav-label">Daftar Penjualan</span>
-                </a>
-                <a href="{{ route('penjualan.create') }}"
-                   class="nav-item {{ request()->routeIs('penjualan.create') ? 'active' : '' }}">
-                    <i class="ri-add-circle-line"></i>
-                    <span class="nav-label">Tambah Penjualan</span>
-                </a>
-            </div>
+            </a>
 
             {{-- Inventory --}}
-            <div class="nav-dropdown-trigger {{ request()->routeIs('inventory.*') ? 'open' : '' }}"
-                 id="inventoryDropdownTrigger"
-                 onclick="toggleNavDropdown('inventoryDropdown', 'inventoryDropdownTrigger')">
+            <a href="{{ route('inventory.index') }}"
+               class="nav-item {{ request()->routeIs('inventory.*') ? 'active' : '' }}">
                 <i class="ri-box-3-line"></i>
                 <span class="nav-label">Inventory</span>
-                <i class="ri-arrow-down-s-line nav-dropdown-arrow"></i>
-            </div>
-            <div class="nav-dropdown-menu {{ request()->routeIs('inventory.*') ? 'open' : '' }}"
-                 id="inventoryDropdown">
-                <a href="{{ route('inventory.index') }}"
-                   class="nav-item {{ request()->routeIs('inventory.index') ? 'active' : '' }}">
-                    <i class="ri-list-check-2"></i>
-                    <span class="nav-label">Daftar Barang</span>
-                </a>
-                <a href="{{ route('inventory.create') }}"
-                   class="nav-item {{ request()->routeIs('inventory.create') ? 'active' : '' }}">
-                    <i class="ri-add-circle-line"></i>
-                    <span class="nav-label">Tambah Barang</span>
-                </a>
-            </div>
+            </a>
 
             {{-- OWNER — hanya tampil jika role = owner --}}
             @if(auth()->check() && auth()->user()->role === 'owner')
@@ -572,7 +512,7 @@
         localStorage.setItem('navDropdown_' + menuId, !isOpen ? 'open' : 'closed');
     }
     document.addEventListener('DOMContentLoaded', function () {
-        ['ownerDropdown', 'penyewaanDropdown', 'pembelianDropdown', 'penjualanDropdown', 'inventoryDropdown'].forEach(function(menuId) {
+        ['ownerDropdown'].forEach(function(menuId) {
             const state = localStorage.getItem('navDropdown_' + menuId);
             if (state === 'open') {
                 const menu    = document.getElementById(menuId);
