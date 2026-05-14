@@ -20,6 +20,7 @@ class Penjualan extends Model
         'jenis_pembayaran',
         'harga',
         'keterangan',
+        'foto_bukti',   // ← BARU
     ];
 
     protected $casts = [
@@ -28,13 +29,4 @@ class Penjualan extends Model
         'total'             => 'decimal:2',
         'qty'               => 'integer',
     ];
-
-    /**
-     * Jika tidak pakai generated column, hitung total secara manual.
-     * Aktifkan method ini dan hapus storedAs dari migration.
-     */
-    // public function getTotalAttribute(): float
-    // {
-    //     return (float) $this->harga * $this->qty;
-    // }
 }

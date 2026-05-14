@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PenjualanController extends Controller
 {
@@ -44,7 +45,14 @@ class PenjualanController extends Controller
             'jenis_pembayaran'  => 'required|in:tunai,transfer,qris,kredit',
             'harga'             => 'required|numeric|min:0',
             'keterangan'        => 'nullable|string|max:1000',
+            'foto_bukti'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        // Upload foto bukti jika ada
+        if ($request->hasFile('foto_bukti')) {
+            $validated['foto_bukti'] = $request->file('foto_bukti')
+                ->store('penjualan/bukti', 'public');
+        }
 
         Penjualan::create($validated);
 
@@ -76,7 +84,25 @@ class PenjualanController extends Controller
             'jenis_pembayaran'  => 'required|in:tunai,transfer,qris,kredit',
             'harga'             => 'required|numeric|min:0',
             'keterangan'        => 'nullable|string|max:1000',
+            'foto_bukti'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hapus_foto'        => 'nullable|boolean',
         ]);
+
+        // Hapus foto lama jika diminta
+        if ($request->boolean('hapus_foto') && $penjualan->foto_bukti) {
+            Storage::disk('public')->delete($penjualan->foto_bukti);
+            $validated['foto_bukti'] = null;
+        }
+
+        // Ganti foto jika upload baru
+        if ($request->hasFile('foto_bukti')) {
+            // Hapus foto lama dulu jika ada
+            if ($penjualan->foto_bukti) {
+                Storage::disk('public')->delete($penjualan->foto_bukti);
+            }
+            $validated['foto_bukti'] = $request->file('foto_bukti')
+                ->store('penjualan/bukti', 'public');
+        }
 
         $penjualan->update($validated);
 
@@ -87,6 +113,12 @@ class PenjualanController extends Controller
     public function destroy(string $id)
     {
         $penjualan = Penjualan::findOrFail($id);
+
+        // Hapus file foto dari storage
+        if ($penjualan->foto_bukti) {
+            Storage::disk('public')->delete($penjualan->foto_bukti);
+        }
+
         $penjualan->delete();
 
         return redirect()->route('penjualan.index')

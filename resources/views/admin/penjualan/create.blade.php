@@ -27,10 +27,24 @@
     .back-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
     .page-header-back h1 { font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px; }
     .page-header-back p { font-size:13px; color:var(--text-muted); }
-    /* Total preview */
     .total-preview { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13.5px; color:var(--text-muted); display:flex; align-items:center; justify-content:space-between; }
     .total-preview strong { color:#059669; font-size:15px; }
     html.dark .total-preview strong { color:#34D399; }
+
+    /* Upload Foto */
+    .upload-area { border:2px dashed var(--border); border-radius:10px; padding:24px 16px; text-align:center; cursor:pointer; transition:border-color 0.2s, background 0.2s; background:var(--bg-primary); position:relative; }
+    .upload-area:hover, .upload-area.dragover { border-color:var(--brand-500); background:var(--brand-50); }
+    html.dark .upload-area:hover, html.dark .upload-area.dragover { background:rgba(29,111,164,0.08); }
+    .upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .upload-icon { font-size:36px; color:var(--brand-500); margin-bottom:8px; display:block; }
+    .upload-text { font-size:13.5px; color:var(--text-primary); font-weight:600; margin-bottom:4px; }
+    .upload-hint { font-size:12px; color:var(--text-muted); }
+    .foto-preview-wrap { margin-top:14px; display:none; }
+    .foto-preview-wrap.show { display:block; }
+    .foto-preview-inner { position:relative; display:inline-block; }
+    .foto-preview-img { width:120px; height:120px; object-fit:cover; border-radius:10px; border:2px solid var(--brand-500); display:block; }
+    .foto-preview-remove { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:#EF4444; color:#fff; border:none; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; line-height:1; }
+    .foto-preview-name { font-size:12px; color:var(--text-muted); margin-top:6px; text-align:center; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 </style>
 @endpush
 
@@ -47,7 +61,9 @@
 </div>
 
 <div class="form-card">
-    <form action="{{ route('penjualan.store') }}" method="POST" id="formPenjualan">
+    {{-- enctype wajib untuk upload file --}}
+    <form action="{{ route('penjualan.store') }}" method="POST"
+          enctype="multipart/form-data" id="formPenjualan">
         @csrf
         <div class="form-grid">
 
@@ -100,9 +116,9 @@
                 </div>
                 <div class="form-group">
                     <label>Jenis Pembayaran <span class="req">*</span></label>
-                    <select name="jenis_pembayaran"
+                    <select name="jenis_pembayaran" id="selectJenisPembayaran"
                             class="form-control @error('jenis_pembayaran') is-invalid @enderror"
-                            required>
+                            onchange="toggleUploadArea()" required>
                         <option value="">-- Pilih --</option>
                         @foreach(['tunai' => 'Tunai', 'transfer' => 'Transfer Bank', 'qris' => 'QRIS', 'kredit' => 'Kredit'] as $val => $label)
                         <option value="{{ $val }}" {{ old('jenis_pembayaran') == $val ? 'selected' : '' }}>
@@ -131,6 +147,36 @@
                           required>{{ old('alamat_pelanggan') }}</textarea>
                 @error('alamat_pelanggan')
                     <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Upload Foto Bukti Transfer --}}
+            <div class="form-group" id="uploadFotoGroup">
+                <label>
+                    Foto Bukti Transfer
+                    <span id="uploadFotoReq" style="color:#EF4444; display:none;">*</span>
+                    <span style="font-weight:400; color:var(--text-muted); font-size:12px;" id="uploadFotoOpt">(opsional)</span>
+                </label>
+                <div class="upload-area" id="uploadArea"
+                     ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                    <input type="file" name="foto_bukti" id="inputFotoBukti"
+                           accept="image/jpg,image/jpeg,image/png,image/webp"
+                           onchange="onFileSelected(event)">
+                    <i class="ri-upload-cloud-2-line upload-icon"></i>
+                    <p class="upload-text">Klik atau seret foto ke sini</p>
+                    <p class="upload-hint">JPG, PNG, WEBP — maks. 2 MB</p>
+                </div>
+                <div class="foto-preview-wrap" id="fotoPreviewWrap">
+                    <div class="foto-preview-inner">
+                        <img id="fotoPreviewImg" src="" alt="Preview" class="foto-preview-img">
+                        <button type="button" class="foto-preview-remove" onclick="removeFoto()" title="Hapus foto">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </div>
+                    <p class="foto-preview-name" id="fotoPreviewName"></p>
+                </div>
+                @error('foto_bukti')
+                    <span class="invalid-feedback" style="display:block;">{{ $message }}</span>
                 @enderror
             </div>
 
@@ -163,14 +209,64 @@
 
 @push('scripts')
 <script>
+    // Hitung total
     function hitungTotal() {
         const qty   = parseFloat(document.getElementById('inputQty').value)   || 0;
         const harga = parseFloat(document.getElementById('inputHarga').value) || 0;
-        const total = qty * harga;
         document.getElementById('previewTotal').textContent =
-            'Rp ' + total.toLocaleString('id-ID');
+            'Rp ' + (qty * harga).toLocaleString('id-ID');
     }
-    // Init on page load (untuk old values)
     hitungTotal();
+
+    // Toggle label opsional/wajib berdasarkan jenis pembayaran
+    function toggleUploadArea() {
+        const val     = document.getElementById('selectJenisPembayaran').value;
+        const isNonCash = ['transfer', 'qris'].includes(val);
+        document.getElementById('uploadFotoReq').style.display = isNonCash ? 'inline' : 'none';
+        document.getElementById('uploadFotoOpt').style.display = isNonCash ? 'none'   : 'inline';
+    }
+    toggleUploadArea();
+
+    // Preview file setelah dipilih
+    function onFileSelected(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        showPreview(file);
+    }
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('fotoPreviewImg').src = ev.target.result;
+            document.getElementById('fotoPreviewName').textContent = file.name;
+            document.getElementById('fotoPreviewWrap').classList.add('show');
+            document.getElementById('uploadArea').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeFoto() {
+        document.getElementById('inputFotoBukti').value = '';
+        document.getElementById('fotoPreviewWrap').classList.remove('show');
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('fotoPreviewImg').src = '';
+        document.getElementById('fotoPreviewName').textContent = '';
+    }
+
+    // Drag & Drop
+    function onDragOver(e)  { e.preventDefault(); document.getElementById('uploadArea').classList.add('dragover'); }
+    function onDragLeave(e) { document.getElementById('uploadArea').classList.remove('dragover'); }
+    function onDrop(e) {
+        e.preventDefault();
+        document.getElementById('uploadArea').classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            // Assign ke input file
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            document.getElementById('inputFotoBukti').files = dt.files;
+            showPreview(file);
+        }
+    }
 </script>
 @endpush

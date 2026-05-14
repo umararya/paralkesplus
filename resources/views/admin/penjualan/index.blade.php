@@ -60,8 +60,10 @@
     .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
     .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
     .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
+    .btn-action.view-foto:hover { background:#F0FDF4; color:#16A34A; border-color:#BBF7D0; }
     html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
     html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
+    html.dark .btn-action.view-foto:hover { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -82,12 +84,12 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* Modal */
+    /* Modal Hapus */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
-    @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+    @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:400px; animation:slideUp 0.2s ease; }
-    @keyframes slideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
     .modal-close { width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
@@ -100,6 +102,10 @@
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
+    /* Modal Foto */
+    .modal-foto { max-width:520px; }
+    .foto-preview-modal { width:100%; border-radius:10px; object-fit:contain; max-height:400px; background:#f1f5f9; display:block; }
+
     /* Badge Styles */
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
     .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
@@ -107,21 +113,22 @@
     .total-value { font-weight:700; color:#059669; }
     html.dark .total-value { color:#34D399; }
     .harga-value { color:var(--text-secondary); font-size:12.5px; }
-
-    /* Jenis Pembayaran Badge */
     .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; text-transform:capitalize; }
     .pay-tunai    { background:#F0FDF4; color:#16A34A; }
     .pay-transfer { background:#EFF6FF; color:#1D4ED8; }
     .pay-qris     { background:#FFF7ED; color:#C2410C; }
     .pay-kredit   { background:#FDF4FF; color:#7C3AED; }
-    html.dark .pay-tunai    { background:rgba(22,163,74,0.12);   color:#4ADE80; }
-    html.dark .pay-transfer { background:rgba(29,78,216,0.12);   color:#60A5FA; }
-    html.dark .pay-qris     { background:rgba(194,65,12,0.12);   color:#FB923C; }
-    html.dark .pay-kredit   { background:rgba(124,58,237,0.12);  color:#C084FC; }
+    html.dark .pay-tunai    { background:rgba(22,163,74,0.12);  color:#4ADE80; }
+    html.dark .pay-transfer { background:rgba(29,78,216,0.12);  color:#60A5FA; }
+    html.dark .pay-qris     { background:rgba(194,65,12,0.12);  color:#FB923C; }
+    html.dark .pay-kredit   { background:rgba(124,58,237,0.12); color:#C084FC; }
+    .ket-cell    { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-muted); }
+    .alamat-cell { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
 
-    /* Keterangan cell */
-    .ket-cell { max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-muted); }
-    .alamat-cell { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
+    /* Foto bukti thumbnail di tabel */
+    .foto-thumb { width:40px; height:40px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; display:block; }
+    .foto-thumb:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
+    .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
 </style>
 @endpush
 
@@ -225,6 +232,7 @@
                     <th class="right">Harga</th>
                     <th class="right">Total</th>
                     <th>Keterangan</th>
+                    <th class="center">Bukti Transfer</th>
                     <th class="center" style="width:90px;">Aksi</th>
                 </tr>
             </thead>
@@ -312,6 +320,21 @@
                         @endif
                     </td>
 
+                    {{-- Bukti Transfer --}}
+                    <td class="center">
+                        @if($item->foto_bukti)
+                            <img src="{{ Storage::url($item->foto_bukti) }}"
+                                 alt="Bukti Transfer"
+                                 class="foto-thumb"
+                                 onclick="openFotoModal('{{ Storage::url($item->foto_bukti) }}', '{{ addslashes($item->nama_barang) }}')"
+                                 title="Klik untuk perbesar">
+                        @else
+                            <span class="foto-none" title="Tidak ada foto">
+                                <i class="ri-image-line"></i>
+                            </span>
+                        @endif
+                    </td>
+
                     {{-- Aksi --}}
                     <td class="center">
                         <div class="action-group">
@@ -328,7 +351,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10">
+                    <td colspan="11">
                         <div class="empty-state">
                             <i class="ri-exchange-dollar-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penjualan' }}</h3>
@@ -420,6 +443,29 @@
     </div>
 </div>
 
+{{-- MODAL FOTO BUKTI --}}
+<div class="modal-overlay" id="modalFoto">
+    <div class="modal modal-foto">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-image-line" style="color:var(--brand-500);"></i>
+                Bukti Transfer — <span id="fotoNamaBarang" style="font-weight:400;color:var(--text-muted);"></span>
+            </span>
+            <button class="modal-close" onclick="closeModal('modalFoto')"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body" style="padding:16px;">
+            <img id="fotoModalImg" src="" alt="Bukti Transfer" class="foto-preview-modal">
+        </div>
+        <div class="modal-footer" style="justify-content:space-between;">
+            <a id="fotoDownloadLink" href="#" download target="_blank"
+               class="btn btn-ghost" style="font-size:12.5px;">
+                <i class="ri-download-line"></i> Unduh Foto
+            </a>
+            <button type="button" class="btn btn-ghost" onclick="closeModal('modalFoto')">Tutup</button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -438,6 +484,13 @@
         document.getElementById('deleteTarget').textContent = nama;
         document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
         openModal('modalHapus');
+    }
+
+    function openFotoModal(url, namaBarang) {
+        document.getElementById('fotoModalImg').src        = url;
+        document.getElementById('fotoNamaBarang').textContent = namaBarang;
+        document.getElementById('fotoDownloadLink').href   = url;
+        openModal('modalFoto');
     }
 </script>
 @endpush
