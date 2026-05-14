@@ -33,8 +33,6 @@
     .btn-reset:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-primary { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-primary:hover { background:var(--brand-600); border-color:var(--brand-600); }
-    .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
-    .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
@@ -72,11 +70,13 @@
     .alert { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:10px; font-size:13.5px; font-weight:500; margin-bottom:18px; border:1px solid transparent; }
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
+
+    /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
-    @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+    @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:400px; animation:slideUp 0.2s ease; }
-    @keyframes slideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideUp { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
     .modal-close { width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
@@ -89,7 +89,7 @@
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
-    /* Status badges */
+    /* Status badge */
     .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:600; white-space:nowrap; }
     .status-berjalan   { background:#F0FDF4; color:#16A34A; }
     .status-konfirmasi { background:#FFFBEB; color:#B45309; }
@@ -98,16 +98,18 @@
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
 
-    /* File preview badges */
-    .file-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:12px; color:var(--text-secondary); text-decoration:none; transition:all 0.2s; }
-    .file-badge:hover { color:var(--brand-500); border-color:var(--brand-200); }
+    /* Link / file badge */
+    .link-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:12px; color:var(--text-secondary); text-decoration:none; transition:all 0.2s; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .link-badge:hover { color:var(--brand-500); border-color:var(--brand-200); }
     .no-file { color:var(--text-muted); font-style:italic; font-size:12.5px; }
 
     /* Pengiriman badge */
-    .pengiriman-yes { background:#FFF7ED; color:#C2410C; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
-    .pengiriman-no  { background:#F0F9FF; color:#0369A1; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
-    html.dark .pengiriman-yes { background:rgba(194,65,12,0.12); color:#FB923C; }
-    html.dark .pengiriman-no  { background:rgba(3,105,161,0.12); color:#38BDF8; }
+    .badge-mandiri { background:#F0FDF4; color:#16A34A; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+    .badge-gosend  { background:#FFF7ED; color:#C2410C; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+    .badge-rental  { background:#EFF6FF; color:#1D6FA4; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+    html.dark .badge-mandiri { background:rgba(22,163,74,0.12); color:#4ADE80; }
+    html.dark .badge-gosend  { background:rgba(194,65,12,0.12); color:#FB923C; }
+    html.dark .badge-rental  { background:rgba(29,111,164,0.12); color:#38BDF8; }
 </style>
 @endpush
 
@@ -135,7 +137,6 @@
     {{-- TOOLBAR --}}
     <div class="table-toolbar">
         <div class="toolbar-left">
-            {{-- Per-page --}}
             <form method="GET" action="{{ route('penyewaan.index') }}" id="perPageForm">
                 <input type="hidden" name="search" value="{{ $search }}">
                 <div class="per-page-wrap">
@@ -152,7 +153,6 @@
 
             <div class="toolbar-divider"></div>
 
-            {{-- Search --}}
             <form method="GET" action="{{ route('penyewaan.index') }}" class="search-form">
                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                 <div class="search-input-wrap">
@@ -223,6 +223,7 @@
             <tbody>
                 @forelse($penyewaans as $item)
                 <tr>
+                    {{-- No --}}
                     <td style="color:var(--text-muted);font-size:12px;font-weight:500;">
                         {{ $penyewaans->firstItem() + $loop->index }}
                     </td>
@@ -248,7 +249,10 @@
                     </td>
 
                     {{-- Produk Alkes --}}
-                    <td>{{ $item->produk_alkes }}</td>
+                    <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="{{ $item->produk_alkes }}">
+                        {{ $item->produk_alkes }}
+                    </td>
 
                     {{-- Durasi --}}
                     <td class="center">
@@ -258,11 +262,15 @@
 
                     {{-- Pengiriman --}}
                     <td class="center">
-                        @if($item->pengiriman_ditanggung_pelanggan)
-                            <span class="pengiriman-yes">Pelanggan</span>
-                        @else
-                            <span class="pengiriman-no">Toko</span>
-                        @endif
+                        @php
+                            $badgeClass = match($item->pengiriman) {
+                                'mandiri'               => 'badge-mandiri',
+                                'Gosend / GrabExpress'  => 'badge-gosend',
+                                'Rental Mobil Paralkes' => 'badge-rental',
+                                default                 => 'badge-mandiri',
+                            };
+                        @endphp
+                        <span class="{{ $badgeClass }}">{{ $item->pengiriman_label }}</span>
                     </td>
 
                     {{-- Biaya Ongkir --}}
@@ -287,10 +295,13 @@
                     {{-- Bukti Pembayaran --}}
                     <td class="center">
                         @if($item->bukti_pembayaran)
-                            <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
-                               target="_blank" class="file-badge">
-                                <i class="ri-image-line"></i> Lihat
-                            </a>
+                            @if(str_starts_with($item->bukti_pembayaran, 'http'))
+                                <a href="{{ $item->bukti_pembayaran }}" target="_blank" class="link-badge">
+                                    <i class="ri-external-link-line"></i> Lihat
+                                </a>
+                            @else
+                                <span style="font-size:12px; color:var(--text-secondary);">{{ $item->bukti_pembayaran }}</span>
+                            @endif
                         @else
                             <span class="no-file">—</span>
                         @endif
@@ -300,7 +311,7 @@
                     <td class="center">
                         @if($item->foto_ktp_sim)
                             <a href="{{ asset('storage/' . $item->foto_ktp_sim) }}"
-                               target="_blank" class="file-badge">
+                               target="_blank" class="link-badge">
                                 <i class="ri-id-card-line"></i> Lihat
                             </a>
                         @else
@@ -316,7 +327,8 @@
                     </td>
 
                     {{-- Keterangan --}}
-                    <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted); font-size:12.5px;"
+                    <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+                               color:var(--text-muted); font-size:12.5px;"
                         title="{{ $item->keterangan }}">
                         {{ $item->keterangan ?: '—' }}
                     </td>
@@ -366,14 +378,28 @@
                 <a class="page-btn" href="{{ $penyewaans->previousPageUrl() }}"><i class="ri-arrow-left-s-line"></i></a>
             @endif
             @php
-                $current = $penyewaans->currentPage(); $last = $penyewaans->lastPage();
-                $pages = []; for ($p=1;$p<=$last;$p++) { if($p===1||$p===$last||($p>=$current-2&&$p<=$current+2)) $pages[]=$p; }
-                $rendered=[]; $prev=null; foreach($pages as $p) { if($prev!==null&&$p-$prev>1) $rendered[]='...'; $rendered[]=$p; $prev=$p; }
+                $current = $penyewaans->currentPage();
+                $last    = $penyewaans->lastPage();
+                $pages   = [];
+                for ($p = 1; $p <= $last; $p++) {
+                    if ($p === 1 || $p === $last || ($p >= $current - 2 && $p <= $current + 2)) {
+                        $pages[] = $p;
+                    }
+                }
+                $rendered = []; $prev = null;
+                foreach ($pages as $p) {
+                    if ($prev !== null && $p - $prev > 1) $rendered[] = '...';
+                    $rendered[] = $p;
+                    $prev = $p;
+                }
             @endphp
             @foreach($rendered as $rItem)
-                @if($rItem==='...') <span class="page-ellipsis">…</span>
-                @elseif($rItem==$current) <span class="page-btn active">{{ $rItem }}</span>
-                @else <a class="page-btn" href="{{ $penyewaans->url($rItem) }}">{{ $rItem }}</a>
+                @if($rItem === '...')
+                    <span class="page-ellipsis">…</span>
+                @elseif($rItem == $current)
+                    <span class="page-btn active">{{ $rItem }}</span>
+                @else
+                    <a class="page-btn" href="{{ $penyewaans->url($rItem) }}">{{ $rItem }}</a>
                 @endif
             @endforeach
             @if($penyewaans->hasMorePages())
@@ -388,27 +414,34 @@
 
 </div>
 
-{{-- MODAL HAPUS --}}
+{{-- ======================== MODAL HAPUS ======================== --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
         <div class="modal-header">
             <span class="modal-title">
-                <i class="ri-delete-bin-line" style="color:#EF4444;"></i> Konfirmasi Hapus
+                <i class="ri-delete-bin-line" style="color:#EF4444;"></i> Hapus Data
             </span>
-            <button class="modal-close" onclick="closeModal('modalHapus')"><i class="ri-close-line"></i></button>
+            <button class="modal-close" onclick="closeDeleteModal()">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <div class="modal-body">
             <div class="delete-warning">
-                <i class="ri-alert-fill"></i>
-                <h3>Hapus Data Penyewaan?</h3>
-                <p>Kamu akan menghapus data penyewaan:<br><strong id="deleteTarget"></strong><br><br>Tindakan ini tidak dapat dibatalkan.</p>
+                <i class="ri-error-warning-line"></i>
+                <h3>Yakin ingin menghapus?</h3>
+                <p>Data penyewaan atas nama <strong id="modal-nama">-</strong> akan dihapus permanen beserta file KTP/SIM-nya dan tidak dapat dikembalikan.</p>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-ghost" onclick="closeModal('modalHapus')">Batal</button>
-            <form id="formDeleteSubmit" method="POST">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger"><i class="ri-delete-bin-line"></i> Ya, Hapus</button>
+            <button class="btn btn-reset" onclick="closeDeleteModal()">
+                <i class="ri-close-line"></i> Batal
+            </button>
+            <form id="deleteForm" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">
+                    <i class="ri-delete-bin-line"></i> Hapus
+                </button>
             </form>
         </div>
     </div>
@@ -418,18 +451,24 @@
 
 @push('scripts')
 <script>
-    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
-    document.querySelectorAll('.modal-overlay').forEach(el => {
-        el.addEventListener('click', function(e) { if(e.target===this) closeModal(this.id); });
-    });
-    document.addEventListener('keydown', e => {
-        if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-    });
     function openDeleteModal(id, nama) {
-        document.getElementById('deleteTarget').textContent = nama;
-        document.getElementById('formDeleteSubmit').action = '/penyewaan/' + id;
-        openModal('modalHapus');
+        document.getElementById('modal-nama').textContent = nama;
+        document.getElementById('deleteForm').action = '/penyewaan/' + id;
+        document.getElementById('modalHapus').classList.add('open');
     }
+
+    function closeDeleteModal() {
+        document.getElementById('modalHapus').classList.remove('open');
+    }
+
+    // Tutup modal saat klik overlay
+    document.getElementById('modalHapus').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    // Tutup modal saat tekan Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
 </script>
 @endpush

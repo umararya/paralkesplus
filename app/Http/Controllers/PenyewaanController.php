@@ -20,7 +20,8 @@ class PenyewaanController extends Controller
                 $q->where('nama_penyewa', 'like', "%{$search}%")
                   ->orWhere('nomor_telepon', 'like', "%{$search}%")
                   ->orWhere('produk_alkes', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%");
+                  ->orWhere('status', 'like', "%{$search}%")
+                  ->orWhere('pengiriman', 'like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
@@ -37,33 +38,34 @@ class PenyewaanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_penyewa'                    => 'required|string|max:255',
-            'nomor_telepon'                   => 'required|string|max:20',
-            'produk_alkes'                    => 'required|string|max:255',
-            'durasi_hari'                     => 'required|integer|min:1',
-            'pengiriman_ditanggung_pelanggan' => 'required|in:1,0',
-            'biaya_ongkir'                    => 'nullable|integer|min:0',
-            'alamat_penyewa'                  => 'required|string',
-            'metode_pembayaran'               => 'required|string|max:100',
-            'bukti_pembayaran'                => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'foto_ktp_sim'                    => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'status'                          => 'required|in:berjalan',
-            'keterangan'                      => 'nullable|string',
+            'nama_penyewa'      => 'required|string|max:255',
+            'nomor_telepon'     => 'required|string|max:20',
+            'produk_alkes'      => 'required|array|min:1',
+            'produk_alkes.*'    => 'required|string|max:100',
+            'tgl_mulai'         => 'required|date',
+            'tgl_selesai'       => 'required|date|after_or_equal:tgl_mulai',
+            'durasi_hari'       => 'required|integer|min:1',
+            'pengiriman'        => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
+            'biaya_ongkir'      => 'nullable|integer|min:0',
+            'alamat_penyewa'    => 'required|string',
+            'metode_pembayaran' => 'required|in:Tunai / Cash,Transfer via Bank BCA',
+            'bukti_pembayaran'  => 'nullable|string|max:500',
+            'foto_ktp_sim'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'status'            => 'required|in:berjalan',
+            'keterangan'        => 'nullable|string',
         ]);
 
-        // Upload bukti pembayaran
-        if ($request->hasFile('bukti_pembayaran')) {
-            $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
-                ->store('penyewaan/bukti', 'public');
-        }
+        // Simpan produk_alkes array → string CSV
+        $validated['produk_alkes'] = implode(', ', $validated['produk_alkes']);
 
         // Upload foto KTP/SIM
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
+        } else {
+            unset($validated['foto_ktp_sim']);
         }
 
-        $validated['pengiriman_ditanggung_pelanggan'] = (bool) $validated['pengiriman_ditanggung_pelanggan'];
         $validated['biaya_ongkir'] = $validated['biaya_ongkir'] ?? 0;
 
         Penyewaan::create($validated);
@@ -89,31 +91,39 @@ class PenyewaanController extends Controller
         $penyewaan = Penyewaan::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_penyewa'                    => 'required|string|max:255',
-            'nomor_telepon'                   => 'required|string|max:20',
-            'produk_alkes'                    => 'required|string|max:255',
-            'durasi_hari'                     => 'required|integer|min:1',
-            'pengiriman_ditanggung_pelanggan' => 'required|in:1,0',
-            'biaya_ongkir'                    => 'nullable|integer|min:0',
-            'alamat_penyewa'                  => 'required|string',
-            'metode_pembayaran'               => 'required|string|max:100',
-            'bukti_pembayaran'                => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'foto_ktp_sim'                    => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'status'                          => 'required|in:berjalan,segera_konfirmasi,selesai',
-            'keterangan'                      => 'nullable|string',
+            'nama_penyewa'      => 'required|string|max:255',
+            'nomor_telepon'     => 'required|string|max:20',
+            'produk_alkes'      => 'required|array|min:1',
+            'produk_alkes.*'    => 'required|string|max:100',
+            'tgl_mulai'         => 'required|date',
+            'tgl_selesai'       => 'required|date|after_or_equal:tgl_mulai',
+            'durasi_hari'       => 'required|integer|min:1',
+            'pengiriman'        => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
+            'biaya_ongkir'      => 'nullable|integer|min:0',
+            'alamat_penyewa'    => 'required|string',
+            'metode_pembayaran' => 'required|in:Tunai / Cash,Transfer via Bank BCA',
+            'bukti_pembayaran'  => 'nullable|string|max:500',
+            'foto_ktp_sim'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'status'            => 'required|in:berjalan,segera_konfirmasi,selesai',
+            'keterangan'        => 'nullable|string',
         ]);
 
-        if ($request->hasFile('bukti_pembayaran')) {
-            $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
-                ->store('penyewaan/bukti', 'public');
-        }
+        // Simpan produk_alkes array → string CSV
+        $validated['produk_alkes'] = implode(', ', $validated['produk_alkes']);
 
+        // Upload foto KTP/SIM jika ada file baru
         if ($request->hasFile('foto_ktp_sim')) {
+            // Hapus file lama jika ada
+            if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
+                \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
+            }
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
+        } else {
+            // Jangan overwrite nilai lama kalau tidak ada upload baru
+            unset($validated['foto_ktp_sim']);
         }
 
-        $validated['pengiriman_ditanggung_pelanggan'] = (bool) $validated['pengiriman_ditanggung_pelanggan'];
         $validated['biaya_ongkir'] = $validated['biaya_ongkir'] ?? 0;
 
         $penyewaan->update($validated);
@@ -125,6 +135,12 @@ class PenyewaanController extends Controller
     public function destroy(string $id)
     {
         $penyewaan = Penyewaan::findOrFail($id);
+
+        // Hapus file KTP/SIM dari storage
+        if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
+            \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
+        }
+
         $penyewaan->delete();
 
         return redirect()->route('penyewaan.index')

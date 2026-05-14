@@ -16,8 +16,10 @@ class Penyewaan extends Model
         'nama_penyewa',
         'nomor_telepon',
         'produk_alkes',
+        'tgl_mulai',
+        'tgl_selesai',
         'durasi_hari',
-        'pengiriman_ditanggung_pelanggan',
+        'pengiriman',
         'biaya_ongkir',
         'alamat_penyewa',
         'metode_pembayaran',
@@ -28,12 +30,15 @@ class Penyewaan extends Model
     ];
 
     protected $casts = [
-        'durasi_hari'                     => 'integer',
-        'pengiriman_ditanggung_pelanggan' => 'boolean',
-        'biaya_ongkir'                    => 'integer',
+        'durasi_hari'  => 'integer',
+        'biaya_ongkir' => 'integer',
+        'tgl_mulai'    => 'date',
+        'tgl_selesai'  => 'date',
     ];
 
-    // Accessor: label status yang lebih ramah
+    /**
+     * Label status untuk tampil di UI
+     */
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
@@ -44,7 +49,9 @@ class Penyewaan extends Model
         };
     }
 
-    // Accessor: class badge status
+    /**
+     * CSS class badge status
+     */
     public function getStatusClassAttribute(): string
     {
         return match($this->status) {
@@ -55,7 +62,22 @@ class Penyewaan extends Model
         };
     }
 
-    // Accessor: format biaya ongkir ke Rupiah
+    /**
+     * Label pengiriman singkat untuk tabel
+     */
+    public function getPengirimanLabelAttribute(): string
+    {
+        return match($this->pengiriman) {
+            'mandiri'               => 'Mandiri',
+            'Gosend / GrabExpress'  => 'Gosend / GrabExpress',
+            'Rental Mobil Paralkes' => 'Rental Mobil Paralkes',
+            default                 => $this->pengiriman,
+        };
+    }
+
+    /**
+     * Format biaya ongkir ke Rupiah
+     */
     public function getBiayaOngkirFormattedAttribute(): string
     {
         return 'Rp ' . number_format($this->biaya_ongkir, 0, ',', '.');
