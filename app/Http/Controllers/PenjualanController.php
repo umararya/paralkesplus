@@ -3,12 +3,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Penjualan;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
-
-// Uncomment baris ini setelah Model dibuat:
-// use App\Models\Penjualan;
 
 class PenjualanController extends Controller
 {
@@ -19,23 +15,16 @@ class PenjualanController extends Controller
                    ? (int) $request->input('per_page')
                    : 10;
 
-        // ── Gunakan ini setelah Model Penjualan dibuat ──
-        // $penjualans = Penjualan::query()
-        //     ->when($search, function ($q) use ($search) {
-        //         $q->where('nama_pembeli', 'like', "%{$search}%")
-        //           ->orWhere('nama_produk', 'like', "%{$search}%")
-        //           ->orWhere('status', 'like', "%{$search}%");
-        //     })
-        //     ->orderBy('tanggal_penjualan', 'desc')
-        //     ->paginate($perPage)
-        //     ->withQueryString();
-
-        // ── Placeholder sementara (hapus setelah Model dibuat) ──
-        $penjualans = new LengthAwarePaginator(
-            new Collection([]),
-            0, $perPage, 1,
-            ['path' => route('penjualan.index')]
-        );
+        $penjualans = Penjualan::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('alamat_pelanggan', 'like', "%{$search}%")
+                  ->orWhere('jenis_pembayaran', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%");
+            })
+            ->orderBy('tanggal_penjualan', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('admin.penjualan.index', compact('penjualans', 'search', 'perPage'));
     }
@@ -47,29 +36,60 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
-        // TODO: Implementasi simpan data penjualan
-        return redirect()->route('penjualan.index')->with('success', 'Data penjualan berhasil ditambahkan.');
+        $validated = $request->validate([
+            'tanggal_penjualan' => 'required|date',
+            'nama_barang'       => 'required|string|max:255',
+            'qty'               => 'required|integer|min:1',
+            'alamat_pelanggan'  => 'required|string|max:500',
+            'jenis_pembayaran'  => 'required|in:tunai,transfer,qris,kredit',
+            'harga'             => 'required|numeric|min:0',
+            'keterangan'        => 'nullable|string|max:1000',
+        ]);
+
+        Penjualan::create($validated);
+
+        return redirect()->route('penjualan.index')
+                         ->with('success', 'Data penjualan berhasil ditambahkan.');
     }
 
     public function show(string $id)
     {
-        return view('admin.penjualan.show', compact('id'));
+        $penjualan = Penjualan::findOrFail($id);
+        return view('admin.penjualan.show', compact('penjualan'));
     }
 
     public function edit(string $id)
     {
-        return view('admin.penjualan.edit', compact('id'));
+        $penjualan = Penjualan::findOrFail($id);
+        return view('admin.penjualan.edit', compact('penjualan'));
     }
 
     public function update(Request $request, string $id)
     {
-        // TODO: Implementasi update data penjualan
-        return redirect()->route('penjualan.index')->with('success', 'Data penjualan berhasil diperbarui.');
+        $penjualan = Penjualan::findOrFail($id);
+
+        $validated = $request->validate([
+            'tanggal_penjualan' => 'required|date',
+            'nama_barang'       => 'required|string|max:255',
+            'qty'               => 'required|integer|min:1',
+            'alamat_pelanggan'  => 'required|string|max:500',
+            'jenis_pembayaran'  => 'required|in:tunai,transfer,qris,kredit',
+            'harga'             => 'required|numeric|min:0',
+            'keterangan'        => 'nullable|string|max:1000',
+        ]);
+
+        $penjualan->update($validated);
+
+        return redirect()->route('penjualan.index')
+                         ->with('success', 'Data penjualan berhasil diperbarui.');
     }
 
     public function destroy(string $id)
     {
-        // TODO: Implementasi hapus data penjualan
-        return redirect()->route('penjualan.index')->with('success', 'Data penjualan berhasil dihapus.');
+        $penjualan = Penjualan::findOrFail($id);
+        $penjualan->delete();
+
+        return redirect()->route('penjualan.index')
+                         ->with('success', 'Data penjualan berhasil dihapus.');
     }
 }

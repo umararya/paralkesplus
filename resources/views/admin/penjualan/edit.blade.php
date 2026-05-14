@@ -1,8 +1,8 @@
-{{-- resources/views/admin/penjualan/create.blade.php --}}
+{{-- resources/views/admin/penjualan/edit.blade.php --}}
 @extends('admin.layouts.app')
 
-@section('title', 'Tambah Penjualan')
-@section('breadcrumb', 'Tambah Penjualan')
+@section('title', 'Edit Penjualan')
+@section('breadcrumb', 'Edit Penjualan')
 
 @push('styles')
 <style>
@@ -27,7 +27,6 @@
     .back-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
     .page-header-back h1 { font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px; }
     .page-header-back p { font-size:13px; color:var(--text-muted); }
-    /* Total preview */
     .total-preview { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13.5px; color:var(--text-muted); display:flex; align-items:center; justify-content:space-between; }
     .total-preview strong { color:#059669; font-size:15px; }
     html.dark .total-preview strong { color:#34D399; }
@@ -41,14 +40,15 @@
         <i class="ri-arrow-left-line"></i>
     </a>
     <div>
-        <h1>Tambah Penjualan</h1>
-        <p>Isi form berikut untuk mencatat transaksi penjualan baru</p>
+        <h1>Edit Penjualan</h1>
+        <p>Perbarui data transaksi penjualan #{{ $penjualan->id }}</p>
     </div>
 </div>
 
 <div class="form-card">
-    <form action="{{ route('penjualan.store') }}" method="POST" id="formPenjualan">
+    <form action="{{ route('penjualan.update', $penjualan->id) }}" method="POST" id="formPenjualan">
         @csrf
+        @method('PUT')
         <div class="form-grid">
 
             {{-- Baris 1: Tanggal & Nama Barang --}}
@@ -56,7 +56,7 @@
                 <div class="form-group">
                     <label>Tanggal Penjualan <span class="req">*</span></label>
                     <input type="date" name="tanggal_penjualan"
-                           value="{{ old('tanggal_penjualan', date('Y-m-d')) }}"
+                           value="{{ old('tanggal_penjualan', \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->format('Y-m-d')) }}"
                            class="form-control @error('tanggal_penjualan') is-invalid @enderror"
                            required>
                     @error('tanggal_penjualan')
@@ -66,7 +66,7 @@
                 <div class="form-group">
                     <label>Nama Barang <span class="req">*</span></label>
                     <input type="text" name="nama_barang"
-                           value="{{ old('nama_barang') }}"
+                           value="{{ old('nama_barang', $penjualan->nama_barang) }}"
                            placeholder="Nama alat/produk yang dijual"
                            class="form-control @error('nama_barang') is-invalid @enderror"
                            required>
@@ -81,7 +81,7 @@
                 <div class="form-group">
                     <label>Qty <span class="req">*</span></label>
                     <input type="number" name="qty" id="inputQty"
-                           value="{{ old('qty', 1) }}" min="1"
+                           value="{{ old('qty', $penjualan->qty) }}" min="1"
                            class="form-control @error('qty') is-invalid @enderror"
                            oninput="hitungTotal()" required>
                     @error('qty')
@@ -91,7 +91,7 @@
                 <div class="form-group">
                     <label>Harga Satuan (Rp) <span class="req">*</span></label>
                     <input type="number" name="harga" id="inputHarga"
-                           value="{{ old('harga') }}" min="0" placeholder="0"
+                           value="{{ old('harga', $penjualan->harga) }}" min="0" placeholder="0"
                            class="form-control @error('harga') is-invalid @enderror"
                            oninput="hitungTotal()" required>
                     @error('harga')
@@ -105,7 +105,8 @@
                             required>
                         <option value="">-- Pilih --</option>
                         @foreach(['tunai' => 'Tunai', 'transfer' => 'Transfer Bank', 'qris' => 'QRIS', 'kredit' => 'Kredit'] as $val => $label)
-                        <option value="{{ $val }}" {{ old('jenis_pembayaran') == $val ? 'selected' : '' }}>
+                        <option value="{{ $val }}"
+                            {{ old('jenis_pembayaran', $penjualan->jenis_pembayaran) == $val ? 'selected' : '' }}>
                             {{ $label }}
                         </option>
                         @endforeach
@@ -128,7 +129,7 @@
                 <textarea name="alamat_pelanggan" rows="2"
                           placeholder="Masukkan alamat lengkap pelanggan"
                           class="form-control @error('alamat_pelanggan') is-invalid @enderror"
-                          required>{{ old('alamat_pelanggan') }}</textarea>
+                          required>{{ old('alamat_pelanggan', $penjualan->alamat_pelanggan) }}</textarea>
                 @error('alamat_pelanggan')
                     <span class="invalid-feedback">{{ $message }}</span>
                 @enderror
@@ -139,7 +140,7 @@
                 <label>Keterangan</label>
                 <textarea name="keterangan" rows="3"
                           placeholder="Catatan tambahan (opsional)"
-                          class="form-control @error('keterangan') is-invalid @enderror">{{ old('keterangan') }}</textarea>
+                          class="form-control @error('keterangan') is-invalid @enderror">{{ old('keterangan', $penjualan->keterangan) }}</textarea>
                 @error('keterangan')
                     <span class="invalid-feedback">{{ $message }}</span>
                 @enderror
@@ -151,7 +152,7 @@
                     <i class="ri-close-line"></i> Batal
                 </a>
                 <button type="submit" class="btn btn-primary">
-                    <i class="ri-save-line"></i> Simpan Data
+                    <i class="ri-save-line"></i> Perbarui Data
                 </button>
             </div>
 
@@ -170,7 +171,6 @@
         document.getElementById('previewTotal').textContent =
             'Rp ' + total.toLocaleString('id-ID');
     }
-    // Init on page load (untuk old values)
     hitungTotal();
 </script>
 @endpush

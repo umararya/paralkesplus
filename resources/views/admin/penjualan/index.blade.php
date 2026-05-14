@@ -10,6 +10,7 @@
     .page-title { font-size:20px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:10px; line-height:1.2; }
     .page-title i { font-size:22px; color:var(--brand-500); }
     .page-subtitle { font-size:13px; color:var(--text-muted); margin-top:4px; }
+
     .table-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; transition:background 0.3s, border-color 0.3s; }
     .table-toolbar { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
     .toolbar-left { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -24,6 +25,7 @@
     .search-input-wrap input { border:none; background:transparent; outline:none; font-size:13px; color:var(--text-primary); font-family:var(--font); width:220px; }
     .search-input-wrap input::placeholder { color:var(--text-muted); }
     .toolbar-divider { width:1px; height:24px; background:var(--border); flex-shrink:0; }
+
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 14px; height:36px; border-radius:8px; font-size:13px; font-weight:500; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
     .btn i { font-size:15px; }
     .btn-search { background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); }
@@ -37,26 +39,30 @@
     .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
+
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
     .info-bar-text { font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
     .info-bar-text strong { color:var(--text-primary); }
     .badge-count { display:inline-flex; align-items:center; background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); border-radius:99px; padding:1px 9px; font-size:11.5px; font-weight:600; }
     html.dark .badge-count { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
+
     .data-table { width:100%; border-collapse:collapse; }
     .data-table thead tr { background:var(--bg-primary); border-bottom:2px solid var(--border); }
-    .data-table th { padding:10px 16px; text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); white-space:nowrap; }
-    .data-table td { padding:13px 16px; font-size:13.5px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
+    .data-table th { padding:10px 14px; text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); white-space:nowrap; }
+    .data-table td { padding:12px 14px; font-size:13px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
     .data-table tbody tr:last-child td { border-bottom:none; }
     .data-table tbody tr { transition:background 0.15s; }
     .data-table tbody tr:hover td { background:var(--bg-hover); }
     .data-table th.center, .data-table td.center { text-align:center; }
     .data-table th.right, .data-table td.right { text-align:right; }
+
     .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
     .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
     .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
     .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
     html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
     html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
+
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
     .pagination-meta strong { color:var(--text-primary); }
@@ -66,13 +72,17 @@
     .page-btn.active { background:var(--brand-500); color:#fff; border-color:var(--brand-500); font-weight:700; }
     .page-btn.disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
     .page-ellipsis { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:32px; font-size:13px; color:var(--text-muted); }
+
     .empty-state { text-align:center; padding:56px 24px; }
     .empty-state i { font-size:48px; color:var(--border); display:block; margin-bottom:12px; }
     .empty-state h3 { font-size:15px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
     .empty-state p { font-size:13px; color:var(--text-muted); }
+
     .alert { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:10px; font-size:13.5px; font-weight:500; margin-bottom:18px; border:1px solid transparent; }
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
+
+    /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
@@ -89,18 +99,29 @@
     .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
-    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:12px; font-weight:600; }
-    .status-lunas    { background:#F0FDF4; color:#16A34A; }
-    .status-proses   { background:#FFF7ED; color:#C2410C; }
-    .status-batal    { background:#FFF1F2; color:#BE123C; }
-    html.dark .status-lunas  { background:rgba(22,163,74,0.12); color:#4ADE80; }
-    html.dark .status-proses { background:rgba(194,65,12,0.12); color:#FB923C; }
-    html.dark .status-batal  { background:rgba(190,18,60,0.12); color:#FB7185; }
+
+    /* Badge Styles */
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
-    .total-value { font-weight:700; color:#059669; }
-    html.dark .total-value { color:#34D399; }
     .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
     html.dark .qty-badge { background:rgba(29,78,216,0.15); color:#60A5FA; }
+    .total-value { font-weight:700; color:#059669; }
+    html.dark .total-value { color:#34D399; }
+    .harga-value { color:var(--text-secondary); font-size:12.5px; }
+
+    /* Jenis Pembayaran Badge */
+    .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; text-transform:capitalize; }
+    .pay-tunai    { background:#F0FDF4; color:#16A34A; }
+    .pay-transfer { background:#EFF6FF; color:#1D4ED8; }
+    .pay-qris     { background:#FFF7ED; color:#C2410C; }
+    .pay-kredit   { background:#FDF4FF; color:#7C3AED; }
+    html.dark .pay-tunai    { background:rgba(22,163,74,0.12);   color:#4ADE80; }
+    html.dark .pay-transfer { background:rgba(29,78,216,0.12);   color:#60A5FA; }
+    html.dark .pay-qris     { background:rgba(194,65,12,0.12);   color:#FB923C; }
+    html.dark .pay-kredit   { background:rgba(124,58,237,0.12);  color:#C084FC; }
+
+    /* Keterangan cell */
+    .ket-cell { max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-muted); }
+    .alamat-cell { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
 </style>
 @endpush
 
@@ -125,10 +146,9 @@
 {{-- Table Card --}}
 <div class="table-card">
 
-    {{-- ── TOOLBAR ── --}}
+    {{-- TOOLBAR --}}
     <div class="table-toolbar">
         <div class="toolbar-left">
-
             <form method="GET" action="{{ route('penjualan.index') }}" id="perPageForm">
                 <input type="hidden" name="search" value="{{ $search }}">
                 <div class="per-page-wrap">
@@ -151,7 +171,7 @@
                     <i class="ri-search-line"></i>
                     <input type="text" name="search" id="searchInput"
                            value="{{ $search }}"
-                           placeholder="Cari nama pembeli, produk, status..."
+                           placeholder="Cari nama barang, alamat, keterangan..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
@@ -172,7 +192,7 @@
         </div>
     </div>
 
-    {{-- ── INFO BAR ── --}}
+    {{-- INFO BAR --}}
     <div class="info-bar">
         <div class="info-bar-text">
             @if($search)
@@ -191,62 +211,108 @@
         @endif
     </div>
 
-    {{-- ── TABLE ── --}}
+    {{-- TABLE --}}
     <div style="overflow-x:auto;">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width:46px;">#</th>
-                    <th>Nama Pembeli</th>
-                    <th>Produk</th>
-                    <th class="center">Jumlah</th>
-                    <th class="right">Total</th>
+                    <th style="width:42px;">#</th>
                     <th>Tanggal</th>
-                    <th>Status</th>
+                    <th>Nama Barang</th>
+                    <th class="center">Qty</th>
+                    <th>Alamat Pelanggan</th>
+                    <th>Jenis Pembayaran</th>
+                    <th class="right">Harga</th>
+                    <th class="right">Total</th>
+                    <th>Keterangan</th>
                     <th class="center" style="width:90px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($penjualans as $item)
                 <tr>
+                    {{-- No --}}
                     <td style="color:var(--text-muted);font-size:12.5px;font-weight:500;">
                         {{ $penjualans->firstItem() + $loop->index }}
                     </td>
-                    <td style="font-weight:600;">
-                        @if($search)
-                            {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
-                                '<mark style="background:#FEF08A;border-radius:3px;padding:0 2px;">$1</mark>',
-                                e($item->nama_pembeli)) !!}
-                        @else
-                            {{ $item->nama_pembeli }}
-                        @endif
-                    </td>
-                    <td>{{ $item->nama_produk ?? '—' }}</td>
-                    <td class="center">
-                        <span class="qty-badge">{{ number_format($item->jumlah ?? 0) }}</span>
-                    </td>
-                    <td class="right total-value" style="font-size:13px;white-space:nowrap;">
-                        Rp {{ number_format($item->total ?? 0, 0, ',', '.') }}
-                    </td>
+
+                    {{-- Tanggal --}}
                     <td>
                         <span class="tanggal-badge">
                             <i class="ri-calendar-line" style="font-size:12px;color:var(--text-muted);"></i>
                             {{ \Carbon\Carbon::parse($item->tanggal_penjualan)->format('d M Y') }}
                         </span>
                     </td>
+
+                    {{-- Nama Barang --}}
+                    <td style="font-weight:600;">
+                        @if($search)
+                            {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
+                                '<mark style="background:#FEF08A;border-radius:3px;padding:0 2px;">$1</mark>',
+                                e($item->nama_barang)) !!}
+                        @else
+                            {{ $item->nama_barang }}
+                        @endif
+                    </td>
+
+                    {{-- Qty --}}
+                    <td class="center">
+                        <span class="qty-badge">{{ number_format($item->qty) }}</span>
+                    </td>
+
+                    {{-- Alamat Pelanggan --}}
                     <td>
-                        @php
-                            $statusClass = match($item->status ?? '') {
-                                'lunas'  => 'status-lunas',
-                                'proses' => 'status-proses',
-                                'batal'  => 'status-batal',
-                                default  => 'status-lunas',
-                            };
-                        @endphp
-                        <span class="status-badge {{ $statusClass }}">
-                            {{ ucfirst($item->status ?? 'lunas') }}
+                        <span class="alamat-cell" title="{{ $item->alamat_pelanggan }}">
+                            {{ $item->alamat_pelanggan }}
                         </span>
                     </td>
+
+                    {{-- Jenis Pembayaran --}}
+                    <td>
+                        @php
+                            $payClass = match($item->jenis_pembayaran) {
+                                'tunai'    => 'pay-tunai',
+                                'transfer' => 'pay-transfer',
+                                'qris'     => 'pay-qris',
+                                'kredit'   => 'pay-kredit',
+                                default    => 'pay-tunai',
+                            };
+                            $payIcon = match($item->jenis_pembayaran) {
+                                'tunai'    => 'ri-money-dollar-circle-line',
+                                'transfer' => 'ri-bank-line',
+                                'qris'     => 'ri-qr-code-line',
+                                'kredit'   => 'ri-bank-card-line',
+                                default    => 'ri-money-dollar-circle-line',
+                            };
+                        @endphp
+                        <span class="pay-badge {{ $payClass }}">
+                            <i class="{{ $payIcon }}"></i>
+                            {{ ucfirst($item->jenis_pembayaran) }}
+                        </span>
+                    </td>
+
+                    {{-- Harga --}}
+                    <td class="right harga-value">
+                        Rp {{ number_format($item->harga, 0, ',', '.') }}
+                    </td>
+
+                    {{-- Total --}}
+                    <td class="right total-value" style="font-size:13px;white-space:nowrap;">
+                        Rp {{ number_format($item->total, 0, ',', '.') }}
+                    </td>
+
+                    {{-- Keterangan --}}
+                    <td>
+                        @if($item->keterangan)
+                            <span class="ket-cell" title="{{ $item->keterangan }}">
+                                {{ $item->keterangan }}
+                            </span>
+                        @else
+                            <span style="color:var(--text-muted);font-size:12px;">—</span>
+                        @endif
+                    </td>
+
+                    {{-- Aksi --}}
                     <td class="center">
                         <div class="action-group">
                             <a href="{{ route('penjualan.edit', $item->id) }}"
@@ -254,20 +320,15 @@
                                 <i class="ri-edit-line"></i>
                             </a>
                             <button type="button" class="btn-action delete" title="Hapus"
-                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pembeli) }}')">
+                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
                                 <i class="ri-delete-bin-line"></i>
                             </button>
-                            <form id="formHapus-{{ $item->id }}"
-                                  action="{{ route('penjualan.destroy', $item->id) }}"
-                                  method="POST" style="display:none;">
-                                @csrf @method('DELETE')
-                            </form>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="10">
                         <div class="empty-state">
                             <i class="ri-exchange-dollar-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penjualan' }}</h3>
@@ -280,7 +341,7 @@
         </table>
     </div>
 
-    {{-- ── PAGINATION ── --}}
+    {{-- PAGINATION --}}
     @if($penjualans->total() > 0)
     <div class="table-footer">
         <div class="pagination-meta">
@@ -295,17 +356,30 @@
             @else
                 <a class="page-btn" href="{{ $penjualans->previousPageUrl() }}"><i class="ri-arrow-left-s-line"></i></a>
             @endif
+
             @php
-                $current = $penjualans->currentPage(); $last = $penjualans->lastPage();
-                $pages = []; for ($p=1;$p<=$last;$p++) { if($p===1||$p===$last||($p>=$current-2&&$p<=$current+2)) $pages[]=$p; }
-                $rendered=[]; $prev=null; foreach($pages as $p) { if($prev!==null&&$p-$prev>1) $rendered[]='...'; $rendered[]=$p; $prev=$p; }
+                $current = $penjualans->currentPage();
+                $last    = $penjualans->lastPage();
+                $pages   = [];
+                for ($p = 1; $p <= $last; $p++) {
+                    if ($p === 1 || $p === $last || ($p >= $current - 2 && $p <= $current + 2))
+                        $pages[] = $p;
+                }
+                $rendered = []; $prev = null;
+                foreach ($pages as $p) {
+                    if ($prev !== null && $p - $prev > 1) $rendered[] = '...';
+                    $rendered[] = $p;
+                    $prev = $p;
+                }
             @endphp
-            @foreach($rendered as $item)
-                @if($item==='...') <span class="page-ellipsis">…</span>
-                @elseif($item==$current) <span class="page-btn active">{{ $item }}</span>
-                @else <a class="page-btn" href="{{ $penjualans->url($item) }}">{{ $item }}</a>
+
+            @foreach($rendered as $pg)
+                @if($pg === '...') <span class="page-ellipsis">…</span>
+                @elseif($pg == $current) <span class="page-btn active">{{ $pg }}</span>
+                @else <a class="page-btn" href="{{ $penjualans->url($pg) }}">{{ $pg }}</a>
                 @endif
             @endforeach
+
             @if($penjualans->hasMorePages())
                 <a class="page-btn" href="{{ $penjualans->nextPageUrl() }}"><i class="ri-arrow-right-s-line"></i></a>
             @else
@@ -331,14 +405,16 @@
             <div class="delete-warning">
                 <i class="ri-alert-fill"></i>
                 <h3>Hapus Data Penjualan?</h3>
-                <p>Kamu akan menghapus data penjualan:<br><strong id="deleteTarget"></strong><br><br>Tindakan ini tidak dapat dibatalkan.</p>
+                <p>Kamu akan menghapus data:<br><strong id="deleteTarget"></strong><br><br>Tindakan ini tidak dapat dibatalkan.</p>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" onclick="closeModal('modalHapus')">Batal</button>
             <form id="formDeleteSubmit" method="POST">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger"><i class="ri-delete-bin-line"></i> Ya, Hapus</button>
+                <button type="submit" class="btn btn-danger">
+                    <i class="ri-delete-bin-line"></i> Ya, Hapus
+                </button>
             </form>
         </div>
     </div>
@@ -348,14 +424,16 @@
 
 @push('scripts')
 <script>
-    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+    function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
     document.querySelectorAll('.modal-overlay').forEach(el => {
-        el.addEventListener('click', function(e) { if(e.target===this) closeModal(this.id); });
+        el.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
     });
     document.addEventListener('keydown', e => {
-        if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+        if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     });
+
     function openDeleteModal(id, nama) {
         document.getElementById('deleteTarget').textContent = nama;
         document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
