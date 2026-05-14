@@ -35,6 +35,17 @@
     .btn-primary:hover { background:var(--brand-600); border-color:var(--brand-600); }
     .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
+    .btn-warning { background:#F59E0B; color:#fff; border:1px solid #F59E0B; }
+    .btn-warning:hover { background:#D97706; border-color:#D97706; }
+    .btn-success { background:#16A34A; color:#fff; border:1px solid #16A34A; }
+    .btn-success:hover { background:#15803D; border-color:#15803D; }
+    .btn-secondary { background:var(--bg-hover); color:var(--text-secondary); border:1px solid var(--border); }
+    .btn-secondary:hover { background:var(--border); color:var(--text-primary); }
+    /* Monitoring button */
+    .btn-monitoring { background:#7C3AED; color:#fff; border:1px solid #7C3AED; }
+    .btn-monitoring:hover { background:#6D28D9; border-color:#6D28D9; }
+    html.dark .btn-monitoring { background:#7C3AED; color:#fff; }
+
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
     .info-bar-text { font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
     .info-bar-text strong { color:var(--text-primary); }
@@ -71,11 +82,13 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* Modal */
+    /* ===== MODAL BASE ===== */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
-    .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:400px; animation:slideUp 0.2s ease; }
+    .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; animation:slideUp 0.2s ease; }
+    .modal-sm { max-width:420px; }
+    .modal-lg { max-width:860px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
@@ -110,6 +123,44 @@
     html.dark .badge-mandiri { background:rgba(22,163,74,0.12); color:#4ADE80; }
     html.dark .badge-gosend  { background:rgba(194,65,12,0.12); color:#FB923C; }
     html.dark .badge-rental  { background:rgba(29,111,164,0.12); color:#38BDF8; }
+
+    /* ===== MONITORING MODAL ===== */
+    .monitoring-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .monitoring-table th { padding:9px 12px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); background:var(--bg-primary); border-bottom:2px solid var(--border); white-space:nowrap; }
+    .monitoring-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
+    .monitoring-table tbody tr:last-child td { border-bottom:none; }
+    .monitoring-table tbody tr:hover td { background:var(--bg-hover); }
+    .sisa-hari-normal { font-weight:700; color:#16A34A; }
+    .sisa-hari-warning { font-weight:700; color:#B45309; }
+    .sisa-hari-danger  { font-weight:700; color:#DC2626; }
+
+    /* ===== SELESAIKAN MODAL ===== */
+    .confirm-box { text-align:center; padding:10px 0 6px; }
+    .confirm-box i { font-size:44px; color:#7C3AED; display:block; margin-bottom:10px; }
+    .confirm-box h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
+    .confirm-box p { font-size:13px; color:var(--text-muted); line-height:1.6; }
+    .confirm-box .durasi-info { display:inline-block; margin-top:8px; background:#FEF3C7; color:#92400E; border-radius:8px; padding:6px 16px; font-size:13px; font-weight:600; }
+    html.dark .confirm-box .durasi-info { background:rgba(146,64,14,0.18); color:#FCD34D; }
+    .action-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
+    .btn-full { width:100%; justify-content:center; height:40px; font-size:14px; }
+
+    /* Konfirmasi warning box */
+    .konfirmasi-box { text-align:center; padding:8px 0; }
+    .konfirmasi-box i { font-size:44px; color:#F59E0B; display:block; margin-bottom:10px; }
+    .konfirmasi-box h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+    .konfirmasi-box p { font-size:13px; color:var(--text-muted); line-height:1.6; }
+
+    /* Loading spinner */
+    .monitoring-loading { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
+    .monitoring-loading i { font-size:32px; display:block; margin-bottom:8px; animation:spin 1s linear infinite; }
+    @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
+
+    /* Extend date picker */
+    .extend-body { padding:18px 22px 10px; }
+    .extend-body label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px; font-weight:500; }
+    .extend-body input[type="date"] { width:100%; height:40px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:14px; padding:0 12px; outline:none; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
+    .extend-body input[type="date"]:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
+    .extend-note { font-size:12px; color:var(--text-muted); margin-top:6px; }
 </style>
 @endpush
 
@@ -174,8 +225,12 @@
         </div>
 
         <div class="toolbar-right">
+            {{-- BUTTON MONITORING (kiri dari Input Data) --}}
+            <button type="button" class="btn btn-monitoring" onclick="openMonitoring()">
+                <i class="ri-radar-line"></i> Monitoring
+            </button>
             <a href="{{ route('penyewaan.create') }}" class="btn btn-primary">
-                <i class="ri-add-line"></i> Tambah Penyewaan
+                <i class="ri-add-line"></i> Input Data
             </a>
         </div>
     </div>
@@ -223,12 +278,9 @@
             <tbody>
                 @forelse($penyewaans as $item)
                 <tr>
-                    {{-- No --}}
                     <td style="color:var(--text-muted);font-size:12px;font-weight:500;">
                         {{ $penyewaans->firstItem() + $loop->index }}
                     </td>
-
-                    {{-- Nama --}}
                     <td style="font-weight:600; white-space:nowrap;">
                         @if($search)
                             {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
@@ -238,8 +290,6 @@
                             {{ $item->nama_penyewa }}
                         @endif
                     </td>
-
-                    {{-- Nomor Telepon --}}
                     <td style="white-space:nowrap;">
                         <a href="tel:{{ $item->nomor_telepon }}"
                            style="color:var(--text-primary); text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
@@ -247,20 +297,14 @@
                             {{ $item->nomor_telepon }}
                         </a>
                     </td>
-
-                    {{-- Produk Alkes --}}
                     <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                         title="{{ $item->produk_alkes }}">
                         {{ $item->produk_alkes }}
                     </td>
-
-                    {{-- Durasi --}}
                     <td class="center">
                         <span style="font-weight:600;">{{ $item->durasi_hari }}</span>
                         <span style="font-size:11px; color:var(--text-muted);"> hari</span>
                     </td>
-
-                    {{-- Pengiriman --}}
                     <td class="center">
                         @php
                             $badgeClass = match($item->pengiriman) {
@@ -272,27 +316,19 @@
                         @endphp
                         <span class="{{ $badgeClass }}">{{ $item->pengiriman_label }}</span>
                     </td>
-
-                    {{-- Biaya Ongkir --}}
                     <td style="white-space:nowrap;">
                         {{ $item->biaya_ongkir > 0 ? $item->biaya_ongkir_formatted : '—' }}
                     </td>
-
-                    {{-- Alamat --}}
                     <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                         title="{{ $item->alamat_penyewa }}">
                         {{ $item->alamat_penyewa }}
                     </td>
-
-                    {{-- Metode Pembayaran --}}
                     <td style="white-space:nowrap;">
                         <span style="display:inline-flex; align-items:center; gap:5px;">
                             <i class="ri-bank-card-line" style="color:var(--brand-500); font-size:13px;"></i>
                             {{ $item->metode_pembayaran }}
                         </span>
                     </td>
-
-                    {{-- Bukti Pembayaran --}}
                     <td class="center">
                         @if($item->bukti_pembayaran)
                             @if(str_starts_with($item->bukti_pembayaran, 'http'))
@@ -306,8 +342,6 @@
                             <span class="no-file">—</span>
                         @endif
                     </td>
-
-                    {{-- Foto KTP/SIM --}}
                     <td class="center">
                         @if($item->foto_ktp_sim)
                             <a href="{{ asset('storage/' . $item->foto_ktp_sim) }}"
@@ -318,22 +352,16 @@
                             <span class="no-file">—</span>
                         @endif
                     </td>
-
-                    {{-- Status --}}
                     <td class="center">
                         <span class="status-badge {{ $item->status_class }}">
                             {{ $item->status_label }}
                         </span>
                     </td>
-
-                    {{-- Keterangan --}}
                     <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
                                color:var(--text-muted); font-size:12.5px;"
                         title="{{ $item->keterangan }}">
                         {{ $item->keterangan ?: '—' }}
                     </td>
-
-                    {{-- Aksi --}}
                     <td class="center">
                         <div class="action-group">
                             <a href="{{ route('penyewaan.edit', $item->id) }}"
@@ -353,7 +381,7 @@
                         <div class="empty-state">
                             <i class="ri-store-2-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penyewaan' }}</h3>
-                            <p>{{ $search ? 'Coba kata kunci lain atau klik Reset.' : 'Klik "Tambah Penyewaan" untuk mencatat penyewaan baru.' }}</p>
+                            <p>{{ $search ? 'Coba kata kunci lain atau klik Reset.' : 'Klik "Input Data" untuk mencatat penyewaan baru.' }}</p>
                         </div>
                     </td>
                 </tr>
@@ -416,7 +444,7 @@
 
 {{-- ======================== MODAL HAPUS ======================== --}}
 <div class="modal-overlay" id="modalHapus">
-    <div class="modal">
+    <div class="modal modal-sm">
         <div class="modal-header">
             <span class="modal-title">
                 <i class="ri-delete-bin-line" style="color:#EF4444;"></i> Hapus Data
@@ -447,28 +475,370 @@
     </div>
 </div>
 
+{{-- ======================== MODAL MONITORING ======================== --}}
+<div class="modal-overlay" id="modalMonitoring">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-radar-line" style="color:#7C3AED;"></i> Monitoring Penyewaan Aktif
+            </span>
+            <button class="modal-close" onclick="closeMonitoring()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <div id="monitoringContent">
+                <div class="monitoring-loading">
+                    <i class="ri-loader-4-line"></i>
+                    Memuat data...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ======================== MODAL SELESAIKAN — Kondisi 1 (durasi > 3) ======================== --}}
+<div class="modal-overlay" id="modalSelesaikanNormal">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-checkbox-circle-line" style="color:#16A34A;"></i> Selesaikan Penyewaan
+            </span>
+            <button class="modal-close" onclick="closeSelesaikanNormal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-box">
+                <i class="ri-checkbox-circle-line" style="color:#16A34A;"></i>
+                <h3>Apakah anda ingin menyelesaikan penyewaan?</h3>
+                <p>
+                    <span class="durasi-info">Durasi penyewaan masih <span id="sisaHariNormal">0</span> hari lagi</span>
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+            <button class="btn btn-reset" onclick="closeSelesaikanNormal()">
+                <i class="ri-close-line"></i> Batal
+            </button>
+            <button class="btn btn-success" id="btnSelesaikanNormal" onclick="doSelesaikan('selesai_sekarang')">
+                <i class="ri-checkbox-circle-line"></i> Selesaikan Penyewaan
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ======================== MODAL SELESAIKAN — Kondisi 2 (durasi <= 3): Konfirmasi Dulu ======================== --}}
+<div class="modal-overlay" id="modalKonfirmasiDulu">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-error-warning-line" style="color:#F59E0B;"></i> Perlu Konfirmasi
+            </span>
+            <button class="modal-close" onclick="closeKonfirmasiDulu()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="konfirmasi-box">
+                <i class="ri-error-warning-line"></i>
+                <h3>Diharap melakukan konfirmasi ke customer terlebih dahulu!</h3>
+                <p>Hubungi customer dan tanyakan kelanjutan penyewaan sebelum mengambil tindakan.</p>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center; gap:10px;">
+            <button class="btn btn-success" onclick="sudahKonfirmasi()">
+                <i class="ri-check-line"></i> Sudah Konfirmasi
+            </button>
+            <button class="btn btn-reset" onclick="closeKonfirmasiDulu()">
+                <i class="ri-close-line"></i> Belum Konfirmasi
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ======================== MODAL PILIH ACTION (setelah sudah konfirmasi) ======================== --}}
+<div class="modal-overlay" id="modalPilihAction">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-settings-3-line" style="color:#7C3AED;"></i> Pilih Action
+            </span>
+            <button class="modal-close" onclick="closePilihAction()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-box">
+                <i class="ri-settings-3-line" style="color:#7C3AED; font-size:40px;"></i>
+                <h3 style="margin-bottom:4px;">Pilih action berdasarkan hasil konfirmasi customer</h3>
+            </div>
+            <div class="action-buttons" style="flex-direction:column; margin-top:12px;">
+                <button class="btn btn-danger btn-full" onclick="doSelesaikan('selesai_sekarang')">
+                    <i class="ri-checkbox-circle-line"></i> Selesai Sekarang
+                </button>
+                <button class="btn btn-primary btn-full" onclick="doSelesaikan('sesuai_deadline')">
+                    <i class="ri-calendar-check-line"></i> Sesuai Deadline
+                </button>
+                <button class="btn btn-warning btn-full" onclick="openExtend()">
+                    <i class="ri-calendar-2-line"></i> Extend
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-reset" onclick="closePilihAction()">
+                <i class="ri-close-line"></i> Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ======================== MODAL EXTEND ======================== --}}
+<div class="modal-overlay" id="modalExtend">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-calendar-2-line" style="color:#F59E0B;"></i> Extend Deadline
+            </span>
+            <button class="modal-close" onclick="closeExtend()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-box" style="padding-bottom:0;">
+                <p style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:14px;">
+                    Tambahkan deadline baru pada tanggal
+                </p>
+            </div>
+            <div class="extend-body" style="padding:0 0 10px 0;">
+                <label>Pilih tanggal extend:</label>
+                <input type="date" id="extendTanggal" min="">
+                <p class="extend-note" id="extendNote">Dihitung dari deadline awal.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-reset" onclick="closeExtend()">
+                <i class="ri-close-line"></i> Batal
+            </button>
+            <button class="btn btn-warning" onclick="doExtend()">
+                <i class="ri-calendar-2-line"></i> Simpan Extend
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-    function openDeleteModal(id, nama) {
-        document.getElementById('modal-nama').textContent = nama;
-        document.getElementById('deleteForm').action = '/penyewaan/' + id;
-        document.getElementById('modalHapus').classList.add('open');
-    }
+// ===================== HAPUS =====================
+function openDeleteModal(id, nama) {
+    document.getElementById('modal-nama').textContent = nama;
+    document.getElementById('deleteForm').action = '/penyewaan/' + id;
+    document.getElementById('modalHapus').classList.add('open');
+}
+function closeDeleteModal() {
+    document.getElementById('modalHapus').classList.remove('open');
+}
+document.getElementById('modalHapus').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
 
-    function closeDeleteModal() {
-        document.getElementById('modalHapus').classList.remove('open');
-    }
+// ===================== MONITORING =====================
+let currentPenyewaanId   = null;
+let currentSisaHari      = 0;
+let currentTglSelesai    = null; // string "YYYY-MM-DD"
 
-    // Tutup modal saat klik overlay
-    document.getElementById('modalHapus').addEventListener('click', function(e) {
-        if (e.target === this) closeDeleteModal();
+function openMonitoring() {
+    document.getElementById('modalMonitoring').classList.add('open');
+    loadMonitoringData();
+}
+function closeMonitoring() {
+    document.getElementById('modalMonitoring').classList.remove('open');
+}
+document.getElementById('modalMonitoring').addEventListener('click', function(e) {
+    if (e.target === this) closeMonitoring();
+});
+
+function loadMonitoringData() {
+    const el = document.getElementById('monitoringContent');
+    el.innerHTML = `<div class="monitoring-loading"><i class="ri-loader-4-line"></i>Memuat data...</div>`;
+
+    fetch('{{ route("penyewaan.monitoring") }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.length) {
+            el.innerHTML = `
+                <div class="monitoring-loading" style="color:var(--text-muted);">
+                    <i class="ri-inbox-2-line" style="animation:none; font-size:40px;"></i>
+                    Tidak ada penyewaan aktif saat ini.
+                </div>`;
+            return;
+        }
+        let rows = data.map(d => {
+            const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 3 ? 'sisa-hari-warning' : 'sisa-hari-normal');
+            const sisaText  = d.sisa_hari <= 0 ? 'Lewat deadline' : d.sisa_hari + ' hari';
+            return `<tr>
+                <td style="font-weight:600;">${d.nama}</td>
+                <td>${d.nomor_hp}</td>
+                <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.barang}">${d.barang}</td>
+                <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.alamat}">${d.alamat}</td>
+                <td class="center"><span class="${sisaClass}">${sisaText}</span></td>
+                <td class="center"><span class="status-badge ${d.status_class}">${d.status_label}</span></td>
+                <td class="center">
+                    <button class="btn btn-sm" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
+                            onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai}')">
+                        <i class="ri-check-double-line"></i> Selesaikan
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        el.innerHTML = `
+            <div style="overflow-x:auto;">
+                <table class="monitoring-table">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Nomor HP</th>
+                            <th>Barang</th>
+                            <th>Alamat</th>
+                            <th class="center">Durasi</th>
+                            <th class="center">Status</th>
+                            <th class="center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    })
+    .catch(() => {
+        el.innerHTML = `<div class="monitoring-loading" style="color:#EF4444;">Gagal memuat data. Coba lagi.</div>`;
     });
+}
 
-    // Tutup modal saat tekan Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeDeleteModal();
+// ===================== SELESAIKAN =====================
+function openSelesaikan(id, sisaHari, tglSelesai) {
+    currentPenyewaanId = id;
+    currentSisaHari    = sisaHari;
+    currentTglSelesai  = tglSelesai;
+
+    if (sisaHari > 3) {
+        // Kondisi 1: langsung tanya selesaikan
+        document.getElementById('sisaHariNormal').textContent = sisaHari;
+        document.getElementById('modalSelesaikanNormal').classList.add('open');
+    } else {
+        // Kondisi 2: perlu konfirmasi dulu
+        document.getElementById('modalKonfirmasiDulu').classList.add('open');
+    }
+}
+
+function closeSelesaikanNormal() {
+    document.getElementById('modalSelesaikanNormal').classList.remove('open');
+}
+function closeKonfirmasiDulu() {
+    document.getElementById('modalKonfirmasiDulu').classList.remove('open');
+}
+function closePilihAction() {
+    document.getElementById('modalPilihAction').classList.remove('open');
+}
+
+function sudahKonfirmasi() {
+    closeKonfirmasiDulu();
+    document.getElementById('modalPilihAction').classList.add('open');
+}
+
+function doSelesaikan(action) {
+    if (!currentPenyewaanId) return;
+    const token = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    fetch(`/penyewaan/${currentPenyewaanId}/selesaikan`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ action })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            // Tutup semua modal penyewaan
+            closeSelesaikanNormal();
+            closePilihAction();
+            // Refresh tabel monitoring
+            loadMonitoringData();
+            // Reload halaman untuk update tabel utama
+            setTimeout(() => location.reload(), 500);
+        }
     });
+}
+
+// ===================== EXTEND =====================
+function openExtend() {
+    closePilihAction();
+    // Set min date = tgl_selesai + 1 hari
+    if (currentTglSelesai) {
+        const d = new Date(currentTglSelesai);
+        d.setDate(d.getDate() + 1);
+        const minDate = d.toISOString().split('T')[0];
+        document.getElementById('extendTanggal').min   = minDate;
+        document.getElementById('extendTanggal').value = minDate;
+        // Format tgl_selesai untuk note
+        const tglLabel = new Date(currentTglSelesai).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('extendNote').textContent = `Deadline awal: ${tglLabel}. Extend dihitung mulai dari tanggal tersebut.`;
+    }
+    document.getElementById('modalExtend').classList.add('open');
+}
+function closeExtend() {
+    document.getElementById('modalExtend').classList.remove('open');
+}
+
+function doExtend() {
+    const tglBaru = document.getElementById('extendTanggal').value;
+    if (!tglBaru || !currentPenyewaanId) return;
+
+    const token = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    fetch(`/penyewaan/${currentPenyewaanId}/extend`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ tgl_selesai_baru: tglBaru })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            closeExtend();
+            loadMonitoringData();
+            setTimeout(() => location.reload(), 500);
+        }
+    });
+}
+
+// ===================== ESCAPE KEY =====================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeMonitoring();
+        closeSelesaikanNormal();
+        closeKonfirmasiDulu();
+        closePilihAction();
+        closeExtend();
+    }
+});
+
+// Overlay click close
+['modalSelesaikanNormal','modalKonfirmasiDulu','modalPilihAction','modalExtend'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
+});
 </script>
 @endpush

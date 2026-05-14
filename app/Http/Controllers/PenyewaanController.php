@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Penyewaan;
+use Carbon\Carbon;
 
 class PenyewaanController extends Controller
 {
@@ -27,7 +28,115 @@ class PenyewaanController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
+        // Auto-update status berdasarkan sisa hari
+        foreach ($penyewaans as $item) {
+            if (in_array($item->status, ['berjalan', 'segera_konfirmasi'])) {
+                $sisaHari = $item->sisa_hari;
+                if ($sisaHari <= 3 && $item->status === 'berjalan') {
+                    $item->update(['status' => 'segera_konfirmasi']);
+                } elseif ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
+                    $item->update(['status' => 'berjalan']);
+                }
+            }
+        }
+
+        // Refresh setelah update
+        $penyewaans = Penyewaan::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama_penyewa', 'like', "%{$search}%")
+                  ->orWhere('nomor_telepon', 'like', "%{$search}%")
+                  ->orWhere('produk_alkes', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%")
+                  ->orWhere('pengiriman', 'like', "%{$search}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
         return view('admin.penyewaan.index', compact('penyewaans', 'search', 'perPage'));
+    }
+
+    /**
+     * Ambil data monitoring (berjalan & segera_konfirmasi) via AJAX
+     */
+    public function monitoring()
+    {
+        $data = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])
+            ->orderBy('tgl_selesai', 'asc')
+            ->get()
+            ->map(function ($item) {
+                // Recalculate dan update status
+                $sisaHari = $item->sisa_hari;
+                if ($sisaHari <= 3 && $item->status === 'berjalan') {
+                    $item->update(['status' => 'segera_konfirmasi']);
+                    $item->refresh();
+                } elseif ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
+                    $item->update(['status' => 'berjalan']);
+                    $item->refresh();
+                }
+
+                return [
+                    'id'            => $item->id,
+                    'nama'          => $item->nama_penyewa,
+                    'nomor_hp'      => $item->nomor_telepon,
+                    'barang'        => $item->produk_alkes,
+                    'alamat'        => $item->alamat_penyewa,
+                    'sisa_hari'     => $item->sisa_hari,
+                    'tgl_selesai'   => $item->tgl_selesai ? $item->tgl_selesai->format('Y-m-d') : null,
+                    'tgl_selesai_label' => $item->tgl_selesai ? $item->tgl_selesai->format('d M Y') : '-',
+                    'status'        => $item->status,
+                    'status_label'  => $item->status_label,
+                    'status_class'  => $item->status_class,
+                ];
+            });
+
+        return response()->json($data);
+    }
+
+    /**
+     * Selesaikan penyewaan (langsung / sesuai deadline)
+     */
+    public function selesaikan(Request $request, string $id)
+    {
+        $penyewaan = Penyewaan::findOrFail($id);
+        $action    = $request->input('action', 'selesai_sekarang');
+
+        if ($action === 'selesai_sekarang') {
+            $penyewaan->update([
+                'status'     => 'selesai',
+                'tgl_selesai' => Carbon::today(),
+            ]);
+        } elseif ($action === 'sesuai_deadline') {
+            $penyewaan->update(['status' => 'selesai']);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Penyewaan berhasil diselesaikan.']);
+    }
+
+    /**
+     * Extend deadline penyewaan
+     */
+    public function extend(Request $request, string $id)
+    {
+        $request->validate([
+            'tgl_selesai_baru' => 'required|date|after:today',
+        ]);
+
+        $penyewaan = Penyewaan::findOrFail($id);
+        $tglBaru   = Carbon::parse($request->tgl_selesai_baru);
+        $tglLama   = Carbon::parse($penyewaan->tgl_selesai);
+
+        // Hitung ulang durasi dari tgl_mulai ke tgl_selesai baru
+        $tglMulai    = Carbon::parse($penyewaan->tgl_mulai);
+        $durasiHari  = $tglMulai->diffInDays($tglBaru);
+
+        $penyewaan->update([
+            'tgl_selesai' => $tglBaru->format('Y-m-d'),
+            'durasi_hari' => $durasiHari,
+            'status'      => 'berjalan',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Deadline berhasil di-extend.']);
     }
 
     public function create()
@@ -55,10 +164,8 @@ class PenyewaanController extends Controller
             'keterangan'        => 'nullable|string',
         ]);
 
-        // Simpan produk_alkes array → string CSV
         $validated['produk_alkes'] = implode(', ', $validated['produk_alkes']);
 
-        // Upload foto KTP/SIM
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
@@ -108,19 +215,15 @@ class PenyewaanController extends Controller
             'keterangan'        => 'nullable|string',
         ]);
 
-        // Simpan produk_alkes array → string CSV
         $validated['produk_alkes'] = implode(', ', $validated['produk_alkes']);
 
-        // Upload foto KTP/SIM jika ada file baru
         if ($request->hasFile('foto_ktp_sim')) {
-            // Hapus file lama jika ada
             if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
                 \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
             }
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
         } else {
-            // Jangan overwrite nilai lama kalau tidak ada upload baru
             unset($validated['foto_ktp_sim']);
         }
 
@@ -136,7 +239,6 @@ class PenyewaanController extends Controller
     {
         $penyewaan = Penyewaan::findOrFail($id);
 
-        // Hapus file KTP/SIM dari storage
         if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }

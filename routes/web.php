@@ -34,6 +34,11 @@ Route::middleware('auth')->group(function () {
     // ── Penyewaan ──
     Route::resource('penyewaan', PenyewaanController::class);
 
+    // ── Penyewaan: Monitoring, Selesaikan, Extend ──
+    Route::get('/penyewaan-monitoring',          [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
+    Route::post('/penyewaan/{id}/selesaikan',    [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
+    Route::post('/penyewaan/{id}/extend',        [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
+
     // ── Pembelian Barang ──
     Route::resource('pembelian', PembelianController::class);
 

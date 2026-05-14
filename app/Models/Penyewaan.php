@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class Penyewaan extends Model
 {
@@ -37,13 +38,25 @@ class Penyewaan extends Model
     ];
 
     /**
+     * Hitung sisa hari dari sekarang ke tgl_selesai
+     */
+    public function getSisaHariAttribute(): int
+    {
+        if (!$this->tgl_selesai) return 0;
+        $today = Carbon::today();
+        $selesai = Carbon::parse($this->tgl_selesai);
+        $diff = $today->diffInDays($selesai, false);
+        return (int) $diff;
+    }
+
+    /**
      * Label status untuk tampil di UI
      */
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
             'berjalan'          => 'Berjalan',
-            'segera_konfirmasi' => 'Segera Konfirmasi',
+            'segera_konfirmasi' => 'Segera Konfirmasi!',
             'selesai'           => 'Selesai',
             default             => ucfirst($this->status),
         };
