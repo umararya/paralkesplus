@@ -204,11 +204,130 @@
             transition: all 0.2s; position: relative;
         }
         .topbar-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-        .badge-dot {
-            position: absolute; top: 6px; right: 6px;
-            width: 7px; height: 7px; background: #EF4444;
-            border-radius: 50%; border: 2px solid var(--bg-secondary);
+
+        /* Badge angka notifikasi */
+        .notif-badge {
+            position: absolute; top: 4px; right: 4px;
+            min-width: 16px; height: 16px;
+            background: #EF4444;
+            border-radius: 99px;
+            border: 2px solid var(--bg-secondary);
+            font-size: 9px; font-weight: 700; color: #fff;
+            display: none; align-items: center; justify-content: center;
+            padding: 0 3px; line-height: 1;
         }
+        .notif-badge.show { display: flex; }
+
+        /* ── NOTIFIKASI DROPDOWN ── */
+        .notif-dropdown {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            width: 320px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            z-index: 999;
+            display: none;
+            overflow: hidden;
+        }
+        .notif-dropdown.open { display: block; animation: fadeDown 0.15s ease; }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .notif-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .notif-header-title {
+            font-size: 13px; font-weight: 700; color: var(--text-primary);
+            display: flex; align-items: center; gap: 7px;
+        }
+        .notif-header-title i { color: #F59E0B; font-size: 16px; }
+        .notif-header-count {
+            font-size: 11px; background: #FEF3C7; color: #92400E;
+            border-radius: 99px; padding: 2px 8px; font-weight: 700;
+        }
+        html.dark .notif-header-count { background: rgba(146,64,14,0.2); color: #FCD34D; }
+
+        .notif-list {
+            max-height: 280px; overflow-y: auto;
+            scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+        }
+
+        /* Item notifikasi — klikable */
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+            cursor: pointer;           /* <-- klikable */
+            text-decoration: none;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover {
+            background: var(--bg-hover);
+        }
+        .notif-item:hover .notif-name {
+            color: var(--brand-500);
+        }
+
+        .notif-icon {
+            width: 34px; height: 34px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .notif-icon.danger  { background: #FFF1F2; color: #E11D48; }
+        .notif-icon.warning { background: #FFFBEB; color: #B45309; }
+        html.dark .notif-icon.danger  { background: rgba(225,29,72,0.12); color: #FB7185; }
+        html.dark .notif-icon.warning { background: rgba(180,83,9,0.12); color: #FCD34D; }
+
+        .notif-text { flex: 1; min-width: 0; }
+        .notif-name {
+            font-size: 13px; font-weight: 600; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            transition: color 0.15s;
+        }
+        .notif-desc {
+            font-size: 12px; color: var(--text-muted); margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .notif-time {
+            font-size: 11px; font-weight: 600;
+            padding: 2px 7px; border-radius: 99px;
+            white-space: nowrap; flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .notif-time.danger  { background: #FFF1F2; color: #E11D48; }
+        .notif-time.warning { background: #FFFBEB; color: #B45309; }
+        html.dark .notif-time.danger  { background: rgba(225,29,72,0.12); color: #FB7185; }
+        html.dark .notif-time.warning { background: rgba(180,83,9,0.12); color: #FCD34D; }
+
+        /* Tooltip hint klik */
+        .notif-item-hint {
+            font-size: 10.5px; color: var(--brand-500);
+            margin-top: 3px; display: flex; align-items: center; gap: 3px;
+            opacity: 0; transition: opacity 0.15s;
+        }
+        .notif-item:hover .notif-item-hint { opacity: 1; }
+
+        .notif-empty {
+            text-align: center; padding: 28px 16px;
+            color: var(--text-muted); font-size: 13px;
+        }
+        .notif-empty i { font-size: 32px; display: block; margin-bottom: 8px; }
+
+        .notif-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .notif-footer a {
+            font-size: 12.5px; color: var(--brand-500); text-decoration: none;
+            font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .notif-footer a:hover { text-decoration: underline; }
 
         .theme-toggle {
             width: 36px; height: 36px;
@@ -229,7 +348,7 @@
         .topbar-user:hover { background: var(--bg-hover); }
         .topbar-user .user-name-sm { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 
-        /* Dropdown */
+        /* User Dropdown */
         .dropdown-menu {
             position: absolute; top: calc(100% + 8px); right: 0;
             background: var(--bg-card); border: 1px solid var(--border);
@@ -237,10 +356,6 @@
             min-width: 180px; z-index: 999; overflow: hidden; display: none;
         }
         .dropdown-menu.open { display: block; animation: fadeDown 0.15s ease; }
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
         .dropdown-item {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 14px; font-size: 13px; color: var(--text-primary);
@@ -302,7 +417,6 @@
 
         <nav class="sidebar-nav">
 
-            {{-- UTAMA --}}
             <span class="nav-section-title">Utama</span>
             <a href="{{ route('dashboard') }}"
                class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -310,7 +424,6 @@
                 <span class="nav-label">Dashboard</span>
             </a>
 
-            {{-- MANAJEMEN --}}
             <span class="nav-section-title" style="margin-top:8px;">Manajemen</span>
             <a href="#" class="nav-item">
                 <i class="ri-user-line"></i>
@@ -329,35 +442,30 @@
                 <span class="nav-label">Jadwal</span>
             </a>
 
-            {{-- Penyewaan --}}
             <a href="{{ route('penyewaan.index') }}"
                class="nav-item {{ request()->routeIs('penyewaan.*') ? 'active' : '' }}">
                 <i class="ri-store-2-line"></i>
                 <span class="nav-label">Penyewaan</span>
             </a>
 
-            {{-- Pembelian Barang --}}
             <a href="{{ route('pembelian.index') }}"
                class="nav-item {{ request()->routeIs('pembelian.*') ? 'active' : '' }}">
                 <i class="ri-shopping-cart-2-line"></i>
                 <span class="nav-label">Pembelian Barang</span>
             </a>
 
-            {{-- Penjualan --}}
             <a href="{{ route('penjualan.index') }}"
                class="nav-item {{ request()->routeIs('penjualan.*') ? 'active' : '' }}">
                 <i class="ri-exchange-dollar-line"></i>
                 <span class="nav-label">Penjualan</span>
             </a>
 
-            {{-- Inventory --}}
             <a href="{{ route('inventory.index') }}"
                class="nav-item {{ request()->routeIs('inventory.*') ? 'active' : '' }}">
                 <i class="ri-box-3-line"></i>
                 <span class="nav-label">Inventory</span>
             </a>
 
-            {{-- OWNER — hanya tampil jika role = owner --}}
             @if(auth()->check() && auth()->user()->role === 'owner')
             <span class="nav-section-title" style="margin-top:8px;">Owner</span>
 
@@ -379,7 +487,6 @@
             </div>
             @endif
 
-            {{-- SISTEM --}}
             <span class="nav-section-title" style="margin-top:8px;">Sistem</span>
             <a href="#" class="nav-item">
                 <i class="ri-settings-3-line"></i>
@@ -417,13 +524,40 @@
                 <span class="breadcrumb-item active">@yield('breadcrumb', 'Dashboard')</span>
             </div>
             <div class="topbar-actions">
-                <button class="topbar-btn" title="Notifikasi">
-                    <i class="ri-notification-3-line"></i>
-                    <span class="badge-dot"></span>
-                </button>
+
+                {{-- ===== BELL NOTIFIKASI ===== --}}
+                <div style="position:relative;" id="notifWrapper">
+                    <button class="topbar-btn" title="Notifikasi" onclick="toggleNotifDropdown()" id="notifBtn">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="notif-badge" id="notifBadge"></span>
+                    </button>
+
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span class="notif-header-title">
+                                <i class="ri-alarm-warning-line"></i> Segera Konfirmasi
+                            </span>
+                            <span class="notif-header-count" id="notifHeaderCount">0</span>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i class="ri-loader-4-line" style="animation:spin 1s linear infinite;"></i>
+                                Memuat...
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="{{ route('penyewaan.index') }}#monitoring" onclick="closeNotifDropdown()">
+                                <i class="ri-radar-line"></i> Buka Monitoring Penyewaan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{-- ===== END BELL NOTIFIKASI ===== --}}
+
                 <button class="theme-toggle" onclick="toggleTheme()" title="Ganti tema" id="themeBtn">
                     <i class="ri-moon-line" id="themeIcon"></i>
                 </button>
+
                 <div class="topbar-user" onclick="toggleDropdown()" id="userDropdownTrigger">
                     <div class="user-avatar" style="width:28px;height:28px;font-size:12px;">
                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
@@ -456,11 +590,15 @@
     </div>
 </div>
 
+<style>
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
+
 <script>
     // ── THEME ──
-    const html = document.documentElement;
+    const html      = document.documentElement;
     const themeIcon = document.getElementById('themeIcon');
-    const saved = localStorage.getItem('paralkes_theme') || '{{ session('theme', 'light') }}';
+    const saved     = localStorage.getItem('paralkes_theme') || '{{ session('theme', 'light') }}';
 
     function applyTheme(t) {
         if (t === 'dark') { html.classList.add('dark'); themeIcon.className = 'ri-sun-line'; }
@@ -472,14 +610,12 @@
             body: JSON.stringify({ theme: t })
         }).catch(()=>{});
     }
-    function toggleTheme() {
-        applyTheme(html.classList.contains('dark') ? 'light' : 'dark');
-    }
+    function toggleTheme() { applyTheme(html.classList.contains('dark') ? 'light' : 'dark'); }
     applyTheme(saved);
 
     // ── SIDEBAR ──
-    const sidebar  = document.getElementById('sidebar');
-    const overlay  = document.getElementById('sidebarOverlay');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
 
     function toggleSidebar() {
         if (window.innerWidth <= 768) {
@@ -513,7 +649,7 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
         ['ownerDropdown'].forEach(function(menuId) {
-            const state = localStorage.getItem('navDropdown_' + menuId);
+            const state   = localStorage.getItem('navDropdown_' + menuId);
             if (state === 'open') {
                 const menu    = document.getElementById(menuId);
                 const trigger = document.getElementById(menuId + 'Trigger');
@@ -530,6 +666,123 @@
         if (!document.getElementById('userDropdownTrigger').contains(e.target)) {
             userDropdown.classList.remove('open');
         }
+    });
+
+    // ── NOTIFIKASI ──
+    const notifDropdown    = document.getElementById('notifDropdown');
+    const notifBadge       = document.getElementById('notifBadge');
+    const notifList        = document.getElementById('notifList');
+    const notifHeaderCount = document.getElementById('notifHeaderCount');
+
+    /**
+     * URL penyewaan index dengan hash #monitoring.
+     * Digunakan agar saat item diklik dari halaman manapun,
+     * browser navigate ke /penyewaan#monitoring → halaman index
+     * mendeteksi hash dan auto-open modal monitoring.
+     */
+    const penyewaanMonitoringUrl = '{{ route("penyewaan.index") }}#monitoring';
+    const isOnPenyewaanPage      = {{ request()->routeIs('penyewaan.index') ? 'true' : 'false' }};
+
+    function goToMonitoring() {
+        closeNotifDropdown();
+        if (isOnPenyewaanPage) {
+            // Sudah di halaman penyewaan → langsung panggil fungsi
+            if (typeof openMonitoring === 'function') {
+                openMonitoring();
+            }
+        } else {
+            // Di halaman lain → navigate ke penyewaan dengan hash
+            window.location.href = penyewaanMonitoringUrl;
+        }
+    }
+
+    function toggleNotifDropdown() {
+        const isOpen = notifDropdown.classList.contains('open');
+        userDropdown.classList.remove('open');
+        if (isOpen) {
+            closeNotifDropdown();
+        } else {
+            notifDropdown.classList.add('open');
+            loadNotifikasi();
+        }
+    }
+
+    function closeNotifDropdown() {
+        notifDropdown.classList.remove('open');
+    }
+
+    function loadNotifikasi() {
+        fetch('{{ route("penyewaan.notifikasi") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(res => {
+            const count = res.count || 0;
+            const items = res.items || [];
+
+            notifHeaderCount.textContent = count;
+            if (count > 0) {
+                notifBadge.textContent = count > 9 ? '9+' : count;
+                notifBadge.classList.add('show');
+            } else {
+                notifBadge.classList.remove('show');
+            }
+
+            if (!items.length) {
+                notifList.innerHTML = `
+                    <div class="notif-empty">
+                        <i class="ri-checkbox-circle-line" style="color:#16A34A;"></i>
+                        Semua penyewaan masih aman.
+                    </div>`;
+                return;
+            }
+
+            notifList.innerHTML = items.map(item => {
+                const isDanger   = item.sisa_hari <= 1;
+                const colorClass = isDanger ? 'danger' : 'warning';
+                const iconClass  = isDanger ? 'ri-alarm-warning-line' : 'ri-time-line';
+
+                return `
+                <div class="notif-item" onclick="goToMonitoring()" title="Klik untuk buka monitoring">
+                    <div class="notif-icon ${colorClass}">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="notif-text">
+                        <div class="notif-name">${item.nama}</div>
+                        <div class="notif-desc">${item.barang}</div>
+                        <div class="notif-desc" style="margin-top:2px;">
+                            <i class="ri-calendar-line" style="font-size:11px;"></i>
+                            Deadline: ${item.tgl_selesai}
+                        </div>
+                        <div class="notif-item-hint">
+                            <i class="ri-radar-line" style="font-size:11px;"></i> Buka monitoring
+                        </div>
+                    </div>
+                    <span class="notif-time ${colorClass}">${item.sisa_label}</span>
+                </div>`;
+            }).join('');
+        })
+        .catch(() => {
+            notifList.innerHTML = `
+                <div class="notif-empty" style="color:#EF4444;">
+                    <i class="ri-wifi-off-line"></i>
+                    Gagal memuat notifikasi.
+                </div>`;
+        });
+    }
+
+    // Tutup notif dropdown saat klik di luar
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('notifWrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeNotifDropdown();
+        }
+    });
+
+    // Load pertama kali
+    document.addEventListener('DOMContentLoaded', function() {
+        loadNotifikasi();
+        setInterval(loadNotifikasi, 60000);
     });
 </script>
 

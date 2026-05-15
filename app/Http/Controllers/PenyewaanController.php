@@ -9,6 +9,37 @@ use Carbon\Carbon;
 
 class PenyewaanController extends Controller
 {
+    /**
+     * Sinkronisasi status berdasarkan sisa hari.
+     * Aturan:
+     *  - sisa_hari <= 0  → otomatis selesai
+     *  - sisa_hari <= 3  → segera_konfirmasi
+     *  - sisa_hari > 3   → berjalan
+     */
+    private function syncStatus(Penyewaan $item): void
+    {
+        if ($item->status === 'selesai') return;
+
+        $sisaHari = $item->sisa_hari;
+
+        if ($sisaHari <= 0) {
+            $item->update(['status' => 'selesai']);
+            return;
+        }
+
+        if ($sisaHari <= 3 && $item->status === 'berjalan') {
+            $item->update(['status' => 'segera_konfirmasi']);
+            return;
+        }
+
+        if ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
+            $item->update(['status' => 'berjalan']);
+        }
+    }
+
+    /**
+     * Halaman utama penyewaan
+     */
     public function index(Request $request)
     {
         $search  = $request->input('search', '');
@@ -16,31 +47,11 @@ class PenyewaanController extends Controller
                    ? (int) $request->input('per_page')
                    : 10;
 
-        $penyewaans = Penyewaan::query()
-            ->when($search, function ($q) use ($search) {
-                $q->where('nama_penyewa', 'like', "%{$search}%")
-                  ->orWhere('nomor_telepon', 'like', "%{$search}%")
-                  ->orWhere('produk_alkes', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%")
-                  ->orWhere('pengiriman', 'like', "%{$search}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
-
-        // Auto-update status berdasarkan sisa hari
-        foreach ($penyewaans as $item) {
-            if (in_array($item->status, ['berjalan', 'segera_konfirmasi'])) {
-                $sisaHari = $item->sisa_hari;
-                if ($sisaHari <= 3 && $item->status === 'berjalan') {
-                    $item->update(['status' => 'segera_konfirmasi']);
-                } elseif ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
-                    $item->update(['status' => 'berjalan']);
-                }
-            }
+        $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
+        foreach ($aktif as $item) {
+            $this->syncStatus($item);
         }
 
-        // Refresh setelah update
         $penyewaans = Penyewaan::query()
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_penyewa', 'like', "%{$search}%")
@@ -57,36 +68,35 @@ class PenyewaanController extends Controller
     }
 
     /**
-     * Ambil data monitoring (berjalan & segera_konfirmasi) via AJAX
+     * AJAX: data monitoring — hanya berjalan & segera_konfirmasi.
      */
     public function monitoring()
     {
+        $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
+        foreach ($aktif as $item) {
+            $this->syncStatus($item);
+        }
+
         $data = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])
             ->orderBy('tgl_selesai', 'asc')
             ->get()
             ->map(function ($item) {
-                // Recalculate dan update status
-                $sisaHari = $item->sisa_hari;
-                if ($sisaHari <= 3 && $item->status === 'berjalan') {
-                    $item->update(['status' => 'segera_konfirmasi']);
-                    $item->refresh();
-                } elseif ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
-                    $item->update(['status' => 'berjalan']);
-                    $item->refresh();
-                }
-
                 return [
-                    'id'            => $item->id,
-                    'nama'          => $item->nama_penyewa,
-                    'nomor_hp'      => $item->nomor_telepon,
-                    'barang'        => $item->produk_alkes,
-                    'alamat'        => $item->alamat_penyewa,
-                    'sisa_hari'     => $item->sisa_hari,
-                    'tgl_selesai'   => $item->tgl_selesai ? $item->tgl_selesai->format('Y-m-d') : null,
-                    'tgl_selesai_label' => $item->tgl_selesai ? $item->tgl_selesai->format('d M Y') : '-',
-                    'status'        => $item->status,
-                    'status_label'  => $item->status_label,
-                    'status_class'  => $item->status_class,
+                    'id'                => $item->id,
+                    'nama'              => $item->nama_penyewa,
+                    'nomor_hp'          => $item->nomor_telepon,
+                    'barang'            => $item->produk_alkes,
+                    'alamat'            => $item->alamat_penyewa,
+                    'sisa_hari'         => $item->sisa_hari,
+                    'tgl_selesai'       => $item->tgl_selesai
+                                            ? $item->tgl_selesai->format('Y-m-d')
+                                            : null,
+                    'tgl_selesai_label' => $item->tgl_selesai
+                                            ? $item->tgl_selesai->format('d M Y')
+                                            : '-',
+                    'status'            => $item->status,
+                    'status_label'      => $item->status_label,
+                    'status_class'      => $item->status_class,
                 ];
             });
 
@@ -94,7 +104,55 @@ class PenyewaanController extends Controller
     }
 
     /**
-     * Selesaikan penyewaan (langsung / sesuai deadline)
+     * AJAX: data notifikasi — hanya yang sisa_hari <= 3 dan masih aktif.
+     * Digunakan oleh bell notifikasi di topbar.
+     */
+    public function notifikasi()
+    {
+        // Sync status dulu
+        $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
+        foreach ($aktif as $item) {
+            $this->syncStatus($item);
+        }
+
+        // Ambil yang segera_konfirmasi (H-3 ke bawah) saja
+        $data = Penyewaan::where('status', 'segera_konfirmasi')
+            ->orderBy('tgl_selesai', 'asc')
+            ->get()
+            ->map(function ($item) {
+                $sisaHari = $item->sisa_hari;
+                if ($sisaHari <= 0) {
+                    $sisaLabel = 'Lewat deadline!';
+                } elseif ($sisaHari === 1) {
+                    $sisaLabel = 'Besok deadline!';
+                } elseif ($sisaHari === 2) {
+                    $sisaLabel = '2 hari lagi';
+                } else {
+                    $sisaLabel = $sisaHari . ' hari lagi';
+                }
+
+                return [
+                    'id'          => $item->id,
+                    'nama'        => $item->nama_penyewa,
+                    'barang'      => $item->produk_alkes,
+                    'sisa_hari'   => $sisaHari,
+                    'sisa_label'  => $sisaLabel,
+                    'tgl_selesai' => $item->tgl_selesai
+                                     ? $item->tgl_selesai->format('d M Y')
+                                     : '-',
+                ];
+            });
+
+        return response()->json([
+            'count' => $data->count(),
+            'items' => $data,
+        ]);
+    }
+
+    /**
+     * Selesaikan penyewaan.
+     * action = 'selesai_sekarang' → langsung selesai
+     * action = 'sesuai_deadline'  → tidak ubah apapun, biarkan syncStatus
      */
     public function selesaikan(Request $request, string $id)
     {
@@ -103,40 +161,59 @@ class PenyewaanController extends Controller
 
         if ($action === 'selesai_sekarang') {
             $penyewaan->update([
-                'status'     => 'selesai',
-                'tgl_selesai' => Carbon::today(),
+                'status'      => 'selesai',
+                'tgl_selesai' => Carbon::today()->format('Y-m-d'),
             ]);
-        } elseif ($action === 'sesuai_deadline') {
-            $penyewaan->update(['status' => 'selesai']);
+
+            return response()->json([
+                'success' => true,
+                'action'  => 'selesai_sekarang',
+                'message' => 'Penyewaan berhasil diselesaikan sekarang.',
+            ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Penyewaan berhasil diselesaikan.']);
+        if ($action === 'sesuai_deadline') {
+            return response()->json([
+                'success' => true,
+                'action'  => 'sesuai_deadline',
+                'message' => 'Penyewaan akan otomatis selesai saat deadline tiba.',
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Action tidak dikenali.'], 422);
     }
 
     /**
-     * Extend deadline penyewaan
+     * Extend deadline penyewaan.
      */
     public function extend(Request $request, string $id)
     {
+        $penyewaan = Penyewaan::findOrFail($id);
+
         $request->validate([
-            'tgl_selesai_baru' => 'required|date|after:today',
+            'tgl_selesai_baru' => [
+                'required',
+                'date',
+                'after:' . $penyewaan->tgl_selesai->format('Y-m-d'),
+            ],
         ]);
 
-        $penyewaan = Penyewaan::findOrFail($id);
-        $tglBaru   = Carbon::parse($request->tgl_selesai_baru);
-        $tglLama   = Carbon::parse($penyewaan->tgl_selesai);
-
-        // Hitung ulang durasi dari tgl_mulai ke tgl_selesai baru
-        $tglMulai    = Carbon::parse($penyewaan->tgl_mulai);
-        $durasiHari  = $tglMulai->diffInDays($tglBaru);
+        $tglBaru    = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
+        $tglMulai   = Carbon::parse($penyewaan->tgl_mulai)->startOfDay();
+        $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
+        $sisaBaru   = (int) Carbon::today()->diffInDays($tglBaru, false);
+        $newStatus  = $sisaBaru > 3 ? 'berjalan' : 'segera_konfirmasi';
 
         $penyewaan->update([
             'tgl_selesai' => $tglBaru->format('Y-m-d'),
             'durasi_hari' => $durasiHari,
-            'status'      => 'berjalan',
+            'status'      => $newStatus,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Deadline berhasil di-extend.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Deadline berhasil di-extend ke ' . $tglBaru->format('d M Y') . '.',
+        ]);
     }
 
     public function create()

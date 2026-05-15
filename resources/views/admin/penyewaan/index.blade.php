@@ -41,7 +41,6 @@
     .btn-success:hover { background:#15803D; border-color:#15803D; }
     .btn-secondary { background:var(--bg-hover); color:var(--text-secondary); border:1px solid var(--border); }
     .btn-secondary:hover { background:var(--border); color:var(--text-primary); }
-    /* Monitoring button */
     .btn-monitoring { background:#7C3AED; color:#fff; border:1px solid #7C3AED; }
     .btn-monitoring:hover { background:#6D28D9; border-color:#6D28D9; }
     html.dark .btn-monitoring { background:#7C3AED; color:#fff; }
@@ -111,12 +110,10 @@
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
 
-    /* Link / file badge */
     .link-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:12px; color:var(--text-secondary); text-decoration:none; transition:all 0.2s; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .link-badge:hover { color:var(--brand-500); border-color:var(--brand-200); }
     .no-file { color:var(--text-muted); font-style:italic; font-size:12.5px; }
 
-    /* Pengiriman badge */
     .badge-mandiri { background:#F0FDF4; color:#16A34A; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
     .badge-gosend  { background:#FFF7ED; color:#C2410C; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
     .badge-rental  { background:#EFF6FF; color:#1D6FA4; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
@@ -130,7 +127,7 @@
     .monitoring-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
     .monitoring-table tbody tr:last-child td { border-bottom:none; }
     .monitoring-table tbody tr:hover td { background:var(--bg-hover); }
-    .sisa-hari-normal { font-weight:700; color:#16A34A; }
+    .sisa-hari-normal  { font-weight:700; color:#16A34A; }
     .sisa-hari-warning { font-weight:700; color:#B45309; }
     .sisa-hari-danger  { font-weight:700; color:#DC2626; }
 
@@ -144,18 +141,15 @@
     .action-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
     .btn-full { width:100%; justify-content:center; height:40px; font-size:14px; }
 
-    /* Konfirmasi warning box */
     .konfirmasi-box { text-align:center; padding:8px 0; }
     .konfirmasi-box i { font-size:44px; color:#F59E0B; display:block; margin-bottom:10px; }
     .konfirmasi-box h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
     .konfirmasi-box p { font-size:13px; color:var(--text-muted); line-height:1.6; }
 
-    /* Loading spinner */
     .monitoring-loading { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
     .monitoring-loading i { font-size:32px; display:block; margin-bottom:8px; animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
 
-    /* Extend date picker */
     .extend-body { padding:18px 22px 10px; }
     .extend-body label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px; font-weight:500; }
     .extend-body input[type="date"] { width:100%; height:40px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:14px; padding:0 12px; outline:none; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
@@ -225,7 +219,6 @@
         </div>
 
         <div class="toolbar-right">
-            {{-- BUTTON MONITORING (kiri dari Input Data) --}}
             <button type="button" class="btn btn-monitoring" onclick="openMonitoring()">
                 <i class="ri-radar-line"></i> Monitoring
             </button>
@@ -528,7 +521,7 @@
     </div>
 </div>
 
-{{-- ======================== MODAL SELESAIKAN — Kondisi 2 (durasi <= 3): Konfirmasi Dulu ======================== --}}
+{{-- ======================== MODAL SELESAIKAN — Kondisi 2 (durasi <= 3) ======================== --}}
 <div class="modal-overlay" id="modalKonfirmasiDulu">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -557,7 +550,7 @@
     </div>
 </div>
 
-{{-- ======================== MODAL PILIH ACTION (setelah sudah konfirmasi) ======================== --}}
+{{-- ======================== MODAL PILIH ACTION ======================== --}}
 <div class="modal-overlay" id="modalPilihAction">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -645,13 +638,17 @@ document.getElementById('modalHapus').addEventListener('click', function(e) {
 });
 
 // ===================== MONITORING =====================
-let currentPenyewaanId   = null;
-let currentSisaHari      = 0;
-let currentTglSelesai    = null; // string "YYYY-MM-DD"
+let currentPenyewaanId = null;
+let currentSisaHari    = 0;
+let currentTglSelesai  = null;
 
 function openMonitoring() {
     document.getElementById('modalMonitoring').classList.add('open');
     loadMonitoringData();
+    // Bersihkan hash dari URL tanpa reload agar tidak loop
+    if (window.location.hash === '#monitoring') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
 }
 function closeMonitoring() {
     document.getElementById('modalMonitoring').classList.remove('open');
@@ -726,24 +723,16 @@ function openSelesaikan(id, sisaHari, tglSelesai) {
     currentTglSelesai  = tglSelesai;
 
     if (sisaHari > 3) {
-        // Kondisi 1: langsung tanya selesaikan
         document.getElementById('sisaHariNormal').textContent = sisaHari;
         document.getElementById('modalSelesaikanNormal').classList.add('open');
     } else {
-        // Kondisi 2: perlu konfirmasi dulu
         document.getElementById('modalKonfirmasiDulu').classList.add('open');
     }
 }
 
-function closeSelesaikanNormal() {
-    document.getElementById('modalSelesaikanNormal').classList.remove('open');
-}
-function closeKonfirmasiDulu() {
-    document.getElementById('modalKonfirmasiDulu').classList.remove('open');
-}
-function closePilihAction() {
-    document.getElementById('modalPilihAction').classList.remove('open');
-}
+function closeSelesaikanNormal() { document.getElementById('modalSelesaikanNormal').classList.remove('open'); }
+function closeKonfirmasiDulu()   { document.getElementById('modalKonfirmasiDulu').classList.remove('open'); }
+function closePilihAction()      { document.getElementById('modalPilihAction').classList.remove('open'); }
 
 function sudahKonfirmasi() {
     closeKonfirmasiDulu();
@@ -766,12 +755,9 @@ function doSelesaikan(action) {
     .then(r => r.json())
     .then(res => {
         if (res.success) {
-            // Tutup semua modal penyewaan
             closeSelesaikanNormal();
             closePilihAction();
-            // Refresh tabel monitoring
             loadMonitoringData();
-            // Reload halaman untuk update tabel utama
             setTimeout(() => location.reload(), 500);
         }
     });
@@ -780,27 +766,22 @@ function doSelesaikan(action) {
 // ===================== EXTEND =====================
 function openExtend() {
     closePilihAction();
-    // Set min date = tgl_selesai + 1 hari
     if (currentTglSelesai) {
         const d = new Date(currentTglSelesai);
         d.setDate(d.getDate() + 1);
         const minDate = d.toISOString().split('T')[0];
         document.getElementById('extendTanggal').min   = minDate;
         document.getElementById('extendTanggal').value = minDate;
-        // Format tgl_selesai untuk note
         const tglLabel = new Date(currentTglSelesai).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
         document.getElementById('extendNote').textContent = `Deadline awal: ${tglLabel}. Extend dihitung mulai dari tanggal tersebut.`;
     }
     document.getElementById('modalExtend').classList.add('open');
 }
-function closeExtend() {
-    document.getElementById('modalExtend').classList.remove('open');
-}
+function closeExtend() { document.getElementById('modalExtend').classList.remove('open'); }
 
 function doExtend() {
     const tglBaru = document.getElementById('extendTanggal').value;
     if (!tglBaru || !currentPenyewaanId) return;
-
     const token = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
 
     fetch(`/penyewaan/${currentPenyewaanId}/extend`, {
@@ -834,11 +815,19 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Overlay click close
 ['modalSelesaikanNormal','modalKonfirmasiDulu','modalPilihAction','modalExtend'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('open');
     });
+});
+
+// ===================== AUTO-OPEN MONITORING DARI HASH #monitoring =====================
+// Dipanggil ketika navigasi dari notifikasi bell di halaman lain
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#monitoring') {
+        // Tunggu sebentar agar DOM fully rendered
+        setTimeout(openMonitoring, 200);
+    }
 });
 </script>
 @endpush

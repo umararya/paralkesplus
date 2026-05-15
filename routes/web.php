@@ -30,6 +30,7 @@ Route::post('/theme', function (\Illuminate\Http\Request $request) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/penyewaan/notifikasi', [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
 
     // ── Penyewaan ──
     Route::resource('penyewaan', PenyewaanController::class);
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewaan-monitoring',          [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
     Route::post('/penyewaan/{id}/selesaikan',    [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
     Route::post('/penyewaan/{id}/extend',        [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
+    
 
     // ── Pembelian Barang ──
     Route::resource('pembelian', PembelianController::class);

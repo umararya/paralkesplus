@@ -38,15 +38,15 @@ class Penyewaan extends Model
     ];
 
     /**
-     * Hitung sisa hari dari sekarang ke tgl_selesai
+     * Hitung sisa hari dari hari ini ke tgl_selesai.
+     * Positif = masih ada sisa, 0 = hari ini deadline, negatif = sudah lewat.
      */
     public function getSisaHariAttribute(): int
     {
         if (!$this->tgl_selesai) return 0;
-        $today = Carbon::today();
-        $selesai = Carbon::parse($this->tgl_selesai);
-        $diff = $today->diffInDays($selesai, false);
-        return (int) $diff;
+        $today   = Carbon::today();
+        $selesai = Carbon::parse($this->tgl_selesai)->startOfDay();
+        return (int) $today->diffInDays($selesai, false);
     }
 
     /**
