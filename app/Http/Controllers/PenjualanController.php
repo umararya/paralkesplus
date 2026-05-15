@@ -21,7 +21,11 @@ class PenjualanController extends Controller
                 $q->where('nama_barang', 'like', "%{$search}%")
                   ->orWhere('alamat_pelanggan', 'like', "%{$search}%")
                   ->orWhere('jenis_pembayaran', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%");
+                  ->orWhere('keterangan', 'like', "%{$search}%")
+                  ->orWhere('tanggal_penjualan', 'like', "%{$search}%")
+                  ->orWhereRaw('CAST(qty AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(harga AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
             })
             ->orderBy('tanggal_penjualan', 'desc')
             ->paginate($perPage)
@@ -48,7 +52,6 @@ class PenjualanController extends Controller
             'foto_bukti'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Upload foto bukti jika ada
         if ($request->hasFile('foto_bukti')) {
             $validated['foto_bukti'] = $request->file('foto_bukti')
                 ->store('penjualan/bukti', 'public');
@@ -88,15 +91,12 @@ class PenjualanController extends Controller
             'hapus_foto'        => 'nullable|boolean',
         ]);
 
-        // Hapus foto lama jika diminta
         if ($request->boolean('hapus_foto') && $penjualan->foto_bukti) {
             Storage::disk('public')->delete($penjualan->foto_bukti);
             $validated['foto_bukti'] = null;
         }
 
-        // Ganti foto jika upload baru
         if ($request->hasFile('foto_bukti')) {
-            // Hapus foto lama dulu jika ada
             if ($penjualan->foto_bukti) {
                 Storage::disk('public')->delete($penjualan->foto_bukti);
             }
@@ -114,7 +114,6 @@ class PenjualanController extends Controller
     {
         $penjualan = Penjualan::findOrFail($id);
 
-        // Hapus file foto dari storage
         if ($penjualan->foto_bukti) {
             Storage::disk('public')->delete($penjualan->foto_bukti);
         }

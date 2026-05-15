@@ -9,13 +9,6 @@ use Carbon\Carbon;
 
 class PenyewaanController extends Controller
 {
-    /**
-     * Sinkronisasi status berdasarkan sisa hari.
-     * Aturan:
-     *  - sisa_hari <= 0  → otomatis selesai
-     *  - sisa_hari <= 3  → segera_konfirmasi
-     *  - sisa_hari > 3   → berjalan
-     */
     private function syncStatus(Penyewaan $item): void
     {
         if ($item->status === 'selesai') return;
@@ -37,9 +30,6 @@ class PenyewaanController extends Controller
         }
     }
 
-    /**
-     * Halaman utama penyewaan
-     */
     public function index(Request $request)
     {
         $search  = $request->input('search', '');
@@ -58,7 +48,14 @@ class PenyewaanController extends Controller
                   ->orWhere('nomor_telepon', 'like', "%{$search}%")
                   ->orWhere('produk_alkes', 'like', "%{$search}%")
                   ->orWhere('status', 'like', "%{$search}%")
-                  ->orWhere('pengiriman', 'like', "%{$search}%");
+                  ->orWhere('pengiriman', 'like', "%{$search}%")
+                  ->orWhere('alamat_penyewa', 'like', "%{$search}%")
+                  ->orWhere('metode_pembayaran', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%")
+                  ->orWhere('tgl_mulai', 'like', "%{$search}%")
+                  ->orWhere('tgl_selesai', 'like', "%{$search}%")
+                  ->orWhereRaw('CAST(durasi_hari AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(biaya_ongkir AS CHAR) LIKE ?', ["%{$search}%"]);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
@@ -67,9 +64,6 @@ class PenyewaanController extends Controller
         return view('admin.penyewaan.index', compact('penyewaans', 'search', 'perPage'));
     }
 
-    /**
-     * AJAX: data monitoring — hanya berjalan & segera_konfirmasi.
-     */
     public function monitoring()
     {
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
@@ -103,19 +97,13 @@ class PenyewaanController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * AJAX: data notifikasi — hanya yang sisa_hari <= 3 dan masih aktif.
-     * Digunakan oleh bell notifikasi di topbar.
-     */
     public function notifikasi()
     {
-        // Sync status dulu
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
         foreach ($aktif as $item) {
             $this->syncStatus($item);
         }
 
-        // Ambil yang segera_konfirmasi (H-3 ke bawah) saja
         $data = Penyewaan::where('status', 'segera_konfirmasi')
             ->orderBy('tgl_selesai', 'asc')
             ->get()
@@ -149,11 +137,6 @@ class PenyewaanController extends Controller
         ]);
     }
 
-    /**
-     * Selesaikan penyewaan.
-     * action = 'selesai_sekarang' → langsung selesai
-     * action = 'sesuai_deadline'  → tidak ubah apapun, biarkan syncStatus
-     */
     public function selesaikan(Request $request, string $id)
     {
         $penyewaan = Penyewaan::findOrFail($id);
@@ -183,9 +166,6 @@ class PenyewaanController extends Controller
         return response()->json(['success' => false, 'message' => 'Action tidak dikenali.'], 422);
     }
 
-    /**
-     * Extend deadline penyewaan.
-     */
     public function extend(Request $request, string $id)
     {
         $penyewaan = Penyewaan::findOrFail($id);

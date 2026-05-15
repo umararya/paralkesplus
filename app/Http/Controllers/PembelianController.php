@@ -20,7 +20,10 @@ class PembelianController extends Controller
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
                   ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhere('tanggal_pembelian', 'like', "%{$search}%");
+                  ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
+                  ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(harga_satuan AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
             })
             ->orderBy('tanggal_pembelian', 'desc')
             ->paginate($perPage)
@@ -30,7 +33,10 @@ class PembelianController extends Controller
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
                   ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhere('tanggal_pembelian', 'like', "%{$search}%");
+                  ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
+                  ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(harga_satuan AS CHAR) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
             })
             ->sum('total');
 
@@ -91,23 +97,18 @@ class PembelianController extends Controller
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
-        // Ada upload gambar baru → hapus yang lama, simpan yang baru
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
             }
             $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
                 ->store('pembelian/bukti', 'public');
-        }
-        // Centang hapus bukti tanpa upload baru → set null
-        elseif ($request->has('hapus_bukti')) {
+        } elseif ($request->has('hapus_bukti')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
             }
             $validated['bukti_transaksi'] = null;
-        }
-        // Tidak ada perubahan gambar → pertahankan yang lama
-        else {
+        } else {
             unset($validated['bukti_transaksi']);
         }
 
