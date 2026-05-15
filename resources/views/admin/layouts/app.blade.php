@@ -218,6 +218,29 @@
         }
         .notif-badge.show { display: flex; }
 
+        /* ── DATETIME WIDGET ── */
+        .topbar-datetime {
+            display: flex; flex-direction: column; align-items: flex-end;
+            padding: 5px 10px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            transition: background 0.2s;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+        .topbar-datetime:hover { background: var(--bg-hover); }
+        .datetime-time {
+            font-size: 14px; font-weight: 700;
+            color: var(--text-primary); letter-spacing: 0.3px;
+            font-variant-numeric: tabular-nums;
+        }
+        .datetime-date {
+            font-size: 10.5px; color: var(--text-muted); font-weight: 500;
+        }
+        @media (max-width: 640px) {
+            .topbar-datetime { display: none; }
+        }
+
         /* ── NOTIFIKASI DROPDOWN ── */
         .notif-dropdown {
             position: absolute; top: calc(100% + 10px); right: 0;
@@ -262,16 +285,12 @@
             padding: 11px 16px;
             border-bottom: 1px solid var(--border);
             transition: background 0.15s;
-            cursor: pointer;           /* <-- klikable */
+            cursor: pointer;
             text-decoration: none;
         }
         .notif-item:last-child { border-bottom: none; }
-        .notif-item:hover {
-            background: var(--bg-hover);
-        }
-        .notif-item:hover .notif-name {
-            color: var(--brand-500);
-        }
+        .notif-item:hover { background: var(--bg-hover); }
+        .notif-item:hover .notif-name { color: var(--brand-500); }
 
         .notif-icon {
             width: 34px; height: 34px; border-radius: 8px;
@@ -525,6 +544,13 @@
             </div>
             <div class="topbar-actions">
 
+                {{-- ===== WIDGET HARI & JAM ===== --}}
+                <div class="topbar-datetime" id="topbarDatetime">
+                    <span class="datetime-time" id="datetimeClock">00:00:00</span>
+                    <span class="datetime-date" id="datetimeDate">—</span>
+                </div>
+                {{-- ===== END WIDGET HARI & JAM ===== --}}
+
                 {{-- ===== BELL NOTIFIKASI ===== --}}
                 <div style="position:relative;" id="notifWrapper">
                     <button class="topbar-btn" title="Notifikasi" onclick="toggleNotifDropdown()" id="notifBtn">
@@ -668,30 +694,40 @@
         }
     });
 
+    // ── DATETIME WIDGET ──
+    const HARI_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const BULAN_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+    function updateClock() {
+        const now  = new Date();
+        const hh   = String(now.getHours()).padStart(2, '0');
+        const mm   = String(now.getMinutes()).padStart(2, '0');
+        const ss   = String(now.getSeconds()).padStart(2, '0');
+        const hari = HARI_ID[now.getDay()];
+        const tgl  = now.getDate();
+        const bln  = BULAN_ID[now.getMonth()];
+        const thn  = now.getFullYear();
+
+        document.getElementById('datetimeClock').textContent = `${hh}:${mm}:${ss}`;
+        document.getElementById('datetimeDate').textContent  = `${hari}, ${tgl} ${bln} ${thn}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
     // ── NOTIFIKASI ──
     const notifDropdown    = document.getElementById('notifDropdown');
     const notifBadge       = document.getElementById('notifBadge');
     const notifList        = document.getElementById('notifList');
     const notifHeaderCount = document.getElementById('notifHeaderCount');
 
-    /**
-     * URL penyewaan index dengan hash #monitoring.
-     * Digunakan agar saat item diklik dari halaman manapun,
-     * browser navigate ke /penyewaan#monitoring → halaman index
-     * mendeteksi hash dan auto-open modal monitoring.
-     */
     const penyewaanMonitoringUrl = '{{ route("penyewaan.index") }}#monitoring';
     const isOnPenyewaanPage      = {{ request()->routeIs('penyewaan.index') ? 'true' : 'false' }};
 
     function goToMonitoring() {
         closeNotifDropdown();
         if (isOnPenyewaanPage) {
-            // Sudah di halaman penyewaan → langsung panggil fungsi
-            if (typeof openMonitoring === 'function') {
-                openMonitoring();
-            }
+            if (typeof openMonitoring === 'function') openMonitoring();
         } else {
-            // Di halaman lain → navigate ke penyewaan dengan hash
             window.location.href = penyewaanMonitoringUrl;
         }
     }
