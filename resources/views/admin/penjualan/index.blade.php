@@ -647,8 +647,8 @@
         document.getElementById('bb_jumlah').value             = qty;
         document.getElementById('bb_nama_pelanggan').value     = namaPelanggan ?? '';
 
-        // Default harga buy back = 70% dari harga jual
-        const defaultHarga = Math.round(hargaJual * 0.7);
+        // Default harga buy back = 50% dari harga jual
+        const defaultHarga = Math.round(hargaJual * 0.5);
         document.getElementById('bb_harga_input').value = defaultHarga;
 
         // Reset warning
