@@ -36,13 +36,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('penyewaan', PenyewaanController::class);
 
     // ── Penyewaan: Monitoring, Selesaikan, Extend ──
-    Route::get('/penyewaan-monitoring',          [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
-    Route::post('/penyewaan/{id}/selesaikan',    [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
-    Route::post('/penyewaan/{id}/extend',        [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
-    
+    Route::get('/penyewaan-monitoring',       [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
+    Route::post('/penyewaan/{id}/selesaikan', [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
+    Route::post('/penyewaan/{id}/extend',     [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
 
     // ── Pembelian Barang ──
     Route::resource('pembelian', PembelianController::class);
+
+    // ── Buy Back (harus di atas resource agar tidak konflik) ──
+    Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])
+         ->name('pembelian.buyback.store');
 
     // ── Penjualan ──
     Route::resource('penjualan', PenjualanController::class);

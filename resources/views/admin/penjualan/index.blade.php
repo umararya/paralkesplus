@@ -61,9 +61,10 @@
     .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
     .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
     .btn-action.view-foto:hover { background:#F0FDF4; color:#16A34A; border-color:#BBF7D0; }
+    .btn-action.buyback:hover { background:#FFFBEB; color:#D97706; border-color:#FDE68A; }
     html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
     html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
-    html.dark .btn-action.view-foto:hover { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
+    html.dark .btn-action.buyback:hover { background:rgba(217,119,6,0.15); color:#FBBF24; border-color:rgba(217,119,6,0.3); }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -84,11 +85,12 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* Modal Hapus */
+    /* Modal Hapus & Buy Back */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:400px; animation:slideUp 0.2s ease; }
+    .modal-lg { max-width:540px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
@@ -124,11 +126,27 @@
     html.dark .pay-kredit   { background:rgba(124,58,237,0.12); color:#C084FC; }
     .ket-cell    { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-muted); }
     .alamat-cell { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
-
-    /* Foto bukti thumbnail di tabel */
     .foto-thumb { width:40px; height:40px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; display:block; }
     .foto-thumb:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
     .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
+
+    /* ── Buy Back Modal Form ── */
+    .bb-info-box { background:var(--bg-primary); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:16px; }
+    .bb-info-box p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.8; }
+    .bb-info-box strong { color:var(--text-primary); }
+    .bb-warning { display:none; align-items:center; gap:6px; padding:8px 12px; background:#FFFBEB; border:1px solid #FDE68A; border-radius:8px; font-size:12px; color:#92400E; margin-top:6px; }
+    html.dark .bb-warning { background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); color:#FBBF24; }
+    .bb-warning.show { display:flex; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-group.full { grid-column:1 / -1; }
+    .form-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); }
+    .form-control { height:38px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s, box-shadow 0.2s; width:100%; box-sizing:border-box; }
+    .form-control:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
+    textarea.form-control { height:72px; padding:8px 12px; resize:vertical; }
+    .form-control-file { font-size:12.5px; color:var(--text-muted); padding:6px 0; }
+    .btn-buyback-submit { background:#F59E0B; color:#fff; border:1px solid #F59E0B; }
+    .btn-buyback-submit:hover { background:#D97706; border-color:#D97706; }
 </style>
 @endpush
 
@@ -233,7 +251,7 @@
                     <th class="right">Total</th>
                     <th>Keterangan</th>
                     <th class="center">Bukti Transfer</th>
-                    <th class="center" style="width:90px;">Aksi</th>
+                    <th class="center" style="width:110px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -338,6 +356,19 @@
                     {{-- Aksi --}}
                     <td class="center">
                         <div class="action-group">
+                            {{-- Buy Back Button --}}
+                            <button type="button"
+                                class="btn-action buyback"
+                                title="Buy Back — beli kembali barang ini dari customer"
+                                onclick="openBuyBackModal(
+                                    {{ $item->id }},
+                                    '{{ addslashes($item->nama_barang) }}',
+                                    {{ $item->harga }},
+                                    '{{ addslashes($item->alamat_pelanggan) }}',
+                                    {{ $item->qty }}
+                                )">
+                                <i class="ri-loop-left-line"></i>
+                            </button>
                             <a href="{{ route('penjualan.edit', $item->id) }}"
                                class="btn-action edit" title="Edit">
                                 <i class="ri-edit-line"></i>
@@ -415,7 +446,9 @@
 
 </div>
 
-{{-- MODAL HAPUS --}}
+{{-- ══════════════════════════════════════════
+     MODAL: HAPUS
+══════════════════════════════════════════ --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
         <div class="modal-header">
@@ -443,7 +476,9 @@
     </div>
 </div>
 
-{{-- MODAL FOTO BUKTI --}}
+{{-- ══════════════════════════════════════════
+     MODAL: FOTO BUKTI
+══════════════════════════════════════════ --}}
 <div class="modal-overlay" id="modalFoto">
     <div class="modal modal-foto">
         <div class="modal-header">
@@ -466,10 +501,113 @@
     </div>
 </div>
 
+{{-- ══════════════════════════════════════════
+     MODAL: BUY BACK
+══════════════════════════════════════════ --}}
+<div class="modal-overlay" id="modalBuyBack">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-loop-left-line" style="color:#F59E0B;"></i> Buy Back Barang
+            </span>
+            <button class="modal-close" onclick="closeModal('modalBuyBack')"><i class="ri-close-line"></i></button>
+        </div>
+
+        <form id="formBuyBack" method="POST" action="{{ route('pembelian.buyback.store') }}" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="penjualan_id" id="bb_penjualan_id">
+            <input type="hidden" name="nama_barang"  id="bb_nama_barang">
+
+            <div class="modal-body">
+
+                {{-- Info Barang (read-only) --}}
+                <div class="bb-info-box">
+                    <p>📦 Barang &nbsp;: <strong id="bb_nama_barang_label">—</strong></p>
+                    <p>💰 Harga Jual &nbsp;: <strong id="bb_harga_jual_label">—</strong></p>
+                    <p>📦 Qty Terjual : <strong id="bb_qty_label">—</strong></p>
+                </div>
+
+                <div class="form-grid">
+
+                    {{-- Tanggal Buy Back --}}
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Buy Back <span style="color:#EF4444;">*</span></label>
+                        <input type="date" name="tanggal_pembelian" class="form-control"
+                               value="{{ date('Y-m-d') }}" required>
+                    </div>
+
+                    {{-- Jumlah --}}
+                    <div class="form-group">
+                        <label class="form-label">Jumlah <span style="color:#EF4444;">*</span></label>
+                        <input type="number" name="jumlah" id="bb_jumlah"
+                               class="form-control" min="1" required>
+                    </div>
+
+                    {{-- Harga Buy Back --}}
+                    <div class="form-group">
+                        <label class="form-label">Harga Buy Back (Rp) <span style="color:#EF4444;">*</span></label>
+                        <input type="number" name="harga_satuan" id="bb_harga_input"
+                               class="form-control" min="0" required
+                               oninput="checkHargaWarning()">
+                        <div class="bb-warning" id="bb_harga_warning">
+                            <i class="ri-alert-line"></i>
+                            Harga buy back melebihi harga jual!
+                        </div>
+                    </div>
+
+                    {{-- Kondisi Barang --}}
+                    <div class="form-group">
+                        <label class="form-label">Kondisi Barang <span style="color:#EF4444;">*</span></label>
+                        <select name="kondisi_barang" class="form-control" required>
+                            <option value="">— Pilih kondisi —</option>
+                            <option value="baik">✅ Baik</option>
+                            <option value="bekas">🟡 Bekas / Normal Pakai</option>
+                            <option value="rusak">🔴 Rusak / Perlu Servis</option>
+                        </select>
+                    </div>
+
+                    {{-- Nama Pelanggan --}}
+                    <div class="form-group full">
+                        <label class="form-label">Nama Pelanggan <span style="color:#EF4444;">*</span></label>
+                        <input type="text" name="nama_pelanggan" id="bb_nama_pelanggan"
+                               class="form-control" placeholder="Nama orang yang mengembalikan barang" required>
+                    </div>
+
+                    {{-- Keterangan --}}
+                    <div class="form-group full">
+                        <label class="form-label">Keterangan (opsional)</label>
+                        <textarea name="keterangan" class="form-control"
+                                  placeholder="Catatan kondisi, alasan buy back, dll..."></textarea>
+                    </div>
+
+                    {{-- Foto Kondisi --}}
+                    <div class="form-group full">
+                        <label class="form-label">Foto Kondisi Barang (opsional)</label>
+                        <input type="file" name="bukti_transaksi" accept="image/jpeg,image/png,image/webp"
+                               class="form-control-file">
+                        <span style="font-size:11.5px;color:var(--text-muted);">JPG/PNG/WEBP maks. 2MB</span>
+                    </div>
+
+                </div>{{-- /form-grid --}}
+            </div>{{-- /modal-body --}}
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalBuyBack')">
+                    Batal
+                </button>
+                <button type="submit" class="btn btn-buyback-submit">
+                    <i class="ri-loop-left-line"></i> Konfirmasi Buy Back
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
+    // ── MODAL HELPERS ──
     function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
 
@@ -480,17 +618,53 @@
         if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     });
 
+    // ── DELETE MODAL ──
     function openDeleteModal(id, nama) {
         document.getElementById('deleteTarget').textContent = nama;
         document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
         openModal('modalHapus');
     }
 
+    // ── FOTO MODAL ──
     function openFotoModal(url, namaBarang) {
         document.getElementById('fotoModalImg').src        = url;
         document.getElementById('fotoNamaBarang').textContent = namaBarang;
         document.getElementById('fotoDownloadLink').href   = url;
         openModal('modalFoto');
+    }
+
+    // ── BUY BACK MODAL ──
+    let bbHargaJual = 0;
+
+    function openBuyBackModal(penjualanId, namaBarang, hargaJual, namaPelanggan, qty) {
+        bbHargaJual = hargaJual;
+
+        document.getElementById('bb_penjualan_id').value       = penjualanId;
+        document.getElementById('bb_nama_barang').value        = namaBarang;
+        document.getElementById('bb_nama_barang_label').textContent = namaBarang;
+        document.getElementById('bb_harga_jual_label').textContent  = 'Rp ' + Number(hargaJual).toLocaleString('id-ID');
+        document.getElementById('bb_qty_label').textContent         = qty + ' unit';
+        document.getElementById('bb_jumlah').value             = qty;
+        document.getElementById('bb_nama_pelanggan').value     = namaPelanggan ?? '';
+
+        // Default harga buy back = 70% dari harga jual
+        const defaultHarga = Math.round(hargaJual * 0.7);
+        document.getElementById('bb_harga_input').value = defaultHarga;
+
+        // Reset warning
+        document.getElementById('bb_harga_warning').classList.remove('show');
+
+        openModal('modalBuyBack');
+    }
+
+    function checkHargaWarning() {
+        const inputHarga = parseFloat(document.getElementById('bb_harga_input').value) || 0;
+        const warning    = document.getElementById('bb_harga_warning');
+        if (inputHarga > bbHargaJual && bbHargaJual > 0) {
+            warning.classList.add('show');
+        } else {
+            warning.classList.remove('show');
+        }
     }
 </script>
 @endpush

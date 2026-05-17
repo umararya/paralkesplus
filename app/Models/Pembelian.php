@@ -14,6 +14,10 @@ class Pembelian extends Model
         'harga_satuan',
         'keterangan',
         'bukti_transaksi',
+        'status',
+        'penjualan_id',
+        'nama_pelanggan',
+        'kondisi_barang',
     ];
 
     protected $appends = ['harga_formatted', 'total_formatted'];
@@ -26,5 +30,15 @@ class Pembelian extends Model
     public function getTotalFormattedAttribute(): string
     {
         return 'Rp ' . number_format($this->total, 0, ',', '.');
+    }
+
+    public function penjualan()
+    {
+        return $this->belongsTo(Penjualan::class, 'penjualan_id');
+    }
+
+    public function isBuyBack(): bool
+    {
+        return $this->status === 'buy_back';
     }
 }

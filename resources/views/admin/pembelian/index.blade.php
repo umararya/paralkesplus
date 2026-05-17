@@ -79,6 +79,24 @@
     .btn-danger { background: #EF4444; color: #fff; border: 1px solid #EF4444; }
     .btn-danger:hover { background: #DC2626; border-color: #DC2626; }
 
+    /* ── Filter Tabs ── */
+    .filter-tabs { display: flex; align-items: center; gap: 4px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg-primary); flex-wrap: wrap; }
+    .tab-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 14px; height: 32px; border-radius: 8px;
+        font-size: 12.5px; font-weight: 500; font-family: var(--font);
+        cursor: pointer; text-decoration: none; transition: all 0.18s;
+        border: 1px solid transparent; color: var(--text-secondary);
+        background: transparent;
+    }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border); }
+    .tab-btn.active { background: var(--brand-500); color: #fff; border-color: var(--brand-500); font-weight: 600; }
+    .tab-btn.active-buyback { background: #F59E0B; color: #fff; border-color: #F59E0B; font-weight: 600; }
+    .tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 99px; font-size: 11px; font-weight: 700; padding: 0 5px; }
+    .tab-btn.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+    .tab-btn.active-buyback .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+    .tab-btn:not(.active):not(.active-buyback) .tab-count { background: var(--bg-hover); color: var(--text-muted); }
+
     .info-bar {
         padding: 9px 18px; border-bottom: 1px solid var(--border);
         background: var(--bg-primary);
@@ -189,6 +207,13 @@
     html.dark .total-value { color: #34D399; }
     .tanggal-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--bg-hover); padding: 3px 10px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
 
+    /* ── Status Badge ── */
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .status-normal   { background: #EFF6FF; color: #1D4ED8; }
+    .status-buy-back { background: #FFFBEB; color: #D97706; }
+    html.dark .status-normal   { background: rgba(29,78,216,0.12); color: #60A5FA; }
+    html.dark .status-buy-back { background: rgba(217,119,6,0.12); color: #FBBF24; }
+
     .tfoot-total td { padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--text-primary); background: var(--bg-hover); border-top: 2px solid var(--border); }
 
     /* ── Bukti Transaksi ── */
@@ -264,6 +289,7 @@
 
             <form method="GET" action="{{ route('pembelian.index') }}" id="perPageForm">
                 <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="filter" value="{{ $filter }}">
                 <div class="per-page-wrap">
                     <span>Tampilkan</span>
                     <select name="per_page" class="per-page-select"
@@ -281,18 +307,19 @@
 
             <form method="GET" action="{{ route('pembelian.index') }}" class="search-form" id="searchForm">
                 <input type="hidden" name="per_page" value="{{ $perPage }}">
+                <input type="hidden" name="filter"   value="{{ $filter }}">
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
                     <input type="text" name="search" id="searchInput"
                            value="{{ $search }}"
-                           placeholder="Cari nama barang, keterangan, tanggal..."
+                           placeholder="Cari nama barang, pelanggan, keterangan..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
                     <i class="ri-search-2-line"></i> Cari
                 </button>
                 @if($search)
-                <a href="{{ route('pembelian.index', ['per_page' => $perPage]) }}" class="btn btn-reset">
+                <a href="{{ route('pembelian.index', ['per_page' => $perPage, 'filter' => $filter]) }}" class="btn btn-reset">
                     <i class="ri-close-line"></i> Reset
                 </a>
                 @endif
@@ -304,6 +331,25 @@
                 <i class="ri-add-line"></i> Tambah Pembelian
             </a>
         </div>
+    </div>
+
+    {{-- ── FILTER TABS ── --}}
+    <div class="filter-tabs">
+        <a href="{{ route('pembelian.index', ['filter' => 'semua', 'per_page' => $perPage, 'search' => $search]) }}"
+           class="tab-btn {{ $filter === 'semua' ? 'active' : '' }}">
+            <i class="ri-list-check"></i> Semua
+            <span class="tab-count">{{ $countSemua }}</span>
+        </a>
+        <a href="{{ route('pembelian.index', ['filter' => 'normal', 'per_page' => $perPage, 'search' => $search]) }}"
+           class="tab-btn {{ $filter === 'normal' ? 'active' : '' }}">
+            <i class="ri-shopping-cart-line"></i> Pembelian Normal
+            <span class="tab-count">{{ $countNormal }}</span>
+        </a>
+        <a href="{{ route('pembelian.index', ['filter' => 'buy_back', 'per_page' => $perPage, 'search' => $search]) }}"
+           class="tab-btn {{ $filter === 'buy_back' ? 'active-buyback' : '' }}">
+            <i class="ri-loop-left-line"></i> Buy Back
+            <span class="tab-count">{{ $countBuyBack }}</span>
+        </a>
     </div>
 
     {{-- ── INFO BAR ── --}}
@@ -333,6 +379,7 @@
                     <th style="width:46px;">#</th>
                     <th>Tanggal</th>
                     <th>Nama Barang</th>
+                    <th class="center">Status</th>
                     <th class="center">Qty</th>
                     <th class="right">Harga Satuan</th>
                     <th class="right">Total</th>
@@ -355,13 +402,46 @@
                         </span>
                     </td>
 
-                    <td style="font-weight:600;">
-                        @if($search)
-                            {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
-                                '<mark style="background:#FEF08A; border-radius:3px; padding:0 2px;">$1</mark>',
-                                e($item->nama_barang)) !!}
+                    <td>
+                        <div style="font-weight:600;">
+                            @if($search)
+                                {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
+                                    '<mark style="background:#FEF08A; border-radius:3px; padding:0 2px;">$1</mark>',
+                                    e($item->nama_barang)) !!}
+                            @else
+                                {{ $item->nama_barang }}
+                            @endif
+                        </div>
+                        {{-- Tampilkan nama pelanggan di bawah nama barang jika buy back --}}
+                        @if($item->status === 'buy_back' && $item->nama_pelanggan)
+                        <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                            <i class="ri-user-line" style="font-size:11px;"></i> {{ $item->nama_pelanggan }}
+                            @if($item->kondisi_barang)
+                                &nbsp;·&nbsp;
+                                @php
+                                    $kondisiLabel = match($item->kondisi_barang) {
+                                        'baik'  => ['✅', 'Baik'],
+                                        'bekas' => ['🟡', 'Bekas'],
+                                        'rusak' => ['🔴', 'Rusak'],
+                                        default => ['—', $item->kondisi_barang],
+                                    };
+                                @endphp
+                                {{ $kondisiLabel[0] }} {{ $kondisiLabel[1] }}
+                            @endif
+                        </div>
+                        @endif
+                    </td>
+
+                    {{-- Status Badge --}}
+                    <td class="center">
+                        @if($item->status === 'buy_back')
+                            <span class="status-badge status-buy-back">
+                                <i class="ri-loop-left-line"></i> Buy Back
+                            </span>
                         @else
-                            {{ $item->nama_barang }}
+                            <span class="status-badge status-normal">
+                                <i class="ri-shopping-cart-line"></i> Normal
+                            </span>
                         @endif
                     </td>
 
@@ -435,7 +515,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9">
+                    <td colspan="10">
                         <div class="empty-state">
                             <i class="ri-shopping-cart-2-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data pembelian' }}</h3>
@@ -449,8 +529,8 @@
             @if($pembelians->count() > 0)
             <tfoot>
                 <tr class="tfoot-total">
-                    <td colspan="5" class="right">
-                        Total {{ $search ? 'hasil filter' : 'keseluruhan' }}:
+                    <td colspan="6" class="right">
+                        Total {{ $search ? 'hasil filter' : ($filter !== 'semua' ? 'tab ini' : 'keseluruhan') }}:
                     </td>
                     <td class="right total-value" style="font-size:14px; white-space:nowrap;">
                         Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}
