@@ -58,12 +58,25 @@
     .data-table tbody tr { transition:background 0.15s; }
     .data-table tbody tr:hover td { background:var(--bg-hover); }
     .data-table th.center, .data-table td.center { text-align:center; }
-    .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
-    .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
-    .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
-    .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
-    html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
-    html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
+
+    /* ── DROPDOWN AKSI ── */
+    .action-wrap { position:relative; display:inline-block; }
+    .btn-aksi-toggle { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
+    .btn-aksi-toggle:hover { background:var(--brand-500); color:#fff; border-color:var(--brand-500); }
+    .dropdown-menu-aksi { display:none; position:absolute; right:0; top:calc(100% + 6px); background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.15); z-index:200; min-width:185px; padding:5px; }
+    .dropdown-menu-aksi.open { display:block; animation:fadeDropdown 0.15s ease; }
+    @keyframes fadeDropdown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .dropdown-item { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:7px; font-size:13px; font-weight:500; color:var(--text-primary); text-decoration:none; cursor:pointer; border:none; background:none; width:100%; font-family:var(--font); transition:background 0.15s; }
+    .dropdown-item:hover { background:var(--bg-hover); }
+    .dropdown-item i { font-size:16px; width:18px; text-align:center; }
+    .dropdown-item.item-edit i   { color:var(--brand-500); }
+    .dropdown-item.item-invoice i { color:#16A34A; }
+    .dropdown-item.item-perjanjian i { color:#7C3AED; }
+    .dropdown-item.item-delete i { color:#EF4444; }
+    .dropdown-item.item-delete:hover { background:#FFF1F2; color:#DC2626; }
+    html.dark .dropdown-item.item-delete:hover { background:rgba(225,29,72,0.1); color:#FB7185; }
+    .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
+
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
     .pagination-meta strong { color:var(--text-primary); }
@@ -265,7 +278,7 @@
                     <th class="center">Foto KTP/SIM</th>
                     <th class="center">Status</th>
                     <th>Keterangan</th>
-                    <th class="center" style="width:90px;">Aksi</th>
+                    <th class="center" style="width:60px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -355,16 +368,38 @@
                         title="{{ $item->keterangan }}">
                         {{ $item->keterangan ?: '—' }}
                     </td>
+
+                    {{-- ── KOLOM AKSI: DROPDOWN ── --}}
                     <td class="center">
-                        <div class="action-group">
-                            <a href="{{ route('penyewaan.edit', $item->id) }}"
-                               class="btn-action edit" title="Edit">
-                                <i class="ri-edit-line"></i>
-                            </a>
-                            <button type="button" class="btn-action delete" title="Hapus"
-                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
-                                <i class="ri-delete-bin-line"></i>
+                        <div class="action-wrap">
+                            <button class="btn-aksi-toggle"
+                                    onclick="toggleDropdown(this)"
+                                    title="Aksi">
+                                <i class="ri-more-2-fill"></i>
                             </button>
+                            <div class="dropdown-menu-aksi">
+                                <a href="{{ route('penyewaan.edit', $item->id) }}"
+                                   class="dropdown-item item-edit">
+                                    <i class="ri-edit-line"></i> Edit Data
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="{{ route('penyewaan.invoice', $item->id) }}"
+                                   target="_blank"
+                                   class="dropdown-item item-invoice">
+                                    <i class="ri-receipt-line"></i> Cetak Invoice
+                                </a>
+                                <a href="{{ route('penyewaan.perjanjian', $item->id) }}"
+                                   target="_blank"
+                                   class="dropdown-item item-perjanjian">
+                                    <i class="ri-file-text-line"></i> Cetak Perjanjian
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <button type="button"
+                                        class="dropdown-item item-delete"
+                                        onclick="closeAllDropdowns(); openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
+                                    <i class="ri-delete-bin-line"></i> Hapus Data
+                                </button>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -624,6 +659,22 @@
 
 @push('scripts')
 <script>
+// ===================== DROPDOWN AKSI =====================
+function toggleDropdown(btn) {
+    const menu = btn.nextElementSibling;
+    const isOpen = menu.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) menu.classList.add('open');
+}
+
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu-aksi.open').forEach(m => m.classList.remove('open'));
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-wrap')) closeAllDropdowns();
+});
+
 // ===================== HAPUS =====================
 function openDeleteModal(id, nama) {
     document.getElementById('modal-nama').textContent = nama;
@@ -645,7 +696,6 @@ let currentTglSelesai  = null;
 function openMonitoring() {
     document.getElementById('modalMonitoring').classList.add('open');
     loadMonitoringData();
-    // Bersihkan hash dari URL tanpa reload agar tidak loop
     if (window.location.hash === '#monitoring') {
         history.replaceState(null, '', window.location.pathname + window.location.search);
     }
@@ -812,6 +862,7 @@ document.addEventListener('keydown', function(e) {
         closeKonfirmasiDulu();
         closePilihAction();
         closeExtend();
+        closeAllDropdowns();
     }
 });
 
@@ -822,10 +873,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ===================== AUTO-OPEN MONITORING DARI HASH #monitoring =====================
-// Dipanggil ketika navigasi dari notifikasi bell di halaman lain
 document.addEventListener('DOMContentLoaded', function() {
     if (window.location.hash === '#monitoring') {
-        // Tunggu sebentar agar DOM fully rendered
         setTimeout(openMonitoring, 200);
     }
 });

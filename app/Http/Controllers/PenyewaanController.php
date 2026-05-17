@@ -305,4 +305,22 @@ class PenyewaanController extends Controller
         return redirect()->route('penyewaan.index')
             ->with('success', 'Data penyewaan berhasil dihapus.');
     }
+
+    // ══════════════════════════════════════════
+    //  CETAK INVOICE
+    // ══════════════════════════════════════════
+    public function invoice(string $id)
+    {
+        $penyewaan = Penyewaan::findOrFail($id);
+        return view('admin.penyewaan.cetak.invoice', compact('penyewaan'));
+    }
+
+    // ══════════════════════════════════════════
+    //  CETAK PERJANJIAN SEWA
+    // ══════════════════════════════════════════
+    public function perjanjian(string $id)
+    {
+        $penyewaan = Penyewaan::findOrFail($id);
+        return view('admin.penyewaan.cetak.perjanjian', compact('penyewaan'));
+    }
 }

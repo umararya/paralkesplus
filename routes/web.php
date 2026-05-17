@@ -40,6 +40,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/penyewaan/{id}/selesaikan', [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
     Route::post('/penyewaan/{id}/extend',     [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
 
+    // ── Penyewaan: Cetak Invoice & Perjanjian Sewa ──
+    Route::get('/penyewaan/{id}/invoice',    [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
+    Route::get('/penyewaan/{id}/perjanjian', [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
+
     // ── Pembelian Barang ──
     Route::resource('pembelian', PembelianController::class);
 
