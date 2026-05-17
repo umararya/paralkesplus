@@ -21,7 +21,11 @@
             margin: 0 auto;
             padding: 12mm 14mm 14mm 14mm;
             background: #fff;
+            display: flex;
+            flex-direction: column;
         }
+
+        .page-content { flex: 1; }
 
         /* ── KOP SURAT ── */
         .kop {
@@ -245,16 +249,6 @@
             opacity: 0.15;
         }
 
-        /* ── FOOTER ── */
-        .page-footer {
-            margin-top: 18px;
-            border-top: 1.5px solid #1D6FA4;
-            padding-top: 7px;
-            text-align: center;
-            font-size: 9.5px;
-            color: #888;
-        }
-
         /* ── STATUS BADGE ── */
         .status-badge {
             display: inline-block;
@@ -267,7 +261,18 @@
         .status-konfirmasi { background: #fef9c3; color: #b45309; }
         .status-selesai    { background: #e0f2fe; color: #0369a1; }
 
-        /* ── PRINT ONLY ── */
+        /* ── FOOTER ── */
+        .page-footer {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1.5px solid #1D6FA4;
+            text-align: center;
+            font-size: 9.5px;
+            color: #888;
+            line-height: 1.7;
+        }
+
+        /* ── PRINT ── */
         @media print {
             body { background: #fff; }
             .page-wrapper { padding: 10mm 12mm; }
@@ -278,185 +283,198 @@
 </head>
 <body>
 
-{{-- ── TOMBOL CETAK (tidak ikut print) ── --}}
+{{-- ── TOMBOL CETAK ── --}}
 <div class="no-print" style="position:fixed; top:16px; right:16px; z-index:999; display:flex; gap:8px;">
     <button onclick="window.print()"
-            style="display:inline-flex; align-items:center; gap:6px; padding:9px 18px; background:#1D6FA4; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
+            style="display:inline-flex; align-items:center; gap:6px; padding:9px 18px;
+                   background:#1D6FA4; color:#fff; border:none; border-radius:8px;
+                   font-size:13px; font-weight:600; cursor:pointer;">
         🖨️ Cetak / Simpan PDF
     </button>
     <button onclick="window.close()"
-            style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
+            style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px;
+                   background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;
+                   border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
         ✕ Tutup
     </button>
 </div>
 
+@php
+    App::setLocale('id');
+    \Carbon\Carbon::setLocale('id');
+    $now = now('Asia/Jakarta');
+@endphp
+
 <div class="page-wrapper">
+    <div class="page-content">
 
-    {{-- ── KOP SURAT ── --}}
-    <div class="kop">
-        <div class="kop-left">
-            <img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo Kiri Paralkes">
-        </div>
-        <div class="kop-center">
-            <div class="nama-toko">Paralkes Plus</div>
-            <div class="tagline">Penyewaan & Penjualan Alat Kesehatan</div>
-            <div class="alamat-toko">
-                Jl. Contoh Alamat No. 123, Kota Anda · Telp: 0812-XXXX-XXXX<br>
-                Email: paralkes@email.com · Instagram: @paralkesplus
+        {{-- ── KOP SURAT ── --}}
+        <div class="kop">
+            <div class="kop-left">
+                <img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo Kiri Paralkes">
+            </div>
+            <div class="kop-center">
+                <div class="nama-toko">Paralkes</div>
+                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
+                <div class="alamat-toko">
+                    Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184<br>
+                    Telp: 0877-7732-1557 &nbsp;·&nbsp; Instagram: @sewaalkes_paralkes
+                </div>
+            </div>
+            <div class="kop-right">
+                <img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo Kanan Paralkes">
             </div>
         </div>
-        <div class="kop-right">
-            <img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo Kanan Paralkes">
+
+        {{-- ── JUDUL ── --}}
+        <div class="invoice-title-bar">
+            <h2>Invoice Penyewaan Alat Kesehatan</h2>
         </div>
-    </div>
 
-    {{-- ── JUDUL ── --}}
-    <div class="invoice-title-bar">
-        <h2>Invoice Penyewaan Alat Kesehatan</h2>
-    </div>
-
-    {{-- ── INFO INVOICE & CUSTOMER ── --}}
-    <div class="info-section">
-        <div class="info-box">
-            <div class="info-title">📋 Informasi Invoice</div>
-            <div class="info-row">
-                <span class="info-label">No. Invoice</span>
-                <span class="info-value">: INV-{{ str_pad($penyewaan->id, 5, '0', STR_PAD_LEFT) }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Tanggal Dibuat</span>
-                <span class="info-value">: {{ now()->translatedFormat('d F Y') }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Status</span>
-                <span class="info-value">:
-                    <span class="status-badge {{ $penyewaan->status_class }}">
-                        {{ $penyewaan->status_label }}
+        {{-- ── INFO INVOICE & CUSTOMER ── --}}
+        <div class="info-section">
+            <div class="info-box">
+                <div class="info-title">📋 Informasi Invoice</div>
+                <div class="info-row">
+                    <span class="info-label">No. Invoice</span>
+                    <span class="info-value">: INV-{{ str_pad($penyewaan->id, 5, '0', STR_PAD_LEFT) }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tanggal Dibuat</span>
+                    <span class="info-value">: {{ $now->translatedFormat('d F Y') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">:
+                        <span class="status-badge {{ $penyewaan->status_class }}">
+                            {{ $penyewaan->status_label }}
+                        </span>
                     </span>
-                </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Metode Bayar</span>
+                    <span class="info-value">: {{ $penyewaan->metode_pembayaran }}</span>
+                </div>
             </div>
-            <div class="info-row">
-                <span class="info-label">Metode Bayar</span>
-                <span class="info-value">: {{ $penyewaan->metode_pembayaran }}</span>
+
+            <div class="info-box">
+                <div class="info-title">👤 Data Penyewa</div>
+                <div class="info-row">
+                    <span class="info-label">Nama Lengkap</span>
+                    <span class="info-value">: {{ $penyewaan->nama_penyewa }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">No. Telepon</span>
+                    <span class="info-value">: {{ $penyewaan->nomor_telepon }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Alamat</span>
+                    <span class="info-value">: {{ $penyewaan->alamat_penyewa }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Metode Pengiriman</span>
+                    <span class="info-value">: {{ $penyewaan->pengiriman_label }}</span>
+                </div>
             </div>
         </div>
 
-        <div class="info-box">
-            <div class="info-title">👤 Data Penyewa</div>
-            <div class="info-row">
-                <span class="info-label">Nama Lengkap</span>
-                <span class="info-value">: {{ $penyewaan->nama_penyewa }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">No. Telepon</span>
-                <span class="info-value">: {{ $penyewaan->nomor_telepon }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Alamat</span>
-                <span class="info-value">: {{ $penyewaan->alamat_penyewa }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Metode Pengiriman</span>
-                <span class="info-value">: {{ $penyewaan->pengiriman_label }}</span>
-            </div>
-        </div>
-    </div>
+        {{-- ── DETAIL PENYEWAAN ── --}}
+        <div class="section-title">Detail Penyewaan</div>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th style="width:30px;">No</th>
+                    <th>Nama Alat Kesehatan</th>
+                    <th class="center">Tgl Mulai</th>
+                    <th class="center">Tgl Selesai</th>
+                    <th class="center">Durasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $produkList = explode(', ', $penyewaan->produk_alkes);
+                @endphp
+                @foreach($produkList as $i => $produk)
+                <tr>
+                    <td class="center">{{ $i + 1 }}</td>
+                    <td>{{ trim($produk) }}</td>
+                    @if($i === 0)
+                    <td class="center" rowspan="{{ count($produkList) }}">
+                        {{ $penyewaan->tgl_mulai ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="center" rowspan="{{ count($produkList) }}">
+                        {{ $penyewaan->tgl_selesai ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="center" rowspan="{{ count($produkList) }}">
+                        {{ $penyewaan->durasi_hari }} Hari
+                    </td>
+                    @endif
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
 
-    {{-- ── DETAIL PENYEWAAN ── --}}
-    <div class="section-title">Detail Penyewaan</div>
-    <table class="detail-table">
-        <thead>
-            <tr>
-                <th style="width:30px;">No</th>
-                <th>Nama Alat Kesehatan</th>
-                <th class="center">Tgl Mulai</th>
-                <th class="center">Tgl Selesai</th>
-                <th class="center">Durasi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $produkList = explode(', ', $penyewaan->produk_alkes);
-            @endphp
-            @foreach($produkList as $i => $produk)
-            <tr>
-                <td class="center">{{ $i + 1 }}</td>
-                <td>{{ trim($produk) }}</td>
-                @if($i === 0)
-                <td class="center" rowspan="{{ count($produkList) }}">
-                    {{ $penyewaan->tgl_mulai ? $penyewaan->tgl_mulai->translatedFormat('d F Y') : '-' }}
-                </td>
-                <td class="center" rowspan="{{ count($produkList) }}">
-                    {{ $penyewaan->tgl_selesai ? $penyewaan->tgl_selesai->translatedFormat('d F Y') : '-' }}
-                </td>
-                <td class="center" rowspan="{{ count($produkList) }}">
-                    {{ $penyewaan->durasi_hari }} Hari
-                </td>
-                @endif
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    {{-- ── RINGKASAN BIAYA ── --}}
-    <div class="biaya-section">
-        <div class="biaya-box">
-            <div class="biaya-row">
-                <span class="label">Biaya Ongkos Kirim</span>
-                <span class="value">
-                    {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Gratis' }}
-                </span>
-            </div>
-            <div class="biaya-row total-row">
-                <span class="label">Total Tagihan</span>
-                <span class="value">
-                    {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Rp 0' }}
-                </span>
+        {{-- ── RINGKASAN BIAYA ── --}}
+        <div class="biaya-section">
+            <div class="biaya-box">
+                <div class="biaya-row">
+                    <span class="label">Biaya Ongkos Kirim</span>
+                    <span class="value">
+                        {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Gratis' }}
+                    </span>
+                </div>
+                <div class="biaya-row total-row">
+                    <span class="label">Total Tagihan</span>
+                    <span class="value">
+                        {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Rp 0' }}
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
 
-    {{-- ── CATATAN ── --}}
-    <div class="catatan-box">
-        <div class="catatan-title">📝 Catatan</div>
-        <p>
-            {{ $penyewaan->keterangan ?: 'Tidak ada catatan tambahan.' }}
-        </p>
-        <p style="margin-top:6px; color:#888;">
-            ※ Harap alat kesehatan dikembalikan dalam kondisi baik dan bersih sesuai tanggal selesai yang tertera.
-            Keterlambatan pengembalian akan dikenakan biaya tambahan.
-        </p>
-    </div>
-
-    {{-- ── TANDA TANGAN ── --}}
-    <div class="ttd-section">
-        <div class="ttd-box">
-            <div class="ttd-label">Penyewa</div>
-            <div class="ttd-name">{{ $penyewaan->nama_penyewa }}</div>
-            <div class="ttd-jabatan">Penyewa</div>
+        {{-- ── CATATAN ── --}}
+        <div class="catatan-box">
+            <div class="catatan-title">📝 Catatan</div>
+            <p>
+                {{ $penyewaan->keterangan ?: 'Tidak ada catatan tambahan.' }}
+            </p>
+            <p style="margin-top:6px; color:#888;">
+                ※ Harap alat kesehatan dikembalikan dalam kondisi baik dan bersih sesuai tanggal selesai yang tertera.
+                Keterlambatan pengembalian akan dikenakan biaya tambahan.
+            </p>
         </div>
 
-        <div class="ttd-logo">
-            <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo Paralkes">
+        {{-- ── TANDA TANGAN ── --}}
+        {{-- Admin di KIRI, Penyewa di KANAN --}}
+        <div class="ttd-section">
+            <div class="ttd-box">
+                <div class="ttd-label">Hormat Kami,</div>
+                <div class="ttd-name">Paralkes</div>
+                <div class="ttd-jabatan">Admin / Pengelola</div>
+            </div>
+
+            <div class="ttd-logo">
+                <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo Paralkes">
+            </div>
+
+            <div class="ttd-box">
+                <div class="ttd-label">Penyewa,</div>
+                <div class="ttd-name">{{ $penyewaan->nama_penyewa }}</div>
+                <div class="ttd-jabatan">Penyewa</div>
+            </div>
         </div>
 
-        <div class="ttd-box">
-            <div class="ttd-label">Hormat Kami</div>
-            <div class="ttd-name">Paralkes Plus</div>
-            <div class="ttd-jabatan">Admin / Pengelola</div>
-        </div>
-    </div>
+    </div>{{-- end .page-content --}}
 
     {{-- ── FOOTER ── --}}
     <div class="page-footer">
-        Dokumen ini digenerate secara otomatis oleh sistem Paralkes Plus pada {{ now()->translatedFormat('d F Y, H:i') }} WIB
-        &nbsp;·&nbsp; Terima kasih telah mempercayakan kebutuhan alat kesehatan Anda kepada kami.
+        Dokumen ini digenerate secara otomatis oleh sistem Paralkes pada {{ $now->translatedFormat('d F Y, H:i') }} WIB<br>
+        Terima kasih telah mempercayakan kebutuhan alat kesehatan Anda kepada kami.
     </div>
 
 </div>
 
 <script>
-    // Auto print saat halaman siap dimuat (opsional, uncomment jika ingin auto)
     // window.addEventListener('load', () => window.print());
 </script>
 </body>
