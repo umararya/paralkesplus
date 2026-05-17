@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserLoginLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -34,7 +35,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
 
-            // Cek apakah user aktif
             if (!Auth::user()->is_active) {
                 Auth::logout();
                 throw ValidationException::withMessages([
@@ -45,6 +45,17 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             Auth::user()->update(['last_login_at' => now()]);
+
+            // ── Catat Login Log ──
+            $log = UserLoginLog::create([
+                'user_id'    => Auth::id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'login_at'   => now(),
+            ]);
+
+            // Simpan log ID ke session agar bisa di-update saat logout
+            session(['login_log_id' => $log->id]);
 
             return redirect()->intended(route('dashboard'))
                 ->with('status', 'Selamat datang, ' . Auth::user()->name . '!');
@@ -57,6 +68,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // ── Update Logout Time ──
+        $logId = session('login_log_id');
+        if ($logId) {
+            UserLoginLog::where('id', $logId)->update(['logout_at' => now()]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -16,14 +16,14 @@ class Penyewaan extends Model
     protected $fillable = [
         'nama_penyewa',
         'nomor_telepon',
-        'produk_alkes',        // tetap ada — backward compatibility data lama
+        'produk_alkes',
         'tgl_mulai',
         'tgl_selesai',
         'durasi_hari',
         'pengiriman',
         'biaya_ongkir',
-        'total_harga_sewa',    // NEW — sum subtotal semua item detail
-        'diskon_global',       // NEW — potongan nominal di level header (Rp)
+        'total_harga_sewa',
+        'diskon_global',
         'alamat_penyewa',
         'metode_pembayaran',
         'bukti_pembayaran',
@@ -54,9 +54,6 @@ class Penyewaan extends Model
     //  ACCESSOR — kalkulasi tagihan
     // =========================================================
 
-    /**
-     * Total akhir = total_harga_sewa - diskon_global + biaya_ongkir
-     */
     public function getTotalTagihanAttribute(): int
     {
         return max(0,
@@ -84,6 +81,30 @@ class Penyewaan extends Model
     public function getBiayaOngkirFormattedAttribute(): string
     {
         return 'Rp ' . number_format($this->biaya_ongkir ?? 0, 0, ',', '.');
+    }
+
+    // =========================================================
+    //  ACCESSOR — nama alat (support data lama & baru)
+    // =========================================================
+
+    /**
+     * Otomatis ambil dari detail_penyewaans jika ada,
+     * fallback ke produk_alkes untuk data lama.
+     */
+    public function getNamaAlatAttribute(): string
+    {
+        if ($this->relationLoaded('details') && $this->details->isNotEmpty()) {
+            return $this->details->pluck('nama_alat')->implode(', ');
+        }
+
+        // Lazy load jika relasi belum di-eager load
+        $detail = $this->details()->pluck('nama_alat');
+        if ($detail->isNotEmpty()) {
+            return $detail->implode(', ');
+        }
+
+        // Fallback untuk data lama
+        return $this->produk_alkes ?? '—';
     }
 
     // =========================================================
@@ -129,13 +150,9 @@ class Penyewaan extends Model
     }
 
     // =========================================================
-    //  HELPER — deteksi mode render invoice
+    //  HELPER
     // =========================================================
 
-    /**
-     * True  = sudah pakai sistem detail baru (tabel detail_penyewaans)
-     * False = masih data lama (produk_alkes CSV)
-     */
     public function getHasDetailAttribute(): bool
     {
         return $this->details()->exists();

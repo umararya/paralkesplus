@@ -304,8 +304,8 @@
                         </a>
                     </td>
                     <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
-                        title="{{ $item->produk_alkes }}">
-                        {{ $item->produk_alkes }}
+                        title="{{ $item->nama_alat }}">
+                        {{ $item->nama_alat }}
                     </td>
                     <td class="center">
                         <span style="font-weight:600;">{{ $item->durasi_hari }}</span>

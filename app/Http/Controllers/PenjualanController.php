@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -57,7 +58,22 @@ class PenjualanController extends Controller
                 ->store('penjualan/bukti', 'public');
         }
 
-        Penjualan::create($validated);
+        $penjualan = Penjualan::create($validated);
+
+        // ── Activity Log ──
+        ActivityLog::record(
+            module:   'Penjualan',
+            action:   'create',
+            subject:  $penjualan->nama_barang,
+            newValue: [
+                'barang'    => $penjualan->nama_barang,
+                'qty'       => $penjualan->qty,
+                'total'     => 'Rp ' . number_format($penjualan->total, 0, ',', '.'),
+                'pembayaran'=> $penjualan->jenis_pembayaran,
+                'tanggal'   => $penjualan->tanggal_penjualan,
+            ],
+            pageUrl: 'penjualan'
+        );
 
         return redirect()->route('penjualan.index')
                          ->with('success', 'Data penjualan berhasil ditambahkan.');
@@ -91,6 +107,14 @@ class PenjualanController extends Controller
             'hapus_foto'        => 'nullable|boolean',
         ]);
 
+        // Simpan data lama sebelum update
+        $oldData = [
+            'barang'     => $penjualan->nama_barang,
+            'qty'        => $penjualan->qty,
+            'total'      => 'Rp ' . number_format($penjualan->total, 0, ',', '.'),
+            'pembayaran' => $penjualan->jenis_pembayaran,
+        ];
+
         if ($request->boolean('hapus_foto') && $penjualan->foto_bukti) {
             Storage::disk('public')->delete($penjualan->foto_bukti);
             $validated['foto_bukti'] = null;
@@ -106,6 +130,21 @@ class PenjualanController extends Controller
 
         $penjualan->update($validated);
 
+        // ── Activity Log ──
+        ActivityLog::record(
+            module:   'Penjualan',
+            action:   'update',
+            subject:  $penjualan->nama_barang,
+            oldValue: $oldData,
+            newValue: [
+                'barang'     => $penjualan->nama_barang,
+                'qty'        => $penjualan->qty,
+                'total'      => 'Rp ' . number_format($penjualan->total, 0, ',', '.'),
+                'pembayaran' => $penjualan->jenis_pembayaran,
+            ],
+            pageUrl: 'penjualan/' . $penjualan->id . '/edit'
+        );
+
         return redirect()->route('penjualan.index')
                          ->with('success', 'Data penjualan berhasil diperbarui.');
     }
@@ -113,6 +152,21 @@ class PenjualanController extends Controller
     public function destroy(string $id)
     {
         $penjualan = Penjualan::findOrFail($id);
+
+        // ── Activity Log (SEBELUM delete) ──
+        ActivityLog::record(
+            module:   'Penjualan',
+            action:   'delete',
+            subject:  $penjualan->nama_barang,
+            oldValue: [
+                'barang'    => $penjualan->nama_barang,
+                'qty'       => $penjualan->qty,
+                'total'     => 'Rp ' . number_format($penjualan->total, 0, ',', '.'),
+                'tanggal'   => $penjualan->tanggal_penjualan,
+                'pembayaran'=> $penjualan->jenis_pembayaran,
+            ],
+            pageUrl: 'penjualan'
+        );
 
         if ($penjualan->foto_bukti) {
             Storage::disk('public')->delete($penjualan->foto_bukti);

@@ -3,11 +3,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-// Uncomment baris ini setelah Model dibuat:
+// Uncomment setelah Model dibuat:
 // use App\Models\Inventory;
 
 class InventoryController extends Controller
@@ -31,7 +32,7 @@ class InventoryController extends Controller
         //     ->paginate($perPage)
         //     ->withQueryString();
 
-        // ── Placeholder sementara (hapus setelah Model dibuat) ──
+        // ── Placeholder sementara ──
         $inventories = new LengthAwarePaginator(
             new Collection([]),
             0, $perPage, 1,
@@ -48,8 +49,24 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        // TODO: Implementasi simpan data inventory
-        return redirect()->route('inventory.index')->with('success', 'Barang berhasil ditambahkan.');
+        // TODO: uncomment setelah Model Inventory dibuat
+        // $validated = $request->validate([...]);
+        // $inventory = Inventory::create($validated);
+        //
+        // ActivityLog::record(
+        //     module:   'Inventory',
+        //     action:   'create',
+        //     subject:  $inventory->nama_barang,
+        //     newValue: [
+        //         'barang'   => $inventory->nama_barang,
+        //         'stok'     => $inventory->stok,
+        //         'kondisi'  => $inventory->kondisi,
+        //     ],
+        //     pageUrl: 'inventory'
+        // );
+
+        return redirect()->route('inventory.index')
+            ->with('success', 'Barang berhasil ditambahkan.');
     }
 
     public function show(string $id)
@@ -64,13 +81,40 @@ class InventoryController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // TODO: Implementasi update data inventory
-        return redirect()->route('inventory.index')->with('success', 'Data barang berhasil diperbarui.');
+        // TODO: uncomment setelah Model Inventory dibuat
+        // $inventory = Inventory::findOrFail($id);
+        // $oldData = ['stok' => $inventory->stok, 'kondisi' => $inventory->kondisi];
+        // $inventory->update($validated);
+        //
+        // ActivityLog::record(
+        //     module:   'Inventory',
+        //     action:   'update',
+        //     subject:  $inventory->nama_barang,
+        //     oldValue: $oldData,
+        //     newValue: ['stok' => $inventory->stok, 'kondisi' => $inventory->kondisi],
+        //     pageUrl:  'inventory/' . $id . '/edit'
+        // );
+
+        return redirect()->route('inventory.index')
+            ->with('success', 'Data barang berhasil diperbarui.');
     }
 
     public function destroy(string $id)
     {
-        // TODO: Implementasi hapus data inventory
-        return redirect()->route('inventory.index')->with('success', 'Barang berhasil dihapus.');
+        // TODO: uncomment setelah Model Inventory dibuat
+        // $inventory = Inventory::findOrFail($id);
+        //
+        // ActivityLog::record(
+        //     module:   'Inventory',
+        //     action:   'delete',
+        //     subject:  $inventory->nama_barang,
+        //     oldValue: ['barang' => $inventory->nama_barang, 'stok' => $inventory->stok],
+        //     pageUrl:  'inventory'
+        // );
+        //
+        // $inventory->delete();
+
+        return redirect()->route('inventory.index')
+            ->with('success', 'Barang berhasil dihapus.');
     }
 }
