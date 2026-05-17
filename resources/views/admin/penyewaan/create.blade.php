@@ -7,7 +7,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-    .form-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; max-width:860px; }
+    .form-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; max-width:900px; }
     .form-section { padding:20px 24px; border-bottom:1px solid var(--border); }
     .form-section:last-child { border-bottom:none; }
     .section-title { font-size:13px; font-weight:700; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
@@ -15,101 +15,65 @@
     .form-grid { display:grid; gap:16px; }
     .form-grid-2 { grid-template-columns:1fr 1fr; }
     .form-grid-3 { grid-template-columns:1fr 1fr 1fr; }
-    @media(max-width:640px) { .form-grid-2, .form-grid-3 { grid-template-columns:1fr; } }
+    @media(max-width:640px) { .form-grid-2,.form-grid-3 { grid-template-columns:1fr; } }
     .form-group { display:flex; flex-direction:column; gap:6px; }
     .form-label { font-size:13px; font-weight:600; color:var(--text-primary); }
     .form-label .required { color:#EF4444; margin-left:2px; }
     .form-label .hint { font-weight:400; color:var(--text-muted); font-size:12px; margin-left:4px; }
-    .form-control { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:13.5px; background:var(--bg-primary); color:var(--text-primary); outline:none; transition:border-color 0.2s, box-shadow 0.2s; font-family:var(--font); box-sizing:border-box; }
+    .form-control { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:13.5px; background:var(--bg-primary); color:var(--text-primary); outline:none; transition:border-color 0.2s,box-shadow 0.2s; font-family:var(--font); box-sizing:border-box; }
     .form-control:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
     .form-control.is-invalid { border-color:#EF4444; }
-    .form-control.is-invalid:focus { box-shadow:0 0 0 3px rgba(239,68,68,0.1); }
     textarea.form-control { resize:vertical; min-height:80px; }
     select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
     .invalid-feedback { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; }
-
-    /* Checkbox alkes */
-    .checkbox-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; }
-    .checkbox-item { display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); }
-    .checkbox-item:has(input:checked) { border-color:var(--brand-500); background:var(--brand-50); }
-    html.dark .checkbox-item:has(input:checked) { background:rgba(29,111,164,0.12); }
-    .checkbox-item input[type="checkbox"] { accent-color:var(--brand-500); width:15px; height:15px; flex-shrink:0; }
-    .checkbox-item-label { font-size:13px; font-weight:500; color:var(--text-primary); cursor:pointer; line-height:1.3; }
 
     /* Date range */
     .date-range-wrap { display:flex; align-items:center; gap:8px; }
     .date-range-wrap .form-control { flex:1; }
     .date-range-sep { font-size:13px; color:var(--text-muted); white-space:nowrap; }
     .durasi-display { margin-top:6px; font-size:12.5px; color:var(--brand-500); font-weight:600; display:flex; align-items:center; gap:5px; min-height:18px; }
-
-    /* Pengiriman note */
     .pengiriman-note { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
-
-    /* Metode pembayaran info */
     .metode-info { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
 
-    /* === Drag & Drop Upload === */
-    .dropzone {
-        position: relative;
-        border: 2px dashed var(--border);
-        border-radius: 8px;
-        padding: 24px 16px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: var(--bg-primary);
-        outline: none;
-    }
-    .dropzone:hover,
-    .dropzone.drag-over {
-        border-color: var(--brand-500);
-        background: var(--brand-50);
-    }
-    html.dark .dropzone:hover,
-    html.dark .dropzone.drag-over {
-        background: rgba(29,111,164,0.08);
-    }
-    .dropzone input[type="file"] {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 2;
-    }
-    .dropzone-icon { font-size: 28px; color: var(--brand-500); margin-bottom: 8px; display: block; }
-    .dropzone-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
-    .dropzone-sub { font-size: 12px; color: var(--text-muted); }
-    .dropzone-preview {
-        display: none;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 14px;
-        background: var(--brand-50);
-        border: 1px solid var(--brand-100);
-        border-radius: 8px;
-        margin-top: 8px;
-    }
-    html.dark .dropzone-preview {
-        background: rgba(29,111,164,0.1);
-        border-color: rgba(29,111,164,0.25);
-    }
-    .dropzone-preview.show { display: flex; }
-    .dropzone-preview i { font-size: 18px; color: var(--brand-500); flex-shrink: 0; }
-    .dropzone-preview-name { font-size: 12.5px; color: var(--text-primary); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .dropzone-preview-size { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
-    .dropzone-preview-remove {
-        width: 22px; height: 22px;
-        border-radius: 50%;
-        background: rgba(239,68,68,0.1);
-        color: #EF4444;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 13px; cursor: pointer; flex-shrink: 0;
-        border: none;
-        transition: background 0.2s;
-    }
-    .dropzone-preview-remove:hover { background: rgba(239,68,68,0.2); }
+    /* Drag & Drop Upload */
+    .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
+    .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
+    html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
+    .dropzone input[type="file"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2; }
+    .dropzone-icon { font-size:28px; color:var(--brand-500); margin-bottom:8px; display:block; }
+    .dropzone-title { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:2px; }
+    .dropzone-sub { font-size:12px; color:var(--text-muted); }
+    .dropzone-preview { display:none; align-items:center; gap:10px; padding:10px 14px; background:var(--brand-50); border:1px solid var(--brand-100); border-radius:8px; margin-top:8px; }
+    html.dark .dropzone-preview { background:rgba(29,111,164,0.1); border-color:rgba(29,111,164,0.25); }
+    .dropzone-preview.show { display:flex; }
+    .dropzone-preview i { font-size:18px; color:var(--brand-500); flex-shrink:0; }
+    .dropzone-preview-name { font-size:12.5px; color:var(--text-primary); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
+    .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
+    .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
+
+    /* ── TABEL DETAIL ITEM ── */
+    .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
+    .items-table thead tr { background:var(--brand-500); color:#fff; }
+    .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
+    .items-table td { padding:7px 6px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .items-table tbody tr:nth-child(even) td { background:var(--bg-hover); }
+    .items-table .form-control { padding:7px 10px; font-size:13px; }
+    .subtotal-cell { font-size:13px; font-weight:600; color:var(--brand-500); white-space:nowrap; min-width:100px; text-align:right; }
+    .btn-remove-row { width:28px; height:28px; border-radius:6px; background:rgba(239,68,68,0.1); color:#EF4444; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.2s; }
+    .btn-remove-row:hover { background:rgba(239,68,68,0.2); }
+    .btn-add-row { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1.5px dashed var(--brand-500); background:transparent; color:var(--brand-500); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); }
+    .btn-add-row:hover { background:var(--brand-50); }
+    html.dark .btn-add-row:hover { background:rgba(29,111,164,0.1); }
+    .ringkasan-box { display:flex; justify-content:flex-end; margin-top:14px; }
+    .ringkasan-inner { width:280px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+    .ringkasan-row { display:flex; justify-content:space-between; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border); }
+    .ringkasan-row:last-child { border-bottom:none; }
+    .ringkasan-row .r-label { color:var(--text-muted); }
+    .ringkasan-row .r-value { font-weight:700; color:var(--text-primary); }
+    .ringkasan-row.total { background:var(--brand-500); }
+    .ringkasan-row.total .r-label,
+    .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
 
     .form-footer { padding:16px 24px; display:flex; gap:12px; justify-content:flex-end; background:var(--bg-primary); border-top:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13.5px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
@@ -122,7 +86,6 @@
 
 @section('content')
 
-{{-- Back header --}}
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
     <a href="{{ route('penyewaan.index') }}"
        style="display:inline-flex; align-items:center; justify-content:center;
@@ -140,15 +103,14 @@
 </div>
 
 <div class="form-card">
-    <form action="{{ route('penyewaan.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('penyewaan.store') }}" method="POST" enctype="multipart/form-data" id="form-penyewaan">
         @csrf
 
-        {{-- ===================== SECTION: DATA PENYEWA ===================== --}}
+        {{-- ===================== DATA PENYEWA ===================== --}}
         <div class="form-section">
             <div class="section-title"><i class="ri-user-line"></i> Data Penyewa</div>
             <div class="form-grid form-grid-2">
 
-                {{-- Nama --}}
                 <div class="form-group">
                     <label class="form-label">Nama <span class="required">*</span></label>
                     <input type="text" name="nama_penyewa"
@@ -161,7 +123,6 @@
                     @enderror
                 </div>
 
-                {{-- Nomor Telepon --}}
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon/HP <span class="required">*</span></label>
                     <input type="tel" name="nomor_telepon"
@@ -174,7 +135,6 @@
                     @enderror
                 </div>
 
-                {{-- Alamat --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Alamat Penyewa <span class="required">*</span></label>
                     <textarea name="alamat_penyewa" rows="3"
@@ -189,54 +149,111 @@
             </div>
         </div>
 
-        {{-- ===================== SECTION: DETAIL SEWA ===================== --}}
+        {{-- ===================== DETAIL ITEM SEWA ===================== --}}
         <div class="form-section">
-            <div class="section-title"><i class="ri-stethoscope-line"></i> Detail Sewa</div>
+            <div class="section-title"><i class="ri-stethoscope-line"></i> Item Penyewaan</div>
+
+            @error('items')
+                <div style="margin-bottom:10px;">
+                    <span class="invalid-feedback" style="display:flex;"><i class="ri-error-warning-line"></i> {{ $message }}</span>
+                </div>
+            @enderror
+
+            <table class="items-table" id="items-table">
+                <thead>
+                    <tr>
+                        <th style="width:32px;">#</th>
+                        <th>Nama Alat Kesehatan</th>
+                        <th style="width:65px;">Qty</th>
+                        <th style="width:80px;">Satuan</th>
+                        <th style="width:130px;">Harga / Satuan (Rp)</th>
+                        <th style="width:75px;">Diskon (%)</th>
+                        <th style="width:120px; text-align:right;">Subtotal</th>
+                        <th style="width:36px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="items-body">
+                    {{-- Baris awal (atau old value jika ada error) --}}
+                    @php
+                        $oldItems = old('items', [['nama_alat'=>'','qty'=>1,'satuan'=>'pcs','harga_satuan'=>0,'diskon'=>0]]);
+                    @endphp
+                    @foreach($oldItems as $idx => $oi)
+                    <tr class="item-row">
+                        <td style="text-align:center; color:var(--text-muted); font-size:13px;" class="row-num">{{ $idx+1 }}</td>
+                        <td>
+                            <input type="text" name="items[{{ $idx }}][nama_alat]"
+                                   value="{{ $oi['nama_alat'] ?? '' }}"
+                                   placeholder="Nama alat kesehatan"
+                                   class="form-control item-nama" required>
+                        </td>
+                        <td>
+                            <input type="number" name="items[{{ $idx }}][qty]"
+                                   value="{{ $oi['qty'] ?? 1 }}"
+                                   min="1" class="form-control item-qty" required>
+                        </td>
+                        <td>
+                            <select name="items[{{ $idx }}][satuan]" class="form-control item-satuan">
+                                @foreach(['pcs','unit','set','buah','pasang'] as $sat)
+                                <option value="{{ $sat }}" {{ ($oi['satuan'] ?? 'pcs') == $sat ? 'selected' : '' }}>{{ $sat }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" name="items[{{ $idx }}][harga_satuan]"
+                                   value="{{ $oi['harga_satuan'] ?? 0 }}"
+                                   min="0" class="form-control item-harga" required>
+                        </td>
+                        <td>
+                            <input type="number" name="items[{{ $idx }}][diskon]"
+                                   value="{{ $oi['diskon'] ?? 0 }}"
+                                   min="0" max="100" class="form-control item-diskon">
+                        </td>
+                        <td class="subtotal-cell" data-subtotal="0">Rp 0</td>
+                        <td>
+                            <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <button type="button" class="btn-add-row" onclick="addRow()">
+                <i class="ri-add-line"></i> Tambah Item
+            </button>
+
+            {{-- Ringkasan --}}
+            <div class="ringkasan-box">
+                <div class="ringkasan-inner">
+                    <div class="ringkasan-row">
+                        <span class="r-label">Subtotal Sewa</span>
+                        <span class="r-value" id="ringkasan-subtotal">Rp 0</span>
+                    </div>
+                    <div class="ringkasan-row">
+                        <span class="r-label">Diskon Global (Rp)</span>
+                        <span class="r-value" id="ringkasan-diskon-label">Rp 0</span>
+                    </div>
+                    <div class="ringkasan-row">
+                        <span class="r-label">Ongkos Kirim</span>
+                        <span class="r-value" id="ringkasan-ongkir">Rp 0</span>
+                    </div>
+                    <div class="ringkasan-row total">
+                        <span class="r-label">Total Tagihan</span>
+                        <span class="r-value" id="ringkasan-total">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- ===================== DURASI & PENGIRIMAN ===================== --}}
+        <div class="form-section">
+            <div class="section-title"><i class="ri-calendar-line"></i> Durasi &amp; Pengiriman</div>
             <div class="form-grid">
 
-                {{-- Produk Alkes (Checkbox) --}}
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label class="form-label">Produk Alat Kesehatan <span class="required">*</span></label>
-                    @php
-                        $daftarAlkes = [
-                            'Nebulizer',
-                            'Kursi Roda Travel',
-                            'Kursi Roda Standar',
-                            'Bed Pasien',
-                            'Tabung Oksigen Kecil',
-                            'Tabung Oksigen Besar',
-                            'Regulator Oksigen',
-                            'Walker / Alat Bantu Jalan',
-                            'Tongkat Ketiak (Kruk)',
-                            'Pompa ASI',
-                            'Breast Pump Elektrik',
-                            'Tens / Stimulator Otot',
-                            'Commode Chair',
-                            'Trapeze Bar',
-                            'Lainnya',
-                        ];
-                        $oldAlkes = old('produk_alkes', []);
-                    @endphp
-                    <div class="checkbox-grid">
-                        @foreach($daftarAlkes as $alkes)
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="produk_alkes[]" value="{{ $alkes }}"
-                                   {{ in_array($alkes, $oldAlkes) ? 'checked' : '' }}>
-                            <span class="checkbox-item-label">{{ $alkes }}</span>
-                        </label>
-                        @endforeach
-                    </div>
-                    @error('produk_alkes')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
-                    @error('produk_alkes.*')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
-                </div>
-
-                {{-- Durasi (Date Range) --}}
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label class="form-label">Durasi <span class="required">*</span> <span class="hint">(Pilih tanggal mulai &amp; selesai)</span></label>
+                <div class="form-group">
+                    <label class="form-label">Durasi Sewa <span class="required">*</span> <span class="hint">(Pilih tanggal mulai &amp; selesai)</span></label>
                     <div class="date-range-wrap">
                         <input type="text" id="tgl_mulai" name="tgl_mulai"
                                value="{{ old('tgl_mulai') }}"
@@ -269,22 +286,15 @@
 
                 <div class="form-grid form-grid-2" style="grid-column:1/-1;">
 
-                    {{-- Pengiriman --}}
                     <div class="form-group">
-                        <label class="form-label">Pengiriman <span class="required">*</span> <span class="hint">(ditanggung Pelanggan)</span></label>
+                        <label class="form-label">Pengiriman <span class="required">*</span></label>
                         <select name="pengiriman" id="pengiriman"
                                 class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled {{ old('pengiriman') ? '' : 'selected' }}>-- Pilih metode pengiriman --</option>
-                            <option value="mandiri" {{ old('pengiriman') == 'mandiri' ? 'selected' : '' }}>
-                                Ambil dan Antar kembali sendiri oleh Penyewa
-                            </option>
-                            <option value="Gosend / GrabExpress" {{ old('pengiriman') == 'Gosend / GrabExpress' ? 'selected' : '' }}>
-                                via Gosend / GrabExpress (barang dibawah 2 Kg, ex. Nebulizer / Kursi Roda Travel / sejenisnya)
-                            </option>
-                            <option value="Rental Mobil Paralkes" {{ old('pengiriman') == 'Rental Mobil Paralkes' ? 'selected' : '' }}>
-                                via Rental Mobil Paralkes (disarankan untuk Bed Pasien / Tabung Oksigen Besar / sejenisnya)
-                            </option>
+                            <option value="mandiri" {{ old('pengiriman') == 'mandiri' ? 'selected' : '' }}>Ambil dan Antar kembali sendiri oleh Penyewa</option>
+                            <option value="Gosend / GrabExpress" {{ old('pengiriman') == 'Gosend / GrabExpress' ? 'selected' : '' }}>via Gosend / GrabExpress</option>
+                            <option value="Rental Mobil Paralkes" {{ old('pengiriman') == 'Rental Mobil Paralkes' ? 'selected' : '' }}>via Rental Mobil Paralkes</option>
                         </select>
                         <div class="pengiriman-note" id="pengiriman-note">
                             <i class="ri-information-line"></i>
@@ -295,13 +305,13 @@
                         @enderror
                     </div>
 
-                    {{-- Biaya Ongkir --}}
                     <div class="form-group">
-                        <label class="form-label">Biaya Ongkir <span class="hint">(Rp, isi 0 jika Ambil Sendiri oleh Penyewa)</span></label>
-                        <input type="number" name="biaya_ongkir"
+                        <label class="form-label">Biaya Ongkir <span class="hint">(Rp, isi 0 jika ambil sendiri)</span></label>
+                        <input type="number" name="biaya_ongkir" id="biaya_ongkir"
                                value="{{ old('biaya_ongkir', 0) }}"
                                min="0" placeholder="0"
-                               class="form-control {{ $errors->has('biaya_ongkir') ? 'is-invalid' : '' }}">
+                               class="form-control {{ $errors->has('biaya_ongkir') ? 'is-invalid' : '' }}"
+                               oninput="hitungRingkasan()">
                         @error('biaya_ongkir')
                             <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                         @enderror
@@ -312,24 +322,19 @@
             </div>
         </div>
 
-        {{-- ===================== SECTION: PEMBAYARAN ===================== --}}
+        {{-- ===================== PEMBAYARAN ===================== --}}
         <div class="form-section">
             <div class="section-title"><i class="ri-bank-card-line"></i> Pembayaran</div>
             <div class="form-grid form-grid-2">
 
-                {{-- Metode Pembayaran --}}
                 <div class="form-group">
                     <label class="form-label">Metode Pembayaran <span class="required">*</span></label>
                     <select name="metode_pembayaran" id="metode_pembayaran"
                             class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled {{ old('metode_pembayaran') ? '' : 'selected' }}>-- Pilih metode pembayaran --</option>
-                        <option value="Tunai / Cash" {{ old('metode_pembayaran') == 'Tunai / Cash' ? 'selected' : '' }}>
-                            Tunai / Cash
-                        </option>
-                        <option value="Transfer via Bank BCA" {{ old('metode_pembayaran') == 'Transfer via Bank BCA' ? 'selected' : '' }}>
-                            Transfer via Bank BCA 8030910754 a.n. SURYA DAYYANA
-                        </option>
+                        <option value="Tunai / Cash" {{ old('metode_pembayaran') == 'Tunai / Cash' ? 'selected' : '' }}>Tunai / Cash</option>
+                        <option value="Transfer via Bank BCA" {{ old('metode_pembayaran') == 'Transfer via Bank BCA' ? 'selected' : '' }}>Transfer via Bank BCA 8030910754 a.n. SURYA DAYYANA</option>
                     </select>
                     <div class="metode-info" id="metode-info">
                         <i class="ri-information-line"></i>
@@ -340,7 +345,18 @@
                     @enderror
                 </div>
 
-                {{-- Status (locked on create) --}}
+                <div class="form-group">
+                    <label class="form-label">Diskon Global <span class="hint">(Rp, potongan di luar diskon per item)</span></label>
+                    <input type="number" name="diskon_global" id="diskon_global"
+                           value="{{ old('diskon_global', 0) }}"
+                           min="0" placeholder="0"
+                           class="form-control {{ $errors->has('diskon_global') ? 'is-invalid' : '' }}"
+                           oninput="hitungRingkasan()">
+                    @error('diskon_global')
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
+                    @enderror
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Status <span class="required">*</span></label>
                     <select name="status_display" class="form-control" disabled>
@@ -352,48 +368,35 @@
                     </span>
                 </div>
 
-                {{-- Bukti Pembayaran (teks/link) --}}
                 <div class="form-group">
                     <label class="form-label">Bukti Pembayaran <span class="hint">(foto / link drive / bayar ditempat)</span></label>
                     <input type="text" name="bukti_pembayaran"
                            value="{{ old('bukti_pembayaran') }}"
-                           placeholder="Contoh: https://drive.google.com/... atau 'bayar ditempat'"
+                           placeholder="https://drive.google.com/... atau 'bayar ditempat'"
                            class="form-control {{ $errors->has('bukti_pembayaran') ? 'is-invalid' : '' }}">
                     @error('bukti_pembayaran')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Foto KTP / SIM (Drag & Drop) --}}
-                <div class="form-group">
+                <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Foto KTP / SIM <span class="hint">(jpg/png/pdf, maks 5MB)</span></label>
-
-                    <div class="dropzone" id="dropzone-ktp"
-                         tabindex="0"
-                         role="button"
-                         aria-label="Upload Foto KTP atau SIM"
+                    <div class="dropzone" id="dropzone-ktp" tabindex="0" role="button"
                          onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
-                        <input type="file"
-                               id="foto_ktp_sim"
-                               name="foto_ktp_sim"
-                               accept=".jpg,.jpeg,.png,.pdf"
-                               aria-hidden="true">
+                        <input type="file" id="foto_ktp_sim" name="foto_ktp_sim" accept=".jpg,.jpeg,.png,.pdf">
                         <i class="ri-id-card-line dropzone-icon"></i>
                         <div class="dropzone-title">Klik atau seret file ke sini</div>
                         <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 5 MB</div>
                     </div>
-
                     <div class="dropzone-preview" id="ktp-preview">
                         <i class="ri-file-check-line"></i>
                         <span class="dropzone-preview-name" id="ktp-preview-name"></span>
                         <span class="dropzone-preview-size" id="ktp-preview-size"></span>
                         <button type="button" class="dropzone-preview-remove"
-                                onclick="removeFile('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp')"
-                                title="Hapus file">
+                                onclick="removeFile('foto_ktp_sim','ktp-preview','dropzone-ktp')">
                             <i class="ri-close-line"></i>
                         </button>
                     </div>
-
                     @error('foto_ktp_sim')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
@@ -402,7 +405,7 @@
             </div>
         </div>
 
-        {{-- ===================== SECTION: KETERANGAN ===================== --}}
+        {{-- ===================== KETERANGAN ===================== --}}
         <div class="form-section">
             <div class="section-title"><i class="ri-file-text-line"></i> Keterangan</div>
             <div class="form-group">
@@ -416,7 +419,6 @@
             </div>
         </div>
 
-        {{-- FOOTER --}}
         <div class="form-footer">
             <a href="{{ route('penyewaan.index') }}" class="btn btn-cancel">
                 <i class="ri-close-line"></i> Batal
@@ -435,183 +437,221 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
-    // ============================================================
-    // DATE RANGE PICKER
-    // ============================================================
-    const fpMulai = flatpickr("#tgl_mulai", {
-        locale: "id",
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        onChange: function(selectedDates, dateStr) {
-            fpSelesai.set('minDate', dateStr);
-            hitungDurasi();
-        }
-    });
-
-    const fpSelesai = flatpickr("#tgl_selesai", {
-        locale: "id",
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        onChange: function() {
-            hitungDurasi();
-        }
-    });
-
-    function hitungDurasi() {
-        const mulai      = document.getElementById('tgl_mulai').value;
-        const selesai    = document.getElementById('tgl_selesai').value;
-        const display    = document.getElementById('durasi-display');
-        const hiddenInput = document.getElementById('durasi_hari');
-
-        if (mulai && selesai) {
-            const d1   = new Date(mulai);
-            const d2   = new Date(selesai);
-            const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
-            if (diff > 0) {
-                hiddenInput.value = diff;
-                display.innerHTML = '<i class="ri-calendar-check-line"></i> ' + diff + ' hari';
-            } else if (diff === 0) {
-                hiddenInput.value = 1;
-                display.innerHTML = '<i class="ri-calendar-check-line"></i> 1 hari (same day)';
-            } else {
-                hiddenInput.value = '';
-                display.innerHTML = '<span style="color:#EF4444;"><i class="ri-error-warning-line"></i> Tanggal selesai harus setelah tanggal mulai</span>';
-            }
-        } else {
-            hiddenInput.value = '';
-            display.innerHTML = '';
-        }
-    }
-
-    // ============================================================
-    // PENGIRIMAN NOTE
-    // ============================================================
-    const pengirimanNotes = {
-        'mandiri'               : 'Penyewa mengambil & mengembalikan sendiri — tidak ada ongkir',
-        'Gosend / GrabExpress'  : 'Maks berat 2 Kg — cocok untuk Nebulizer, Kursi Roda Travel, dsb',
-        'Rental Mobil Paralkes' : 'Disarankan untuk Bed Pasien, Tabung Oksigen Besar, dsb',
-    };
-
-    function updatePengirimanNote() {
-        const val    = document.getElementById('pengiriman').value;
-        const noteEl = document.getElementById('pengiriman-note-text');
-        noteEl.textContent = pengirimanNotes[val] || 'Pilih metode pengiriman di atas';
-        if (val === 'mandiri') {
-            document.querySelector('input[name="biaya_ongkir"]').value = 0;
-        }
-    }
-
-    // ============================================================
-    // METODE PEMBAYARAN INFO
-    // ============================================================
-    const metodeInfos = {
-        'Tunai / Cash'         : 'Pembayaran tunai di tempat',
-        'Transfer via Bank BCA': 'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA',
-    };
-
-    function updateMetodeInfo() {
-        const val    = document.getElementById('metode_pembayaran').value;
-        const infoEl = document.getElementById('metode-info-text');
-        infoEl.textContent = metodeInfos[val] || 'Pilih metode pembayaran';
-    }
-
-    // ============================================================
-    // DRAG & DROP FILE UPLOAD
-    // ============================================================
-    function formatBytes(bytes) {
-        if (bytes < 1024)            return bytes + ' B';
-        if (bytes < 1024 * 1024)     return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
-    function initDropzone(inputId, dropzoneId, previewId, previewNameId, previewSizeId, allowedTypes, maxBytes) {
-        const input    = document.getElementById(inputId);
-        const dropzone = document.getElementById(dropzoneId);
-        const preview  = document.getElementById(previewId);
-        const nameEl   = document.getElementById(previewNameId);
-        const sizeEl   = document.getElementById(previewSizeId);
-
-        if (!input || !dropzone) return;
-
-        function showPreview(file) {
-            nameEl.textContent = file.name;
-            sizeEl.textContent = formatBytes(file.size);
-            preview.classList.add('show');
-            dropzone.style.display = 'none';
-        }
-
-        function validateAndShow(file) {
-            if (!allowedTypes.includes(file.type)) {
-                alert('File tidak valid. Gunakan JPG, PNG, atau PDF.');
-                return false;
-            }
-            if (file.size > maxBytes) {
-                alert('Ukuran file melebihi ' + formatBytes(maxBytes) + '.');
-                return false;
-            }
-            return true;
-        }
-
-        // Via file picker
-        input.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                if (validateAndShow(this.files[0])) showPreview(this.files[0]);
-                else this.value = '';
-            }
-        });
-
-        // Drag events
-        dropzone.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            this.classList.add('drag-over');
-        });
-
-        dropzone.addEventListener('dragleave', function (e) {
-            if (!this.contains(e.relatedTarget)) this.classList.remove('drag-over');
-        });
-
-        dropzone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            this.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (!file) return;
-            if (!validateAndShow(file)) return;
-
-            // Assign ke input via DataTransfer
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            input.files = dt.files;
-            showPreview(file);
-        });
-    }
-
-    function removeFile(inputId, previewId, dropzoneId) {
-        const input    = document.getElementById(inputId);
-        const preview  = document.getElementById(previewId);
-        const dropzone = document.getElementById(dropzoneId);
-        input.value = '';
-        preview.classList.remove('show');
-        dropzone.style.display = '';
-    }
-
-    // Init dropzone KTP/SIM — JPG, PNG, PDF, maks 5 MB
-    initDropzone(
-        'foto_ktp_sim',
-        'dropzone-ktp',
-        'ktp-preview',
-        'ktp-preview-name',
-        'ktp-preview-size',
-        ['image/jpeg', 'image/png', 'application/pdf'],
-        5 * 1024 * 1024
-    );
-
-    // ============================================================
-    // INIT ON DOM READY
-    // ============================================================
-    window.addEventListener('DOMContentLoaded', function () {
-        updatePengirimanNote();
-        updateMetodeInfo();
+// ============================================================
+// DATE RANGE PICKER
+// ============================================================
+const fpMulai = flatpickr("#tgl_mulai", {
+    locale: "id", dateFormat: "Y-m-d", minDate: "today",
+    onChange: function(_, dateStr) {
+        fpSelesai.set('minDate', dateStr);
         hitungDurasi();
+    }
+});
+const fpSelesai = flatpickr("#tgl_selesai", {
+    locale: "id", dateFormat: "Y-m-d", minDate: "today",
+    onChange: function() { hitungDurasi(); }
+});
+
+function hitungDurasi() {
+    const mulai   = document.getElementById('tgl_mulai').value;
+    const selesai = document.getElementById('tgl_selesai').value;
+    const display = document.getElementById('durasi-display');
+    const hidden  = document.getElementById('durasi_hari');
+    if (mulai && selesai) {
+        const diff = Math.round((new Date(selesai) - new Date(mulai)) / 86400000);
+        if (diff > 0) {
+            hidden.value = diff;
+            display.innerHTML = '<i class="ri-calendar-check-line"></i> ' + diff + ' hari';
+        } else if (diff === 0) {
+            hidden.value = 1;
+            display.innerHTML = '<i class="ri-calendar-check-line"></i> 1 hari (same day)';
+        } else {
+            hidden.value = '';
+            display.innerHTML = '<span style="color:#EF4444;"><i class="ri-error-warning-line"></i> Tanggal selesai harus setelah tanggal mulai</span>';
+        }
+    } else {
+        hidden.value = '';
+        display.innerHTML = '';
+    }
+}
+
+// ============================================================
+// PENGIRIMAN & METODE INFO
+// ============================================================
+const pengirimanNotes = {
+    'mandiri'              : 'Penyewa mengambil & mengembalikan sendiri — tidak ada ongkir',
+    'Gosend / GrabExpress' : 'Maks berat 2 Kg — cocok untuk Nebulizer, Kursi Roda Travel, dsb',
+    'Rental Mobil Paralkes': 'Disarankan untuk Bed Pasien, Tabung Oksigen Besar, dsb',
+};
+function updatePengirimanNote() {
+    const val = document.getElementById('pengiriman').value;
+    document.getElementById('pengiriman-note-text').textContent = pengirimanNotes[val] || 'Pilih metode pengiriman di atas';
+    if (val === 'mandiri') {
+        document.getElementById('biaya_ongkir').value = 0;
+        hitungRingkasan();
+    }
+}
+
+const metodeInfos = {
+    'Tunai / Cash'        : 'Pembayaran tunai di tempat',
+    'Transfer via Bank BCA': 'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA',
+};
+function updateMetodeInfo() {
+    const val = document.getElementById('metode_pembayaran').value;
+    document.getElementById('metode-info-text').textContent = metodeInfos[val] || 'Pilih metode pembayaran';
+}
+
+// ============================================================
+// DYNAMIC TABLE — ITEM ROWS
+// ============================================================
+let rowIndex = {{ count($oldItems) }};
+
+const satuanOptions = ['pcs','unit','set','buah','pasang'];
+
+function buildSatuanOptions(selected) {
+    return satuanOptions.map(s =>
+        `<option value="${s}" ${s === selected ? 'selected' : ''}>${s}</option>`
+    ).join('');
+}
+
+function addRow() {
+    const tbody = document.getElementById('items-body');
+    const idx   = rowIndex++;
+    const tr    = document.createElement('tr');
+    tr.className = 'item-row';
+    tr.innerHTML = `
+        <td style="text-align:center; color:var(--text-muted); font-size:13px;" class="row-num">${tbody.rows.length + 1}</td>
+        <td><input type="text"   name="items[${idx}][nama_alat]"    placeholder="Nama alat kesehatan" class="form-control item-nama" required></td>
+        <td><input type="number" name="items[${idx}][qty]"          value="1" min="1"    class="form-control item-qty" required></td>
+        <td><select name="items[${idx}][satuan]" class="form-control item-satuan">${buildSatuanOptions('pcs')}</select></td>
+        <td><input type="number" name="items[${idx}][harga_satuan]" value="0" min="0"    class="form-control item-harga" required></td>
+        <td><input type="number" name="items[${idx}][diskon]"       value="0" min="0" max="100" class="form-control item-diskon"></td>
+        <td class="subtotal-cell" data-subtotal="0">Rp 0</td>
+        <td><button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="ri-delete-bin-line"></i></button></td>
+    `;
+    tbody.appendChild(tr);
+    bindRowEvents(tr);
+    updateRowNumbers();
+}
+
+function removeRow(btn) {
+    const tbody = document.getElementById('items-body');
+    if (tbody.rows.length <= 1) {
+        alert('Minimal harus ada 1 item penyewaan.');
+        return;
+    }
+    btn.closest('tr').remove();
+    updateRowNumbers();
+    hitungRingkasan();
+}
+
+function updateRowNumbers() {
+    document.querySelectorAll('#items-body .row-num').forEach((el, i) => {
+        el.textContent = i + 1;
     });
+}
+
+function hitungSubtotal(row) {
+    const qty    = parseFloat(row.querySelector('.item-qty').value)    || 0;
+    const harga  = parseFloat(row.querySelector('.item-harga').value)  || 0;
+    const diskon = parseFloat(row.querySelector('.item-diskon').value) || 0;
+    const sub    = Math.round(qty * harga * (1 - diskon / 100));
+    const cell   = row.querySelector('.subtotal-cell');
+    cell.dataset.subtotal = sub;
+    cell.textContent = 'Rp ' + sub.toLocaleString('id-ID');
+    hitungRingkasan();
+}
+
+function hitungRingkasan() {
+    let subtotalSewa = 0;
+    document.querySelectorAll('#items-body .subtotal-cell').forEach(cell => {
+        subtotalSewa += parseFloat(cell.dataset.subtotal) || 0;
+    });
+    const diskonGlobal = parseFloat(document.getElementById('diskon_global').value) || 0;
+    const ongkir       = parseFloat(document.getElementById('biaya_ongkir').value)  || 0;
+    const total        = Math.max(0, subtotalSewa - diskonGlobal + ongkir);
+
+    const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    document.getElementById('ringkasan-subtotal').textContent    = fmt(subtotalSewa);
+    document.getElementById('ringkasan-diskon-label').textContent = fmt(diskonGlobal);
+    document.getElementById('ringkasan-ongkir').textContent      = fmt(ongkir);
+    document.getElementById('ringkasan-total').textContent       = fmt(total);
+}
+
+function bindRowEvents(row) {
+    row.querySelectorAll('.item-qty, .item-harga, .item-diskon').forEach(input => {
+        input.addEventListener('input', () => hitungSubtotal(row));
+    });
+    // hitung sekali saat bind
+    hitungSubtotal(row);
+}
+
+// Bind semua baris existing (termasuk old value)
+document.querySelectorAll('#items-body .item-row').forEach(bindRowEvents);
+
+// ============================================================
+// DRAG & DROP FILE UPLOAD
+// ============================================================
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function initDropzone(inputId, dropzoneId, previewId, previewNameId, previewSizeId, allowedTypes, maxBytes) {
+    const input    = document.getElementById(inputId);
+    const dropzone = document.getElementById(dropzoneId);
+    const preview  = document.getElementById(previewId);
+    const nameEl   = document.getElementById(previewNameId);
+    const sizeEl   = document.getElementById(previewSizeId);
+    if (!input || !dropzone) return;
+
+    function showPreview(file) {
+        nameEl.textContent = file.name;
+        sizeEl.textContent = formatBytes(file.size);
+        preview.classList.add('show');
+        dropzone.style.display = 'none';
+    }
+
+    function validateAndShow(file) {
+        if (!allowedTypes.includes(file.type)) { alert('File tidak valid. Gunakan JPG, PNG, atau PDF.'); return false; }
+        if (file.size > maxBytes) { alert('Ukuran file melebihi ' + formatBytes(maxBytes) + '.'); return false; }
+        return true;
+    }
+
+    input.addEventListener('change', function () {
+        if (this.files && this.files[0] && validateAndShow(this.files[0])) showPreview(this.files[0]);
+        else this.value = '';
+    });
+
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', e => { if (!dropzone.contains(e.relatedTarget)) dropzone.classList.remove('drag-over'); });
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault(); dropzone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (!file || !validateAndShow(file)) return;
+        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+        showPreview(file);
+    });
+}
+
+function removeFile(inputId, previewId, dropzoneId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(previewId).classList.remove('show');
+    document.getElementById(dropzoneId).style.display = '';
+}
+
+initDropzone('foto_ktp_sim','dropzone-ktp','ktp-preview','ktp-preview-name','ktp-preview-size',
+    ['image/jpeg','image/png','application/pdf'], 5*1024*1024);
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', function () {
+    updatePengirimanNote();
+    updateMetodeInfo();
+    hitungDurasi();
+    hitungRingkasan();
+});
 </script>
 @endpush

@@ -24,7 +24,6 @@
             display: flex;
             flex-direction: column;
         }
-
         .page-content { flex: 1; }
 
         /* ── KOP SURAT ── */
@@ -109,7 +108,7 @@
         }
         .info-label {
             color: #666;
-            min-width: 110px;
+            min-width: 120px;
             font-size: 11px;
         }
         .info-value {
@@ -152,9 +151,20 @@
             padding: 8px 10px;
             font-size: 11.5px;
             border-bottom: 1px solid #eef0f3;
-            vertical-align: top;
+            vertical-align: middle;
         }
         .detail-table tbody tr:nth-child(even) td { background: #f8fafc; }
+
+        /* badge diskon hijau kuning */
+        .badge-diskon {
+            display: inline-block;
+            background: #fef3c7;
+            color: #b45309;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
 
         /* ── RINGKASAN BIAYA ── */
         .biaya-section {
@@ -163,7 +173,7 @@
             margin-bottom: 16px;
         }
         .biaya-box {
-            width: 260px;
+            width: 300px;
             border: 1px solid #dde3ea;
             border-radius: 6px;
             overflow: hidden;
@@ -178,6 +188,8 @@
         .biaya-row:last-child { border-bottom: none; }
         .biaya-row .label { color: #555; }
         .biaya-row .value { font-weight: 600; }
+        .biaya-row.diskon-row .label { color: #b45309; font-weight: 600; }
+        .biaya-row.diskon-row .value { color: #b45309; font-weight: 700; }
         .biaya-row.total-row {
             background: #1D6FA4;
             color: #fff;
@@ -218,10 +230,7 @@
             align-items: flex-end;
             margin-top: 10px;
         }
-        .ttd-box {
-            text-align: center;
-            width: 180px;
-        }
+        .ttd-box { text-align: center; width: 180px; }
         .ttd-box .ttd-label {
             font-size: 11px;
             color: #555;
@@ -239,9 +248,7 @@
             color: #777;
             margin-top: 2px;
         }
-        .ttd-logo {
-            text-align: center;
-        }
+        .ttd-logo { text-align: center; }
         .ttd-logo img {
             height: 55px;
             object-fit: contain;
@@ -303,6 +310,19 @@
     App::setLocale('id');
     \Carbon\Carbon::setLocale('id');
     $now = now('Asia/Jakarta');
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODE RENDER
+    | $useDetail = true  → data baru dari tabel detail_penyewaans
+    | $useDetail = false → data lama, produk_alkes berupa CSV string
+    |--------------------------------------------------------------------------
+    */
+    $useDetail  = $penyewaan->has_detail;
+    $details    = $useDetail ? $penyewaan->details : collect();
+    $legacyList = (!$useDetail && $penyewaan->produk_alkes)
+                    ? collect(explode(',', $penyewaan->produk_alkes))->map(fn($p) => trim($p))
+                    : collect();
 @endphp
 
 <div class="page-wrapper">
@@ -333,6 +353,8 @@
 
         {{-- ── INFO INVOICE & CUSTOMER ── --}}
         <div class="info-section">
+
+            {{-- Kiri: Info Invoice --}}
             <div class="info-box">
                 <div class="info-title">📋 Informasi Invoice</div>
                 <div class="info-row">
@@ -342,6 +364,26 @@
                 <div class="info-row">
                     <span class="info-label">Tanggal Dibuat</span>
                     <span class="info-value">: {{ $now->translatedFormat('d F Y') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tgl Mulai Sewa</span>
+                    <span class="info-value">:
+                        {{ $penyewaan->tgl_mulai
+                            ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tgl Selesai Sewa</span>
+                    <span class="info-value">:
+                        {{ $penyewaan->tgl_selesai
+                            ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Durasi Sewa</span>
+                    <span class="info-value">: {{ $penyewaan->durasi_hari }} Hari</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Status</span>
@@ -357,6 +399,7 @@
                 </div>
             </div>
 
+            {{-- Kanan: Data Penyewa --}}
             <div class="info-box">
                 <div class="info-title">👤 Data Penyewa</div>
                 <div class="info-row">
@@ -378,12 +421,61 @@
             </div>
         </div>
 
-        {{-- ── DETAIL PENYEWAAN ── --}}
+        {{-- ══════════════════════════════════════════════════════════
+             DETAIL PENYEWAAN
+             — Mode baru: loop dari relasi details (tabel detail_penyewaans)
+             — Mode lama: loop dari CSV produk_alkes (legacy)
+             ══════════════════════════════════════════════════════════ --}}
         <div class="section-title">Detail Penyewaan</div>
+
+        @if($useDetail)
+        {{-- ─────────────────── MODE BARU ─────────────────── --}}
         <table class="detail-table">
             <thead>
                 <tr>
-                    <th style="width:30px;">No</th>
+                    <th class="center" style="width:28px;">No</th>
+                    <th>Nama Alat Kesehatan</th>
+                    <th class="center" style="width:42px;">Qty</th>
+                    <th class="center" style="width:48px;">Satuan</th>
+                    <th class="right"  style="width:95px;">Harga / Satuan</th>
+                    <th class="center" style="width:52px;">Diskon</th>
+                    <th class="right"  style="width:95px;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($details as $i => $item)
+                <tr>
+                    <td class="center">{{ $i + 1 }}</td>
+                    <td>{{ $item->nama_alat }}</td>
+                    <td class="center">{{ $item->qty }}</td>
+                    <td class="center">{{ $item->satuan }}</td>
+                    <td class="right">{{ $item->harga_satuan_formatted }}</td>
+                    <td class="center">
+                        @if($item->diskon > 0)
+                            <span class="badge-diskon">{{ $item->diskon }}%</span>
+                        @else
+                            <span style="color:#bbb; font-size:11px;">–</span>
+                        @endif
+                    </td>
+                    <td class="right">{{ $item->subtotal_formatted }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="center"
+                        style="color:#aaa; font-style:italic; padding:14px 0;">
+                        Tidak ada item detail tercatat.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        @else
+        {{-- ─────────────────── MODE LAMA (legacy) ─────────────────── --}}
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th class="center" style="width:30px;">No</th>
                     <th>Nama Alat Kesehatan</th>
                     <th class="center">Tgl Mulai</th>
                     <th class="center">Tgl Selesai</th>
@@ -391,21 +483,22 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $produkList = explode(', ', $penyewaan->produk_alkes);
-                @endphp
-                @foreach($produkList as $i => $produk)
+                @foreach($legacyList as $i => $produk)
                 <tr>
                     <td class="center">{{ $i + 1 }}</td>
-                    <td>{{ trim($produk) }}</td>
+                    <td>{{ $produk }}</td>
                     @if($i === 0)
-                    <td class="center" rowspan="{{ count($produkList) }}">
-                        {{ $penyewaan->tgl_mulai ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    <td class="center" rowspan="{{ count($legacyList) }}">
+                        {{ $penyewaan->tgl_mulai
+                            ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </td>
-                    <td class="center" rowspan="{{ count($produkList) }}">
-                        {{ $penyewaan->tgl_selesai ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    <td class="center" rowspan="{{ count($legacyList) }}">
+                        {{ $penyewaan->tgl_selesai
+                            ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </td>
-                    <td class="center" rowspan="{{ count($produkList) }}">
+                    <td class="center" rowspan="{{ count($legacyList) }}">
                         {{ $penyewaan->durasi_hari }} Hari
                     </td>
                     @endif
@@ -413,22 +506,52 @@
                 @endforeach
             </tbody>
         </table>
+        @endif
 
         {{-- ── RINGKASAN BIAYA ── --}}
         <div class="biaya-section">
             <div class="biaya-box">
+
+                @if($useDetail)
+                    {{-- Subtotal Sewa --}}
+                    <div class="biaya-row">
+                        <span class="label">Subtotal Sewa</span>
+                        <span class="value">{{ $penyewaan->total_harga_sewa_formatted }}</span>
+                    </div>
+
+                    {{-- Diskon Global (hanya tampil jika ada) --}}
+                    @if(($penyewaan->diskon_global ?? 0) > 0)
+                    <div class="biaya-row diskon-row">
+                        <span class="label">Diskon</span>
+                        <span class="value">– {{ $penyewaan->diskon_global_formatted }}</span>
+                    </div>
+                    @endif
+                @endif
+
+                {{-- Ongkos Kirim --}}
                 <div class="biaya-row">
-                    <span class="label">Biaya Ongkos Kirim</span>
+                    <span class="label">Ongkos Kirim</span>
                     <span class="value">
-                        {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Gratis' }}
+                        {{ ($penyewaan->biaya_ongkir ?? 0) > 0
+                            ? $penyewaan->biaya_ongkir_formatted
+                            : 'Gratis' }}
                     </span>
                 </div>
+
+                {{-- Total Tagihan --}}
                 <div class="biaya-row total-row">
                     <span class="label">Total Tagihan</span>
                     <span class="value">
-                        {{ $penyewaan->biaya_ongkir > 0 ? $penyewaan->biaya_ongkir_formatted : 'Rp 0' }}
+                        @if($useDetail)
+                            {{ $penyewaan->total_tagihan_formatted }}
+                        @else
+                            {{ ($penyewaan->biaya_ongkir ?? 0) > 0
+                                ? $penyewaan->biaya_ongkir_formatted
+                                : 'Rp 0' }}
+                        @endif
                     </span>
                 </div>
+
             </div>
         </div>
 
@@ -439,13 +562,12 @@
                 {{ $penyewaan->keterangan ?: 'Tidak ada catatan tambahan.' }}
             </p>
             <p style="margin-top:6px; color:#888;">
-                ※ Harap alat kesehatan dikembalikan dalam kondisi baik dan bersih sesuai tanggal selesai yang tertera.
-                Keterlambatan pengembalian akan dikenakan biaya tambahan.
+                ※ Harap alat kesehatan dikembalikan dalam kondisi baik dan bersih sesuai tanggal selesai
+                yang tertera. Keterlambatan pengembalian akan dikenakan biaya tambahan.
             </p>
         </div>
 
         {{-- ── TANDA TANGAN ── --}}
-        {{-- Admin di KIRI, Penyewa di KANAN --}}
         <div class="ttd-section">
             <div class="ttd-box">
                 <div class="ttd-label">Hormat Kami,</div>
@@ -468,7 +590,8 @@
 
     {{-- ── FOOTER ── --}}
     <div class="page-footer">
-        Dokumen ini digenerate secara otomatis oleh sistem Paralkes pada {{ $now->translatedFormat('d F Y, H:i') }} WIB<br>
+        Dokumen ini digenerate secara otomatis oleh sistem Paralkes
+        pada {{ $now->translatedFormat('d F Y, H:i') }} WIB<br>
         Terima kasih telah mempercayakan kebutuhan alat kesehatan Anda kepada kami.
     </div>
 
