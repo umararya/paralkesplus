@@ -36,15 +36,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewaan-monitoring',       [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
     Route::post('/penyewaan/{id}/selesaikan', [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
     Route::post('/penyewaan/{id}/extend',     [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
-    Route::get('/penyewaan/{id}/invoice',    [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
-    Route::get('/penyewaan/{id}/perjanjian', [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
+    Route::get('/penyewaan/{id}/invoice',     [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
+    Route::get('/penyewaan/{id}/perjanjian',  [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
 
     Route::resource('pembelian', PembelianController::class);
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])
          ->name('pembelian.buyback.store');
 
     Route::resource('penjualan', PenjualanController::class);
-    Route::resource('inventory', InventoryController::class);
+
+    // ── Inventory (read-only: index + show) ──
+    Route::get('/inventory',          [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/{inventory}', [InventoryController::class, 'show'])->name('inventory.show');
 
     // ── Owner Routes ──
     Route::middleware('owner.only')->prefix('owner')->name('owner.')->group(function () {
