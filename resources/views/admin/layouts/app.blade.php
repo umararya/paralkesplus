@@ -496,14 +496,28 @@
                 <i class="ri-arrow-down-s-line nav-dropdown-arrow"></i>
             </div>
 
+            {{-- ══════════════════════════════════════════ --}}
+            {{-- OWNER DROPDOWN MENU                       --}}
+            {{-- ══════════════════════════════════════════ --}}
             <div class="nav-dropdown-menu {{ request()->routeIs('owner.*') ? 'open' : '' }}"
                  id="ownerDropdown">
+
+                {{-- User Login --}}
                 <a href="{{ route('owner.user-login') }}"
                    class="nav-item {{ request()->routeIs('owner.user-login') ? 'active' : '' }}">
                     <i class="ri-login-circle-line"></i>
                     <span class="nav-label">User Login</span>
                 </a>
+
+                {{-- ── Monitoring User → mengarah ke owner/monitor ── --}}
+                <a href="{{ route('owner.monitor') }}"
+                   class="nav-item {{ request()->routeIs('owner.monitor*') ? 'active' : '' }}">
+                    <i class="ri-user-search-line"></i>
+                    <span class="nav-label">Monitoring User</span>
+                </a>
+
             </div>
+            {{-- ══════════════════════════════════════════ --}}
             @endif
 
             <span class="nav-section-title" style="margin-top:8px;">Sistem</span>
@@ -695,7 +709,7 @@
     });
 
     // ── DATETIME WIDGET ──
-    const HARI_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const HARI_ID  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     const BULAN_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
     function updateClock() {

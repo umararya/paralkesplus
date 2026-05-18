@@ -139,6 +139,15 @@ class OwnerController extends Controller
     }
 
     // ══════════════════════════════════════════
+    // MONITORING USER (Halaman Baru)
+    // ══════════════════════════════════════════
+
+    public function monitoringUser(Request $request)
+    {
+        return view('owner.monitoring-user');
+    }
+
+    // ══════════════════════════════════════════
     // MONITOR AKTIVITAS PENGGUNA
     // ══════════════════════════════════════════
 

@@ -48,12 +48,12 @@ Route::middleware('auth')->group(function () {
 
     // ── Owner Routes ──
     Route::middleware('owner.only')->prefix('owner')->name('owner.')->group(function () {
-        Route::get('/user-login',             [OwnerController::class, 'userLogin'])->name('user-login');
-        Route::post('/user-login',            [OwnerController::class, 'userLoginStore'])->name('user-login.store');
-        Route::put('/user-login/{user}',      [OwnerController::class, 'userLoginUpdate'])->name('user-login.update');
-        Route::delete('/user-login/{user}',   [OwnerController::class, 'userLoginDestroy'])->name('user-login.destroy');
+        Route::get('/user-login',           [OwnerController::class, 'userLogin'])->name('user-login');
+        Route::post('/user-login',          [OwnerController::class, 'userLoginStore'])->name('user-login.store');
+        Route::put('/user-login/{user}',    [OwnerController::class, 'userLoginUpdate'])->name('user-login.update');
+        Route::delete('/user-login/{user}', [OwnerController::class, 'userLoginDestroy'])->name('user-login.destroy');
 
-        // ── Monitor Aktivitas ──
+        // ── Monitor Aktivitas (dijangkau via menu "Monitoring User") ──
         Route::get('/monitor',              [OwnerController::class, 'monitor'])->name('monitor');
         Route::get('/monitor/{user}',       [OwnerController::class, 'monitorDetail'])->name('monitor.detail');
     });
