@@ -362,10 +362,6 @@
                     <span class="info-value">: INV-{{ str_pad($penyewaan->id, 5, '0', STR_PAD_LEFT) }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Tanggal Dibuat</span>
-                    <span class="info-value">: {{ $now->translatedFormat('d F Y') }}</span>
-                </div>
-                <div class="info-row">
                     <span class="info-label">Tgl Mulai Sewa</span>
                     <span class="info-value">:
                         {{ $penyewaan->tgl_mulai
