@@ -4,8 +4,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Inventory;
+use App\Models\InventoryLog;
 use App\Models\Pembelian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PembelianController extends Controller
@@ -57,6 +60,7 @@ class PembelianController extends Controller
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
+            'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
@@ -68,24 +72,63 @@ class PembelianController extends Controller
                 ->store('pembelian/bukti', 'public');
         }
 
-        $pembelian = Pembelian::create($validated);
+        DB::transaction(function () use ($validated, $request) {
+            // 1. Simpan data pembelian
+            $pembelian = Pembelian::create($validated);
 
-        // ── Activity Log ──
-        ActivityLog::record(
-            module:   'Pembelian',
-            action:   'create',
-            subject:  $pembelian->nama_barang,
-            newValue: [
-                'barang'   => $pembelian->nama_barang,
-                'jumlah'   => $pembelian->jumlah,
-                'total'    => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
-                'tanggal'  => $pembelian->tanggal_pembelian,
-            ],
-            pageUrl: 'pembelian'
-        );
+            // 2. Cari inventory yang nama_produknya sama (case-insensitive)
+            //    Kalau belum ada → buat baru otomatis
+            $kondisi = $validated['kondisi_barang']; // 'baru' | 'bekas'
+            $jumlah  = (int) $validated['jumlah'];
+
+            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                strtolower($validated['nama_barang'])
+            ])->first();
+
+            if ($inventory) {
+                // Produk sudah ada → tambah stok
+                $inventory->tambahStok($jumlah, $kondisi);
+            } else {
+                // Produk belum ada → buat entry inventory baru
+                $inventory = Inventory::create([
+                    'nama_produk'        => $validated['nama_barang'],
+                    'satuan'             => 'unit',
+                    'stok_tersedia'      => $jumlah,
+                    'stok_disewa'        => 0,
+                    'stok_baru'          => $kondisi === 'baru'  ? $jumlah : 0,
+                    'stok_bekas'         => $kondisi === 'bekas' ? $jumlah : 0,
+                    'harga_beli_terakhir'=> $validated['harga_satuan'],
+                ]);
+            }
+
+            // 3. Catat inventory log
+            InventoryLog::create([
+                'inventory_id'   => $inventory->id,
+                'reference_type' => 'purchase',
+                'reference_id'   => $pembelian->id,
+                'qty_change'     => $jumlah,
+                'kondisi'        => $kondisi,
+                'keterangan'     => 'Pembelian: ' . $validated['nama_barang'],
+            ]);
+
+            // 4. Activity log
+            ActivityLog::record(
+                module:   'Pembelian',
+                action:   'create',
+                subject:  $pembelian->nama_barang,
+                newValue: [
+                    'barang'   => $pembelian->nama_barang,
+                    'jumlah'   => $pembelian->jumlah,
+                    'kondisi'  => $kondisi,
+                    'total'    => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
+                    'tanggal'  => $pembelian->tanggal_pembelian,
+                ],
+                pageUrl: 'pembelian'
+            );
+        });
 
         return redirect()->route('pembelian.index')
-            ->with('success', 'Data pembelian berhasil ditambahkan.');
+            ->with('success', 'Data pembelian berhasil ditambahkan dan stok inventory diperbarui.');
     }
 
     public function show(string $id)
@@ -109,11 +152,11 @@ class PembelianController extends Controller
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
+            'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
-        // Simpan data lama sebelum update
         $oldData = [
             'barang'  => $pembelian->nama_barang,
             'jumlah'  => $pembelian->jumlah,
@@ -137,7 +180,6 @@ class PembelianController extends Controller
 
         $pembelian->update($validated);
 
-        // ── Activity Log ──
         ActivityLog::record(
             module:   'Pembelian',
             action:   'update',
@@ -159,7 +201,6 @@ class PembelianController extends Controller
     {
         $pembelian = Pembelian::findOrFail($id);
 
-        // ── Activity Log (SEBELUM delete) ──
         ActivityLog::record(
             module:   'Pembelian',
             action:   'delete',
@@ -209,24 +250,56 @@ class PembelianController extends Controller
                 ->store('pembelian/buyback', 'public');
         }
 
-        $pembelian = Pembelian::create($validated);
+        DB::transaction(function () use ($validated) {
+            $pembelian = Pembelian::create($validated);
 
-        // ── Activity Log ──
-        ActivityLog::record(
-            module:   'Pembelian',
-            action:   'create',
-            subject:  '[Buy Back] ' . $pembelian->nama_barang . ' dari ' . $pembelian->nama_pelanggan,
-            newValue: [
-                'barang'    => $pembelian->nama_barang,
-                'pelanggan' => $pembelian->nama_pelanggan,
-                'kondisi'   => $pembelian->kondisi_barang,
-                'jumlah'    => $pembelian->jumlah,
-                'total'     => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
-            ],
-            pageUrl: 'pembelian/buy-back'
-        );
+            // Buy back → barang masuk kembali sebagai 'bekas'
+            $kondisiInventory = 'bekas';
+            $jumlah           = (int) $validated['jumlah'];
+
+            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                strtolower($validated['nama_barang'])
+            ])->first();
+
+            if ($inventory) {
+                $inventory->tambahStok($jumlah, $kondisiInventory);
+            } else {
+                $inventory = Inventory::create([
+                    'nama_produk'         => $validated['nama_barang'],
+                    'satuan'              => 'unit',
+                    'stok_tersedia'       => $jumlah,
+                    'stok_disewa'         => 0,
+                    'stok_baru'           => 0,
+                    'stok_bekas'          => $jumlah,
+                    'harga_beli_terakhir' => $validated['harga_satuan'],
+                ]);
+            }
+
+            InventoryLog::create([
+                'inventory_id'   => $inventory->id,
+                'reference_type' => 'buyback',
+                'reference_id'   => $pembelian->id,
+                'qty_change'     => $jumlah,
+                'kondisi'        => $kondisiInventory,
+                'keterangan'     => 'Buy Back dari: ' . $validated['nama_pelanggan'],
+            ]);
+
+            ActivityLog::record(
+                module:   'Pembelian',
+                action:   'create',
+                subject:  '[Buy Back] ' . $pembelian->nama_barang . ' dari ' . $pembelian->nama_pelanggan,
+                newValue: [
+                    'barang'    => $pembelian->nama_barang,
+                    'pelanggan' => $pembelian->nama_pelanggan,
+                    'kondisi'   => $pembelian->kondisi_barang,
+                    'jumlah'    => $pembelian->jumlah,
+                    'total'     => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
+                ],
+                pageUrl: 'pembelian/buy-back'
+            );
+        });
 
         return redirect()->route('penjualan.index')
-            ->with('success', 'Buy back berhasil dicatat dan masuk ke data pembelian.');
+            ->with('success', 'Buy back berhasil dicatat dan stok inventory diperbarui.');
     }
 }

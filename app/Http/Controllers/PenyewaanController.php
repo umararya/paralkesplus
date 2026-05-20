@@ -4,8 +4,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
-use App\Models\Penyewaan;
 use App\Models\DetailPenyewaan;
+use App\Models\Penyewaan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class PenyewaanController extends Controller
 
     private function syncStatus(Penyewaan $item): void
     {
-        if ($item->status === 'selesai') return;
+        if ($item->status === 'selesai' || $item->status === 'dibatalkan') return;
 
         $sisaHari = $item->sisa_hari;
 
@@ -38,34 +38,53 @@ class PenyewaanController extends Controller
 
     // =========================================================
     //  PRIVATE HELPER — simpan / sync detail items
+    //  Strategi: upsert per detail_id, hapus yang tidak ada lagi
     // =========================================================
 
-    private function syncDetails(Penyewaan $penyewaan, array $items, bool $deleteFirst = false): void
+    private function syncDetails(Penyewaan $penyewaan, array $items): void
     {
-        if ($deleteFirst) {
-            $penyewaan->details()->delete();
-        }
-
-        $totalSewa = 0;
+        $existingIds  = $penyewaan->details()->pluck('id')->toArray();
+        $submittedIds = [];
+        $totalSewa    = 0;
 
         foreach ($items as $item) {
-            if (empty($item['nama_alat'])) continue;
+            $namaAlat = trim($item['nama_alat'] ?? '');
+            if ($namaAlat === '') continue;
 
-            $qty      = max(1, (int) ($item['qty'] ?? 1));
-            $harga    = max(0, (int) ($item['harga_satuan'] ?? 0));
-            $diskon   = max(0, min(100, (int) ($item['diskon'] ?? 0)));
-            $subtotal = (int) round($qty * $harga * (1 - $diskon / 100));
+            $qty          = max(1, (int) ($item['qty']          ?? 1));
+            $harga        = max(0, (int) ($item['harga_satuan'] ?? 0));
+            $diskon       = max(0, min(100, (int) ($item['diskon'] ?? 0)));
+            $inventoryId  = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $subtotal     = (int) round($qty * $harga * (1 - $diskon / 100));
 
-            $penyewaan->details()->create([
-                'nama_alat'    => $item['nama_alat'],
+            $data = [
+                'penyewaan_id' => $penyewaan->id,
+                'inventory_id' => $inventoryId,
+                'nama_alat'    => $namaAlat,
                 'qty'          => $qty,
-                'satuan'       => $item['satuan'] ?? 'pcs',
+                'satuan'       => $item['satuan'] ?? 'unit',
                 'harga_satuan' => $harga,
                 'diskon'       => $diskon,
                 'subtotal'     => $subtotal,
-            ]);
+            ];
+
+            if (!empty($item['detail_id']) && in_array((int)$item['detail_id'], $existingIds)) {
+                // Update existing detail
+                DetailPenyewaan::where('id', (int)$item['detail_id'])->update($data);
+                $submittedIds[] = (int)$item['detail_id'];
+            } else {
+                // Create new detail
+                $created        = DetailPenyewaan::create($data);
+                $submittedIds[] = $created->id;
+            }
 
             $totalSewa += $subtotal;
+        }
+
+        // Hapus detail yang tidak ada di submitted
+        $toDelete = array_diff($existingIds, $submittedIds);
+        if (!empty($toDelete)) {
+            DetailPenyewaan::whereIn('id', $toDelete)->delete();
         }
 
         $penyewaan->update(['total_harga_sewa' => $totalSewa]);
@@ -89,18 +108,16 @@ class PenyewaanController extends Controller
 
         $penyewaans = Penyewaan::query()
             ->when($search, function ($q) use ($search) {
-                $q->where('nama_penyewa', 'like', "%{$search}%")
-                  ->orWhere('nomor_telepon', 'like', "%{$search}%")
-                  ->orWhere('produk_alkes', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%")
-                  ->orWhere('pengiriman', 'like', "%{$search}%")
-                  ->orWhere('alamat_penyewa', 'like', "%{$search}%")
+                $q->where('nama_penyewa',       'like', "%{$search}%")
+                  ->orWhere('nomor_telepon',     'like', "%{$search}%")
+                  ->orWhere('produk_alkes',      'like', "%{$search}%")
+                  ->orWhere('status',            'like', "%{$search}%")
+                  ->orWhere('pengiriman',        'like', "%{$search}%")
+                  ->orWhere('alamat_penyewa',    'like', "%{$search}%")
                   ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhere('tgl_mulai', 'like', "%{$search}%")
-                  ->orWhere('tgl_selesai', 'like', "%{$search}%")
-                  ->orWhereRaw('CAST(durasi_hari AS CHAR) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('CAST(biaya_ongkir AS CHAR) LIKE ?', ["%{$search}%"]);
+                  ->orWhere('keterangan',        'like', "%{$search}%")
+                  ->orWhere('tgl_mulai',         'like', "%{$search}%")
+                  ->orWhere('tgl_selesai',       'like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
@@ -120,25 +137,24 @@ class PenyewaanController extends Controller
             $this->syncStatus($item);
         }
 
-        $data = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])
+        $data = Penyewaan::with('details')
+            ->whereIn('status', ['berjalan', 'segera_konfirmasi'])
             ->orderBy('tgl_selesai', 'asc')
             ->get()
             ->map(function ($item) {
-                $barang = $item->has_detail
+                $barang = $item->details->count()
                     ? $item->details->pluck('nama_alat')->implode(', ')
-                    : $item->produk_alkes;
+                    : ($item->produk_alkes ?? '-');
 
                 return [
-                    'id'                => $item->id,
-                    'nama'              => $item->nama_penyewa,
-                    'nomor_hp'          => $item->nomor_telepon,
-                    'barang'            => $barang,
-                    'alamat'            => $item->alamat_penyewa,
-                    'sisa_hari'         => $item->sisa_hari,
-                    'tgl_selesai'       => $item->tgl_selesai
-                                           ? $item->tgl_selesai->format('d M Y')
-                                           : '-',
-                    'status'            => $item->status,
+                    'id'          => $item->id,
+                    'nama'        => $item->nama_penyewa,
+                    'nomor_hp'    => $item->nomor_telepon,
+                    'barang'      => $barang,
+                    'alamat'      => $item->alamat_penyewa,
+                    'sisa_hari'   => $item->sisa_hari,
+                    'tgl_selesai' => $item->tgl_selesai?->format('d M Y') ?? '-',
+                    'status'      => $item->status,
                 ];
             });
 
@@ -152,25 +168,23 @@ class PenyewaanController extends Controller
             $this->syncStatus($item);
         }
 
-        $data = Penyewaan::where('status', 'segera_konfirmasi')
+        $data = Penyewaan::with('details')
+            ->where('status', 'segera_konfirmasi')
             ->orderBy('tgl_selesai', 'asc')
             ->get()
             ->map(function ($item) {
                 $sisaHari = $item->sisa_hari;
 
-                if ($sisaHari <= 0) {
-                    $sisaLabel = 'Lewat deadline!';
-                } elseif ($sisaHari === 1) {
-                    $sisaLabel = 'Besok deadline!';
-                } elseif ($sisaHari === 2) {
-                    $sisaLabel = '2 hari lagi';
-                } else {
-                    $sisaLabel = $sisaHari . ' hari lagi';
-                }
+                $sisaLabel = match (true) {
+                    $sisaHari <= 0 => 'Lewat deadline!',
+                    $sisaHari === 1 => 'Besok deadline!',
+                    $sisaHari === 2 => '2 hari lagi',
+                    default        => $sisaHari . ' hari lagi',
+                };
 
-                $barang = $item->has_detail
+                $barang = $item->details->count()
                     ? $item->details->pluck('nama_alat')->implode(', ')
-                    : $item->produk_alkes;
+                    : ($item->produk_alkes ?? '-');
 
                 return [
                     'id'          => $item->id,
@@ -178,9 +192,7 @@ class PenyewaanController extends Controller
                     'barang'      => $barang,
                     'sisa_hari'   => $sisaHari,
                     'sisa_label'  => $sisaLabel,
-                    'tgl_selesai' => $item->tgl_selesai
-                                     ? $item->tgl_selesai->format('d M Y')
-                                     : '-',
+                    'tgl_selesai' => $item->tgl_selesai?->format('d M Y') ?? '-',
                 ];
             });
 
@@ -219,7 +231,7 @@ class PenyewaanController extends Controller
             return response()->json([
                 'success' => true,
                 'action'  => 'selesai_sekarang',
-                'message' => 'Penyewaan berhasil diselesaikan sekarang.',
+                'message' => 'Penyewaan berhasil diselesaikan.',
             ]);
         }
 
@@ -264,8 +276,11 @@ class PenyewaanController extends Controller
             action:   'update',
             subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['tgl_selesai' => $tglLama],
-            newValue: ['tgl_selesai' => $tglBaru->format('d M Y'), 'durasi' => $durasiHari . ' hari'],
-            pageUrl:  'penyewaan/' . $penyewaan->id . '/extend'
+            newValue: [
+                'tgl_selesai' => $tglBaru->format('d M Y'),
+                'durasi'      => $durasiHari . ' hari',
+            ],
+            pageUrl: 'penyewaan/' . $penyewaan->id . '/extend'
         );
 
         return response()->json([
@@ -286,51 +301,47 @@ class PenyewaanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_penyewa'         => 'required|string|max:255',
-            'nomor_telepon'        => 'required|string|max:20',
-            'tempat_tanggal_lahir' => 'nullable|string|max:255',   // ← BARU
-            'nomor_ktp'            => 'nullable|string|max:16|min:16|regex:/^[0-9]+$/', // ← BARU
-            'tgl_mulai'            => 'required|date',
-            'tgl_selesai'          => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'          => 'required|integer|min:1',
-            'pengiriman'           => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
-            'biaya_ongkir'         => 'nullable|integer|min:0',
-            'diskon_global'        => 'nullable|integer|min:0',
-            'alamat_penyewa'       => 'required|string',
-            'metode_pembayaran'    => 'required|in:Tunai / Cash,Transfer via Bank BCA',
-            'bukti_pembayaran'     => 'nullable|string|max:500',
-            'foto_ktp_sim'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'status'               => 'required|in:berjalan',
-            'keterangan'           => 'nullable|string',
-            'items'                => 'required|array|min:1',
-            'items.*.nama_alat'    => 'required|string|max:255',
-            'items.*.qty'          => 'required|integer|min:1',
-            'items.*.satuan'       => 'required|string|max:50',
-            'items.*.harga_satuan' => 'required|integer|min:0',
-            'items.*.diskon'       => 'nullable|integer|min:0|max:100',
+            'nama_penyewa'             => 'required|string|max:255',
+            'nomor_telepon'            => 'required|string|max:20',
+            'tempat_tanggal_lahir'     => 'nullable|string|max:255',
+            'nomor_ktp'                => ['nullable', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'alamat_penyewa'           => 'required|string',
+            'tgl_mulai'                => 'required|date',
+            'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
+            'durasi_hari'              => 'required|integer|min:1',
+            'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
+            'biaya_ongkir'             => 'nullable|integer|min:0',
+            'diskon_global'            => 'nullable|integer|min:0',
+            'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
+            'bukti_pembayaran'         => 'nullable|string|max:500',
+            'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'keterangan'               => 'nullable|string',
+            'items'                    => 'required|array|min:1',
+            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
+            'items.*.nama_alat'        => 'required|string|max:255',
+            'items.*.qty'              => 'required|integer|min:1',
+            'items.*.satuan'           => 'required|string|max:50',
+            'items.*.harga_satuan'     => 'required|integer|min:0',
+            'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ], [
-            'nomor_ktp.min'   => 'Nomor KTP harus 16 digit.',
-            'nomor_ktp.max'   => 'Nomor KTP harus 16 digit.',
+            'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
+        // Upload foto KTP/SIM
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
         }
 
-        $validated['biaya_ongkir']     = $validated['biaya_ongkir'] ?? 0;
+        $validated['biaya_ongkir']     = $validated['biaya_ongkir']  ?? 0;
         $validated['diskon_global']    = $validated['diskon_global'] ?? 0;
         $validated['total_harga_sewa'] = 0;
+        $validated['status']           = 'berjalan';
 
         $penyewaan = Penyewaan::create(collect($validated)->except('items')->toArray());
 
         $this->syncDetails($penyewaan, $validated['items']);
-
-        $namaAlat = collect($validated['items'])
-            ->filter(fn($i) => !empty($i['nama_alat']))
-            ->pluck('nama_alat')
-            ->implode(', ');
 
         ActivityLog::record(
             module:   'Penyewaan',
@@ -338,10 +349,10 @@ class PenyewaanController extends Controller
             subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             newValue: [
                 'penyewa'     => $penyewaan->nama_penyewa,
-                'alat'        => $namaAlat,
+                'alat'        => collect($validated['items'])->pluck('nama_alat')->implode(', '),
                 'tgl_mulai'   => $penyewaan->tgl_mulai->format('d M Y'),
                 'tgl_selesai' => $penyewaan->tgl_selesai->format('d M Y'),
-                'total'       => 'Rp ' . number_format($penyewaan->total_harga_sewa, 0, ',', '.'),
+                'total'       => 'Rp ' . number_format($penyewaan->total_tagihan, 0, ',', '.'),
             ],
             pageUrl: 'penyewaan'
         );
@@ -356,7 +367,7 @@ class PenyewaanController extends Controller
 
     public function show(string $id)
     {
-        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+        $penyewaan = Penyewaan::with('details.inventory')->findOrFail($id);
         return view('admin.penyewaan.show', compact('penyewaan'));
     }
 
@@ -378,52 +389,55 @@ class PenyewaanController extends Controller
             'penyewa'     => $penyewaan->nama_penyewa,
             'status'      => $penyewaan->status,
             'tgl_selesai' => $penyewaan->tgl_selesai?->format('d M Y'),
-            'total'       => 'Rp ' . number_format($penyewaan->total_harga_sewa, 0, ',', '.'),
+            'total'       => 'Rp ' . number_format($penyewaan->total_tagihan, 0, ',', '.'),
         ];
 
         $validated = $request->validate([
-            'nama_penyewa'         => 'required|string|max:255',
-            'nomor_telepon'        => 'required|string|max:20',
-            'tempat_tanggal_lahir' => 'nullable|string|max:255',   // ← BARU
-            'nomor_ktp'            => 'nullable|string|max:16|min:16|regex:/^[0-9]+$/', // ← BARU
-            'tgl_mulai'            => 'required|date',
-            'tgl_selesai'          => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'          => 'required|integer|min:1',
-            'pengiriman'           => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
-            'biaya_ongkir'         => 'nullable|integer|min:0',
-            'diskon_global'        => 'nullable|integer|min:0',
-            'alamat_penyewa'       => 'required|string',
-            'metode_pembayaran'    => 'required|in:Tunai / Cash,Transfer via Bank BCA',
-            'bukti_pembayaran'     => 'nullable|string|max:500',
-            'foto_ktp_sim'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'status'               => 'required|in:berjalan,segera_konfirmasi,selesai',
-            'keterangan'           => 'nullable|string',
-            'items'                => 'required|array|min:1',
-            'items.*.nama_alat'    => 'required|string|max:255',
-            'items.*.qty'          => 'required|integer|min:1',
-            'items.*.satuan'       => 'required|string|max:50',
-            'items.*.harga_satuan' => 'required|integer|min:0',
-            'items.*.diskon'       => 'nullable|integer|min:0|max:100',
+            'nama_penyewa'             => 'required|string|max:255',
+            'nomor_telepon'            => 'required|string|max:20',
+            'tempat_tanggal_lahir'     => 'nullable|string|max:255',
+            'nomor_ktp'                => ['nullable', 'string', 'size:16', 'regex:/^[0-9]+$/'],
+            'alamat_penyewa'           => 'required|string',
+            'tgl_mulai'                => 'required|date',
+            'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
+            'durasi_hari'              => 'required|integer|min:1',
+            'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
+            'biaya_ongkir'             => 'nullable|integer|min:0',
+            'diskon_global'            => 'nullable|integer|min:0',
+            'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
+            'bukti_pembayaran'         => 'nullable|string|max:500',
+            'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'status'                   => 'required|in:berjalan,segera_konfirmasi,selesai,dibatalkan',
+            'keterangan'               => 'nullable|string',
+            'items'                    => 'required|array|min:1',
+            'items.*.detail_id'        => 'nullable|integer',
+            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
+            'items.*.nama_alat'        => 'required|string|max:255',
+            'items.*.qty'              => 'required|integer|min:1',
+            'items.*.satuan'           => 'required|string|max:50',
+            'items.*.harga_satuan'     => 'required|integer|min:0',
+            'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ], [
-            'nomor_ktp.min'   => 'Nomor KTP harus 16 digit.',
-            'nomor_ktp.max'   => 'Nomor KTP harus 16 digit.',
+            'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
+        // Upload foto KTP/SIM (replace jika ada)
         if ($request->hasFile('foto_ktp_sim')) {
-            if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
+            if ($penyewaan->foto_ktp_sim &&
+                \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
                 \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
             }
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
         }
 
-        $validated['biaya_ongkir']  = $validated['biaya_ongkir'] ?? 0;
+        $validated['biaya_ongkir']  = $validated['biaya_ongkir']  ?? 0;
         $validated['diskon_global'] = $validated['diskon_global'] ?? 0;
 
         $penyewaan->update(collect($validated)->except('items')->toArray());
 
-        $this->syncDetails($penyewaan, $validated['items'], deleteFirst: true);
+        $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
             module:   'Penyewaan',
@@ -431,10 +445,10 @@ class PenyewaanController extends Controller
             subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: $oldData,
             newValue: [
-                'penyewa'     => $penyewaan->nama_penyewa,
-                'status'      => $penyewaan->status,
-                'tgl_selesai' => $penyewaan->tgl_selesai?->format('d M Y'),
-                'total'       => 'Rp ' . number_format($penyewaan->total_harga_sewa, 0, ',', '.'),
+                'penyewa'     => $penyewaan->fresh()->nama_penyewa,
+                'status'      => $penyewaan->fresh()->status,
+                'tgl_selesai' => $penyewaan->fresh()->tgl_selesai?->format('d M Y'),
+                'total'       => 'Rp ' . number_format($penyewaan->fresh()->total_tagihan, 0, ',', '.'),
             ],
             pageUrl: 'penyewaan/' . $penyewaan->id . '/edit'
         );
@@ -460,16 +474,17 @@ class PenyewaanController extends Controller
                 'nomor_hp'    => $penyewaan->nomor_telepon,
                 'tgl_mulai'   => $penyewaan->tgl_mulai?->format('d M Y'),
                 'tgl_selesai' => $penyewaan->tgl_selesai?->format('d M Y'),
-                'total'       => 'Rp ' . number_format($penyewaan->total_harga_sewa, 0, ',', '.'),
+                'total'       => 'Rp ' . number_format($penyewaan->total_tagihan, 0, ',', '.'),
             ],
             pageUrl: 'penyewaan'
         );
 
-        if ($penyewaan->foto_ktp_sim && \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
+        if ($penyewaan->foto_ktp_sim &&
+            \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }
 
-        $penyewaan->delete();
+        $penyewaan->delete(); // details ikut cascade delete
 
         return redirect()->route('penyewaan.index')
             ->with('success', 'Data penyewaan berhasil dihapus.');
@@ -481,13 +496,13 @@ class PenyewaanController extends Controller
 
     public function invoice(string $id)
     {
-        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+        $penyewaan = Penyewaan::with('details.inventory')->findOrFail($id);
         return view('admin.penyewaan.cetak.invoice', compact('penyewaan'));
     }
 
     public function perjanjian(string $id)
     {
-        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+        $penyewaan = Penyewaan::with('details.inventory')->findOrFail($id);
         return view('admin.penyewaan.cetak.perjanjian', compact('penyewaan'));
     }
 }

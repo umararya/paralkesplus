@@ -1,19 +1,20 @@
 <?php
-// app/Models/DetailPenyewaan.php
+// app/Models/DetailPenjualan.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DetailPenyewaan extends Model
+class DetailPenjualan extends Model
 {
-    protected $table = 'detail_penyewaans';
+    protected $table = 'detail_penjualans';
 
     protected $fillable = [
-        'penyewaan_id',
+        'penjualan_id',
         'inventory_id',
-        'nama_alat',
+        'nama_barang',
+        'kondisi',
         'qty',
         'satuan',
         'harga_satuan',
@@ -30,9 +31,9 @@ class DetailPenyewaan extends Model
 
     /* ── Relasi ── */
 
-    public function penyewaan(): BelongsTo
+    public function penjualan(): BelongsTo
     {
-        return $this->belongsTo(Penyewaan::class);
+        return $this->belongsTo(Penjualan::class);
     }
 
     public function inventory(): BelongsTo

@@ -1,79 +1,79 @@
 <?php
+// app/Models/Inventory.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Inventory extends Model
 {
+    protected $table = 'inventories';
+
     protected $fillable = [
-        'nama_produk',
+        'nama_alat',
         'kategori',
         'satuan',
-        'stok_tersedia',
-        'stok_disewa',
         'stok_baru',
         'stok_bekas',
-        'harga_beli_terakhir',
+        'stok_rusak',
+        'harga_beli_baru',
+        'harga_beli_bekas',
+        'harga_sewa',
+        'foto',
+        'keterangan',
     ];
 
-    public function logs()
+    protected $casts = [
+        'stok_baru'        => 'integer',
+        'stok_bekas'       => 'integer',
+        'stok_rusak'       => 'integer',
+        'harga_beli_baru'  => 'integer',
+        'harga_beli_bekas' => 'integer',
+        'harga_sewa'       => 'integer',
+    ];
+
+    /* ── Relasi ── */
+
+    public function detailPenyewaans(): HasMany
     {
-        return $this->hasMany(InventoryLog::class);
+        return $this->hasMany(DetailPenyewaan::class);
     }
 
-    /**
-     * Total stok keseluruhan (tersedia + sedang disewa)
-     */
-    public function getTotalStokAttribute(): int
+    public function detailPenjualans(): HasMany
     {
-        return $this->stok_tersedia + $this->stok_disewa;
+        return $this->hasMany(DetailPenjualan::class);
     }
 
-    /**
-     * Tambah stok (masuk: pembelian, return sewa, buyback)
-     */
-    public function tambahStok(int $qty, string $kondisi = 'baru'): void
-    {
-        $this->increment('stok_tersedia', $qty);
+    /* ── Accessor ── */
 
-        if ($kondisi === 'bekas') {
-            $this->increment('stok_bekas', $qty);
-        } else {
-            $this->increment('stok_baru', $qty);
-        }
+    /** Total stok tersedia (baru + bekas) */
+    public function getStokTersediaAttribute(): int
+    {
+        return ($this->stok_baru ?? 0) + ($this->stok_bekas ?? 0);
     }
 
-    /**
-     * Kurangi stok untuk penjualan
-     */
-    public function kurangiStokPenjualan(int $qty): void
+    /** Status stok: ok / low / zero */
+    public function getStokStatusAttribute(): string
     {
-        $this->decrement('stok_tersedia', $qty);
-        // Kurangi dari stok baru dulu, kalau habis ambil dari bekas
-        $kurangiBaru = min($qty, $this->stok_baru);
-        $kurangiBekas = $qty - $kurangiBaru;
-        $this->decrement('stok_baru', $kurangiBaru);
-        if ($kurangiBekas > 0) {
-            $this->decrement('stok_bekas', $kurangiBekas);
-        }
+        $total = $this->stok_tersedia;
+        if ($total <= 0) return 'zero';
+        if ($total <= 3) return 'low';
+        return 'ok';
     }
 
-    /**
-     * Kurangi stok saat penyewaan dimulai
-     */
-    public function keluarkanUntukSewa(int $qty): void
+    /** Label stok untuk badge */
+    public function getStokLabelAttribute(): string
     {
-        $this->decrement('stok_tersedia', $qty);
-        $this->increment('stok_disewa', $qty);
+        $total = $this->stok_tersedia;
+        if ($total <= 0) return 'Stok Habis';
+        if ($total <= 3) return "Stok: {$total} (menipis)";
+        return "Stok: {$total}";
     }
 
-    /**
-     * Kembalikan stok saat sewa selesai
-     */
-    public function kembalikanDariSewa(int $qty): void
+    /** Harga beli terakhir yang relevan */
+    public function getHargaBeliTerakhirAttribute(): int
     {
-        $this->increment('stok_tersedia', $qty);
-        $this->decrement('stok_disewa', $qty);
+        return $this->harga_beli_baru ?? $this->harga_beli_bekas ?? 0;
     }
 }

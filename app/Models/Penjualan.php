@@ -4,29 +4,42 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Penjualan extends Model
 {
-    use HasFactory;
-
     protected $table = 'penjualans';
 
     protected $fillable = [
-        'tanggal_penjualan',
-        'nama_barang',
-        'qty',
+        'nama_pelanggan',
+        'nomor_telepon',
         'alamat_pelanggan',
+        'tanggal_penjualan',
         'jenis_pembayaran',
-        'harga',
+        'diskon_global',
+        'total_harga',
+        'foto_bukti',
         'keterangan',
-        'foto_bukti',   // ← BARU
     ];
 
     protected $casts = [
         'tanggal_penjualan' => 'date',
-        'harga'             => 'decimal:2',
-        'total'             => 'decimal:2',
-        'qty'               => 'integer',
+        'diskon_global'     => 'integer',
+        'total_harga'       => 'integer',
     ];
+
+    /* ── Relasi ── */
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(DetailPenjualan::class);
+    }
+
+    /* ── Accessor ── */
+
+    /** Total tagihan final setelah diskon global */
+    public function getTotalTagihanAttribute(): int
+    {
+        return max(0, ($this->total_harga ?? 0) - ($this->diskon_global ?? 0));
+    }
 }
