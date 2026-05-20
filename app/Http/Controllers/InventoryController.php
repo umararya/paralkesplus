@@ -54,29 +54,36 @@ class InventoryController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
+
+            $stokBaru  = (int) $validated['stok_baru'];
+            $stokBekas = (int) $validated['stok_bekas'];
+            $totalQty  = $stokBaru + $stokBekas;
+
             // Cek apakah produk sudah ada (case-insensitive)
             $existing = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                 strtolower($validated['nama_produk'])
             ])->first();
 
             if ($existing) {
-                // Jika sudah ada, tambah stok saja
-                $existing->stok_baru          += (int) $validated['stok_baru'];
-                $existing->stok_bekas         += (int) $validated['stok_bekas'];
-                $existing->stok_tersedia      += (int) $validated['stok_baru'] + (int) $validated['stok_bekas'];
+                // Produk sudah ada → tambah stok saja
+                $existing->stok_baru     += $stokBaru;
+                $existing->stok_bekas    += $stokBekas;
+                $existing->stok_tersedia += $totalQty;
+
                 if (!empty($validated['harga_beli_terakhir'])) {
                     $existing->harga_beli_terakhir = $validated['harga_beli_terakhir'];
                 }
+
                 $existing->save();
                 $inventory = $existing;
+
             } else {
-                $stokBaru   = (int) $validated['stok_baru'];
-                $stokBekas  = (int) $validated['stok_bekas'];
-                $inventory  = Inventory::create([
+                // Produk baru → buat entry baru
+                $inventory = Inventory::create([
                     'nama_produk'         => $validated['nama_produk'],
                     'kategori'            => $validated['kategori'] ?? null,
                     'satuan'              => $validated['satuan'],
-                    'stok_tersedia'       => $stokBaru + $stokBekas,
+                    'stok_tersedia'       => $totalQty,
                     'stok_disewa'         => 0,
                     'stok_baru'           => $stokBaru,
                     'stok_bekas'          => $stokBekas,
@@ -86,27 +93,43 @@ class InventoryController extends Controller
             }
 
             // Catat inventory log
-            $totalQty = (int) $validated['stok_baru'] + (int) $validated['stok_bekas'];
+            // reference_id diisi 0 untuk input manual
+            // (kolom NOT NULL di DB, tidak ada foreign key ke transaksi manapun)
             if ($totalQty > 0) {
-                InventoryLog::create([
-                    'inventory_id'   => $inventory->id,
-                    'reference_type' => 'manual',
-                    'reference_id'   => null,
-                    'qty_change'     => $totalQty,
-                    'kondisi'        => $validated['stok_baru'] > 0 ? 'baru' : 'bekas',
-                    'keterangan'     => 'Input manual: ' . $validated['nama_produk'],
-                ]);
+                // Log per kondisi agar lebih detail
+                if ($stokBaru > 0) {
+                    InventoryLog::create([
+                        'inventory_id'   => $inventory->id,
+                        'reference_type' => 'manual',
+                        'reference_id'   => 0,
+                        'qty_change'     => $stokBaru,
+                        'kondisi'        => 'baru',
+                        'keterangan'     => 'Input manual: ' . $validated['nama_produk'],
+                    ]);
+                }
+
+                if ($stokBekas > 0) {
+                    InventoryLog::create([
+                        'inventory_id'   => $inventory->id,
+                        'reference_type' => 'manual',
+                        'reference_id'   => 0,
+                        'qty_change'     => $stokBekas,
+                        'kondisi'        => 'bekas',
+                        'keterangan'     => 'Input manual: ' . $validated['nama_produk'],
+                    ]);
+                }
             }
 
             ActivityLog::record(
                 module:   'Inventory',
-                action:   'create',
+                action:   $existing ?? false ? 'update' : 'create',
                 subject:  $validated['nama_produk'],
                 newValue: [
-                    'produk'      => $validated['nama_produk'],
-                    'stok_baru'   => $validated['stok_baru'],
-                    'stok_bekas'  => $validated['stok_bekas'],
-                    'total_stok'  => $totalQty,
+                    'produk'     => $validated['nama_produk'],
+                    'stok_baru'  => $stokBaru,
+                    'stok_bekas' => $stokBekas,
+                    'total_stok' => $totalQty,
+                    'aksi'       => isset($existing) ? 'Tambah stok ke produk yang sudah ada' : 'Buat produk baru',
                 ],
                 pageUrl: 'inventory'
             );
@@ -149,7 +172,8 @@ class InventoryController extends Controller
             'stok_bekas' => $inventory->stok_bekas,
         ];
 
-        $validated['stok_tersedia'] = (int) $validated['stok_baru'] + (int) $validated['stok_bekas'];
+        $validated['stok_tersedia'] = (int) $validated['stok_baru']
+                                    + (int) $validated['stok_bekas'];
 
         $inventory->update($validated);
 
@@ -183,6 +207,9 @@ class InventoryController extends Controller
             ],
             pageUrl: 'inventory'
         );
+
+        // Hapus log terkait dulu sebelum hapus inventory
+        InventoryLog::where('inventory_id', $inventory->id)->delete();
 
         $inventory->delete();
 
