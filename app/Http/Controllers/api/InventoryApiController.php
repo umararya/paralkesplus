@@ -24,34 +24,40 @@ class InventoryApiController extends Controller
 
         $query = Inventory::query()
             ->when($q, fn($query) =>
-                $query->where('nama_alat', 'like', "%{$q}%")
+                // FIXED: nama kolom yang benar adalah 'nama_produk'
+                $query->where('nama_produk', 'like', "%{$q}%")
                       ->orWhere('kategori',  'like', "%{$q}%")
             );
 
         // Filter stok sesuai mode
         if ($mode === 'jual') {
+            // Untuk jual: filter berdasarkan kondisi (baru/bekas)
             $stokField = $kondisi === 'bekas' ? 'stok_bekas' : 'stok_baru';
             $query->where($stokField, '>', 0);
         } else {
             // mode sewa — tampilkan semua yang stok tersedia > 0
-            $query->whereRaw('(stok_baru + stok_bekas) > 0');
+            $query->where('stok_tersedia', '>', 0);
         }
 
-        $items = $query->orderBy('nama_alat')->limit(50)->get();
+        $items = $query->orderBy('nama_produk')->limit(50)->get();
 
         $results = $items->map(function (Inventory $item) use ($mode, $kondisi) {
-            $stokTersedia = $mode === 'jual'
-                ? ($kondisi === 'bekas' ? $item->stok_bekas : $item->stok_baru)
-                : $item->stok_tersedia;
+            // Stok tersedia sesuai mode
+            if ($mode === 'jual') {
+                $stokTersedia = $kondisi === 'bekas'
+                    ? ($item->stok_bekas ?? 0)
+                    : ($item->stok_baru  ?? 0);
+            } else {
+                $stokTersedia = $item->stok_tersedia ?? 0;
+            }
 
-            $harga = $mode === 'jual'
-                ? ($kondisi === 'bekas' ? $item->harga_beli_bekas : $item->harga_beli_baru)
-                : $item->harga_sewa;
+            // Harga — model hanya punya harga_beli_terakhir
+            $harga = (int) ($item->harga_beli_terakhir ?? 0);
 
-            // Stok status
-            if ($stokTersedia <= 0)      $stokStatus = 'zero';
-            elseif ($stokTersedia <= 3)  $stokStatus = 'low';
-            else                         $stokStatus = 'ok';
+            // Stok status & label
+            if ($stokTersedia <= 0)     $stokStatus = 'zero';
+            elseif ($stokTersedia <= 3) $stokStatus = 'low';
+            else                        $stokStatus = 'ok';
 
             $stokLabel = match (true) {
                 $stokTersedia <= 0 => 'Stok Habis',
@@ -61,15 +67,15 @@ class InventoryApiController extends Controller
 
             return [
                 'id'                  => $item->id,
-                'text'                => $item->nama_alat,
-                'kategori'            => $item->kategori ?? '',
-                'satuan'              => $item->satuan   ?? 'unit',
-                'stok_baru'           => $item->stok_baru   ?? 0,
-                'stok_bekas'          => $item->stok_bekas  ?? 0,
+                'text'                => $item->nama_produk,   // FIXED: nama_produk
+                'kategori'            => $item->kategori  ?? '',
+                'satuan'              => $item->satuan     ?? 'unit',
+                'stok_baru'           => $item->stok_baru  ?? 0,
+                'stok_bekas'          => $item->stok_bekas ?? 0,
                 'stok_tersedia'       => $stokTersedia,
                 'stok_status'         => $stokStatus,
                 'stok_label'          => $stokLabel,
-                'harga_beli_terakhir' => (int) ($harga ?? 0),
+                'harga_beli_terakhir' => $harga,
             ];
         });
 
