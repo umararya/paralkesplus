@@ -12,24 +12,38 @@ class Pembelian extends Model
         'nama_barang',
         'jumlah',
         'harga_satuan',
+        'kondisi_barang',
         'keterangan',
         'bukti_transaksi',
         'status',
         'penjualan_id',
         'nama_pelanggan',
-        'kondisi_barang',
     ];
 
-    protected $appends = ['harga_formatted', 'total_formatted'];
+    protected $appends = ['total', 'harga_formatted', 'total_formatted'];
+
+    // ── Auto-hitung total sebelum simpan ──
+    protected static function booted(): void
+    {
+        static::saving(function (Pembelian $model) {
+            $model->total = $model->jumlah * $model->harga_satuan;
+        });
+    }
+
+    public function getTotalAttribute(): float
+    {
+        // Fallback jika kolom total ada di DB
+        return ($this->jumlah ?? 0) * ($this->harga_satuan ?? 0);
+    }
 
     public function getHargaFormattedAttribute(): string
     {
-        return 'Rp ' . number_format($this->harga_satuan, 0, ',', '.');
+        return 'Rp ' . number_format($this->harga_satuan ?? 0, 0, ',', '.');
     }
 
     public function getTotalFormattedAttribute(): string
     {
-        return 'Rp ' . number_format($this->total, 0, ',', '.');
+        return 'Rp ' . number_format($this->getTotalAttribute(), 0, ',', '.');
     }
 
     public function penjualan()

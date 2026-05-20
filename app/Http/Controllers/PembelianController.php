@@ -50,7 +50,16 @@ class PembelianController extends Controller
 
     public function create()
     {
-        return view('admin.pembelian.create');
+        $inventoryItems = Inventory::orderBy('nama_produk')->get(['id', 'nama_produk']);
+
+        $summary = [
+            'total_item'     => Inventory::count(),
+            'total_tersedia' => Inventory::sum('stok_tersedia'),
+            'total_disewa'   => Inventory::sum('stok_disewa'),
+            'total_bekas'    => Inventory::sum('stok_bekas'),
+        ];
+
+        return view('admin.pembelian.create', compact('inventoryItems', 'summary'));
     }
 
     public function store(Request $request)
@@ -72,32 +81,46 @@ class PembelianController extends Controller
                 ->store('pembelian/bukti', 'public');
         }
 
-        DB::transaction(function () use ($validated, $request) {
+        // Ekstrak ke variabel lokal agar aman dipakai dalam closure
+        $namaBarang  = $validated['nama_barang'];
+        $jumlah      = (int) $validated['jumlah'];
+        $hargaSatuan = (float) $validated['harga_satuan'];
+        $kondisi     = $validated['kondisi_barang'];
+
+        DB::transaction(function () use ($validated, $namaBarang, $jumlah, $hargaSatuan, $kondisi) {
+
             // 1. Simpan data pembelian
             $pembelian = Pembelian::create($validated);
 
-            // 2. Cari inventory yang nama_produknya sama (case-insensitive)
-            //    Kalau belum ada → buat baru otomatis
-            $kondisi = $validated['kondisi_barang']; // 'baru' | 'bekas'
-            $jumlah  = (int) $validated['jumlah'];
-
+            // 2. Cari produk di inventory (case-insensitive)
             $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                strtolower($validated['nama_barang'])
+                strtolower($namaBarang)
             ])->first();
 
             if ($inventory) {
                 // Produk sudah ada → tambah stok
-                $inventory->tambahStok($jumlah, $kondisi);
+                $inventory->stok_tersedia      += $jumlah;
+                $inventory->harga_beli_terakhir = $hargaSatuan;
+
+                if ($kondisi === 'baru') {
+                    $inventory->stok_baru += $jumlah;
+                } else {
+                    $inventory->stok_bekas += $jumlah;
+                }
+
+                $inventory->save();
+
             } else {
-                // Produk belum ada → buat entry inventory baru
+                // Produk belum ada → buat entry baru
                 $inventory = Inventory::create([
-                    'nama_produk'        => $validated['nama_barang'],
-                    'satuan'             => 'unit',
-                    'stok_tersedia'      => $jumlah,
-                    'stok_disewa'        => 0,
-                    'stok_baru'          => $kondisi === 'baru'  ? $jumlah : 0,
-                    'stok_bekas'         => $kondisi === 'bekas' ? $jumlah : 0,
-                    'harga_beli_terakhir'=> $validated['harga_satuan'],
+                    'nama_produk'         => $namaBarang,
+                    'kategori'            => null,
+                    'satuan'              => 'unit',
+                    'stok_tersedia'       => $jumlah,
+                    'stok_disewa'         => 0,
+                    'stok_baru'           => $kondisi === 'baru'  ? $jumlah : 0,
+                    'stok_bekas'          => $kondisi === 'bekas' ? $jumlah : 0,
+                    'harga_beli_terakhir' => $hargaSatuan,
                 ]);
             }
 
@@ -108,20 +131,20 @@ class PembelianController extends Controller
                 'reference_id'   => $pembelian->id,
                 'qty_change'     => $jumlah,
                 'kondisi'        => $kondisi,
-                'keterangan'     => 'Pembelian: ' . $validated['nama_barang'],
+                'keterangan'     => 'Pembelian: ' . $namaBarang,
             ]);
 
             // 4. Activity log
             ActivityLog::record(
                 module:   'Pembelian',
                 action:   'create',
-                subject:  $pembelian->nama_barang,
+                subject:  $namaBarang,
                 newValue: [
-                    'barang'   => $pembelian->nama_barang,
-                    'jumlah'   => $pembelian->jumlah,
-                    'kondisi'  => $kondisi,
-                    'total'    => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
-                    'tanggal'  => $pembelian->tanggal_pembelian,
+                    'barang'  => $namaBarang,
+                    'jumlah'  => $jumlah,
+                    'kondisi' => $kondisi,
+                    'total'   => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
+                    'tanggal' => $pembelian->tanggal_pembelian,
                 ],
                 pageUrl: 'pembelian'
             );
@@ -134,13 +157,20 @@ class PembelianController extends Controller
     public function show(string $id)
     {
         $pembelian = Pembelian::findOrFail($id);
-        return view('admin.pembelian.show', compact('pembelian'));
+
+        $inventoryItem = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+            strtolower($pembelian->nama_barang)
+        ])->first();
+
+        return view('admin.pembelian.show', compact('pembelian', 'inventoryItem'));
     }
 
     public function edit(string $id)
     {
-        $pembelian = Pembelian::findOrFail($id);
-        return view('admin.pembelian.edit', compact('pembelian'));
+        $pembelian      = Pembelian::findOrFail($id);
+        $inventoryItems = Inventory::orderBy('nama_produk')->get(['id', 'nama_produk']);
+
+        return view('admin.pembelian.edit', compact('pembelian', 'inventoryItems'));
     }
 
     public function update(Request $request, string $id)
@@ -186,9 +216,9 @@ class PembelianController extends Controller
             subject:  $pembelian->nama_barang,
             oldValue: $oldData,
             newValue: [
-                'barang'  => $pembelian->nama_barang,
-                'jumlah'  => $pembelian->jumlah,
-                'total'   => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
+                'barang' => $pembelian->nama_barang,
+                'jumlah' => $pembelian->jumlah,
+                'total'  => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
             ],
             pageUrl: 'pembelian/' . $pembelian->id . '/edit'
         );
@@ -206,11 +236,11 @@ class PembelianController extends Controller
             action:   'delete',
             subject:  $pembelian->nama_barang,
             oldValue: [
-                'barang'   => $pembelian->nama_barang,
-                'jumlah'   => $pembelian->jumlah,
-                'total'    => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
-                'tanggal'  => $pembelian->tanggal_pembelian,
-                'status'   => $pembelian->status,
+                'barang'  => $pembelian->nama_barang,
+                'jumlah'  => $pembelian->jumlah,
+                'total'   => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
+                'tanggal' => $pembelian->tanggal_pembelian,
+                'status'  => $pembelian->status,
             ],
             pageUrl: 'pembelian'
         );
@@ -250,28 +280,35 @@ class PembelianController extends Controller
                 ->store('pembelian/buyback', 'public');
         }
 
-        DB::transaction(function () use ($validated) {
+        $namaBarang  = $validated['nama_barang'];
+        $jumlah      = (int) $validated['jumlah'];
+        $hargaSatuan = (float) $validated['harga_satuan'];
+        $pelanggan   = $validated['nama_pelanggan'];
+
+        DB::transaction(function () use ($validated, $namaBarang, $jumlah, $hargaSatuan, $pelanggan) {
+
             $pembelian = Pembelian::create($validated);
 
-            // Buy back → barang masuk kembali sebagai 'bekas'
-            $kondisiInventory = 'bekas';
-            $jumlah           = (int) $validated['jumlah'];
-
+            // Buy back → barang masuk kembali sebagai stok bekas
             $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                strtolower($validated['nama_barang'])
+                strtolower($namaBarang)
             ])->first();
 
             if ($inventory) {
-                $inventory->tambahStok($jumlah, $kondisiInventory);
+                $inventory->stok_tersedia      += $jumlah;
+                $inventory->stok_bekas         += $jumlah;
+                $inventory->harga_beli_terakhir = $hargaSatuan;
+                $inventory->save();
             } else {
                 $inventory = Inventory::create([
-                    'nama_produk'         => $validated['nama_barang'],
+                    'nama_produk'         => $namaBarang,
+                    'kategori'            => null,
                     'satuan'              => 'unit',
                     'stok_tersedia'       => $jumlah,
                     'stok_disewa'         => 0,
                     'stok_baru'           => 0,
                     'stok_bekas'          => $jumlah,
-                    'harga_beli_terakhir' => $validated['harga_satuan'],
+                    'harga_beli_terakhir' => $hargaSatuan,
                 ]);
             }
 
@@ -280,19 +317,19 @@ class PembelianController extends Controller
                 'reference_type' => 'buyback',
                 'reference_id'   => $pembelian->id,
                 'qty_change'     => $jumlah,
-                'kondisi'        => $kondisiInventory,
-                'keterangan'     => 'Buy Back dari: ' . $validated['nama_pelanggan'],
+                'kondisi'        => 'bekas',
+                'keterangan'     => 'Buy Back dari: ' . $pelanggan,
             ]);
 
             ActivityLog::record(
                 module:   'Pembelian',
                 action:   'create',
-                subject:  '[Buy Back] ' . $pembelian->nama_barang . ' dari ' . $pembelian->nama_pelanggan,
+                subject:  '[Buy Back] ' . $namaBarang . ' dari ' . $pelanggan,
                 newValue: [
-                    'barang'    => $pembelian->nama_barang,
-                    'pelanggan' => $pembelian->nama_pelanggan,
-                    'kondisi'   => $pembelian->kondisi_barang,
-                    'jumlah'    => $pembelian->jumlah,
+                    'barang'    => $namaBarang,
+                    'pelanggan' => $pelanggan,
+                    'kondisi'   => $validated['kondisi_barang'],
+                    'jumlah'    => $jumlah,
                     'total'     => 'Rp ' . number_format($pembelian->total, 0, ',', '.'),
                 ],
                 pageUrl: 'pembelian/buy-back'

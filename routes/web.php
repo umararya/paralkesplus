@@ -8,7 +8,7 @@ use App\Http\Controllers\PenyewaanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\Api\InventoryApiController; // ← pindah ke subfolder Api
+use App\Http\Controllers\Api\InventoryApiController;
 
 
 // ── Auth (Guest only) ──
@@ -60,9 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/penjualan/{id}/invoice', [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
 
 
-    // ── Inventory (halaman UI) ──
-    Route::get('/inventory',             [InventoryController::class, 'index'])->name('inventory.index');
-    Route::get('/inventory/{inventory}', [InventoryController::class, 'show'])->name('inventory.show');
+    // ── Inventory (CRUD penuh) ──
+    Route::resource('inventory', InventoryController::class);
 
 
     // ── Inventory API (untuk Select2 form sewa & jual) ──

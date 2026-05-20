@@ -1,8 +1,8 @@
-{{-- resources/views/admin/inventory/create.blade.php --}}
+{{-- resources/views/admin/inventory/edit.blade.php --}}
 @extends('admin.layouts.app')
 
-@section('title', 'Input Data Inventory')
-@section('breadcrumb', 'Input Data Manual Inventory')
+@section('title', 'Edit Inventory')
+@section('breadcrumb', 'Edit Data Inventory')
 
 @section('content')
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
@@ -16,18 +16,12 @@
         <i class="ri-arrow-left-line"></i>
     </a>
     <div>
-        <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">Input Data Manual Inventory</h1>
-        <p style="font-size:13px; color:var(--text-muted);">Tambah atau perbarui data stok secara manual</p>
-    </div>
-</div>
-
-{{-- Info --}}
-<div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px;
-            padding:12px 16px; margin-bottom:20px; display:flex; align-items:flex-start; gap:10px;">
-    <i class="ri-information-line" style="color:#3B82F6; font-size:18px; flex-shrink:0; margin-top:1px;"></i>
-    <div style="font-size:13px; color:#1D4ED8; line-height:1.6;">
-        <strong>Catatan:</strong> Jika nama produk sudah ada di inventory (case-insensitive),
-        sistem akan <strong>menambahkan stok</strong> ke data yang sudah ada, bukan membuat entri baru.
+        <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">
+            Edit Data Inventory
+        </h1>
+        <p style="font-size:13px; color:var(--text-muted);">
+            Mengedit: <strong>{{ $inventory->nama_produk }}</strong>
+        </p>
     </div>
 </div>
 
@@ -46,8 +40,9 @@
 @endif
 
 <div class="card" style="max-width:720px;">
-    <form action="{{ route('inventory.store') }}" method="POST">
+    <form action="{{ route('inventory.update', $inventory->id) }}" method="POST">
         @csrf
+        @method('PUT')
         <div style="display:grid; gap:20px;">
 
             {{-- Nama Produk --}}
@@ -55,8 +50,8 @@
                 <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">
                     Nama Produk <span style="color:#EF4444;">*</span>
                 </label>
-                <input type="text" name="nama_produk" value="{{ old('nama_produk') }}"
-                       placeholder="Contoh: Tensimeter Digital, Kursi Roda, dll."
+                <input type="text" name="nama_produk"
+                       value="{{ old('nama_produk', $inventory->nama_produk) }}"
                        style="width:100%; padding:10px 14px; border:1px solid var(--border);
                               border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                               color:var(--text-primary); outline:none; transition:border-color 0.2s;"
@@ -64,7 +59,7 @@
                        onblur="this.style.borderColor='var(--border)'" required>
             </div>
 
-            {{-- Kategori & Satuan (2 kolom) --}}
+            {{-- Kategori & Satuan --}}
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div>
                     <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">
@@ -77,12 +72,19 @@
                             onfocus="this.style.borderColor='var(--brand-500)'"
                             onblur="this.style.borderColor='var(--border)'">
                         <option value="">-- Pilih Kategori --</option>
-                        <option value="alat_diagnostik" {{ old('kategori') == 'alat_diagnostik' ? 'selected' : '' }}>Alat Diagnostik</option>
-                        <option value="alat_terapi"     {{ old('kategori') == 'alat_terapi'     ? 'selected' : '' }}>Alat Terapi</option>
-                        <option value="alat_bedah"      {{ old('kategori') == 'alat_bedah'      ? 'selected' : '' }}>Alat Bedah</option>
-                        <option value="alat_bantu"      {{ old('kategori') == 'alat_bantu'      ? 'selected' : '' }}>Alat Bantu</option>
-                        <option value="konsumabel"      {{ old('kategori') == 'konsumabel'      ? 'selected' : '' }}>Konsumabel</option>
-                        <option value="lainnya"         {{ old('kategori') == 'lainnya'         ? 'selected' : '' }}>Lainnya</option>
+                        @foreach([
+                            'alat_diagnostik' => 'Alat Diagnostik',
+                            'alat_terapi'     => 'Alat Terapi',
+                            'alat_bedah'      => 'Alat Bedah',
+                            'alat_bantu'      => 'Alat Bantu',
+                            'konsumabel'      => 'Konsumabel',
+                            'lainnya'         => 'Lainnya',
+                        ] as $val => $label)
+                        <option value="{{ $val }}"
+                            {{ old('kategori', $inventory->kategori) == $val ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -95,58 +97,85 @@
                                    color:var(--text-primary); outline:none; transition:border-color 0.2s;"
                             onfocus="this.style.borderColor='var(--brand-500)'"
                             onblur="this.style.borderColor='var(--border)'" required>
-                        <option value="unit"  {{ old('satuan', 'unit') == 'unit'  ? 'selected' : '' }}>Unit</option>
-                        <option value="pcs"   {{ old('satuan') == 'pcs'   ? 'selected' : '' }}>Pcs</option>
-                        <option value="box"   {{ old('satuan') == 'box'   ? 'selected' : '' }}>Box</option>
-                        <option value="set"   {{ old('satuan') == 'set'   ? 'selected' : '' }}>Set</option>
-                        <option value="lusin" {{ old('satuan') == 'lusin' ? 'selected' : '' }}>Lusin</option>
+                        @foreach([
+                            'unit'  => 'Unit',
+                            'pcs'   => 'Pcs',
+                            'box'   => 'Box',
+                            'set'   => 'Set',
+                            'lusin' => 'Lusin',
+                        ] as $val => $label)
+                        <option value="{{ $val }}"
+                            {{ old('satuan', $inventory->satuan) == $val ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
 
-            {{-- Stok Baru & Stok Bekas (2 kolom) --}}
+            {{-- Stok (3 kolom) --}}
             <div>
                 <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:10px;">
-                    Jumlah Stok <span style="color:#EF4444;">*</span>
+                    Data Stok <span style="color:#EF4444;">*</span>
+                    <span style="font-weight:400; color:var(--text-muted); font-size:12px; margin-left:4px;">
+                        — edit langsung nilai stok
+                    </span>
                 </label>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                     <div>
                         <label style="display:block; font-size:12px; font-weight:500; color:#1D4ED8; margin-bottom:6px;">
-                            <i class="ri-checkbox-blank-circle-fill" style="color:#3B82F6;"></i> Stok Baru
+                            <i class="ri-checkbox-blank-circle-fill" style="color:#3B82F6; font-size:10px;"></i>
+                            Stok Baru
                         </label>
-                        <input type="number" name="stok_baru" id="inputStokBaru"
-                               value="{{ old('stok_baru', 0) }}" min="0"
+                        <input type="number" name="stok_baru" id="editStokBaru"
+                               value="{{ old('stok_baru', $inventory->stok_baru) }}" min="0"
                                style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                       border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                       color:var(--text-primary); outline:none; transition:border-color 0.2s;"
                                onfocus="this.style.borderColor='var(--brand-500)'"
                                onblur="this.style.borderColor='var(--border)'"
-                               oninput="hitungTotal()" required>
+                               oninput="updatePreview()" required>
                     </div>
                     <div>
                         <label style="display:block; font-size:12px; font-weight:500; color:#7C3AED; margin-bottom:6px;">
-                            <i class="ri-checkbox-blank-circle-fill" style="color:#A855F7;"></i> Stok Bekas
+                            <i class="ri-checkbox-blank-circle-fill" style="color:#A855F7; font-size:10px;"></i>
+                            Stok Bekas
                         </label>
-                        <input type="number" name="stok_bekas" id="inputStokBekas"
-                               value="{{ old('stok_bekas', 0) }}" min="0"
+                        <input type="number" name="stok_bekas" id="editStokBekas"
+                               value="{{ old('stok_bekas', $inventory->stok_bekas) }}" min="0"
                                style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                       border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                       color:var(--text-primary); outline:none; transition:border-color 0.2s;"
                                onfocus="this.style.borderColor='var(--brand-500)'"
                                onblur="this.style.borderColor='var(--border)'"
-                               oninput="hitungTotal()" required>
+                               oninput="updatePreview()" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:500; color:#B45309; margin-bottom:6px;">
+                            <i class="ri-checkbox-blank-circle-fill" style="color:#F97316; font-size:10px;"></i>
+                            Sedang Disewa
+                        </label>
+                        <input type="number" name="stok_disewa"
+                               value="{{ old('stok_disewa', $inventory->stok_disewa) }}" min="0"
+                               style="width:100%; padding:10px 14px; border:1px solid var(--border);
+                                      border-radius:8px; font-size:13.5px; background:var(--bg-primary);
+                                      color:var(--text-primary); outline:none; transition:border-color 0.2s;"
+                               onfocus="this.style.borderColor='var(--brand-500)'"
+                               onblur="this.style.borderColor='var(--border)'" required>
                     </div>
                 </div>
 
-                {{-- Preview Total Stok --}}
+                {{-- Preview total stok --}}
                 <div style="background:var(--bg-hover); border:1px solid var(--border);
                             border-radius:8px; padding:12px 16px; margin-top:12px;
                             display:flex; align-items:center; justify-content:space-between;">
                     <span style="font-size:13px; font-weight:600; color:var(--text-secondary);">
-                        <i class="ri-stack-line" style="margin-right:6px;"></i>Total Stok Tersedia
+                        <i class="ri-stack-line" style="margin-right:6px;"></i>Total Stok Tersedia (Baru + Bekas)
                     </span>
-                    <span id="previewTotalStok"
-                          style="font-size:16px; font-weight:700; color:#059669;">0 unit</span>
+                    <span id="previewEditTotal"
+                          style="font-size:16px; font-weight:700; color:#059669;">
+                        {{ ($inventory->stok_baru ?? 0) + ($inventory->stok_bekas ?? 0) }} unit
+                    </span>
                 </div>
             </div>
 
@@ -157,7 +186,7 @@
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">(opsional)</span>
                 </label>
                 <input type="number" name="harga_beli_terakhir"
-                       value="{{ old('harga_beli_terakhir', 0) }}" min="0"
+                       value="{{ old('harga_beli_terakhir', $inventory->harga_beli_terakhir) }}" min="0"
                        placeholder="0"
                        style="width:100%; padding:10px 14px; border:1px solid var(--border);
                               border-radius:8px; font-size:13.5px; background:var(--bg-primary);
@@ -179,7 +208,7 @@
                                  color:var(--text-primary); outline:none; resize:vertical;
                                  transition:border-color 0.2s; font-family:inherit;"
                           onfocus="this.style.borderColor='var(--brand-500)'"
-                          onblur="this.style.borderColor='var(--border)'">{{ old('keterangan') }}</textarea>
+                          onblur="this.style.borderColor='var(--border)'">{{ old('keterangan', $inventory->keterangan) }}</textarea>
             </div>
 
             {{-- Tombol Aksi --}}
@@ -200,7 +229,7 @@
                                align-items:center; gap:6px;"
                         onmouseover="this.style.background='var(--brand-600)'"
                         onmouseout="this.style.background='var(--brand-500)'">
-                    <i class="ri-save-line"></i> Simpan Data
+                    <i class="ri-save-line"></i> Simpan Perubahan
                 </button>
             </div>
 
@@ -209,13 +238,13 @@
 </div>
 
 <script>
-function hitungTotal() {
-    const baru  = parseInt(document.getElementById('inputStokBaru').value)  || 0;
-    const bekas = parseInt(document.getElementById('inputStokBekas').value) || 0;
+function updatePreview() {
+    const baru  = parseInt(document.getElementById('editStokBaru').value)  || 0;
+    const bekas = parseInt(document.getElementById('editStokBekas').value) || 0;
     const total = baru + bekas;
-    document.getElementById('previewTotalStok').textContent = total + ' unit';
-    document.getElementById('previewTotalStok').style.color = total > 0 ? '#059669' : '#DC2626';
+    const el    = document.getElementById('previewEditTotal');
+    el.textContent  = total + ' unit';
+    el.style.color  = total > 0 ? '#059669' : '#DC2626';
 }
-document.addEventListener('DOMContentLoaded', hitungTotal);
 </script>
 @endsection
