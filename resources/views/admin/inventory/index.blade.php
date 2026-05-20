@@ -47,6 +47,7 @@
         gap: 10px; flex-wrap: wrap;
     }
     .toolbar-left  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; }
     .per-page-wrap { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-secondary); }
     .per-page-select {
         height: 36px; padding: 0 30px 0 10px;
@@ -80,10 +81,17 @@
         text-decoration: none; white-space: nowrap;
     }
     .btn i { font-size: 15px; }
-    .btn-search { background: var(--brand-50); color: var(--brand-500); border: 1px solid var(--brand-100); }
-    .btn-search:hover { background: var(--brand-100); color: var(--brand-600); }
-    .btn-reset { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
-    .btn-reset:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-search  { background: var(--brand-50); color: var(--brand-500); border: 1px solid var(--brand-100); }
+    .btn-search:hover  { background: var(--brand-100); color: var(--brand-600); }
+    html.dark .btn-search { background: rgba(29,111,164,0.12); color: #60A5FA; border-color: rgba(29,111,164,0.25); }
+    .btn-reset   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-reset:hover   { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-primary { background: var(--brand-500); color: #fff; border: 1px solid var(--brand-500); }
+    .btn-primary:hover { background: var(--brand-600); border-color: var(--brand-600); }
+    .btn-ghost   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-ghost:hover   { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-danger  { background: #EF4444; color: #fff; border: 1px solid #EF4444; }
+    .btn-danger:hover  { background: #DC2626; border-color: #DC2626; }
 
     .info-bar {
         padding: 9px 18px; border-bottom: 1px solid var(--border);
@@ -98,6 +106,7 @@
         border: 1px solid var(--brand-100); border-radius: 99px;
         padding: 1px 9px; font-size: 11.5px; font-weight: 600;
     }
+    html.dark .badge-count { background: rgba(29,111,164,0.12); color: #60A5FA; border-color: rgba(29,111,164,0.25); }
 
     .data-table { width: 100%; border-collapse: collapse; }
     .data-table thead tr { background: var(--bg-primary); border-bottom: 2px solid var(--border); }
@@ -125,21 +134,51 @@
     .stok-disewa   { background: #FEF3C7; color: #B45309; }
     .stok-baru     { background: #DBEAFE; color: #1D4ED8; }
     .stok-bekas    { background: #F3E8FF; color: #7C3AED; }
-    html.dark .stok-ada    { background: rgba(21,128,61,0.15); color: #4ADE80; }
-    html.dark .stok-habis  { background: rgba(185,28,28,0.15); color: #FCA5A5; }
-    html.dark .stok-disewa { background: rgba(180,83,9,0.15);  color: #FCD34D; }
-    html.dark .stok-baru   { background: rgba(29,78,216,0.15); color: #60A5FA; }
-    html.dark .stok-bekas  { background: rgba(124,58,237,0.15);color: #C084FC; }
+    html.dark .stok-ada    { background: rgba(21,128,61,0.15);  color: #4ADE80; }
+    html.dark .stok-habis  { background: rgba(185,28,28,0.15);  color: #FCA5A5; }
+    html.dark .stok-disewa { background: rgba(180,83,9,0.15);   color: #FCD34D; }
+    html.dark .stok-baru   { background: rgba(29,78,216,0.15);  color: #60A5FA; }
+    html.dark .stok-bekas  { background: rgba(124,58,237,0.15); color: #C084FC; }
 
-    .btn-detail {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 5px 12px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
-        background: var(--brand-50); color: var(--brand-500);
-        border: 1px solid var(--brand-100);
-        text-decoration: none; transition: all 0.2s;
+    /* ── Dropdown Aksi ── */
+    .aksi-wrap { position: relative; display: inline-block; }
+
+    .btn-aksi {
+        width: 32px; height: 32px; border-radius: 8px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 18px; cursor: pointer; line-height: 1;
+        border: 1px solid var(--border); background: var(--bg-card);
+        color: var(--text-secondary); transition: all 0.2s;
+        font-weight: 700; letter-spacing: -1px;
+        padding: 0; font-family: inherit;
     }
-    .btn-detail:hover { background: var(--brand-100); color: var(--brand-600); }
-    html.dark .btn-detail { background: rgba(29,111,164,0.12); color: #60A5FA; border-color: rgba(29,111,164,0.25); }
+    .btn-aksi:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-muted); }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute; right: 0; top: calc(100% + 6px);
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        min-width: 160px; z-index: 100; overflow: hidden;
+        animation: dropDown 0.15s ease;
+    }
+    @keyframes dropDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .dropdown-menu.open { display: block; }
+
+    .dropdown-item {
+        display: flex; align-items: center; gap: 9px;
+        padding: 9px 14px; font-size: 13px; font-weight: 500;
+        color: var(--text-primary); text-decoration: none;
+        cursor: pointer; transition: background 0.15s;
+        border: none; background: none; width: 100%; text-align: left;
+        font-family: var(--font);
+    }
+    .dropdown-item i { font-size: 16px; flex-shrink: 0; }
+    .dropdown-item:hover { background: var(--bg-hover); }
+    .dropdown-item.danger       { color: #E11D48; }
+    .dropdown-item.danger:hover { background: #FFF1F2; }
+    html.dark .dropdown-item.danger:hover { background: rgba(225,29,72,0.1); }
+    .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
     .table-footer {
         padding: 12px 18px; border-top: 1px solid var(--border);
@@ -155,19 +194,64 @@
         color: var(--text-secondary); text-decoration: none; cursor: pointer;
         transition: all 0.18s; font-family: var(--font);
     }
-    .page-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .page-btn:hover  { background: var(--bg-hover); color: var(--text-primary); }
     .page-btn.active { background: var(--brand-500); color: #fff; border-color: var(--brand-500); font-weight: 700; }
     .page-btn.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
     .page-ellipsis { display: inline-flex; align-items: center; min-width: 32px; height: 32px; font-size: 13px; color: var(--text-muted); justify-content: center; }
 
     .empty-state { text-align: center; padding: 56px 24px; }
-    .empty-state i { font-size: 48px; color: var(--border); display: block; margin-bottom: 12px; }
+    .empty-state i  { font-size: 48px; color: var(--border); display: block; margin-bottom: 12px; }
     .empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
     .empty-state p  { font-size: 13px; color: var(--text-muted); }
+
+    /* Alert */
+    .alert { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 500; margin-bottom: 18px; border: 1px solid transparent; }
+    .alert-success { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+    .alert-error   { background: #FFF1F2; color: #BE123C; border-color: #FECDD3; }
+    html.dark .alert-success { background: rgba(21,128,61,0.12); color: #4ADE80; border-color: rgba(21,128,61,0.25); }
+    html.dark .alert-error   { background: rgba(190,18,60,0.12); color: #FB7185; border-color: rgba(190,18,60,0.25); }
+
+    /* Modal */
+    .modal-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.45); z-index: 1000;
+        align-items: center; justify-content: center;
+        padding: 16px; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.open { display: flex; animation: fadeOverlay 0.18s ease; }
+    @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+    .modal {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        width: 100%; max-width: 420px; animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+    .modal-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title  { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .modal-close  { width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 19px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .modal-body   { padding: 18px 22px; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .delete-warning { text-align: center; padding: 6px 0; }
+    .delete-warning i  { font-size: 42px; color: #EF4444; display: block; margin-bottom: 10px; }
+    .delete-warning h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 7px; }
+    .delete-warning p  { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .delete-warning strong { color: var(--text-primary); }
 </style>
 @endpush
 
 @section('content')
+
+@if(session('success'))
+<div class="alert alert-success">
+    <i class="ri-checkbox-circle-fill"></i> {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="alert alert-error">
+    <i class="ri-error-warning-fill"></i> {{ session('error') }}
+</div>
+@endif
 
 <div class="page-header">
     <div>
@@ -203,6 +287,7 @@
     {{-- Toolbar --}}
     <div class="table-toolbar">
         <div class="toolbar-left">
+
             <form method="GET" action="{{ route('inventory.index') }}" id="perPageForm">
                 <input type="hidden" name="search" value="{{ $search }}">
                 <div class="per-page-wrap">
@@ -235,6 +320,14 @@
                 </a>
                 @endif
             </form>
+
+        </div>
+
+        {{-- ── Tombol Tambah ── --}}
+        <div class="toolbar-right">
+            <a href="{{ route('inventory.create') }}" class="btn btn-primary">
+                <i class="ri-add-line"></i> Tambah Inventory
+            </a>
         </div>
     </div>
 
@@ -270,7 +363,7 @@
                     <th class="center">Stok Baru</th>
                     <th class="center">Stok Bekas</th>
                     <th class="right">Harga Beli Terakhir</th>
-                    <th class="center" style="width:90px;">Aksi</th>
+                    <th class="center" style="width:60px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -313,10 +406,35 @@
                             ? 'Rp ' . number_format($item->harga_beli_terakhir, 0, ',', '.')
                             : '—' }}
                     </td>
+
+                    {{-- ── DROPDOWN AKSI ── --}}
                     <td class="center">
-                        <a href="{{ route('inventory.show', $item->id) }}" class="btn-detail">
-                            <i class="ri-eye-line"></i> Detail
-                        </a>
+                        <div class="aksi-wrap">
+                            <button class="btn-aksi" type="button"
+                                    onclick="toggleDropdown(event, 'dd-{{ $item->id }}')"
+                                    title="Aksi">
+                                &#8942;
+                            </button>
+                            <div class="dropdown-menu" id="dd-{{ $item->id }}">
+                                <a href="{{ route('inventory.show', $item->id) }}" class="dropdown-item">
+                                    <i class="ri-eye-line" style="color:#3B82F6;"></i> Detail
+                                </a>
+                                <a href="{{ route('inventory.edit', $item->id) }}" class="dropdown-item">
+                                    <i class="ri-edit-line" style="color:var(--brand-500);"></i> Edit Data
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <button type="button" class="dropdown-item danger"
+                                        onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_produk) }}')">
+                                    <i class="ri-delete-bin-line"></i> Hapus
+                                </button>
+                                <form id="formHapus-{{ $item->id }}"
+                                      action="{{ route('inventory.destroy', $item->id) }}"
+                                      method="POST" style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -325,7 +443,7 @@
                         <div class="empty-state">
                             <i class="ri-archive-drawer-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Inventory masih kosong' }}</h3>
-                            <p>{{ $search ? 'Coba kata kunci lain atau klik Reset.' : 'Data akan otomatis muncul setelah ada transaksi pembelian.' }}</p>
+                            <p>{{ $search ? 'Coba kata kunci lain atau klik Reset.' : 'Tambah data manual atau data otomatis masuk dari transaksi pembelian.' }}</p>
                         </div>
                     </td>
                 </tr>
@@ -387,6 +505,103 @@
     </div>
     @endif
 
+</div>{{-- /table-card --}}
+
+
+{{-- ══════════════ MODAL: KONFIRMASI HAPUS ══════════════ --}}
+<div class="modal-overlay" id="modalHapus">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-delete-bin-line" style="color:#EF4444;"></i> Konfirmasi Hapus
+            </span>
+            <button class="modal-close" onclick="closeModal('modalHapus')">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-warning">
+                <i class="ri-alert-fill"></i>
+                <h3>Hapus Data Inventory?</h3>
+                <p>Kamu akan menghapus item:<br>
+                   <strong id="deleteNamaProduk"></strong><br><br>
+                   Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" onclick="closeModal('modalHapus')">Batal</button>
+            <form id="formDeleteSubmit" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">
+                    <i class="ri-delete-bin-line"></i> Ya, Hapus
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    // ── Dropdown toggle ──
+    function toggleDropdown(e, id) {
+        e.stopPropagation();
+        const target = document.getElementById(id);
+        const isOpen = target.classList.contains('open');
+
+        // Tutup semua dropdown lain
+        document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
+
+        if (!isOpen) {
+            // Cek posisi agar tidak terpotong di bawah viewport
+            const rect = target.parentElement.getBoundingClientRect();
+            if (rect.bottom + 160 > window.innerHeight) {
+                target.style.top  = 'auto';
+                target.style.bottom = 'calc(100% + 6px)';
+            } else {
+                target.style.top  = 'calc(100% + 6px)';
+                target.style.bottom = 'auto';
+            }
+            target.classList.add('open');
+        }
+    }
+
+    // Klik di luar → tutup semua dropdown
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+        }
+    });
+
+    // ── Modal ──
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+        el.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(this.id);
+        });
+    });
+
+    function openDeleteModal(id, namaProduk) {
+        // Tutup dropdown dulu
+        document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
+
+        document.getElementById('deleteNamaProduk').textContent  = namaProduk;
+        document.getElementById('formDeleteSubmit').action = '/inventory/' + id;
+        openModal('modalHapus');
+    }
+</script>
+@endpush
