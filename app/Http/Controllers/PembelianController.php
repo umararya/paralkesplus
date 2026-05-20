@@ -88,13 +88,9 @@ class PembelianController extends Controller
 
         DB::transaction(function () use ($validated, $namaBarang, $jumlah, $hargaSatuan, $kondisi) {
 
-            // 1. Simpan pembelian — total dihitung otomatis oleh MySQL generated column
             $pembelian = Pembelian::create($validated);
-
-            // Refresh agar kolom generated 'total' terbaca dari DB
             $pembelian->refresh();
 
-            // 2. Cari produk di inventory (case-insensitive)
             $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                 strtolower($namaBarang)
             ])->first();
@@ -110,7 +106,6 @@ class PembelianController extends Controller
                 }
 
                 $inventory->save();
-
             } else {
                 $inventory = Inventory::create([
                     'nama_produk'         => $namaBarang,
@@ -124,7 +119,6 @@ class PembelianController extends Controller
                 ]);
             }
 
-            // 3. Inventory log
             InventoryLog::create([
                 'inventory_id'   => $inventory->id,
                 'reference_type' => 'purchase',
@@ -134,7 +128,6 @@ class PembelianController extends Controller
                 'keterangan'     => 'Pembelian: ' . $namaBarang,
             ]);
 
-            // 4. Activity log
             ActivityLog::record(
                 module:   'Pembelian',
                 action:   'create',
@@ -187,12 +180,19 @@ class PembelianController extends Controller
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
+        // ── Snapshot data LAMA ──
+        $oldNama    = $pembelian->nama_barang;
+        $oldJumlah  = (int) $pembelian->jumlah;
+        $oldKondisi = $pembelian->kondisi_barang;
+
         $oldData = [
-            'barang'  => $pembelian->nama_barang,
-            'jumlah'  => $pembelian->jumlah,
+            'barang'  => $oldNama,
+            'jumlah'  => $oldJumlah,
+            'kondisi' => $oldKondisi,
             'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
+        // ── Handle bukti transaksi ──
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
@@ -208,51 +208,218 @@ class PembelianController extends Controller
             unset($validated['bukti_transaksi']);
         }
 
-        $pembelian->update($validated);
+        $newNama    = $validated['nama_barang'];
+        $newJumlah  = (int) $validated['jumlah'];
+        $newKondisi = $validated['kondisi_barang'];
+        $newHarga   = (float) $validated['harga_satuan'];
 
-        ActivityLog::record(
-            module:   'Pembelian',
-            action:   'update',
-            subject:  $pembelian->nama_barang,
-            oldValue: $oldData,
-            newValue: [
-                'barang' => $pembelian->nama_barang,
-                'jumlah' => $pembelian->jumlah,
-                'total'  => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-            ],
-            pageUrl: 'pembelian/' . $pembelian->id . '/edit'
-        );
+        $namaBeruban = strtolower($oldNama) !== strtolower($newNama);
+
+        DB::transaction(function () use (
+            $pembelian, $validated,
+            $oldNama, $oldJumlah, $oldKondisi,
+            $newNama, $newJumlah, $newKondisi, $newHarga,
+            $namaBeruban, $oldData
+        ) {
+            // 1. Update data pembelian
+            $pembelian->update($validated);
+            $pembelian->refresh();
+
+            // ══════════════════════════════════════
+            //  KASUS A: Nama barang TIDAK berubah
+            //  → update langsung entry inventory yg sama
+            // ══════════════════════════════════════
+            if (!$namaBeruban) {
+                $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                    strtolower($newNama)
+                ])->first();
+
+                if ($inventory) {
+                    // Hitung ulang stok: kurangi lama, tambah baru
+                    $diffJumlah = $newJumlah - $oldJumlah;
+
+                    $inventory->stok_tersedia      = max(0, $inventory->stok_tersedia + $diffJumlah);
+                    $inventory->harga_beli_terakhir = $newHarga;
+
+                    // Kondisi sama → diff langsung
+                    if ($oldKondisi === $newKondisi) {
+                        if ($newKondisi === 'baru') {
+                            $inventory->stok_baru  = max(0, $inventory->stok_baru + $diffJumlah);
+                        } else {
+                            $inventory->stok_bekas = max(0, $inventory->stok_bekas + $diffJumlah);
+                        }
+                    } else {
+                        // Kondisi berubah (baru→bekas atau bekas→baru)
+                        // Kurangi dari kondisi lama, tambah ke kondisi baru
+                        if ($oldKondisi === 'baru') {
+                            $inventory->stok_baru  = max(0, $inventory->stok_baru - $oldJumlah);
+                            $inventory->stok_bekas = max(0, $inventory->stok_bekas + $newJumlah);
+                        } else {
+                            $inventory->stok_bekas = max(0, $inventory->stok_bekas - $oldJumlah);
+                            $inventory->stok_baru  = max(0, $inventory->stok_baru + $newJumlah);
+                        }
+                    }
+
+                    $inventory->save();
+
+                    InventoryLog::create([
+                        'inventory_id'   => $inventory->id,
+                        'reference_type' => 'purchase',
+                        'reference_id'   => $pembelian->id,
+                        'qty_change'     => $newJumlah,
+                        'kondisi'        => $newKondisi,
+                        'keterangan'     => 'Edit Pembelian: ' . $newNama,
+                    ]);
+                }
+
+            // ══════════════════════════════════════
+            //  KASUS B: Nama barang BERUBAH
+            //  → hapus entry inventory lama
+            //  → buat / update entry inventory baru
+            // ══════════════════════════════════════
+            } else {
+                // Hapus (atau kurangi stok) entry inventory LAMA
+                $invLama = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                    strtolower($oldNama)
+                ])->first();
+
+                if ($invLama) {
+                    // Jika stok tersedia habis setelah dikurangi → hapus entry
+                    $sisaStok = $invLama->stok_tersedia - $oldJumlah;
+
+                    if ($sisaStok <= 0) {
+                        // Hapus seluruh entry inventory lama
+                        InventoryLog::where('inventory_id', $invLama->id)->delete();
+                        $invLama->delete();
+                    } else {
+                        // Masih ada stok dari sumber lain → hanya kurangi
+                        $invLama->stok_tersedia = $sisaStok;
+
+                        if ($oldKondisi === 'baru') {
+                            $invLama->stok_baru = max(0, $invLama->stok_baru - $oldJumlah);
+                        } else {
+                            $invLama->stok_bekas = max(0, $invLama->stok_bekas - $oldJumlah);
+                        }
+
+                        $invLama->save();
+                    }
+                }
+
+                // Buat / update entry inventory BARU
+                $invBaru = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                    strtolower($newNama)
+                ])->first();
+
+                if ($invBaru) {
+                    $invBaru->stok_tersedia      += $newJumlah;
+                    $invBaru->harga_beli_terakhir = $newHarga;
+
+                    if ($newKondisi === 'baru') {
+                        $invBaru->stok_baru += $newJumlah;
+                    } else {
+                        $invBaru->stok_bekas += $newJumlah;
+                    }
+
+                    $invBaru->save();
+                } else {
+                    $invBaru = Inventory::create([
+                        'nama_produk'         => $newNama,
+                        'kategori'            => null,
+                        'satuan'              => 'unit',
+                        'stok_tersedia'       => $newJumlah,
+                        'stok_disewa'         => 0,
+                        'stok_baru'           => $newKondisi === 'baru'  ? $newJumlah : 0,
+                        'stok_bekas'          => $newKondisi === 'bekas' ? $newJumlah : 0,
+                        'harga_beli_terakhir' => $newHarga,
+                    ]);
+                }
+
+                InventoryLog::create([
+                    'inventory_id'   => $invBaru->id,
+                    'reference_type' => 'purchase',
+                    'reference_id'   => $pembelian->id,
+                    'qty_change'     => $newJumlah,
+                    'kondisi'        => $newKondisi,
+                    'keterangan'     => 'Edit Pembelian: ' . $newNama . ' (dari: ' . $oldNama . ')',
+                ]);
+            }
+
+            // Activity log
+            ActivityLog::record(
+                module:   'Pembelian',
+                action:   'update',
+                subject:  $newNama,
+                oldValue: $oldData,
+                newValue: [
+                    'barang'  => $newNama,
+                    'jumlah'  => $newJumlah,
+                    'kondisi' => $newKondisi,
+                    'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                ],
+                pageUrl: 'pembelian/' . $pembelian->id . '/edit'
+            );
+        });
 
         return redirect()->route('pembelian.index')
-            ->with('success', 'Data pembelian berhasil diperbarui.');
+            ->with('success', 'Data pembelian dan stok inventory berhasil diperbarui.');
     }
 
     public function destroy(string $id)
     {
         $pembelian = Pembelian::findOrFail($id);
 
-        ActivityLog::record(
-            module:   'Pembelian',
-            action:   'delete',
-            subject:  $pembelian->nama_barang,
-            oldValue: [
-                'barang'  => $pembelian->nama_barang,
-                'jumlah'  => $pembelian->jumlah,
-                'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                'tanggal' => $pembelian->tanggal_pembelian,
-                'status'  => $pembelian->status,
-            ],
-            pageUrl: 'pembelian'
-        );
+        DB::transaction(function () use ($pembelian) {
+            // Rollback stok inventory saat pembelian dihapus
+            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                strtolower($pembelian->nama_barang)
+            ])->first();
 
-        if ($pembelian->bukti_transaksi) {
-            Storage::disk('public')->delete($pembelian->bukti_transaksi);
-        }
+            if ($inventory) {
+                $jumlah  = (int) $pembelian->jumlah;
+                $kondisi = $pembelian->kondisi_barang;
+                $sisaStok = $inventory->stok_tersedia - $jumlah;
 
-        $pembelian->delete();
+                if ($sisaStok <= 0) {
+                    // Stok habis → hapus entry inventory
+                    InventoryLog::where('inventory_id', $inventory->id)->delete();
+                    $inventory->delete();
+                } else {
+                    $inventory->stok_tersedia = $sisaStok;
+
+                    if ($kondisi === 'baru') {
+                        $inventory->stok_baru = max(0, $inventory->stok_baru - $jumlah);
+                    } elseif ($kondisi === 'bekas') {
+                        $inventory->stok_bekas = max(0, $inventory->stok_bekas - $jumlah);
+                    }
+
+                    $inventory->save();
+                }
+            }
+
+            ActivityLog::record(
+                module:   'Pembelian',
+                action:   'delete',
+                subject:  $pembelian->nama_barang,
+                oldValue: [
+                    'barang'  => $pembelian->nama_barang,
+                    'jumlah'  => $pembelian->jumlah,
+                    'kondisi' => $pembelian->kondisi_barang,
+                    'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'tanggal' => $pembelian->tanggal_pembelian,
+                    'status'  => $pembelian->status,
+                ],
+                pageUrl: 'pembelian'
+            );
+
+            if ($pembelian->bukti_transaksi) {
+                Storage::disk('public')->delete($pembelian->bukti_transaksi);
+            }
+
+            $pembelian->delete();
+        });
 
         return redirect()->route('pembelian.index')
-            ->with('success', 'Data pembelian berhasil dihapus.');
+            ->with('success', 'Data pembelian berhasil dihapus dan stok inventory disesuaikan.');
     }
 
     // ══════════════════════════════════════

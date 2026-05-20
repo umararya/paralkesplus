@@ -67,17 +67,17 @@
         text-decoration: none; white-space: nowrap;
     }
     .btn i { font-size: 15px; }
-    .btn-search { background: var(--brand-50); color: var(--brand-500); border: 1px solid var(--brand-100); }
-    .btn-search:hover { background: var(--brand-100); color: var(--brand-600); }
+    .btn-search  { background: var(--brand-50); color: var(--brand-500); border: 1px solid var(--brand-100); }
+    .btn-search:hover  { background: var(--brand-100); color: var(--brand-600); }
     html.dark .btn-search { background: rgba(29,111,164,0.12); color: #60A5FA; border-color: rgba(29,111,164,0.25); }
-    .btn-reset { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
-    .btn-reset:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-reset   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-reset:hover   { background: var(--bg-hover); color: var(--text-primary); }
     .btn-primary { background: var(--brand-500); color: #fff; border: 1px solid var(--brand-500); }
     .btn-primary:hover { background: var(--brand-600); border-color: var(--brand-600); }
-    .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .btn-danger { background: #EF4444; color: #fff; border: 1px solid #EF4444; }
-    .btn-danger:hover { background: #DC2626; border-color: #DC2626; }
+    .btn-ghost   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-ghost:hover   { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-danger  { background: #EF4444; color: #fff; border: 1px solid #EF4444; }
+    .btn-danger:hover  { background: #DC2626; border-color: #DC2626; }
 
     /* ── Filter Tabs ── */
     .filter-tabs { display: flex; align-items: center; gap: 4px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg-primary); flex-wrap: wrap; }
@@ -86,20 +86,18 @@
         padding: 5px 14px; height: 32px; border-radius: 8px;
         font-size: 12.5px; font-weight: 500; font-family: var(--font);
         cursor: pointer; text-decoration: none; transition: all 0.18s;
-        border: 1px solid transparent; color: var(--text-secondary);
-        background: transparent;
+        border: 1px solid transparent; color: var(--text-secondary); background: transparent;
     }
     .tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border); }
-    .tab-btn.active { background: var(--brand-500); color: #fff; border-color: var(--brand-500); font-weight: 600; }
-    .tab-btn.active-buyback { background: #F59E0B; color: #fff; border-color: #F59E0B; font-weight: 600; }
+    .tab-btn.active          { background: var(--brand-500); color: #fff; border-color: var(--brand-500); font-weight: 600; }
+    .tab-btn.active-buyback  { background: #F59E0B; color: #fff; border-color: #F59E0B; font-weight: 600; }
     .tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 99px; font-size: 11px; font-weight: 700; padding: 0 5px; }
-    .tab-btn.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+    .tab-btn.active .tab-count,
     .tab-btn.active-buyback .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
     .tab-btn:not(.active):not(.active-buyback) .tab-count { background: var(--bg-hover); color: var(--text-muted); }
 
     .info-bar {
-        padding: 9px 18px; border-bottom: 1px solid var(--border);
-        background: var(--bg-primary);
+        padding: 9px 18px; border-bottom: 1px solid var(--border); background: var(--bg-primary);
         display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
     }
     .info-bar-text { font-size: 12.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
@@ -157,7 +155,7 @@
         color: var(--text-secondary); text-decoration: none;
         cursor: pointer; transition: all 0.18s; font-family: var(--font); white-space: nowrap;
     }
-    .page-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-muted); }
+    .page-btn:hover  { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-muted); }
     .page-btn.active { background: var(--brand-500); color: #fff; border-color: var(--brand-500); font-weight: 700; }
     .page-btn.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
     .page-ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; font-size: 13px; color: var(--text-muted); }
@@ -188,31 +186,44 @@
     }
     @keyframes slideUp { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
     .modal-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .modal-title  { font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
     .modal-title i { font-size: 17px; color: var(--brand-500); }
-    .modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 19px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .modal-close  { width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 19px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .modal-body { padding: 18px 22px; }
+    .modal-body   { padding: 18px 22px; }
     .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 
     .delete-warning { text-align: center; padding: 6px 0; }
-    .delete-warning i { font-size: 42px; color: #EF4444; display: block; margin-bottom: 10px; }
+    .delete-warning i  { font-size: 42px; color: #EF4444; display: block; margin-bottom: 10px; }
     .delete-warning h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 7px; }
-    .delete-warning p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .delete-warning p  { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
     .delete-warning strong { color: var(--text-primary); }
 
     .qty-badge { display: inline-flex; align-items: center; background: #EFF6FF; color: #1D4ED8; padding: 2px 10px; border-radius: 20px; font-size: 12.5px; font-weight: 700; }
     html.dark .qty-badge { background: rgba(29,78,216,0.15); color: #60A5FA; }
+
     .total-value { font-weight: 700; color: #059669; }
     html.dark .total-value { color: #34D399; }
+
     .tanggal-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--bg-hover); padding: 3px 10px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
 
     /* ── Status Badge ── */
-    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .status-badge    { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
     .status-normal   { background: #EFF6FF; color: #1D4ED8; }
     .status-buy-back { background: #FFFBEB; color: #D97706; }
     html.dark .status-normal   { background: rgba(29,78,216,0.12); color: #60A5FA; }
     html.dark .status-buy-back { background: rgba(217,119,6,0.12); color: #FBBF24; }
+
+    /* ── Kondisi Badge ── */
+    .kondisi-badge       { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .kondisi-baru        { background: #EFF6FF; color: #1D6FA4; border: 1px solid #BFDBFE; }
+    .kondisi-bekas       { background: #F5F3FF; color: #7C3AED; border: 1px solid #DDD6FE; }
+    .kondisi-baik        { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+    .kondisi-rusak       { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+    html.dark .kondisi-baru  { background: rgba(29,111,164,0.12); color: #60A5FA; border-color: rgba(29,111,164,0.25); }
+    html.dark .kondisi-bekas { background: rgba(124,58,237,0.12); color: #A78BFA; border-color: rgba(124,58,237,0.25); }
+    html.dark .kondisi-baik  { background: rgba(21,128,61,0.12);  color: #4ADE80; border-color: rgba(21,128,61,0.25); }
+    html.dark .kondisi-rusak { background: rgba(190,18,60,0.12);  color: #FB7185; border-color: rgba(190,18,60,0.25); }
 
     .tfoot-total td { padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--text-primary); background: var(--bg-hover); border-top: 2px solid var(--border); }
 
@@ -238,10 +249,7 @@
         padding: 20px; cursor: zoom-out;
     }
     .lightbox-overlay.open { display: flex; animation: fadeOverlay 0.18s ease; }
-    .lightbox-overlay img {
-        max-width: 90vw; max-height: 88vh; border-radius: 10px;
-        object-fit: contain; box-shadow: 0 20px 60px rgba(0,0,0,0.5); cursor: default;
-    }
+    .lightbox-overlay img  { max-width: 90vw; max-height: 88vh; border-radius: 10px; object-fit: contain; box-shadow: 0 20px 60px rgba(0,0,0,0.5); cursor: default; }
     .lightbox-close {
         position: fixed; top: 16px; right: 20px; width: 36px; height: 36px;
         border-radius: 50%; background: rgba(255,255,255,0.15); border: none;
@@ -380,6 +388,7 @@
                     <th>Tanggal</th>
                     <th>Nama Barang</th>
                     <th class="center">Status</th>
+                    <th class="center">Kondisi</th>
                     <th class="center">Qty</th>
                     <th class="right">Harga Satuan</th>
                     <th class="right">Total</th>
@@ -412,22 +421,9 @@
                                 {{ $item->nama_barang }}
                             @endif
                         </div>
-                        {{-- Tampilkan nama pelanggan di bawah nama barang jika buy back --}}
                         @if($item->status === 'buy_back' && $item->nama_pelanggan)
                         <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
                             <i class="ri-user-line" style="font-size:11px;"></i> {{ $item->nama_pelanggan }}
-                            @if($item->kondisi_barang)
-                                &nbsp;·&nbsp;
-                                @php
-                                    $kondisiLabel = match($item->kondisi_barang) {
-                                        'baik'  => ['✅', 'Baik'],
-                                        'bekas' => ['🟡', 'Bekas'],
-                                        'rusak' => ['🔴', 'Rusak'],
-                                        default => ['—', $item->kondisi_barang],
-                                    };
-                                @endphp
-                                {{ $kondisiLabel[0] }} {{ $kondisiLabel[1] }}
-                            @endif
                         </div>
                         @endif
                     </td>
@@ -442,6 +438,32 @@
                             <span class="status-badge status-normal">
                                 <i class="ri-shopping-cart-line"></i> Normal
                             </span>
+                        @endif
+                    </td>
+
+                    {{-- ── KONDISI BADGE (BARU) ── --}}
+                    <td class="center">
+                        @php
+                            $k = $item->kondisi_barang;
+                        @endphp
+                        @if($k === 'baru')
+                            <span class="kondisi-badge kondisi-baru">
+                                <i class="ri-checkbox-blank-circle-fill" style="font-size:8px;"></i> Baru
+                            </span>
+                        @elseif($k === 'bekas')
+                            <span class="kondisi-badge kondisi-bekas">
+                                <i class="ri-checkbox-blank-circle-fill" style="font-size:8px;"></i> Bekas
+                            </span>
+                        @elseif($k === 'baik')
+                            <span class="kondisi-badge kondisi-baik">
+                                <i class="ri-checkbox-blank-circle-fill" style="font-size:8px;"></i> Baik
+                            </span>
+                        @elseif($k === 'rusak')
+                            <span class="kondisi-badge kondisi-rusak">
+                                <i class="ri-checkbox-blank-circle-fill" style="font-size:8px;"></i> Rusak
+                            </span>
+                        @else
+                            <span style="color:var(--text-muted); font-size:13px;">—</span>
                         @endif
                     </td>
 
@@ -475,7 +497,7 @@
                         @endif
                     </td>
 
-                    {{-- ── Bukti Transaksi ── --}}
+                    {{-- Bukti Transaksi --}}
                     <td class="center">
                         @if($item->bukti_transaksi)
                             <img src="{{ asset('storage/' . $item->bukti_transaksi) }}"
@@ -515,7 +537,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10">
+                    <td colspan="11">
                         <div class="empty-state">
                             <i class="ri-shopping-cart-2-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data pembelian' }}</h3>
@@ -529,7 +551,7 @@
             @if($pembelians->count() > 0)
             <tfoot>
                 <tr class="tfoot-total">
-                    <td colspan="6" class="right">
+                    <td colspan="7" class="right">
                         Total {{ $search ? 'hasil filter' : ($filter !== 'semua' ? 'tab ini' : 'keseluruhan') }}:
                     </td>
                     <td class="right total-value" style="font-size:14px; white-space:nowrap;">
@@ -578,13 +600,13 @@
                 }
             @endphp
 
-            @foreach($rendered as $item)
-                @if($item === '...')
+            @foreach($rendered as $pageItem)
+                @if($pageItem === '...')
                     <span class="page-ellipsis">…</span>
-                @elseif($item == $current)
-                    <span class="page-btn active">{{ $item }}</span>
+                @elseif($pageItem == $current)
+                    <span class="page-btn active">{{ $pageItem }}</span>
                 @else
-                    <a class="page-btn" href="{{ $pembelians->url($item) }}">{{ $item }}</a>
+                    <a class="page-btn" href="{{ $pembelians->url($pageItem) }}">{{ $pageItem }}</a>
                 @endif
             @endforeach
 
@@ -637,7 +659,7 @@
     </div>
 </div>
 
-{{-- ══════════════ LIGHTBOX BUKTI TRANSAKSI ══════════════ --}}
+{{-- ══════════════ LIGHTBOX ══════════════ --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox()">
         <i class="ri-close-line"></i>
@@ -650,7 +672,6 @@
 
 @push('scripts')
 <script>
-    // ── MODAL ──
     function openModal(id) {
         document.getElementById(id).classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -671,14 +692,12 @@
         }
     });
 
-    // ── DELETE MODAL ──
     function openDeleteModal(id, namaBarang) {
         document.getElementById('deleteNamaBarang').textContent = namaBarang;
         document.getElementById('formDeleteSubmit').action = '/pembelian/' + id;
         openModal('modalHapus');
     }
 
-    // ── LIGHTBOX ──
     function openLightbox(src, caption) {
         document.getElementById('lightboxImg').src             = src;
         document.getElementById('lightboxCaption').textContent = caption;
