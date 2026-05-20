@@ -130,6 +130,36 @@
                     @error('nomor_telepon')<span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>@enderror
                 </div>
 
+                {{-- ── BARU: Tempat/Tanggal Lahir ── --}}
+                <div class="form-group">
+                    <label class="form-label">
+                        Tempat/Tanggal Lahir
+                        <span class="hint">(untuk formulir perjanjian)</span>
+                    </label>
+                    <input type="text" name="tempat_tanggal_lahir"
+                           value="{{ old('tempat_tanggal_lahir', $penyewaan->tempat_tanggal_lahir) }}"
+                           placeholder="Contoh: Semarang, 01 Januari 1990"
+                           class="form-control {{ $errors->has('tempat_tanggal_lahir') ? 'is-invalid' : '' }}">
+                    @error('tempat_tanggal_lahir')<span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>@enderror
+                </div>
+
+                {{-- ── BARU: Nomor KTP ── --}}
+                <div class="form-group">
+                    <label class="form-label">
+                        Nomor KTP (NIK)
+                        <span class="hint">(16 digit, untuk formulir perjanjian)</span>
+                    </label>
+                    <input type="text" name="nomor_ktp"
+                           value="{{ old('nomor_ktp', $penyewaan->nomor_ktp) }}"
+                           placeholder="3374xxxxxxxxxxxxxxx"
+                           maxlength="16"
+                           inputmode="numeric"
+                           pattern="[0-9]{16}"
+                           class="form-control {{ $errors->has('nomor_ktp') ? 'is-invalid' : '' }}"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    @error('nomor_ktp')<span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>@enderror
+                </div>
+
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Alamat Penyewa <span class="required">*</span></label>
                     <textarea name="alamat_penyewa" rows="3"

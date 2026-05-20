@@ -127,10 +127,44 @@
                     <label class="form-label">Nomor Telepon/HP <span class="required">*</span></label>
                     <input type="tel" name="nomor_telepon"
                            value="{{ old('nomor_telepon') }}"
-                           placeholder="Contoh: 08123456789"
+                           placeholder="08xxxxxxxxxx"
                            class="form-control {{ $errors->has('nomor_telepon') ? 'is-invalid' : '' }}"
                            required>
                     @error('nomor_telepon')
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- ── BARU: Tempat/Tanggal Lahir ── --}}
+                <div class="form-group">
+                    <label class="form-label">
+                        Tempat/Tanggal Lahir
+                        <span class="hint">(untuk formulir perjanjian)</span>
+                    </label>
+                    <input type="text" name="tempat_tanggal_lahir"
+                           value="{{ old('tempat_tanggal_lahir') }}"
+                           placeholder="Contoh: Semarang, 01 Januari 1990"
+                           class="form-control {{ $errors->has('tempat_tanggal_lahir') ? 'is-invalid' : '' }}">
+                    @error('tempat_tanggal_lahir')
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- ── BARU: Nomor KTP ── --}}
+                <div class="form-group">
+                    <label class="form-label">
+                        Nomor KTP (NIK)
+                        <span class="hint">(16 digit, untuk formulir perjanjian)</span>
+                    </label>
+                    <input type="text" name="nomor_ktp"
+                           value="{{ old('nomor_ktp') }}"
+                           placeholder="3374xxxxxxxxxxxxxxx"
+                           maxlength="16"
+                           inputmode="numeric"
+                           pattern="[0-9]{16}"
+                           class="form-control {{ $errors->has('nomor_ktp') ? 'is-invalid' : '' }}"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    @error('nomor_ktp')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
                 </div>
@@ -153,98 +187,50 @@
         <div class="form-section">
             <div class="section-title"><i class="ri-stethoscope-line"></i> Item Penyewaan</div>
 
-            @error('items')
-                <div style="margin-bottom:10px;">
-                    <span class="invalid-feedback" style="display:flex;"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                </div>
-            @enderror
-
-            <table class="items-table" id="items-table">
-                <thead>
-                    <tr>
-                        <th style="width:32px;">#</th>
-                        <th>Nama Alat Kesehatan</th>
-                        <th style="width:65px;">Qty</th>
-                        <th style="width:80px;">Satuan</th>
-                        <th style="width:130px;">Harga / Satuan (Rp)</th>
-                        <th style="width:75px;">Diskon (%)</th>
-                        <th style="width:120px; text-align:right;">Subtotal</th>
-                        <th style="width:36px;"></th>
-                    </tr>
-                </thead>
-                <tbody id="items-body">
-                    {{-- Baris awal (atau old value jika ada error) --}}
-                    @php
-                        $oldItems = old('items', [['nama_alat'=>'','qty'=>1,'satuan'=>'pcs','harga_satuan'=>0,'diskon'=>0]]);
-                    @endphp
-                    @foreach($oldItems as $idx => $oi)
-                    <tr class="item-row">
-                        <td style="text-align:center; color:var(--text-muted); font-size:13px;" class="row-num">{{ $idx+1 }}</td>
-                        <td>
-                            <input type="text" name="items[{{ $idx }}][nama_alat]"
-                                   value="{{ $oi['nama_alat'] ?? '' }}"
-                                   placeholder="Nama alat kesehatan"
-                                   class="form-control item-nama" required>
-                        </td>
-                        <td>
-                            <input type="number" name="items[{{ $idx }}][qty]"
-                                   value="{{ $oi['qty'] ?? 1 }}"
-                                   min="1" class="form-control item-qty" required>
-                        </td>
-                        <td>
-                            <select name="items[{{ $idx }}][satuan]" class="form-control item-satuan">
-                                @foreach(['pcs','unit','set','buah','pasang'] as $sat)
-                                <option value="{{ $sat }}" {{ ($oi['satuan'] ?? 'pcs') == $sat ? 'selected' : '' }}>{{ $sat }}</option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <input type="number" name="items[{{ $idx }}][harga_satuan]"
-                                   value="{{ $oi['harga_satuan'] ?? 0 }}"
-                                   min="0" class="form-control item-harga" required>
-                        </td>
-                        <td>
-                            <input type="number" name="items[{{ $idx }}][diskon]"
-                                   value="{{ $oi['diskon'] ?? 0 }}"
-                                   min="0" max="100" class="form-control item-diskon">
-                        </td>
-                        <td class="subtotal-cell" data-subtotal="0">Rp 0</td>
-                        <td>
-                            <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div style="overflow-x:auto;">
+                <table class="items-table" id="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;">#</th>
+                            <th>Nama Alat</th>
+                            <th style="width:70px;">Qty</th>
+                            <th style="width:80px;">Satuan</th>
+                            <th style="width:130px;">Harga/Satuan (Rp)</th>
+                            <th style="width:70px;">Diskon (%)</th>
+                            <th style="width:120px; text-align:right;">Subtotal</th>
+                            <th style="width:36px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-body">
+                        {{-- Rows diisi via JS --}}
+                    </tbody>
+                </table>
+            </div>
 
             <button type="button" class="btn-add-row" onclick="addRow()">
                 <i class="ri-add-line"></i> Tambah Item
             </button>
 
-            {{-- Ringkasan --}}
             <div class="ringkasan-box">
                 <div class="ringkasan-inner">
                     <div class="ringkasan-row">
                         <span class="r-label">Subtotal Sewa</span>
-                        <span class="r-value" id="ringkasan-subtotal">Rp 0</span>
+                        <span class="r-value" id="r-subtotal">Rp 0</span>
                     </div>
                     <div class="ringkasan-row">
-                        <span class="r-label">Diskon Global (Rp)</span>
-                        <span class="r-value" id="ringkasan-diskon-label">Rp 0</span>
+                        <span class="r-label">Diskon Global</span>
+                        <span class="r-value" id="r-diskon">Rp 0</span>
                     </div>
                     <div class="ringkasan-row">
-                        <span class="r-label">Ongkos Kirim</span>
-                        <span class="r-value" id="ringkasan-ongkir">Rp 0</span>
+                        <span class="r-label">Ongkir</span>
+                        <span class="r-value" id="r-ongkir">Rp 0</span>
                     </div>
                     <div class="ringkasan-row total">
                         <span class="r-label">Total Tagihan</span>
-                        <span class="r-value" id="ringkasan-total">Rp 0</span>
+                        <span class="r-value" id="r-total">Rp 0</span>
                     </div>
                 </div>
             </div>
-
         </div>
 
         {{-- ===================== DURASI & PENGIRIMAN ===================== --}}
@@ -253,7 +239,7 @@
             <div class="form-grid">
 
                 <div class="form-group">
-                    <label class="form-label">Durasi Sewa <span class="required">*</span> <span class="hint">(Pilih tanggal mulai &amp; selesai)</span></label>
+                    <label class="form-label">Periode Sewa <span class="required">*</span></label>
                     <div class="date-range-wrap">
                         <input type="text" id="tgl_mulai" name="tgl_mulai"
                                value="{{ old('tgl_mulai') }}"
@@ -411,7 +397,7 @@
             <div class="form-group">
                 <label class="form-label">Keterangan <span class="hint">(opsional)</span></label>
                 <textarea name="keterangan" rows="3"
-                          placeholder="Catatan tambahan mengenai penyewaan ini"
+                          placeholder="Catatan tambahan jika ada..."
                           class="form-control {{ $errors->has('keterangan') ? 'is-invalid' : '' }}">{{ old('keterangan') }}</textarea>
                 @error('keterangan')
                     <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
@@ -419,12 +405,13 @@
             </div>
         </div>
 
+        {{-- ===================== FOOTER ===================== --}}
         <div class="form-footer">
             <a href="{{ route('penyewaan.index') }}" class="btn btn-cancel">
                 <i class="ri-close-line"></i> Batal
             </a>
             <button type="submit" class="btn btn-save">
-                <i class="ri-save-line"></i> Simpan Data
+                <i class="ri-save-line"></i> Simpan Penyewaan
             </button>
         </div>
 
@@ -437,221 +424,207 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
-// ============================================================
-// DATE RANGE PICKER
-// ============================================================
-const fpMulai = flatpickr("#tgl_mulai", {
-    locale: "id", dateFormat: "Y-m-d", minDate: "today",
-    onChange: function(_, dateStr) {
-        fpSelesai.set('minDate', dateStr);
+// ── Flatpickr date range ──
+const fpMulai = flatpickr('#tgl_mulai', {
+    locale: 'id',
+    dateFormat: 'Y-m-d',
+    allowInput: false,
+    onChange: function(sel, str) {
+        fpSelesai.set('minDate', str);
         hitungDurasi();
     }
 });
-const fpSelesai = flatpickr("#tgl_selesai", {
-    locale: "id", dateFormat: "Y-m-d", minDate: "today",
+const fpSelesai = flatpickr('#tgl_selesai', {
+    locale: 'id',
+    dateFormat: 'Y-m-d',
+    allowInput: false,
     onChange: function() { hitungDurasi(); }
 });
 
 function hitungDurasi() {
     const mulai   = document.getElementById('tgl_mulai').value;
     const selesai = document.getElementById('tgl_selesai').value;
-    const display = document.getElementById('durasi-display');
+    const disp    = document.getElementById('durasi-display');
     const hidden  = document.getElementById('durasi_hari');
+
     if (mulai && selesai) {
-        const diff = Math.round((new Date(selesai) - new Date(mulai)) / 86400000);
-        if (diff > 0) {
-            hidden.value = diff;
-            display.innerHTML = '<i class="ri-calendar-check-line"></i> ' + diff + ' hari';
-        } else if (diff === 0) {
-            hidden.value = 1;
-            display.innerHTML = '<i class="ri-calendar-check-line"></i> 1 hari (same day)';
+        const d1   = new Date(mulai);
+        const d2   = new Date(selesai);
+        const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+        if (diff >= 0) {
+            hidden.value    = diff;
+            disp.innerHTML  = `<i class="ri-calendar-check-line"></i> ${diff} hari`;
         } else {
-            hidden.value = '';
-            display.innerHTML = '<span style="color:#EF4444;"><i class="ri-error-warning-line"></i> Tanggal selesai harus setelah tanggal mulai</span>';
+            hidden.value   = '';
+            disp.innerHTML = '';
         }
     } else {
-        hidden.value = '';
-        display.innerHTML = '';
+        hidden.value   = '';
+        disp.innerHTML = '';
     }
 }
 
-// ============================================================
-// PENGIRIMAN & METODE INFO
-// ============================================================
-const pengirimanNotes = {
-    'mandiri'              : 'Penyewa mengambil & mengembalikan sendiri — tidak ada ongkir',
-    'Gosend / GrabExpress' : 'Maks berat 2 Kg — cocok untuk Nebulizer, Kursi Roda Travel, dsb',
-    'Rental Mobil Paralkes': 'Disarankan untuk Bed Pasien, Tabung Oksigen Besar, dsb',
-};
+// ── Pengiriman note ──
 function updatePengirimanNote() {
-    const val = document.getElementById('pengiriman').value;
-    document.getElementById('pengiriman-note-text').textContent = pengirimanNotes[val] || 'Pilih metode pengiriman di atas';
-    if (val === 'mandiri') {
-        document.getElementById('biaya_ongkir').value = 0;
-        hitungRingkasan();
-    }
+    const val  = document.getElementById('pengiriman').value;
+    const text = document.getElementById('pengiriman-note-text');
+    const notes = {
+        'mandiri':               'Penyewa mengambil dan mengembalikan sendiri.',
+        'Gosend / GrabExpress':  'Pengiriman via ojek online, biaya ditanggung penyewa.',
+        'Rental Mobil Paralkes': 'Pengiriman menggunakan Rental Mobil Paralkes.',
+    };
+    text.textContent = notes[val] || 'Pilih metode pengiriman di atas';
 }
 
-const metodeInfos = {
-    'Tunai / Cash'        : 'Pembayaran tunai di tempat',
-    'Transfer via Bank BCA': 'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA',
-};
+// ── Metode info ──
 function updateMetodeInfo() {
-    const val = document.getElementById('metode_pembayaran').value;
-    document.getElementById('metode-info-text').textContent = metodeInfos[val] || 'Pilih metode pembayaran';
+    const val  = document.getElementById('metode_pembayaran').value;
+    const text = document.getElementById('metode-info-text');
+    const info = {
+        'Tunai / Cash':         'Pembayaran dilakukan secara tunai saat penyerahan alat.',
+        'Transfer via Bank BCA': 'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA.',
+    };
+    text.textContent = info[val] || 'Pilih metode pembayaran';
 }
 
-// ============================================================
-// DYNAMIC TABLE — ITEM ROWS
-// ============================================================
-let rowIndex = {{ count($oldItems) }};
+// ── Items table ──
+let rowIndex = 0;
 
-const satuanOptions = ['pcs','unit','set','buah','pasang'];
-
-function buildSatuanOptions(selected) {
-    return satuanOptions.map(s =>
-        `<option value="${s}" ${s === selected ? 'selected' : ''}>${s}</option>`
-    ).join('');
-}
-
-function addRow() {
+function addRow(data = {}) {
+    rowIndex++;
     const tbody = document.getElementById('items-body');
-    const idx   = rowIndex++;
     const tr    = document.createElement('tr');
-    tr.className = 'item-row';
+    tr.id       = `row-${rowIndex}`;
+
+    const satuanOpts = ['pcs','unit','set','buah','pasang'].map(s =>
+        `<option value="${s}" ${(data.satuan||'pcs')===s?'selected':''}>${s}</option>`
+    ).join('');
+
     tr.innerHTML = `
-        <td style="text-align:center; color:var(--text-muted); font-size:13px;" class="row-num">${tbody.rows.length + 1}</td>
-        <td><input type="text"   name="items[${idx}][nama_alat]"    placeholder="Nama alat kesehatan" class="form-control item-nama" required></td>
-        <td><input type="number" name="items[${idx}][qty]"          value="1" min="1"    class="form-control item-qty" required></td>
-        <td><select name="items[${idx}][satuan]" class="form-control item-satuan">${buildSatuanOptions('pcs')}</select></td>
-        <td><input type="number" name="items[${idx}][harga_satuan]" value="0" min="0"    class="form-control item-harga" required></td>
-        <td><input type="number" name="items[${idx}][diskon]"       value="0" min="0" max="100" class="form-control item-diskon"></td>
-        <td class="subtotal-cell" data-subtotal="0">Rp 0</td>
-        <td><button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="ri-delete-bin-line"></i></button></td>
+        <td style="text-align:center; font-size:12px; color:var(--text-muted);">${rowIndex}</td>
+        <td><input type="text" name="items[${rowIndex}][nama_alat]"
+                   value="${data.nama_alat||''}"
+                   placeholder="Nama alat kesehatan"
+                   class="form-control" required
+                   oninput="hitungSubtotal(${rowIndex})"></td>
+        <td><input type="number" name="items[${rowIndex}][qty]"
+                   value="${data.qty||1}" min="1"
+                   class="form-control" style="text-align:center;"
+                   oninput="hitungSubtotal(${rowIndex})"></td>
+        <td><select name="items[${rowIndex}][satuan]" class="form-control">${satuanOpts}</select></td>
+        <td><input type="number" name="items[${rowIndex}][harga_satuan]"
+                   value="${data.harga_satuan||0}" min="0"
+                   class="form-control"
+                   oninput="hitungSubtotal(${rowIndex})"></td>
+        <td><input type="number" name="items[${rowIndex}][diskon]"
+                   value="${data.diskon||0}" min="0" max="100"
+                   class="form-control" style="text-align:center;"
+                   oninput="hitungSubtotal(${rowIndex})"></td>
+        <td class="subtotal-cell" id="subtotal-${rowIndex}">Rp 0</td>
+        <td style="text-align:center;">
+            <button type="button" class="btn-remove-row" onclick="removeRow(${rowIndex})">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        </td>
     `;
     tbody.appendChild(tr);
-    bindRowEvents(tr);
-    updateRowNumbers();
+    hitungSubtotal(rowIndex);
 }
 
-function removeRow(btn) {
+function removeRow(idx) {
     const tbody = document.getElementById('items-body');
-    if (tbody.rows.length <= 1) {
-        alert('Minimal harus ada 1 item penyewaan.');
-        return;
-    }
-    btn.closest('tr').remove();
-    updateRowNumbers();
+    if (tbody.rows.length <= 1) return; // minimal 1 row
+    document.getElementById(`row-${idx}`)?.remove();
     hitungRingkasan();
 }
 
-function updateRowNumbers() {
-    document.querySelectorAll('#items-body .row-num').forEach((el, i) => {
-        el.textContent = i + 1;
-    });
-}
-
-function hitungSubtotal(row) {
-    const qty    = parseFloat(row.querySelector('.item-qty').value)    || 0;
-    const harga  = parseFloat(row.querySelector('.item-harga').value)  || 0;
-    const diskon = parseFloat(row.querySelector('.item-diskon').value) || 0;
+function hitungSubtotal(idx) {
+    const row    = document.getElementById(`row-${idx}`);
+    if (!row) return;
+    const qty    = parseFloat(row.querySelector(`[name="items[${idx}][qty]"]`)?.value) || 0;
+    const harga  = parseFloat(row.querySelector(`[name="items[${idx}][harga_satuan]"]`)?.value) || 0;
+    const diskon = parseFloat(row.querySelector(`[name="items[${idx}][diskon]"]`)?.value) || 0;
     const sub    = Math.round(qty * harga * (1 - diskon / 100));
-    const cell   = row.querySelector('.subtotal-cell');
-    cell.dataset.subtotal = sub;
-    cell.textContent = 'Rp ' + sub.toLocaleString('id-ID');
+
+    const cell = document.getElementById(`subtotal-${idx}`);
+    if (cell) cell.textContent = 'Rp ' + sub.toLocaleString('id-ID');
     hitungRingkasan();
 }
 
 function hitungRingkasan() {
-    let subtotalSewa = 0;
-    document.querySelectorAll('#items-body .subtotal-cell').forEach(cell => {
-        subtotalSewa += parseFloat(cell.dataset.subtotal) || 0;
-    });
-    const diskonGlobal = parseFloat(document.getElementById('diskon_global').value) || 0;
-    const ongkir       = parseFloat(document.getElementById('biaya_ongkir').value)  || 0;
-    const total        = Math.max(0, subtotalSewa - diskonGlobal + ongkir);
-
-    const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    document.getElementById('ringkasan-subtotal').textContent    = fmt(subtotalSewa);
-    document.getElementById('ringkasan-diskon-label').textContent = fmt(diskonGlobal);
-    document.getElementById('ringkasan-ongkir').textContent      = fmt(ongkir);
-    document.getElementById('ringkasan-total').textContent       = fmt(total);
-}
-
-function bindRowEvents(row) {
-    row.querySelectorAll('.item-qty, .item-harga, .item-diskon').forEach(input => {
-        input.addEventListener('input', () => hitungSubtotal(row));
-    });
-    // hitung sekali saat bind
-    hitungSubtotal(row);
-}
-
-// Bind semua baris existing (termasuk old value)
-document.querySelectorAll('#items-body .item-row').forEach(bindRowEvents);
-
-// ============================================================
-// DRAG & DROP FILE UPLOAD
-// ============================================================
-function formatBytes(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-    return (bytes/(1024*1024)).toFixed(1) + ' MB';
-}
-
-function initDropzone(inputId, dropzoneId, previewId, previewNameId, previewSizeId, allowedTypes, maxBytes) {
-    const input    = document.getElementById(inputId);
-    const dropzone = document.getElementById(dropzoneId);
-    const preview  = document.getElementById(previewId);
-    const nameEl   = document.getElementById(previewNameId);
-    const sizeEl   = document.getElementById(previewSizeId);
-    if (!input || !dropzone) return;
-
-    function showPreview(file) {
-        nameEl.textContent = file.name;
-        sizeEl.textContent = formatBytes(file.size);
-        preview.classList.add('show');
-        dropzone.style.display = 'none';
-    }
-
-    function validateAndShow(file) {
-        if (!allowedTypes.includes(file.type)) { alert('File tidak valid. Gunakan JPG, PNG, atau PDF.'); return false; }
-        if (file.size > maxBytes) { alert('Ukuran file melebihi ' + formatBytes(maxBytes) + '.'); return false; }
-        return true;
-    }
-
-    input.addEventListener('change', function () {
-        if (this.files && this.files[0] && validateAndShow(this.files[0])) showPreview(this.files[0]);
-        else this.value = '';
+    let total = 0;
+    document.querySelectorAll('[id^="subtotal-"]').forEach(cell => {
+        const val = parseInt(cell.textContent.replace(/[^0-9]/g, '')) || 0;
+        total += val;
     });
 
-    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
-    dropzone.addEventListener('dragleave', e => { if (!dropzone.contains(e.relatedTarget)) dropzone.classList.remove('drag-over'); });
-    dropzone.addEventListener('drop', e => {
-        e.preventDefault(); dropzone.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (!file || !validateAndShow(file)) return;
-        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
-        showPreview(file);
+    const diskon = parseInt(document.getElementById('diskon_global')?.value) || 0;
+    const ongkir = parseInt(document.getElementById('biaya_ongkir')?.value) || 0;
+    const grand  = Math.max(0, total - diskon + ongkir);
+
+    document.getElementById('r-subtotal').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    document.getElementById('r-diskon').textContent   = 'Rp ' + diskon.toLocaleString('id-ID');
+    document.getElementById('r-ongkir').textContent   = 'Rp ' + ongkir.toLocaleString('id-ID');
+    document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
+}
+
+// ── Dropzone ──
+function initDropzone(inputId, previewId, zoneId) {
+    const input   = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const zone    = document.getElementById(zoneId);
+    if (!input) return;
+
+    input.addEventListener('change', () => showPreview(input, preview, zone));
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            showPreview(input, preview, zone);
+        }
     });
 }
 
-function removeFile(inputId, previewId, dropzoneId) {
+function showPreview(input, preview, zone) {
+    const file = input.files[0];
+    if (!file) return;
+    preview.querySelector('.dropzone-preview-name').textContent = file.name;
+    preview.querySelector('.dropzone-preview-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    preview.classList.add('show');
+    zone.style.display = 'none';
+}
+
+function removeFile(inputId, previewId, zoneId) {
     document.getElementById(inputId).value = '';
     document.getElementById(previewId).classList.remove('show');
-    document.getElementById(dropzoneId).style.display = '';
+    document.getElementById(zoneId).style.display = '';
 }
 
-initDropzone('foto_ktp_sim','dropzone-ktp','ktp-preview','ktp-preview-name','ktp-preview-size',
-    ['image/jpeg','image/png','application/pdf'], 5*1024*1024);
+// ── Init ──
+document.addEventListener('DOMContentLoaded', function () {
+    initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
 
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('DOMContentLoaded', function () {
-    updatePengirimanNote();
-    updateMetodeInfo();
-    hitungDurasi();
-    hitungRingkasan();
+    // Restore old items (jika validasi gagal)
+    @if(old('items'))
+        @foreach(old('items') as $oldItem)
+            addRow({
+                nama_alat:    '{{ addslashes($oldItem['nama_alat'] ?? '') }}',
+                qty:          {{ $oldItem['qty'] ?? 1 }},
+                satuan:       '{{ $oldItem['satuan'] ?? 'pcs' }}',
+                harga_satuan: {{ $oldItem['harga_satuan'] ?? 0 }},
+                diskon:       {{ $oldItem['diskon'] ?? 0 }},
+            });
+        @endforeach
+    @else
+        addRow(); // 1 row default
+    @endif
+
+    // Restore notes jika ada old value
+    if ('{{ old('pengiriman') }}') updatePengirimanNote();
+    if ('{{ old('metode_pembayaran') }}') updateMetodeInfo();
 });
 </script>
 @endpush

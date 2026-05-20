@@ -16,6 +16,8 @@ class Penyewaan extends Model
     protected $fillable = [
         'nama_penyewa',
         'nomor_telepon',
+        'tempat_tanggal_lahir',  // ← BARU
+        'nomor_ktp',             // ← BARU
         'produk_alkes',
         'tgl_mulai',
         'tgl_selesai',
@@ -97,13 +99,11 @@ class Penyewaan extends Model
             return $this->details->pluck('nama_alat')->implode(', ');
         }
 
-        // Lazy load jika relasi belum di-eager load
         $detail = $this->details()->pluck('nama_alat');
         if ($detail->isNotEmpty()) {
             return $detail->implode(', ');
         }
 
-        // Fallback untuk data lama
         return $this->produk_alkes ?? '—';
     }
 

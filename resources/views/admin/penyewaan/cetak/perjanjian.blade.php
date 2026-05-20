@@ -311,14 +311,33 @@
         </div>
 
         {{-- PIHAK KEDUA --}}
-        <div class="pihak-table-wrap no-break">
+ <div class="pihak-table-wrap no-break">
             <table class="pihak-outer"><tr>
                 <td class="pihak-nomor">2</td>
                 <td><table class="pihak-data-table">
                     <tr><td>Nama</td><td>:</td><td><strong>{{ strtoupper($penyewaan->nama_penyewa) }}</strong></td></tr>
-                    <tr><td>Tempat/Tanggal Lahir</td><td>:</td><td>&nbsp;</td></tr>
+                    <tr>
+                        <td>Tempat/Tanggal Lahir</td><td>:</td>
+                        <td>
+                            @if($penyewaan->tempat_tanggal_lahir)
+                                {{ strtoupper($penyewaan->tempat_tanggal_lahir) }}
+                            @else
+                                <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
+                            @endif
+                        </td>
+                    </tr>
                     <tr><td>Alamat</td><td>:</td><td>{{ strtoupper($penyewaan->alamat_penyewa) }}</td></tr>
-                    <tr><td>Nomor KTP &amp; HP</td><td>:</td><td>{{ $penyewaan->nomor_telepon }}</td></tr>
+                    <tr>
+                        <td>Nomor KTP &amp; HP</td><td>:</td>
+                        <td>
+                            @if($penyewaan->nomor_ktp)
+                                {{ $penyewaan->nomor_ktp }}
+                            @else
+                                <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
+                            @endif
+                            &nbsp;/&nbsp; {{ $penyewaan->nomor_telepon }}
+                        </td>
+                    </tr>
                 </table></td>
             </tr></table>
             <div class="pihak-selanjutnya">Selanjutnya disebut sebagai "<strong>Pihak Kedua</strong>".</div>
