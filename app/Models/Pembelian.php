@@ -20,21 +20,9 @@ class Pembelian extends Model
         'nama_pelanggan',
     ];
 
-    protected $appends = ['total', 'harga_formatted', 'total_formatted'];
-
-    // ── Auto-hitung total sebelum simpan ──
-    protected static function booted(): void
-    {
-        static::saving(function (Pembelian $model) {
-            $model->total = $model->jumlah * $model->harga_satuan;
-        });
-    }
-
-    public function getTotalAttribute(): float
-    {
-        // Fallback jika kolom total ada di DB
-        return ($this->jumlah ?? 0) * ($this->harga_satuan ?? 0);
-    }
+    // total adalah generated column di MySQL (jumlah * harga_satuan)
+    // jangan dimasukkan ke $appends atau diisi manual lewat booted()
+    protected $appends = ['harga_formatted', 'total_formatted'];
 
     public function getHargaFormattedAttribute(): string
     {
@@ -43,7 +31,8 @@ class Pembelian extends Model
 
     public function getTotalFormattedAttribute(): string
     {
-        return 'Rp ' . number_format($this->getTotalAttribute(), 0, ',', '.');
+        // Baca langsung dari kolom DB yang sudah dihitung MySQL
+        return 'Rp ' . number_format($this->attributes['total'] ?? 0, 0, ',', '.');
     }
 
     public function penjualan()
