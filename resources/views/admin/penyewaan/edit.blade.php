@@ -27,16 +27,12 @@
     textarea.form-control { resize:vertical; min-height:80px; }
     select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
     .invalid-feedback { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; }
-
-    /* Date range */
     .date-range-wrap { display:flex; align-items:center; gap:8px; }
     .date-range-wrap .form-control { flex:1; }
     .date-range-sep { font-size:13px; color:var(--text-muted); white-space:nowrap; }
     .durasi-display { margin-top:6px; font-size:12.5px; color:var(--brand-500); font-weight:600; display:flex; align-items:center; gap:5px; min-height:18px; }
     .pengiriman-note { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
     .metode-info { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
-
-    /* Dropzone */
     .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
     .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
     html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
@@ -52,13 +48,9 @@
     .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
     .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
     .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
-
-    /* Existing file badge */
     .existing-file { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:var(--brand-50); border:1px solid var(--brand-100); border-radius:8px; font-size:12.5px; color:var(--brand-600); font-weight:500; margin-bottom:8px; text-decoration:none; }
     html.dark .existing-file { background:rgba(29,111,164,0.1); border-color:rgba(29,111,164,0.25); color:var(--brand-400); }
     .existing-file i { font-size:15px; }
-
-    /* Items Table */
     .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -71,13 +63,9 @@
     .btn-add-row { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1.5px dashed var(--brand-500); background:transparent; color:var(--brand-500); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); }
     .btn-add-row:hover { background:var(--brand-50); }
     html.dark .btn-add-row:hover { background:rgba(29,111,164,0.1); }
-
-    /* Stok badge */
     .stok-ok   { background:#D1FAE5; color:#065F46; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-low  { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-zero { background:#FEE2E2; color:#991B1B; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
-
-    /* Ringkasan */
     .ringkasan-box { display:flex; justify-content:flex-end; margin-top:14px; }
     .ringkasan-inner { width:280px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
     .ringkasan-row { display:flex; justify-content:space-between; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border); }
@@ -87,16 +75,12 @@
     .ringkasan-row.total { background:var(--brand-500); }
     .ringkasan-row.total .r-label,
     .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
-
-    /* Footer */
     .form-footer { padding:16px 24px; display:flex; gap:12px; justify-content:flex-end; background:var(--bg-primary); border-top:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13.5px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
     .btn-cancel { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-cancel:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-save { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-save:hover { background:var(--brand-600); border-color:var(--brand-600); }
-
-    /* Select2 */
     .select2-container { width: 100% !important; }
     .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
@@ -376,7 +360,7 @@
                     <label class="form-label">Status <span class="required">*</span></label>
                     <select name="status"
                             class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}" required>
-                        @foreach(['berjalan' => 'Berjalan', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $val => $label)
+                        @foreach(['berjalan' => 'Berjalan', 'segera_konfirmasi' => 'Segera Konfirmasi', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $val => $label)
                             <option value="{{ $val }}"
                                 {{ old('status', $penyewaan->status) == $val ? 'selected' : '' }}>
                                 {{ $label }}
@@ -552,22 +536,29 @@ function addRow(data = {}) {
         `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`
     ).join('');
 
-    // hidden field untuk detail_id (untuk update row yang sudah ada)
-    const detailIdField = data.detail_id
-        ? `<input type="hidden" name="items[${idx}][detail_id]" value="${data.detail_id}">`
+    // FIX: Pastikan detail_id dan inventory_id tidak pernah bernilai string "null"
+    const detailIdVal    = (data.detail_id    && data.detail_id    !== 'null' && data.detail_id    !== '') ? data.detail_id    : null;
+    const inventoryIdVal = (data.inventory_id && data.inventory_id !== 'null' && data.inventory_id !== '') ? data.inventory_id : null;
+
+    const detailIdField = detailIdVal
+        ? `<input type="hidden" name="items[${idx}][detail_id]" value="${detailIdVal}">`
+        : '';
+
+    // FIX: Jika ada inventory_id DAN nama_alat, buat pre-selected option yang valid
+    // Ini penting agar Select2 menampilkan nama barang yang sudah tersimpan
+    const preSelectedOption = inventoryIdVal && data.nama_alat
+        ? `<option value="${inventoryIdVal}" selected>${data.nama_alat}</option>`
         : '';
 
     tr.innerHTML = `
         <td style="text-align:center;font-size:12px;color:var(--text-muted)">${idx}</td>
         <td style="min-width:220px">
             ${detailIdField}
+            <input type="hidden" name="items[${idx}][nama_alat]" id="nama-alat-${idx}" value="${(data.nama_alat||'').replace(/"/g,'&quot;')}">
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
-                    class="form-control"
-                    required>
-                ${data.inventory_id
-                    ? `<option value="${data.inventory_id}" selected>${data.nama_alat||''}</option>`
-                    : ''}
+                    class="form-control">
+                ${preSelectedOption}
             </select>
         </td>
         <td>
@@ -603,23 +594,40 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    $(`#inv-select-${idx}`).select2({
+    // FIX: Inisialisasi Select2 dengan cara yang benar untuk pre-selected item
+    const $sel = $(`#inv-select-${idx}`);
+
+    $sel.select2({
         dropdownParent: $(`#row-${idx}`),
-        placeholder: 'Cari nama alat...',
+        placeholder:    'Cari nama alat...',
         minimumInputLength: 0,
-        allowClear: true,
+        allowClear:     true,
         ajax: {
-            url: '{{ route("api.inventory.index") }}',
+            url:      '{{ route("api.inventory.index") }}',
             dataType: 'json',
-            delay: 200,
-            data: params => ({ q: params.term || '', mode: 'sewa' }),
+            delay:    200,
+            data:     params => ({ q: params.term || '', mode: 'sewa' }),
             processResults: data => ({ results: data.results }),
-            cache: true,
+            cache:    true,
         },
         templateResult:    templateInventory,
-        templateSelection: d => d.text || data.nama_alat || 'Pilih alat...',
-    }).on('select2:select', function(e) {
+        // FIX: templateSelection menggunakan data yang sudah ada di option
+        templateSelection: function(d) {
+            return d.text || data.nama_alat || 'Pilih alat...';
+        },
+    });
+
+    // FIX: Jika ada pre-selected data, trigger change agar Select2 tahu ada value terpilih
+    if (inventoryIdVal) {
+        // Trigger data change supaya Select2 render label dengan benar
+        $sel.trigger('change');
+    }
+
+    // FIX: Update hidden nama_alat saat user memilih item baru
+    $sel.on('select2:select', function(e) {
         const item = e.params.data;
+        // Simpan nama_alat ke hidden field agar tetap terkirim walau inventory_id kosong
+        $(`#nama-alat-${idx}`).val(item.text);
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
         $(`#qty-${idx}`).attr('max', item.stok_tersedia);
         const satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
@@ -630,11 +638,15 @@ function addRow(data = {}) {
         }
         hitungSubtotal(idx);
     }).on('select2:clear', function() {
+        $(`#nama-alat-${idx}`).val('');
         $(`#harga-${idx}`).val(0);
         hitungSubtotal(idx);
     });
 
-    hitungSubtotal(idx);
+    // Hitung subtotal awal dari data yang sudah ada
+    if (data.harga_satuan) {
+        hitungSubtotal(idx);
+    }
 }
 
 function removeRow(idx) {
@@ -672,12 +684,12 @@ function hitungRingkasan() {
 //  DROPZONE
 // ─────────────────────────────────────────────
 function initDropzone(inputId, previewId, zoneId) {
-    const input = document.getElementById(inputId);
+    const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
-    const zone = document.getElementById(zoneId);
+    const zone    = document.getElementById(zoneId);
     if (!input) return;
     input.addEventListener('change', () => showPreview(input, preview, zone));
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
     zone.addEventListener('drop', e => {
         e.preventDefault(); zone.classList.remove('drag-over');
@@ -702,30 +714,31 @@ function removeFile(inputId, previewId, zoneId) {
 document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
 
-    // Priority: old() saat validasi gagal, fallback ke data DB
     @if(old('items'))
+        {{-- Saat validasi gagal, reload dari old() --}}
         @foreach(old('items') as $i => $oldItem)
             addRow({
                 detail_id:    '{{ $oldItem["detail_id"] ?? "" }}',
                 inventory_id: '{{ $oldItem["inventory_id"] ?? "" }}',
                 nama_alat:    '{{ addslashes($oldItem["nama_alat"] ?? "") }}',
-                qty:          {{ $oldItem['qty'] ?? 1 }},
+                qty:          {{ (int)($oldItem['qty'] ?? 1) }},
                 satuan:       '{{ $oldItem["satuan"] ?? "unit" }}',
-                harga_satuan: {{ $oldItem['harga_satuan'] ?? 0 }},
-                diskon:       {{ $oldItem['diskon'] ?? 0 }},
+                harga_satuan: {{ (int)($oldItem['harga_satuan'] ?? 0) }},
+                diskon:       {{ (int)($oldItem['diskon'] ?? 0) }},
             });
         @endforeach
     @else
         {{-- Load dari relasi details DB --}}
-        @forelse($penyewaan->details ?? [] as $detail)
+        @forelse($penyewaan->details as $detail)
             addRow({
                 detail_id:    {{ $detail->id }},
-                inventory_id: {{ $detail->inventory_id ?? 'null' }},
+                {{-- FIX: Gunakan JS null (bukan string "null") jika inventory_id kosong --}}
+                inventory_id: {{ $detail->inventory_id !== null ? $detail->inventory_id : 'null' }},
                 nama_alat:    '{{ addslashes($detail->nama_alat) }}',
-                qty:          {{ $detail->qty }},
+                qty:          {{ (int)$detail->qty }},
                 satuan:       '{{ $detail->satuan }}',
-                harga_satuan: {{ $detail->harga_satuan }},
-                diskon:       {{ $detail->diskon ?? 0 }},
+                harga_satuan: {{ (int)$detail->harga_satuan }},
+                diskon:       {{ (int)($detail->diskon ?? 0) }},
             });
         @empty
             addRow();

@@ -50,9 +50,11 @@ Route::middleware('auth')->group(function () {
 
 
     // ── Pembelian ──
-    Route::resource('pembelian', PembelianController::class);
+    // PENTING: Route buy-back HARUS didefinisikan SEBELUM Route::resource
+    // agar tidak terinterupsi oleh route 'pembelian.show' (/{pembelian})
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])
          ->name('pembelian.buyback.store');
+    Route::resource('pembelian', PembelianController::class);
 
 
     // ── Penjualan ──

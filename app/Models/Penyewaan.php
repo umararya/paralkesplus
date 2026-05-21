@@ -48,7 +48,7 @@ class Penyewaan extends Model
         return $this->hasMany(DetailPenyewaan::class);
     }
 
-    /* ── Accessor ── */
+    /* ── Accessors ── */
 
     /** Sisa hari sampai tgl_selesai (negatif = sudah lewat) */
     public function getSisaHariAttribute(): int
@@ -71,6 +71,37 @@ class Penyewaan extends Model
             + ($this->biaya_ongkir ?? 0));
     }
 
+    /**
+     * Nama alat: gabungkan dari detail (sistem baru)
+     * atau fallback ke produk_alkes (legacy).
+     */
+    public function getNamaAlatAttribute(): string
+    {
+        if ($this->relationLoaded('details') && $this->details->count() > 0) {
+            return $this->details->pluck('nama_alat')->filter()->implode(', ');
+        }
+        return $this->produk_alkes ?? '—';
+    }
+
+    /** Label pengiriman human-friendly */
+    public function getPengirimanLabelAttribute(): string
+    {
+        return match ($this->pengiriman) {
+            'mandiri'               => 'Mandiri',
+            'Gosend / GrabExpress'  => 'Gosend / GrabExpress',
+            'Rental Mobil Paralkes' => 'Rental Mobil',
+            default                 => $this->pengiriman ?? '—',
+        };
+    }
+
+    /** Biaya ongkir diformat Rupiah */
+    public function getBiayaOngkirFormattedAttribute(): string
+    {
+        $nominal = $this->biaya_ongkir ?? 0;
+        if ($nominal <= 0) return '—';
+        return 'Rp ' . number_format($nominal, 0, ',', '.');
+    }
+
     /** Label status human-friendly */
     public function getStatusLabelAttribute(): string
     {
@@ -79,7 +110,19 @@ class Penyewaan extends Model
             'segera_konfirmasi' => 'Segera Konfirmasi',
             'selesai'           => 'Selesai',
             'dibatalkan'        => 'Dibatalkan',
-            default             => ucfirst($this->status),
+            default             => ucfirst($this->status ?? ''),
+        };
+    }
+
+    /** CSS class untuk badge status */
+    public function getStatusClassAttribute(): string
+    {
+        return match ($this->status) {
+            'berjalan'          => 'status-berjalan',
+            'segera_konfirmasi' => 'status-konfirmasi',
+            'selesai'           => 'status-selesai',
+            'dibatalkan'        => 'status-selesai',
+            default             => 'status-berjalan',
         };
     }
 }

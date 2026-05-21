@@ -13,7 +13,6 @@ class PenjualanController extends Controller
 {
     // =========================================================
     //  PRIVATE HELPER — sync detail items + update stok
-    //  Strategi: upsert per detail_id, hapus yang tidak ada lagi
     // =========================================================
 
     private function syncDetails(Penjualan $penjualan, array $items): void
@@ -53,17 +52,15 @@ class PenjualanController extends Controller
                 ? $existingDetails->firstWhere('id', $detailId)
                 : null;
 
-            // Hitung dan update stok sesuai kondisi
             if ($inventoryId) {
                 /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
                 if ($inv) {
-                    $qtyLama   = $detailLama ? (int) $detailLama->qty : 0;
+                    $qtyLama     = $detailLama ? (int) $detailLama->qty : 0;
                     $kondisiLama = $detailLama ? $detailLama->kondisi : $kondisi;
-                    $selisih   = $qtyBaru - $qtyLama;
+                    $selisih     = $qtyBaru - $qtyLama;
 
                     if ($detailLama && $kondisiLama !== $kondisi) {
-                        // Kondisi berubah, kembalikan stok ke kondisi lama lalu kurangi di kondisi baru
                         if ($qtyLama > 0) {
                             $inv->tambahStok($qtyLama, $kondisiLama);
                         }
@@ -89,7 +86,6 @@ class PenjualanController extends Controller
             $totalHarga += $subtotal;
         }
 
-        // Hapus detail yang tidak ada di submitted + kembalikan stok
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
             $detailsToDelete = DetailPenjualan::whereIn('id', $toDelete)->get();
@@ -118,7 +114,7 @@ class PenjualanController extends Controller
                    ? (int) $request->input('per_page')
                    : 10;
 
-        $penjualans = Penjualan::query()
+        $penjualans = Penjualan::with('details')  // <-- WAJIB: eager load untuk accessor
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_pelanggan',     'like', "%{$search}%")
                   ->orWhere('nomor_telepon',    'like', "%{$search}%")
@@ -174,7 +170,6 @@ class PenjualanController extends Controller
 
         $penjualan = Penjualan::create(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok
         $this->syncDetails($penjualan, $validated['items']);
 
         ActivityLog::record(
@@ -257,7 +252,6 @@ class PenjualanController extends Controller
 
         $penjualan->update(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok (diff)
         $this->syncDetails($penjualan, $validated['items']);
 
         ActivityLog::record(
@@ -285,7 +279,6 @@ class PenjualanController extends Controller
     {
         $penjualan = Penjualan::with('details')->findOrFail($id);
 
-        // Kembalikan stok ketika penjualan dihapus
         foreach ($penjualan->details as $detail) {
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
@@ -312,7 +305,7 @@ class PenjualanController extends Controller
             \Storage::disk('public')->delete($penjualan->foto_bukti);
         }
 
-        $penjualan->delete(); // details ikut cascade delete
+        $penjualan->delete();
 
         return redirect()->route('penjualan.index')
             ->with('success', 'Data penjualan berhasil dihapus.');

@@ -23,11 +23,11 @@ class Inventory extends Model
     ];
 
     protected $casts = [
-        'stok_tersedia'      => 'integer',
-        'stok_disewa'        => 'integer',
-        'stok_baru'          => 'integer',
-        'stok_bekas'         => 'integer',
-        'harga_beli_terakhir'=> 'integer',
+        'stok_tersedia'       => 'integer',
+        'stok_disewa'         => 'integer',
+        'stok_baru'           => 'integer',
+        'stok_bekas'          => 'integer',
+        'harga_beli_terakhir' => 'integer',
     ];
 
     /* ── Relasi ── */
@@ -51,8 +51,13 @@ class Inventory extends Model
 
     /**
      * Tambah stok sesuai kondisi (baru/bekas).
+     *
+     * @param int    $jumlah  Jumlah unit yang dikembalikan/ditambah
+     * @param string $kondisi 'baru' atau 'bekas'
+     * @param bool   $dariSewa true jika pengembalian dari proses sewa
+     *                         (akan mengurangi stok_disewa)
      */
-    public function tambahStok(int $jumlah, string $kondisi): void
+    public function tambahStok(int $jumlah, string $kondisi, bool $dariSewa = false): void
     {
         $this->stok_tersedia += $jumlah;
 
@@ -62,13 +67,23 @@ class Inventory extends Model
             $this->stok_bekas += $jumlah;
         }
 
+        // Jika pengembalian dari sewa, kurangi stok_disewa
+        if ($dariSewa) {
+            $this->stok_disewa = max(0, ($this->stok_disewa ?? 0) - $jumlah);
+        }
+
         $this->save();
     }
 
     /**
      * Kurangi stok (untuk penjualan / sewa).
+     *
+     * @param int    $jumlah  Jumlah unit yang diambil
+     * @param string $kondisi 'baru' atau 'bekas'
+     * @param bool   $untukSewa true jika pengurangan untuk proses sewa
+     *                          (akan menambah stok_disewa)
      */
-    public function kurangiStok(int $jumlah, string $kondisi = 'baru'): void
+    public function kurangiStok(int $jumlah, string $kondisi = 'baru', bool $untukSewa = false): void
     {
         $this->stok_tersedia = max(0, $this->stok_tersedia - $jumlah);
 
@@ -76,6 +91,11 @@ class Inventory extends Model
             $this->stok_baru = max(0, $this->stok_baru - $jumlah);
         } else {
             $this->stok_bekas = max(0, $this->stok_bekas - $jumlah);
+        }
+
+        // Jika untuk sewa, tambahkan ke stok_disewa
+        if ($untukSewa) {
+            $this->stok_disewa = ($this->stok_disewa ?? 0) + $jumlah;
         }
 
         $this->save();

@@ -24,6 +24,8 @@ class PenyewaanController extends Controller
 
         if ($sisaHari <= 0) {
             $item->update(['status' => 'selesai']);
+            // Kembalikan stok saat otomatis selesai
+            $this->kembalikanStok($item);
             return;
         }
 
@@ -38,13 +40,34 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
+    //  PRIVATE HELPER — kembalikan stok semua detail penyewaan
+    // =========================================================
+
+    private function kembalikanStok(Penyewaan $penyewaan): void
+    {
+        // Eager load details jika belum dimuat
+        if (! $penyewaan->relationLoaded('details')) {
+            $penyewaan->load('details');
+        }
+
+        foreach ($penyewaan->details as $detail) {
+            if ($detail->inventory_id) {
+                $inv = Inventory::find($detail->inventory_id);
+                if ($inv) {
+                    // dariSewa = true: akan mengurangi stok_disewa sekaligus menambah stok_tersedia
+                    $inv->tambahStok($detail->qty, 'baru', true);
+                }
+            }
+        }
+    }
+
+    // =========================================================
     //  PRIVATE HELPER — simpan / sync detail items + update stok
-    //  Strategi: upsert per detail_id, hapus yang tidak ada lagi
     // =========================================================
 
     private function syncDetails(Penyewaan $penyewaan, array $items): void
     {
-        $existingDetails = $penyewaan->details()->get();                 // existing detail dengan qty lama
+        $existingDetails = $penyewaan->details()->get();
         $existingIds     = $existingDetails->pluck('id')->toArray();
         $submittedIds    = [];
         $totalSewa       = 0;
@@ -75,7 +98,7 @@ class PenyewaanController extends Controller
                 ? $existingDetails->firstWhere('id', $detailId)
                 : null;
 
-            // Hitung dan update stok (asumsi sewa kurangi stok baru)
+            // Update stok dengan flag untukSewa = true
             if ($inventoryId) {
                 /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
@@ -84,21 +107,19 @@ class PenyewaanController extends Controller
                     $selisih = $qtyBaru - $qtyLama;
 
                     if ($selisih > 0) {
-                        // Tambah sewa → kurangi stok tersedia/biru
-                        $inv->kurangiStok($selisih, 'baru');
+                        // Tambah sewa → kurangi stok_tersedia, tambah stok_disewa
+                        $inv->kurangiStok($selisih, 'baru', true);
                     } elseif ($selisih < 0) {
-                        // Kurangi sewa → kembalikan stok
-                        $inv->tambahStok(abs($selisih), 'baru');
+                        // Kurangi sewa → kembalikan stok_tersedia, kurangi stok_disewa
+                        $inv->tambahStok(abs($selisih), 'baru', true);
                     }
                 }
             }
 
             if ($detailLama) {
-                // Update existing detail
                 DetailPenyewaan::where('id', $detailId)->update($data);
                 $submittedIds[] = $detailId;
             } else {
-                // Create new detail
                 $created        = DetailPenyewaan::create($data);
                 $submittedIds[] = $created->id;
             }
@@ -106,7 +127,7 @@ class PenyewaanController extends Controller
             $totalSewa += $subtotal;
         }
 
-        // Hapus detail yang tidak ada di submitted, dan kembalikan stok
+        // Hapus detail yang tidak ada + kembalikan stok
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
             $detailsToDelete = DetailPenyewaan::whereIn('id', $toDelete)->get();
@@ -114,8 +135,8 @@ class PenyewaanController extends Controller
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
                     if ($inv) {
-                        // kembalikan stok baru
-                        $inv->tambahStok($detail->qty, 'baru');
+                        // dariSewa = true: kurangi stok_disewa, tambah stok_tersedia
+                        $inv->tambahStok($detail->qty, 'baru', true);
                     }
                 }
             }
@@ -141,7 +162,7 @@ class PenyewaanController extends Controller
             $this->syncStatus($item);
         }
 
-        $penyewaans = Penyewaan::query()
+        $penyewaans = Penyewaan::with('details')  // <-- WAJIB: eager load untuk accessor nama_alat
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_penyewa',       'like', "%{$search}%")
                   ->orWhere('nomor_telepon',     'like', "%{$search}%")
@@ -182,14 +203,16 @@ class PenyewaanController extends Controller
                     : ($item->produk_alkes ?? '-');
 
                 return [
-                    'id'          => $item->id,
-                    'nama'        => $item->nama_penyewa,
-                    'nomor_hp'    => $item->nomor_telepon,
-                    'barang'      => $barang,
-                    'alamat'      => $item->alamat_penyewa,
-                    'sisa_hari'   => $item->sisa_hari,
-                    'tgl_selesai' => $item->tgl_selesai?->format('d M Y') ?? '-',
-                    'status'      => $item->status,
+                    'id'           => $item->id,
+                    'nama'         => $item->nama_penyewa,
+                    'nomor_hp'     => $item->nomor_telepon,
+                    'barang'       => $barang,
+                    'alamat'       => $item->alamat_penyewa,
+                    'sisa_hari'    => $item->sisa_hari,
+                    'tgl_selesai'  => $item->tgl_selesai?->format('d M Y') ?? '-',
+                    'status'       => $item->status,
+                    'status_label' => $item->status_label,
+                    'status_class' => $item->status_class,
                 ];
             });
 
@@ -243,7 +266,7 @@ class PenyewaanController extends Controller
 
     public function selesaikan(Request $request, string $id)
     {
-        $penyewaan = Penyewaan::findOrFail($id);
+        $penyewaan = Penyewaan::with('details')->findOrFail($id);
         $action    = $request->input('action', 'selesai_sekarang');
 
         if ($action === 'selesai_sekarang') {
@@ -253,6 +276,9 @@ class PenyewaanController extends Controller
                 'status'      => 'selesai',
                 'tgl_selesai' => Carbon::today()->format('Y-m-d'),
             ]);
+
+            // PERBAIKAN: Kembalikan stok semua barang yang disewa
+            $this->kembalikanStok($penyewaan);
 
             ActivityLog::record(
                 module:   'Penyewaan',
@@ -266,7 +292,7 @@ class PenyewaanController extends Controller
             return response()->json([
                 'success' => true,
                 'action'  => 'selesai_sekarang',
-                'message' => 'Penyewaan berhasil diselesaikan.',
+                'message' => 'Penyewaan berhasil diselesaikan dan stok barang telah dikembalikan.',
             ]);
         }
 
@@ -343,7 +369,7 @@ class PenyewaanController extends Controller
             'alamat_penyewa'           => 'required|string',
             'tgl_mulai'                => 'required|date',
             'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'              => 'required|integer|min:0', // bisa 0 hari (same day)
+            'durasi_hari'              => 'required|integer|min:0',
             'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
@@ -352,7 +378,7 @@ class PenyewaanController extends Controller
             'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'keterangan'               => 'nullable|string',
             'items'                    => 'required|array|min:1',
-            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
+            'items.*.inventory_id'     => 'nullable|integer',
             'items.*.nama_alat'        => 'required|string|max:255',
             'items.*.qty'              => 'required|integer|min:1',
             'items.*.satuan'           => 'required|string|max:50',
@@ -375,7 +401,7 @@ class PenyewaanController extends Controller
 
         $penyewaan = Penyewaan::create(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok
+        // sync details + update stok (untukSewa = true sudah ditangani di syncDetails)
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -446,7 +472,7 @@ class PenyewaanController extends Controller
             'keterangan'               => 'nullable|string',
             'items'                    => 'required|array|min:1',
             'items.*.detail_id'        => 'nullable|integer',
-            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
+            'items.*.inventory_id'     => 'nullable|integer',
             'items.*.nama_alat'        => 'required|string|max:255',
             'items.*.qty'              => 'required|integer|min:1',
             'items.*.satuan'           => 'required|string|max:50',
@@ -471,7 +497,7 @@ class PenyewaanController extends Controller
 
         $penyewaan->update(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok (diff)
+        // sync details + update stok (diff, dengan flag sewa)
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -500,12 +526,12 @@ class PenyewaanController extends Controller
     {
         $penyewaan = Penyewaan::with('details')->findOrFail($id);
 
-        // Kembalikan semua stok ketika penyewaan dihapus
+        // Kembalikan semua stok ketika penyewaan dihapus (dariSewa = true)
         foreach ($penyewaan->details as $detail) {
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    $inv->tambahStok($detail->qty, 'baru');
+                    $inv->tambahStok($detail->qty, 'baru', true);
                 }
             }
         }
