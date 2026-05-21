@@ -16,14 +16,22 @@
             line-height: 1.45;
         }
 
-        /* ── SCREEN PREVIEW ── */
-        .doc-container {
-            width: 216mm;
+        /* ── SCREEN ── */
+        .page-wrapper {
+            width: 215mm;
+            min-height: 330mm;
             margin: 10mm auto;
             padding: 15mm 19mm 13mm 19mm;
             background: #fff;
             box-shadow: 0 2px 12px rgba(0,0,0,.15);
+
+            /* footer sticky ke bawah */
+            display: flex;
+            flex-direction: column;
         }
+
+        /* konten utama mengisi ruang tersisa */
+        .page-content { flex: 1; }
 
         /* ── KOP SURAT ── */
         .kop {
@@ -157,47 +165,62 @@
         /* ── NO BREAK ── */
         .no-break { page-break-inside: avoid; break-inside: avoid; }
 
+        /* ── FOOTER — sticky ke bawah halaman ── */
+        .page-footer {
+            border-top: 1px solid #ccc;
+            padding-top: 3px;
+            font-size: 7.5pt;
+            color: #999;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin-top: auto; /* dorong footer ke paling bawah */
+        }
+
         /* ══════════════════════════════════════
-           PRINT — LETTER auto-flow
+           PRINT F4
         ══════════════════════════════════════ */
         @media print {
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
             html, body {
                 background: #fff !important;
-                width: 100%;
+                width: 215mm;
             }
 
             .no-print { display: none !important; }
 
             @page {
-                size: letter portrait;
+                size: 215mm 330mm portrait;
                 margin-top:    15mm;
                 margin-right:  19mm;
-                margin-bottom: 18mm;
+                margin-bottom: 13mm;
                 margin-left:   19mm;
             }
 
-            /* Hapus semua efek screen container, biarkan konten mengalir natural */
-            .doc-container {
+            .page-wrapper {
                 width: 100% !important;
-                margin: 0 !important;
+                min-height: auto !important;
                 padding: 0 !important;
+                margin: 0 !important;
                 box-shadow: none !important;
-                background: transparent !important;
+                display: flex !important;
+                flex-direction: column !important;
+                /* tinggi penuh 1 halaman dikurangi margin @page */
+                height: calc(330mm - 15mm - 13mm);
+                page-break-after: always;
+                break-after: page;
             }
 
-            /* Setiap pasal tidak boleh terpotong di tengah */
-            .pasal             { page-break-inside: avoid; break-inside: avoid; }
-            .pihak-table-wrap  { page-break-inside: avoid; break-inside: avoid; }
-            .menerangkan-block { page-break-inside: avoid; break-inside: avoid; }
-            .ayat-item         { page-break-inside: avoid; break-inside: avoid; }
-            .ttd-section       { page-break-inside: avoid; break-inside: avoid; }
+            .page-wrapper:last-child {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
 
-            /* Kop tidak boleh dipisah dari konten di bawahnya */
-            .kop               { page-break-after: avoid; break-after: avoid; }
-            .doc-title         { page-break-after: avoid; break-after: avoid; }
-            .doc-nomor         { page-break-after: avoid; break-after: avoid; }
+            .page-content { flex: 1; }
+
+            .page-footer {
+                margin-top: auto !important;
+            }
         }
     </style>
 </head>
@@ -239,339 +262,389 @@
 @endphp
 
 
-{{-- ══════════════════════════════════════════════════════════════ --}}
-{{-- SATU CONTAINER — konten mengalir natural ke halaman berikutnya --}}
-{{-- ══════════════════════════════════════════════════════════════ --}}
-<div class="doc-container">
+{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 1 — Para Pihak + Pasal 1 + Pasal 2 + Pasal 3      --}}
+{{-- ══════════════════════════════════════════════════════════ --}}
+<div class="page-wrapper">
+    <div class="page-content">
 
-    {{-- KOP SURAT --}}
-    <div class="kop no-break">
-        <div class="kop-left">
-            <img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo">
-        </div>
-        <div class="kop-center">
-            <div class="nama-toko">Paralkes</div>
-            <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
-            <div class="alamat-toko">
-                Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184<br>
-                Telp: 0877-7732-1557 &nbsp;·&nbsp; Instagram: @sewaalkes_paralkes
+        <div class="kop">
+            <div class="kop-left">
+                <img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo">
+            </div>
+            <div class="kop-center">
+                <div class="nama-toko">Paralkes</div>
+                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
+                <div class="alamat-toko">
+                    Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184<br>
+                    Telp: 0877-7732-1557 &nbsp;·&nbsp; Instagram: @sewaalkes_paralkes
+                </div>
+            </div>
+            <div class="kop-right">
+                <img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo">
             </div>
         </div>
-        <div class="kop-right">
-            <img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo">
+
+        <div class="doc-title"><h1>Perjanjian Sewa Alat Kesehatan</h1></div>
+        <div class="doc-nomor">Nomor: {{ $nomorPerjanjian }}</div>
+
+        <div class="pembuka">
+            <strong>PERJANJIAN SEWA ALAT KESEHATAN Nomor: {{ $nomorPerjanjian }}</strong>
+            ini dibuat dan ditandatangani di Semarang pada hari ini,
+            (<u><strong>{{ $tglBuatHari }}</strong></u>)
+            tanggal <u><strong>{{ $tglBuatLabel }}</strong></u>
+            ("<strong>Perjanjian</strong>"), oleh dan di antara:
         </div>
-    </div>
 
-    <div class="doc-title no-break"><h1>Perjanjian Sewa Alat Kesehatan</h1></div>
-    <div class="doc-nomor">Nomor: {{ $nomorPerjanjian }}</div>
-
-    <div class="pembuka">
-        <strong>PERJANJIAN SEWA ALAT KESEHATAN Nomor: {{ $nomorPerjanjian }}</strong>
-        ini dibuat dan ditandatangani di Semarang pada hari ini,
-        (<u><strong>{{ $tglBuatHari }}</strong></u>)
-        tanggal <u><strong>{{ $tglBuatLabel }}</strong></u>
-        ("<strong>Perjanjian</strong>"), oleh dan di antara:
-    </div>
-
-    {{-- PIHAK PERTAMA --}}
-    <div class="pihak-table-wrap no-break">
-        <table class="pihak-outer"><tr>
-            <td class="pihak-nomor">1</td>
-            <td><table class="pihak-data-table">
-                <tr><td>Nama</td><td>:</td><td><strong>ADAM PARAKITRI (SELAKU PEMILIK USAHA)</strong></td></tr>
-                <tr><td>Tempat/Tanggal Lahir</td><td>:</td><td>SEMARANG, 15 JULI 1991</td></tr>
-                <tr><td>Alamat</td><td>:</td><td>JL. SEKAYU BARU 3/393 SEMARANG JAWA TENGAH</td></tr>
-                <tr><td>Nomor KTP &amp; HP</td><td>:</td><td>3374151507910002</td></tr>
-            </table></td>
-        </tr></table>
-        <div class="pihak-selanjutnya">Selanjutnya disebut sebagai "<strong>Pihak Pertama</strong>".</div>
-    </div>
-
-    {{-- PIHAK KEDUA --}}
-    <div class="pihak-table-wrap no-break">
-        <table class="pihak-outer"><tr>
-            <td class="pihak-nomor">2</td>
-            <td><table class="pihak-data-table">
-                <tr><td>Nama</td><td>:</td><td><strong>{{ strtoupper($penyewaan->nama_penyewa) }}</strong></td></tr>
-                <tr>
-                    <td>Tempat/Tanggal Lahir</td><td>:</td>
-                    <td>
-                        @if($penyewaan->tempat_tanggal_lahir)
-                            {{ strtoupper($penyewaan->tempat_tanggal_lahir) }}
-                        @else
-                            <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
-                        @endif
-                    </td>
-                </tr>
-                <tr><td>Alamat</td><td>:</td><td>{{ strtoupper($penyewaan->alamat_penyewa) }}</td></tr>
-                <tr>
-                    <td>Nomor KTP &amp; HP</td><td>:</td>
-                    <td>
-                        @if($penyewaan->nomor_ktp)
-                            {{ $penyewaan->nomor_ktp }}
-                        @else
-                            <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
-                        @endif
-                        &nbsp;/&nbsp; {{ $penyewaan->nomor_telepon }}
-                    </td>
-                </tr>
-            </table></td>
-        </tr></table>
-        <div class="pihak-selanjutnya">Selanjutnya disebut sebagai "<strong>Pihak Kedua</strong>".</div>
-    </div>
-
-    <div class="pembuka">
-        Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut sebagai
-        "<strong>Para Pihak</strong>". Para Pihak dengan ini terlebih dahulu menerangkan
-        hal-hal sebagai berikut.
-    </div>
-
-    <div class="menerangkan-block">
-        <div class="menerangkan-item">
-            <span class="mn-nomor">(1)</span>
-            <span class="mn-isi">Bahwa Pihak Pertama adalah perorangan yang memiliki dan menguasai sebuah usaha Sewa Alat Kesehatan yang peruntukannya digunakan sebagai Fasilitas penyedia persewaan berbagai Alat Kesehatan kepada Pelanggan/Penyewa.</span>
+        {{-- PIHAK PERTAMA --}}
+        <div class="pihak-table-wrap no-break">
+            <table class="pihak-outer"><tr>
+                <td class="pihak-nomor">1</td>
+                <td><table class="pihak-data-table">
+                    <tr><td>Nama</td><td>:</td><td><strong>ADAM PARAKITRI (SELAKU PEMILIK USAHA)</strong></td></tr>
+                    <tr><td>Tempat/Tanggal Lahir</td><td>:</td><td>SEMARANG, 15 JULI 1991</td></tr>
+                    <tr><td>Alamat</td><td>:</td><td>JL. SEKAYU BARU 3/393 SEMARANG JAWA TENGAH</td></tr>
+                    <tr><td>Nomor KTP &amp; HP</td><td>:</td><td>3374151507910002</td></tr>
+                </table></td>
+            </tr></table>
+            <div class="pihak-selanjutnya">Selanjutnya disebut sebagai "<strong>Pihak Pertama</strong>".</div>
         </div>
-        <div class="menerangkan-item">
-            <span class="mn-nomor">(2)</span>
-            <span class="mn-isi">Bahwa Pihak Kedua adalah perorangan yang bermaksud untuk menyewa alat kesehatan milik Pihak Pertama dan Pihak Pertama telah bersedia untuk menyewakan Alat Kesehatan tersebut kepada Pihak Kedua.</span>
+
+        {{-- PIHAK KEDUA --}}
+ <div class="pihak-table-wrap no-break">
+            <table class="pihak-outer"><tr>
+                <td class="pihak-nomor">2</td>
+                <td><table class="pihak-data-table">
+                    <tr><td>Nama</td><td>:</td><td><strong>{{ strtoupper($penyewaan->nama_penyewa) }}</strong></td></tr>
+                    <tr>
+                        <td>Tempat/Tanggal Lahir</td><td>:</td>
+                        <td>
+                            @if($penyewaan->tempat_tanggal_lahir)
+                                {{ strtoupper($penyewaan->tempat_tanggal_lahir) }}
+                            @else
+                                <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr><td>Alamat</td><td>:</td><td>{{ strtoupper($penyewaan->alamat_penyewa) }}</td></tr>
+                    <tr>
+                        <td>Nomor KTP &amp; HP</td><td>:</td>
+                        <td>
+                            @if($penyewaan->nomor_ktp)
+                                {{ $penyewaan->nomor_ktp }}
+                            @else
+                                <span style="color:#aaa; font-style:italic;">— (belum diisi)</span>
+                            @endif
+                            &nbsp;/&nbsp; {{ $penyewaan->nomor_telepon }}
+                        </td>
+                    </tr>
+                </table></td>
+            </tr></table>
+            <div class="pihak-selanjutnya">Selanjutnya disebut sebagai "<strong>Pihak Kedua</strong>".</div>
         </div>
-    </div>
 
-    <div class="pembuka">
-        Berdasarkan hal-hal tersebut di atas dan dengan iktikad baik, Para Pihak dengan ini
-        sepakat untuk saling mengikatkan diri dalam Perjanjian ini dengan ketentuan-ketentuan
-        dan syarat-syarat sebagaimana diatur dalam pasal-pasal di bawah ini.
-    </div>
-
-    {{-- PASAL 1 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 1</div>
-        <div class="pasal-subheading">Kesepakatan Sewa-Menyewa</div>
-        <p class="pasal-body">Pihak Pertama dengan ini sepakat untuk menyewakan Alat Kesehatan kepada Pihak Kedua sebagaimana Pihak Kedua dengan ini sepakat untuk membayar harga sewa Alat Kesehatan tersebut kepada Pihak Pertama.</p>
-    </div>
-
-    {{-- PASAL 2 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 2</div>
-        <div class="pasal-subheading">Hak dan Kewajiban Para Pihak</div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(1)</span>
-            <span class="ayat-isi">Hak dan Kewajiban Pihak Pertama
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Pertama berhak untuk menerima pembayaran harga sewa dari Pihak Kedua.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pihak Pertama berkewajiban untuk menyerahkan hak penggunaan Alat Kesehatan kepada Pihak Kedua.</span></div>
-                </div>
-            </span>
+        <div class="pembuka">
+            Pihak Pertama dan Pihak Kedua secara bersama-sama selanjutnya disebut sebagai
+            "<strong>Para Pihak</strong>". Para Pihak dengan ini terlebih dahulu menerangkan
+            hal-hal sebagai berikut.
         </div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(2)</span>
-            <span class="ayat-isi">Hak dan Kewajiban Pihak Kedua
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Kedua berhak untuk menggunakan dan memanfaatkan fasilitas Alat Kesehatan.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pihak Kedua berkewajiban untuk melakukan pembayaran harga sewa kepada Pihak Pertama.</span></div>
-                </div>
-            </span>
+
+        <div class="menerangkan-block">
+            <div class="menerangkan-item">
+                <span class="mn-nomor">(1)</span>
+                <span class="mn-isi">Bahwa Pihak Pertama adalah perorangan yang memiliki dan menguasai sebuah usaha Sewa Alat Kesehatan yang peruntukannya digunakan sebagai Fasilitas penyedia persewaan berbagai Alat Kesehatan kepada Pelanggan/Penyewa.</span>
+            </div>
+            <div class="menerangkan-item">
+                <span class="mn-nomor">(2)</span>
+                <span class="mn-isi">Bahwa Pihak Kedua adalah perorangan yang bermaksud untuk menyewa alat kesehatan milik Pihak Pertama dan Pihak Pertama telah bersedia untuk menyewakan Alat Kesehatan tersebut kepada Pihak Kedua.</span>
+            </div>
         </div>
-    </div>
 
-    {{-- PASAL 3 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 3</div>
-        <div class="pasal-subheading">Alat Kesehatan</div>
-        <p class="pasal-body">Alat Kesehatan yang disewa sebagaimana dimaksud dalam Perjanjian ini adalah sebuah Alat Kesehatan dalam kondisi baik dan layak untuk disewakan dengan ketentuan sebagai berikut :</p>
-        <table class="data-pasal-table">
-            <tr>
-                <td>(1). Jenis Alat Kesehatan</td><td>:</td>
-                <td>
-                    @if(count($produkList) === 1)
-                        <strong>{{ strtoupper($produkList[0]) }}</strong>
-                    @else
-                        @foreach($produkList as $i => $p)
-                            <strong>{{ strtoupper(trim($p)) }}</strong>@if($i < count($produkList)-1) / @endif
-                        @endforeach
-                    @endif
-                </td>
-            </tr>
-            <tr><td>(2). Peruntukan Alat Kesehatan</td><td>:</td><td><strong>PEMAKAIAN PRIBADI</strong></td></tr>
-            <tr><td>(3). Fasilitas Alat Kesehatan</td><td>:</td><td>Barang yang disewa dalam keadaan lengkap, layak dan tidak ada kendala.</td></tr>
-        </table>
-    </div>
+        <div class="pembuka">
+            Berdasarkan hal-hal tersebut di atas dan dengan iktikad baik, Para Pihak dengan ini
+            sepakat untuk saling mengikatkan diri dalam Perjanjian ini dengan ketentuan-ketentuan
+            dan syarat-syarat sebagaimana diatur dalam pasal-pasal di bawah ini.
+        </div>
 
-    {{-- PASAL 4 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 4</div>
-        <div class="pasal-subheading">Pelaksanaan Hak Sewa</div>
+        {{-- PASAL 1 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 1</div>
+            <div class="pasal-subheading">Kesepakatan Sewa-Menyewa</div>
+            <p class="pasal-body">Pihak Pertama dengan ini sepakat untuk menyewakan Alat Kesehatan kepada Pihak Kedua sebagaimana Pihak Kedua dengan ini sepakat untuk membayar harga sewa Alat Kesehatan tersebut kepada Pihak Pertama.</p>
+        </div>
 
-        <div class="ayat-item">
-            <span class="ayat-nomor">1.</span>
-            <span class="ayat-isi">Pihak Kedua wajib untuk menggunakan Alat Kesehatan sesuai dengan peruntukan Alat Kesehatan dan karenanya Pihak Kedua <strong>dilarang</strong> untuk:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Menggunakan Barang untuk kegiatan yang bertentangan dengan peraturan perundang-undangan, ketertiban umum, dan kesusilaan.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span>
-                        <span class="sub-isi">Menggunakan Barang untuk kegiatan lain di luar peruntukan Alat Kesehatan tanpa izin tertulis dari Pihak Pertama dengan ketentuan:
-                            <div class="subsub-list">
-                                <div class="subsub-item"><span class="subsub-nomor">i.</span><span class="subsub-isi">Dalam hal Pihak Kedua melaksanakan hak menggunakan Alat Kesehatan untuk kegiatan lain di luar peruntukan, Pihak Pertama berhak untuk memerintahkan Pihak Kedua untuk mengembalikan pelaksanaan hak sewa Alat Kesehatan tersebut sesuai dengan peruntukannya.</span></div>
-                                <div class="subsub-item"><span class="subsub-nomor">ii.</span><span class="subsub-isi">Dalam hal Pihak Kedua tidak melaksanakan perintah Pihak Pertama sebagaimana dimaksud dalam angka i huruf b ayat (1), Pihak Pertama berhak untuk mengakhiri masa sewa secara sepihak.</span></div>
-                                <div class="subsub-item"><span class="subsub-nomor">iii.</span><span class="subsub-isi">Dalam hal Pihak Pertama mengakhiri masa sewa secara sepihak sebagaimana dimaksud dalam angka ii huruf b ayat (1) pasal ini, Pihak Pertama tidak berkewajiban untuk mengembalikan sebagian dari harga sewa untuk masa sewa yang belum digunakan oleh Pihak Kedua.</span></div>
-                            </div>
-                        </span>
+        {{-- PASAL 2 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 2</div>
+            <div class="pasal-subheading">Hak dan Kewajiban Para Pihak</div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(1)</span>
+                <span class="ayat-isi">Hak dan Kewajiban Pihak Pertama
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Pertama berhak untuk menerima pembayaran harga sewa dari Pihak Kedua.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pihak Pertama berkewajiban untuk menyerahkan hak penggunaan Alat Kesehatan kepada Pihak Kedua.</span></div>
                     </div>
-                </div>
-            </span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">2.</span>
-            <span class="ayat-isi">Pihak Kedua berkewajiban untuk menanggung atas biaya sendiri penggunaan fasilitas Barang Sewa Alat Kesehatan seperti Pengiriman Barang melalui Jasa Ekspedisi.</span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">3.</span>
-            <span class="ayat-isi">Dalam melaksanakan hak menggunakan Alat Kesehatan, Pihak Kedua wajib untuk melaksanakan hak tersebut dengan sebaik-baiknya, seperti layaknya seorang yang memiliki barang mewah yang baik dan karenanya Pihak Kedua berkewajiban untuk:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Menjamin kebersihan Alat Kesehatan dan menjamin melakukan perawatan Alat Kesehatan dengan baik.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Melakukan perbaikan-perbaikan atas segala kerusakan kecil bagian-bagian dari Barang Alat Kesehatan yang meliputi tetapi tidak terbatas pada bagian-bagian perangkat Alat Kesehatan.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">c.</span><span class="sub-isi">Menjamin apabila dikemudian hari terjadi <em>Force Majeure</em> (keadaan Kahar seperti Bencana alam seperti gempa bumi, gunung meletus, badai, angin topan, tsunami, banjir besar, tanah longsor, dan kebakaran), maka Pihak Kedua wajib bertanggungjawab dan mengganti atas kerusakan atau kehilangan barang Alat Kesehatan yang terjadi.</span></div>
-                </div>
-            </span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">4.</span>
-            <span class="ayat-isi">Pihak Pertama berkewajiban untuk melakukan perbaikan atas kerusakan bagian-bagian Alat Kesehatan yang bukan disebabkan karena kesalahan dan/atau penggunaan Barang oleh Pihak Kedua.</span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">5.</span>
-            <span class="ayat-isi">Pihak Kedua dilarang untuk melakukan perubahan, membuat baru, atau mengurangi bagian-bagian dari Alat Kesehatan tanpa izin tertulis dari Pihak Pertama.</span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">6.</span>
-            <span class="ayat-isi">Pihak Kedua dilarang untuk mengulangsewakan Alat Kesehatan kepada pihak ketiga atau melepaskan hak sewanya berdasarkan Perjanjian ini dan menyerahkannya kepada pihak ketiga tanpa kesepakatan tertulis dari Pihak Pertama dengan ketentuan:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Dalam hal Pihak Kedua mengulangsewakan Alat Kesehatan kepada pihak ketiga atau melepaskan hak sewanya dan menyerahkannya kepada pihak ketiga tanpa kesepakatan tertulis dari Pihak Pertama, Pihak Pertama berhak untuk mengakhiri masa sewa secara sepihak.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Atas pengakhiran Masa Sewa secara sepihak sebagaimana dimaksud dalam huruf a ayat (6) pasal ini, Pihak Pertama tidak berkewajiban untuk mengembalikan sebagian Harga Sewa atas Masa Sewa yang belum digunakan oleh Pihak Kedua.</span></div>
-                </div>
-            </span>
-        </div>
-
-        <div class="ayat-item">
-            <span class="ayat-nomor">7.</span>
-            <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa Perjanjian ini dan segala akibatnya tidak akan berakhir dengan meninggalnya salah satu atau kedua belah Pihak yang segala hak dan kewajibannya akan dilanjutkan kepada para ahli waris dari Para Pihak.</span>
-        </div>
-    </div>
-
-    {{-- PASAL 5 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 5</div>
-        <div class="pasal-subheading">Serah Terima Hak Sewa</div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">1.</span>
-            <span class="ayat-isi">Pihak Kedua berhak untuk menggunakan Alat Kesehatan sejak diserahterimakannya hak menggunakan Alat Kesehatan oleh Pihak Pertama kepada Pihak Kedua dengan ketentuan:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Serah terima hak menggunakan Alat Kesehatan tersebut dilakukan dengan cara penyerahan Barang Alat Kesehatan kepada Pihak Kedua.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Penyerahan Alat Kesehatan sebagaimana dimaksud dalam huruf a ayat (1) Pasal ini dilakukan selambat-lambatnya pada saat Pihak Kedua melakukan pembayaran Harga Sewa kepada Pihak Pertama.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">c.</span><span class="sub-isi">Para Pihak dengan ini sepakat bahwa pada saat serah terima hak menggunakan Alat Kesehatan, Alat Kesehatan tersebut dalam keadaan kosong dan terawat baik.</span></div>
-                </div>
-            </span>
-        </div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">2.</span>
-            <span class="ayat-isi">Pihak Kedua berkewajiban untuk mengembalikan hak menggunakan Alat Kesehatan kepada Pihak Pertama dengan ketentuan:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pengembalian hak menggunakan Alat Kesehatan tersebut dilakukan dengan cara pengembalian Alat Kesehatan oleh Pihak Kedua kepada Pihak Pertama.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pada saat pengembalian Alat Kesehatan dilakukan, Alat Kesehatan harus seperti dalam keadaan ketika dilakukannya penyerahan Alat Kesehatan oleh Pihak Pertama kepada Pihak Kedua.</span></div>
-                </div>
-            </span>
-        </div>
-    </div>
-
-    {{-- PASAL 6 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 6</div>
-        <div class="pasal-subheading">Masa Sewa</div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(1)</span>
-            <span class="ayat-isi">Pihak Kedua berhak untuk menggunakan Alat Kesehatan untuk selama jangka waktu sesuai dengan yang tertuang di dalam <strong>Bukti Pembayaran Invoice</strong> atau yang dimulai sejak tanggal <u><strong>{{ $tglMulaiLabel }}</strong></u> dan berakhir pada tanggal <u><strong>{{ $tglSelesaiLabel }}</strong></u> ("<strong>Masa Sewa</strong>").</span>
-        </div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(2)</span>
-            <span class="ayat-isi">Pihak Kedua berhak untuk mengajukan <strong>perpanjangan Masa Sewa</strong> kepada Pihak Pertama dengan ketentuan:
-                <div class="sub-ayat-list">
-                    <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Pertama berhak untuk mengajukan Harga Sewa, Masa Sewa serta syarat dan ketentuan Perjanjian yang baru.</span></div>
-                    <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pengajuan perpanjangan Masa Sewa tersebut wajib dilakukan oleh Pihak Kedua kepada Pihak Pertama dalam jangka waktu selambat-lambatnya 7 (Tujuh) hari kalender sebelum berakhirnya Masa Sewa.</span></div>
-                </div>
-            </span>
-        </div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(3)</span>
-            <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa pada prinsipnya <strong>pengakhiran Masa Sewa sebelum berakhirnya Masa Sewa</strong> hanya dapat dilakukan dengan kesepakatan bersama Para Pihak yang dibuat secara tertulis, tetapi masing-masing pihak dapat mengakhiri Masa Sewa secara sepihak dengan ketentuan: Dalam hal Pihak Kedua mengakhiri Masa Sewa secara sepihak sebelum berakhirnya Masa Sewa, Pihak Kedua tidak berhak untuk menuntut kepada Pihak Pertama atas pengembalian sebagian Harga Sewa untuk Masa Sewa yang belum digunakan.</span>
-        </div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(4)</span>
-            <span class="ayat-isi">Pihak Pertama berhak untuk mengakhiri Masa Sewa secara sepihak sesuai dengan ketentuan dalam Pasal 4 ayat (1) huruf b angka ii dan Pasal 4 ayat (6) Perjanjian ini.</span>
-        </div>
-    </div>
-
-    {{-- PASAL 7 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 7</div>
-        <div class="pasal-subheading">Harga Sewa</div>
-        <div class="ayat-item">
-            <span class="ayat-nomor">(1)</span>
-            <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa besarnya harga sewa adalah sebesar <strong>sesuai dengan Bukti Pembayaran / Invoice</strong> yang telah <strong>dilunasi</strong> oleh Pihak Kedua kepada Pihak Pertama dalam jangka waktu selambat-lambatnya pada saat dimulainya Masa Sewa ("<strong>Harga Sewa</strong>").</span>
-        </div>
-    </div>
-
-    {{-- PASAL 8 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 8</div>
-        <div class="pasal-subheading">Adendum</div>
-        <p class="pasal-body">Segala perubahan ketentuan dan/atau penambahan ketentuan yang belum diatur dan/atau belum cukup diatur dalam Perjanjian ini akan disepakati lebih lanjut oleh Para Pihak dan hasilnya akan dituangkan ke dalam suatu adendum yang ditandatangani oleh Para Pihak yang merupakan satu kesatuan dan menjadi bagian yang tidak terpisahkan dari Perjanjian ini.</p>
-    </div>
-
-    {{-- PASAL 9 --}}
-    <div class="pasal no-break">
-        <div class="pasal-heading">Pasal 9</div>
-        <div class="pasal-subheading">Penyelesaian Perselisihan</div>
-        <p class="pasal-body">Dalam hal terjadi perselisihan diantara Para Pihak sebagai akibat dari pelaksanaan Perjanjian ini, Para Pihak dengan ini sepakat untuk menyelesaikannya secara musyawarah dan kekeluargaan.</p>
-    </div>
-
-    {{-- PENUTUP --}}
-    <div class="pembuka" style="margin-top:12px;">
-        Demikian Perjanjian ini dibuat disampaikan kepada Pelanggan dan ditandatangani di tempat dan pada
-        waktu sebagaimana disebutkan di bagian awal Perjanjian ini dalam rangkap 2 (dua) dan bermeterai cukup,
-        masing-masing Pihak memperoleh 1 (satu) rangkap asli yang kesemuanya memiliki kekuatan hukum yang sama.
-    </div>
-
-    {{-- TANDA TANGAN --}}
-    <div class="ttd-section no-break">
-        <div class="ttd-para-pihak">Para Pihak,</div>
-        <div class="ttd-row">
-            <div class="ttd-col">
-                <div class="ttd-label">Pihak Pertama,</div>
-                <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
-                <div class="ttd-garis">ADAM PARAKITRI</div>
-                <div class="ttd-jabatan">Pemilik Usaha</div>
+                </span>
             </div>
-            <div class="ttd-logo-center">
-                <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo">
-            </div>
-            <div class="ttd-col">
-                <div class="ttd-label">Pihak Kedua,</div>
-                <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
-                <div class="ttd-garis">{{ strtoupper($penyewaan->nama_penyewa) }}</div>
-                <div class="ttd-jabatan">Penyewa</div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(2)</span>
+                <span class="ayat-isi">Hak dan Kewajiban Pihak Kedua
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Kedua berhak untuk menggunakan dan memanfaatkan fasilitas Alat Kesehatan.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pihak Kedua berkewajiban untuk melakukan pembayaran harga sewa kepada Pihak Pertama.</span></div>
+                    </div>
+                </span>
             </div>
         </div>
-        <div style="text-align:center; font-size:7.5pt; color:#999; font-family:Arial,sans-serif; margin-top:10px; border-top:1px solid #ccc; padding-top:4px;">
-            Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes &nbsp;·&nbsp;
-            Digenerate otomatis pada {{ now('Asia/Jakarta')->translatedFormat('d F Y, H:i') }} WIB
-        </div>
-    </div>
 
-</div>{{-- end .doc-container --}}
+        {{-- PASAL 3 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 3</div>
+            <div class="pasal-subheading">Alat Kesehatan</div>
+            <p class="pasal-body">Alat Kesehatan yang disewa sebagaimana dimaksud dalam Perjanjian ini adalah sebuah Alat Kesehatan dalam kondisi baik dan layak untuk disewakan dengan ketentuan sebagai berikut :</p>
+            <table class="data-pasal-table">
+                <tr>
+                    <td>(1). Jenis Alat Kesehatan</td><td>:</td>
+                    <td>
+                        @if(count($produkList) === 1)
+                            <strong>{{ strtoupper($produkList[0]) }}</strong>
+                        @else
+                            @foreach($produkList as $i => $p)
+                                <strong>{{ strtoupper(trim($p)) }}</strong>@if($i < count($produkList)-1) / @endif
+                            @endforeach
+                        @endif
+                    </td>
+                </tr>
+                <tr><td>(2). Peruntukan Alat Kesehatan</td><td>:</td><td><strong>PEMAKAIAN PRIBADI</strong></td></tr>
+                <tr><td>(3). Fasilitas Alat Kesehatan</td><td>:</td><td>Barang yang disewa dalam keadaan lengkap, layak dan tidak ada kendala.</td></tr>
+            </table>
+        </div>
+
+    </div>{{-- end .page-content --}}
+
+    <div class="page-footer">
+        Halaman 1 dari 3 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
+    </div>
+</div>
+
+
+{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 2 — Pasal 4                                        --}}
+{{-- ══════════════════════════════════════════════════════════ --}}
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <div class="kop">
+            <div class="kop-left"><img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo"></div>
+            <div class="kop-center">
+                <div class="nama-toko">Paralkes</div>
+                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
+                <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
+            </div>
+            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
+        </div>
+
+        {{-- PASAL 4 --}}
+        <div class="pasal" style="margin-top:10px;">
+            <div class="pasal-heading">Pasal 4</div>
+            <div class="pasal-subheading">Pelaksanaan Hak Sewa</div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">1.</span>
+                <span class="ayat-isi">Pihak Kedua wajib untuk menggunakan Alat Kesehatan sesuai dengan peruntukan Alat Kesehatan dan karenanya Pihak Kedua <strong>dilarang</strong> untuk:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Menggunakan Barang untuk kegiatan yang bertentangan dengan peraturan perundang-undangan, ketertiban umum, dan kesusilaan.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span>
+                            <span class="sub-isi">Menggunakan Barang untuk kegiatan lain di luar peruntukan Alat Kesehatan tanpa izin tertulis dari Pihak Pertama dengan ketentuan:
+                                <div class="subsub-list">
+                                    <div class="subsub-item"><span class="subsub-nomor">i.</span><span class="subsub-isi">Dalam hal Pihak Kedua melaksanakan hak menggunakan Alat Kesehatan untuk kegiatan lain di luar peruntukan, Pihak Pertama berhak untuk memerintahkan Pihak Kedua untuk mengembalikan pelaksanaan hak sewa Alat Kesehatan tersebut sesuai dengan peruntukannya.</span></div>
+                                    <div class="subsub-item"><span class="subsub-nomor">ii.</span><span class="subsub-isi">Dalam hal Pihak Kedua tidak melaksanakan perintah Pihak Pertama sebagaimana dimaksud dalam angka i huruf b ayat (1), Pihak Pertama berhak untuk mengakhiri masa sewa secara sepihak.</span></div>
+                                    <div class="subsub-item"><span class="subsub-nomor">iii.</span><span class="subsub-isi">Dalam hal Pihak Pertama mengakhiri masa sewa secara sepihak sebagaimana dimaksud dalam angka ii huruf b ayat (1) pasal ini, Pihak Pertama tidak berkewajiban untuk mengembalikan sebagian dari harga sewa untuk masa sewa yang belum digunakan oleh Pihak Kedua.</span></div>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">2.</span>
+                <span class="ayat-isi">Pihak Kedua berkewajiban untuk menanggung atas biaya sendiri penggunaan fasilitas Barang Sewa Alat Kesehatan seperti Pengiriman Barang melalui Jasa Ekspedisi.</span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">3.</span>
+                <span class="ayat-isi">Dalam melaksanakan hak menggunakan Alat Kesehatan, Pihak Kedua wajib untuk melaksanakan hak tersebut dengan sebaik-baiknya, seperti layaknya seorang yang memiliki barang mewah yang baik dan karenanya Pihak Kedua berkewajiban untuk:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Menjamin kebersihan Alat Kesehatan dan menjamin melakukan perawatan Alat Kesehatan dengan baik.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Melakukan perbaikan-perbaikan atas segala kerusakan kecil bagian-bagian dari Barang Alat Kesehatan yang meliputi tetapi tidak terbatas pada bagian-bagian perangkat Alat Kesehatan.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">c.</span><span class="sub-isi">Menjamin apabila dikemudian hari terjadi <em>Force Majeure</em> (keadaan Kahar seperti Bencana alam seperti gempa bumi, gunung meletus, badai, angin topan, tsunami, banjir besar, tanah longsor, dan kebakaran), maka Pihak Kedua wajib bertanggungjawab dan mengganti atas kerusakan atau kehilangan barang Alat Kesehatan yang terjadi.</span></div>
+                    </div>
+                </span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">4.</span>
+                <span class="ayat-isi">Pihak Pertama berkewajiban untuk melakukan perbaikan atas kerusakan bagian-bagian Alat Kesehatan yang bukan disebabkan karena kesalahan dan/atau penggunaan Barang oleh Pihak Kedua.</span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">5.</span>
+                <span class="ayat-isi">Pihak Kedua dilarang untuk melakukan perubahan, membuat baru, atau mengurangi bagian-bagian dari Alat Kesehatan tanpa izin tertulis dari Pihak Pertama.</span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">6.</span>
+                <span class="ayat-isi">Pihak Kedua dilarang untuk mengulangsewakan Alat Kesehatan kepada pihak ketiga atau melepaskan hak sewanya berdasarkan Perjanjian ini dan menyerahkannya kepada pihak ketiga tanpa kesepakatan tertulis dari Pihak Pertama dengan ketentuan:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Dalam hal Pihak Kedua mengulangsewakan Alat Kesehatan kepada pihak ketiga atau melepaskan hak sewanya dan menyerahkannya kepada pihak ketiga tanpa kesepakatan tertulis dari Pihak Pertama, Pihak Pertama berhak untuk mengakhiri masa sewa secara sepihak.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Atas pengakhiran Masa Sewa secara sepihak sebagaimana dimaksud dalam huruf a ayat (6) pasal ini, Pihak Pertama tidak berkewajiban untuk mengembalikan sebagian Harga Sewa atas Masa Sewa yang belum digunakan oleh Pihak Kedua.</span></div>
+                    </div>
+                </span>
+            </div>
+
+            <div class="ayat-item">
+                <span class="ayat-nomor">7.</span>
+                <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa Perjanjian ini dan segala akibatnya tidak akan berakhir dengan meninggalnya salah satu atau kedua belah Pihak yang segala hak dan kewajibannya akan dilanjutkan kepada para ahli waris dari Para Pihak.</span>
+            </div>
+        </div>
+
+    </div>{{-- end .page-content --}}
+
+    <div class="page-footer">
+        Halaman 2 dari 3 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
+    </div>
+</div>
+
+
+{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 3 — Pasal 5–9 + Penutup + TTD                     --}}
+{{-- ══════════════════════════════════════════════════════════ --}}
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <div class="kop">
+            <div class="kop-left"><img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo"></div>
+            <div class="kop-center">
+                <div class="nama-toko">Paralkes</div>
+                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
+                <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
+            </div>
+            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
+        </div>
+
+        {{-- PASAL 5 --}}
+        <div class="pasal no-break" style="margin-top:10px;">
+            <div class="pasal-heading">Pasal 5</div>
+            <div class="pasal-subheading">Serah Terima Hak Sewa</div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">1.</span>
+                <span class="ayat-isi">Pihak Kedua berhak untuk menggunakan Alat Kesehatan sejak diserahterimakannya hak menggunakan Alat Kesehatan oleh Pihak Pertama kepada Pihak Kedua dengan ketentuan:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Serah terima hak menggunakan Alat Kesehatan tersebut dilakukan dengan cara penyerahan Barang Alat Kesehatan kepada Pihak Kedua.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Penyerahan Alat Kesehatan sebagaimana dimaksud dalam huruf a ayat (1) Pasal ini dilakukan selambat-lambatnya pada saat Pihak Kedua melakukan pembayaran Harga Sewa kepada Pihak Pertama.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">c.</span><span class="sub-isi">Para Pihak dengan ini sepakat bahwa pada saat serah terima hak menggunakan Alat Kesehatan, Alat Kesehatan tersebut dalam keadaan kosong dan terawat baik.</span></div>
+                    </div>
+                </span>
+            </div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">2.</span>
+                <span class="ayat-isi">Pihak Kedua berkewajiban untuk mengembalikan hak menggunakan Alat Kesehatan kepada Pihak Pertama dengan ketentuan:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pengembalian hak menggunakan Alat Kesehatan tersebut dilakukan dengan cara pengembalian Alat Kesehatan oleh Pihak Kedua kepada Pihak Pertama.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pada saat pengembalian Alat Kesehatan dilakukan, Alat Kesehatan harus seperti dalam keadaan ketika dilakukannya penyerahan Alat Kesehatan oleh Pihak Pertama kepada Pihak Kedua.</span></div>
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        {{-- PASAL 6 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 6</div>
+            <div class="pasal-subheading">Masa Sewa</div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(1)</span>
+                <span class="ayat-isi">Pihak Kedua berhak untuk menggunakan Alat Kesehatan untuk selama jangka waktu sesuai dengan yang tertuang di dalam <strong>Bukti Pembayaran Invoice</strong> atau yang dimulai sejak tanggal <u><strong>{{ $tglMulaiLabel }}</strong></u> dan berakhir pada tanggal <u><strong>{{ $tglSelesaiLabel }}</strong></u> ("<strong>Masa Sewa</strong>").</span>
+            </div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(2)</span>
+                <span class="ayat-isi">Pihak Kedua berhak untuk mengajukan <strong>perpanjangan Masa Sewa</strong> kepada Pihak Pertama dengan ketentuan:
+                    <div class="sub-ayat-list">
+                        <div class="sub-ayat-item"><span class="sub-huruf">a.</span><span class="sub-isi">Pihak Pertama berhak untuk mengajukan Harga Sewa, Masa Sewa serta syarat dan ketentuan Perjanjian yang baru.</span></div>
+                        <div class="sub-ayat-item"><span class="sub-huruf">b.</span><span class="sub-isi">Pengajuan perpanjangan Masa Sewa tersebut wajib dilakukan oleh Pihak Kedua kepada Pihak Pertama dalam jangka waktu selambat-lambatnya 7 (Tujuh) hari kalender sebelum berakhirnya Masa Sewa.</span></div>
+                    </div>
+                </span>
+            </div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(3)</span>
+                <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa pada prinsipnya <strong>pengakhiran Masa Sewa sebelum berakhirnya Masa Sewa</strong> hanya dapat dilakukan dengan kesepakatan bersama Para Pihak yang dibuat secara tertulis, tetapi masing-masing pihak dapat mengakhiri Masa Sewa secara sepihak dengan ketentuan: Dalam hal Pihak Kedua mengakhiri Masa Sewa secara sepihak sebelum berakhirnya Masa Sewa, Pihak Kedua tidak berhak untuk menuntut kepada Pihak Pertama atas pengembalian sebagian Harga Sewa untuk Masa Sewa yang belum digunakan.</span>
+            </div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(4)</span>
+                <span class="ayat-isi">Pihak Pertama berhak untuk mengakhiri Masa Sewa secara sepihak sesuai dengan ketentuan dalam Pasal 4 ayat (1) huruf b angka ii dan Pasal 4 ayat (6) Perjanjian ini.</span>
+            </div>
+        </div>
+
+        {{-- PASAL 7 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 7</div>
+            <div class="pasal-subheading">Harga Sewa</div>
+            <div class="ayat-item">
+                <span class="ayat-nomor">(1)</span>
+                <span class="ayat-isi">Para Pihak dengan ini sepakat bahwa besarnya harga sewa adalah sebesar <strong>sesuai dengan Bukti Pembayaran / Invoice</strong> yang telah <strong>dilunasi</strong> oleh Pihak Kedua kepada Pihak Pertama dalam jangka waktu selambat-lambatnya pada saat dimulainya Masa Sewa ("<strong>Harga Sewa</strong>").</span>
+            </div>
+        </div>
+
+        {{-- PASAL 8 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 8</div>
+            <div class="pasal-subheading">Adendum</div>
+            <p class="pasal-body">Segala perubahan ketentuan dan/atau penambahan ketentuan yang belum diatur dan/atau belum cukup diatur dalam Perjanjian ini akan disepakati lebih lanjut oleh Para Pihak dan hasilnya akan dituangkan ke dalam suatu adendum yang ditandatangani oleh Para Pihak yang merupakan satu kesatuan dan menjadi bagian yang tidak terpisahkan dari Perjanjian ini.</p>
+        </div>
+
+        {{-- PASAL 9 --}}
+        <div class="pasal no-break">
+            <div class="pasal-heading">Pasal 9</div>
+            <div class="pasal-subheading">Penyelesaian Perselisihan</div>
+            <p class="pasal-body">Dalam hal terjadi perselisihan diantara Para Pihak sebagai akibat dari pelaksanaan Perjanjian ini, Para Pihak dengan ini sepakat untuk menyelesaikannya secara musyawarah dan kekeluargaan.</p>
+        </div>
+
+        {{-- PENUTUP --}}
+        <div class="pembuka" style="margin-top:12px;">
+            Demikian Perjanjian ini dibuat disampaikan kepada Pelanggan dan ditandatangani di tempat dan pada
+            waktu sebagaimana disebutkan di bagian awal Perjanjian ini dalam rangkap 2 (dua) dan bermeterai cukup,
+            masing-masing Pihak memperoleh 1 (satu) rangkap asli yang kesemuanya memiliki kekuatan hukum yang sama.
+        </div>
+
+        {{-- TANDA TANGAN --}}
+        <div class="ttd-section">
+            <div class="ttd-para-pihak">Para Pihak,</div>
+            <div class="ttd-row">
+                <div class="ttd-col">
+                    <div class="ttd-label">Pihak Pertama,</div>
+                    <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
+                    <div class="ttd-garis">ADAM PARAKITRI</div>
+                    <div class="ttd-jabatan">Pemilik Usaha</div>
+                </div>
+                <div class="ttd-logo-center">
+                    <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo">
+                </div>
+                <div class="ttd-col">
+                    <div class="ttd-label">Pihak Kedua,</div>
+                    <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
+                    <div class="ttd-garis">{{ strtoupper($penyewaan->nama_penyewa) }}</div>
+                    <div class="ttd-jabatan">Penyewa</div>
+                </div>
+            </div>
+        </div>
+
+    </div>{{-- end .page-content --}}
+
+    <div class="page-footer">
+        Halaman 3 dari 3 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes<br>
+        Dokumen ini digenerate otomatis oleh sistem Paralkes pada {{ now('Asia/Jakarta')->translatedFormat('d F Y, H:i') }} WIB
+    </div>
+</div>
 
 <script>
     // window.addEventListener('load', () => window.print());
