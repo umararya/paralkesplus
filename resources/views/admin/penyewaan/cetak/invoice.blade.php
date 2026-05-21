@@ -342,7 +342,7 @@
                 </div>
             </div>
             <div class="kop-right">
-                <img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo Kanan Paralkes">
+                <img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo Kanan Paralkes">
             </div>
         </div>
 

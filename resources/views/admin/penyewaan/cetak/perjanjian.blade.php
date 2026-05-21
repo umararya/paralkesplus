@@ -281,7 +281,7 @@
                 </div>
             </div>
             <div class="kop-right">
-                <img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo">
+                <img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo">
             </div>
         </div>
 
@@ -441,7 +441,7 @@
                 <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
                 <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
             </div>
-            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo"></div>
+            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
         </div>
 
         {{-- PASAL 4 --}}
@@ -530,7 +530,7 @@
                 <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
                 <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
             </div>
-            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus1.png') }}" alt="Logo"></div>
+            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
         </div>
 
         {{-- PASAL 5 --}}
