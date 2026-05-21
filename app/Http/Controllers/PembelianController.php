@@ -180,7 +180,6 @@ class PembelianController extends Controller
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
-        // ── Snapshot data LAMA ──
         $oldNama    = $pembelian->nama_barang;
         $oldJumlah  = (int) $pembelian->jumlah;
         $oldKondisi = $pembelian->kondisi_barang;
@@ -192,7 +191,6 @@ class PembelianController extends Controller
             'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
-        // ── Handle bukti transaksi ──
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
@@ -212,36 +210,27 @@ class PembelianController extends Controller
         $newJumlah  = (int) $validated['jumlah'];
         $newKondisi = $validated['kondisi_barang'];
         $newHarga   = (float) $validated['harga_satuan'];
-
-        $namaBeruban = strtolower($oldNama) !== strtolower($newNama);
+        $namaBerubah = strtolower($oldNama) !== strtolower($newNama);
 
         DB::transaction(function () use (
             $pembelian, $validated,
             $oldNama, $oldJumlah, $oldKondisi,
             $newNama, $newJumlah, $newKondisi, $newHarga,
-            $namaBeruban, $oldData
+            $namaBerubah, $oldData
         ) {
-            // 1. Update data pembelian
             $pembelian->update($validated);
             $pembelian->refresh();
 
-            // ══════════════════════════════════════
-            //  KASUS A: Nama barang TIDAK berubah
-            //  → update langsung entry inventory yg sama
-            // ══════════════════════════════════════
-            if (!$namaBeruban) {
+            if (!$namaBerubah) {
                 $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                     strtolower($newNama)
                 ])->first();
 
                 if ($inventory) {
-                    // Hitung ulang stok: kurangi lama, tambah baru
                     $diffJumlah = $newJumlah - $oldJumlah;
-
                     $inventory->stok_tersedia      = max(0, $inventory->stok_tersedia + $diffJumlah);
                     $inventory->harga_beli_terakhir = $newHarga;
 
-                    // Kondisi sama → diff langsung
                     if ($oldKondisi === $newKondisi) {
                         if ($newKondisi === 'baru') {
                             $inventory->stok_baru  = max(0, $inventory->stok_baru + $diffJumlah);
@@ -249,8 +238,6 @@ class PembelianController extends Controller
                             $inventory->stok_bekas = max(0, $inventory->stok_bekas + $diffJumlah);
                         }
                     } else {
-                        // Kondisi berubah (baru→bekas atau bekas→baru)
-                        // Kurangi dari kondisi lama, tambah ke kondisi baru
                         if ($oldKondisi === 'baru') {
                             $inventory->stok_baru  = max(0, $inventory->stok_baru - $oldJumlah);
                             $inventory->stok_bekas = max(0, $inventory->stok_bekas + $newJumlah);
@@ -271,28 +258,18 @@ class PembelianController extends Controller
                         'keterangan'     => 'Edit Pembelian: ' . $newNama,
                     ]);
                 }
-
-            // ══════════════════════════════════════
-            //  KASUS B: Nama barang BERUBAH
-            //  → hapus entry inventory lama
-            //  → buat / update entry inventory baru
-            // ══════════════════════════════════════
             } else {
-                // Hapus (atau kurangi stok) entry inventory LAMA
                 $invLama = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                     strtolower($oldNama)
                 ])->first();
 
                 if ($invLama) {
-                    // Jika stok tersedia habis setelah dikurangi → hapus entry
                     $sisaStok = $invLama->stok_tersedia - $oldJumlah;
 
                     if ($sisaStok <= 0) {
-                        // Hapus seluruh entry inventory lama
                         InventoryLog::where('inventory_id', $invLama->id)->delete();
                         $invLama->delete();
                     } else {
-                        // Masih ada stok dari sumber lain → hanya kurangi
                         $invLama->stok_tersedia = $sisaStok;
 
                         if ($oldKondisi === 'baru') {
@@ -305,7 +282,6 @@ class PembelianController extends Controller
                     }
                 }
 
-                // Buat / update entry inventory BARU
                 $invBaru = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                     strtolower($newNama)
                 ])->first();
@@ -344,7 +320,6 @@ class PembelianController extends Controller
                 ]);
             }
 
-            // Activity log
             ActivityLog::record(
                 module:   'Pembelian',
                 action:   'update',
@@ -369,18 +344,16 @@ class PembelianController extends Controller
         $pembelian = Pembelian::findOrFail($id);
 
         DB::transaction(function () use ($pembelian) {
-            // Rollback stok inventory saat pembelian dihapus
             $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                 strtolower($pembelian->nama_barang)
             ])->first();
 
             if ($inventory) {
-                $jumlah  = (int) $pembelian->jumlah;
-                $kondisi = $pembelian->kondisi_barang;
+                $jumlah   = (int) $pembelian->jumlah;
+                $kondisi  = $pembelian->kondisi_barang;
                 $sisaStok = $inventory->stok_tersedia - $jumlah;
 
                 if ($sisaStok <= 0) {
-                    // Stok habis → hapus entry inventory
                     InventoryLog::where('inventory_id', $inventory->id)->delete();
                     $inventory->delete();
                 } else {
@@ -423,88 +396,122 @@ class PembelianController extends Controller
     }
 
     // ══════════════════════════════════════
-    //  BUY BACK
+    //  BUY BACK — MULTI ITEM (tiap produk 1 baris di pembelian)
     // ══════════════════════════════════════
 
     public function storeBuyBack(Request $request)
     {
-        $validated = $request->validate([
+        // Validasi header
+        $request->validate([
             'penjualan_id'      => 'required|exists:penjualans,id',
             'tanggal_pembelian' => 'required|date',
-            'nama_barang'       => 'required|string|max:150',
-            'jumlah'            => 'required|integer|min:1',
-            'harga_satuan'      => 'required|numeric|min:0',
             'nama_pelanggan'    => 'required|string|max:255',
             'kondisi_barang'    => 'required|in:baik,bekas,rusak',
             'keterangan'        => 'nullable|string',
             'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+            // Validasi array items
+            'items'             => 'required|array|min:1',
+            'items.*.nama_barang'  => 'required|string|max:150',
+            'items.*.jumlah'       => 'required|integer|min:1',
+            'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
 
-        $validated['status'] = 'buy_back';
+        $tanggal     = $request->input('tanggal_pembelian');
+        $pelanggan   = $request->input('nama_pelanggan');
+        $kondisi     = $request->input('kondisi_barang');
+        $keterangan  = $request->input('keterangan');
+        $penjualanId = $request->input('penjualan_id');
+        $items       = $request->input('items', []);
 
+        // Handle upload foto — satu foto untuk semua item buy back
+        $fotoPath = null;
         if ($request->hasFile('bukti_transaksi')) {
-            $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
+            $fotoPath = $request->file('bukti_transaksi')
                 ->store('pembelian/buyback', 'public');
         }
 
-        $namaBarang  = $validated['nama_barang'];
-        $jumlah      = (int) $validated['jumlah'];
-        $hargaSatuan = (float) $validated['harga_satuan'];
-        $pelanggan   = $validated['nama_pelanggan'];
-        $kondisi     = $validated['kondisi_barang'];
+        DB::transaction(function () use (
+            $items, $tanggal, $pelanggan, $kondisi,
+            $keterangan, $penjualanId, $fotoPath
+        ) {
+            foreach ($items as $item) {
+                $namaBarang  = trim($item['nama_barang']);
+                $jumlah      = (int) $item['jumlah'];
+                $hargaSatuan = (float) $item['harga_satuan'];
+                $total       = $jumlah * $hargaSatuan;
 
-        DB::transaction(function () use ($validated, $namaBarang, $jumlah, $hargaSatuan, $pelanggan, $kondisi) {
+                if (empty($namaBarang) || $jumlah < 1) {
+                    continue; // skip baris kosong
+                }
 
-            $pembelian = Pembelian::create($validated);
-            $pembelian->refresh();
-
-            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                strtolower($namaBarang)
-            ])->first();
-
-            if ($inventory) {
-                $inventory->stok_tersedia      += $jumlah;
-                $inventory->stok_bekas         += $jumlah;
-                $inventory->harga_beli_terakhir = $hargaSatuan;
-                $inventory->save();
-            } else {
-                $inventory = Inventory::create([
-                    'nama_produk'         => $namaBarang,
-                    'kategori'            => null,
-                    'satuan'              => 'unit',
-                    'stok_tersedia'       => $jumlah,
-                    'stok_disewa'         => 0,
-                    'stok_baru'           => 0,
-                    'stok_bekas'          => $jumlah,
-                    'harga_beli_terakhir' => $hargaSatuan,
+                // Simpan 1 baris pembelian per produk
+                $pembelian = Pembelian::create([
+                    'penjualan_id'      => $penjualanId,
+                    'tanggal_pembelian' => $tanggal,
+                    'nama_barang'       => $namaBarang,
+                    'jumlah'            => $jumlah,
+                    'harga_satuan'      => $hargaSatuan,
+                    'total'             => $total,
+                    'nama_pelanggan'    => $pelanggan,
+                    'kondisi_barang'    => $kondisi,
+                    'keterangan'        => $keterangan,
+                    'bukti_transaksi'   => $fotoPath,
+                    'status'            => 'buy_back',
                 ]);
+
+                // Update stok_bekas di inventory yang sudah ada
+                $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
+                    strtolower($namaBarang)
+                ])->first();
+
+                if ($inventory) {
+                    // Masuk ke stok_bekas (bukan baru)
+                    $inventory->stok_tersedia      += $jumlah;
+                    $inventory->stok_bekas         += $jumlah;
+                    $inventory->harga_beli_terakhir = $hargaSatuan;
+                    $inventory->save();
+                } else {
+                    // Inventory belum ada → buat baru dengan stok_bekas
+                    $inventory = Inventory::create([
+                        'nama_produk'         => $namaBarang,
+                        'kategori'            => null,
+                        'satuan'              => 'unit',
+                        'stok_tersedia'       => $jumlah,
+                        'stok_disewa'         => 0,
+                        'stok_baru'           => 0,
+                        'stok_bekas'          => $jumlah,
+                        'harga_beli_terakhir' => $hargaSatuan,
+                    ]);
+                }
+
+                // Log inventory
+                InventoryLog::create([
+                    'inventory_id'   => $inventory->id,
+                    'reference_type' => 'buyback',
+                    'reference_id'   => $pembelian->id,
+                    'qty_change'     => $jumlah,
+                    'kondisi'        => 'bekas',
+                    'keterangan'     => 'Buy Back dari: ' . $pelanggan . ' — ' . $namaBarang,
+                ]);
+
+                // Activity log per item
+                ActivityLog::record(
+                    module:   'Pembelian',
+                    action:   'create',
+                    subject:  '[Buy Back] ' . $namaBarang . ' dari ' . $pelanggan,
+                    newValue: [
+                        'barang'    => $namaBarang,
+                        'pelanggan' => $pelanggan,
+                        'kondisi'   => $kondisi,
+                        'jumlah'    => $jumlah,
+                        'total'     => 'Rp ' . number_format($total, 0, ',', '.'),
+                    ],
+                    pageUrl: 'pembelian/buy-back'
+                );
             }
-
-            InventoryLog::create([
-                'inventory_id'   => $inventory->id,
-                'reference_type' => 'buyback',
-                'reference_id'   => $pembelian->id,
-                'qty_change'     => $jumlah,
-                'kondisi'        => 'bekas',
-                'keterangan'     => 'Buy Back dari: ' . $pelanggan,
-            ]);
-
-            ActivityLog::record(
-                module:   'Pembelian',
-                action:   'create',
-                subject:  '[Buy Back] ' . $namaBarang . ' dari ' . $pelanggan,
-                newValue: [
-                    'barang'    => $namaBarang,
-                    'pelanggan' => $pelanggan,
-                    'kondisi'   => $kondisi,
-                    'jumlah'    => $jumlah,
-                    'total'     => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                ],
-                pageUrl: 'pembelian/buy-back'
-            );
         });
 
         return redirect()->route('penjualan.index')
-            ->with('success', 'Buy back berhasil dicatat dan stok inventory diperbarui.');
+            ->with('success', 'Buy back berhasil dicatat. Tiap produk tersimpan di data pembelian dan stok bekas inventory diperbarui.');
     }
 }
