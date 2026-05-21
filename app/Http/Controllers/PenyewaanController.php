@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\DetailPenyewaan;
+use App\Models\Inventory;
 use App\Models\Penyewaan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -37,41 +38,65 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  PRIVATE HELPER — simpan / sync detail items
+    //  PRIVATE HELPER — simpan / sync detail items + update stok
     //  Strategi: upsert per detail_id, hapus yang tidak ada lagi
     // =========================================================
 
     private function syncDetails(Penyewaan $penyewaan, array $items): void
     {
-        $existingIds  = $penyewaan->details()->pluck('id')->toArray();
-        $submittedIds = [];
-        $totalSewa    = 0;
+        $existingDetails = $penyewaan->details()->get();                 // existing detail dengan qty lama
+        $existingIds     = $existingDetails->pluck('id')->toArray();
+        $submittedIds    = [];
+        $totalSewa       = 0;
 
         foreach ($items as $item) {
             $namaAlat = trim($item['nama_alat'] ?? '');
             if ($namaAlat === '') continue;
 
-            $qty          = max(1, (int) ($item['qty']          ?? 1));
+            $qtyBaru      = max(1, (int) ($item['qty']          ?? 1));
             $harga        = max(0, (int) ($item['harga_satuan'] ?? 0));
             $diskon       = max(0, min(100, (int) ($item['diskon'] ?? 0)));
             $inventoryId  = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
-            $subtotal     = (int) round($qty * $harga * (1 - $diskon / 100));
+            $subtotal     = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
                 'penyewaan_id' => $penyewaan->id,
                 'inventory_id' => $inventoryId,
                 'nama_alat'    => $namaAlat,
-                'qty'          => $qty,
+                'qty'          => $qtyBaru,
                 'satuan'       => $item['satuan'] ?? 'unit',
                 'harga_satuan' => $harga,
                 'diskon'       => $diskon,
                 'subtotal'     => $subtotal,
             ];
 
-            if (!empty($item['detail_id']) && in_array((int)$item['detail_id'], $existingIds)) {
+            $detailId   = !empty($item['detail_id']) ? (int) $item['detail_id'] : null;
+            $detailLama = $detailId
+                ? $existingDetails->firstWhere('id', $detailId)
+                : null;
+
+            // Hitung dan update stok (asumsi sewa kurangi stok baru)
+            if ($inventoryId) {
+                /** @var Inventory $inv */
+                $inv = Inventory::find($inventoryId);
+                if ($inv) {
+                    $qtyLama = $detailLama ? (int) $detailLama->qty : 0;
+                    $selisih = $qtyBaru - $qtyLama;
+
+                    if ($selisih > 0) {
+                        // Tambah sewa → kurangi stok tersedia/biru
+                        $inv->kurangiStok($selisih, 'baru');
+                    } elseif ($selisih < 0) {
+                        // Kurangi sewa → kembalikan stok
+                        $inv->tambahStok(abs($selisih), 'baru');
+                    }
+                }
+            }
+
+            if ($detailLama) {
                 // Update existing detail
-                DetailPenyewaan::where('id', (int)$item['detail_id'])->update($data);
-                $submittedIds[] = (int)$item['detail_id'];
+                DetailPenyewaan::where('id', $detailId)->update($data);
+                $submittedIds[] = $detailId;
             } else {
                 // Create new detail
                 $created        = DetailPenyewaan::create($data);
@@ -81,9 +106,19 @@ class PenyewaanController extends Controller
             $totalSewa += $subtotal;
         }
 
-        // Hapus detail yang tidak ada di submitted
+        // Hapus detail yang tidak ada di submitted, dan kembalikan stok
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
+            $detailsToDelete = DetailPenyewaan::whereIn('id', $toDelete)->get();
+            foreach ($detailsToDelete as $detail) {
+                if ($detail->inventory_id) {
+                    $inv = Inventory::find($detail->inventory_id);
+                    if ($inv) {
+                        // kembalikan stok baru
+                        $inv->tambahStok($detail->qty, 'baru');
+                    }
+                }
+            }
             DetailPenyewaan::whereIn('id', $toDelete)->delete();
         }
 
@@ -308,7 +343,7 @@ class PenyewaanController extends Controller
             'alamat_penyewa'           => 'required|string',
             'tgl_mulai'                => 'required|date',
             'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'              => 'required|integer|min:1',
+            'durasi_hari'              => 'required|integer|min:0', // bisa 0 hari (same day)
             'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
@@ -328,7 +363,6 @@ class PenyewaanController extends Controller
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
-        // Upload foto KTP/SIM
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
@@ -341,6 +375,7 @@ class PenyewaanController extends Controller
 
         $penyewaan = Penyewaan::create(collect($validated)->except('items')->toArray());
 
+        // sync details + update stok
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -400,7 +435,7 @@ class PenyewaanController extends Controller
             'alamat_penyewa'           => 'required|string',
             'tgl_mulai'                => 'required|date',
             'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'              => 'required|integer|min:1',
+            'durasi_hari'              => 'required|integer|min:0',
             'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
@@ -422,7 +457,6 @@ class PenyewaanController extends Controller
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
-        // Upload foto KTP/SIM (replace jika ada)
         if ($request->hasFile('foto_ktp_sim')) {
             if ($penyewaan->foto_ktp_sim &&
                 \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
@@ -437,6 +471,7 @@ class PenyewaanController extends Controller
 
         $penyewaan->update(collect($validated)->except('items')->toArray());
 
+        // sync details + update stok (diff)
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -463,7 +498,17 @@ class PenyewaanController extends Controller
 
     public function destroy(string $id)
     {
-        $penyewaan = Penyewaan::findOrFail($id);
+        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+
+        // Kembalikan semua stok ketika penyewaan dihapus
+        foreach ($penyewaan->details as $detail) {
+            if ($detail->inventory_id) {
+                $inv = Inventory::find($detail->inventory_id);
+                if ($inv) {
+                    $inv->tambahStok($detail->qty, 'baru');
+                }
+            }
+        }
 
         ActivityLog::record(
             module:   'Penyewaan',

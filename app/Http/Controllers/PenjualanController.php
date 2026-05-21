@@ -5,50 +5,82 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\DetailPenjualan;
+use App\Models\Inventory;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
 
 class PenjualanController extends Controller
 {
     // =========================================================
-    //  PRIVATE HELPER — sync detail items
+    //  PRIVATE HELPER — sync detail items + update stok
     //  Strategi: upsert per detail_id, hapus yang tidak ada lagi
     // =========================================================
 
     private function syncDetails(Penjualan $penjualan, array $items): void
     {
-        $existingIds  = $penjualan->details()->pluck('id')->toArray();
-        $submittedIds = [];
-        $totalHarga   = 0;
+        $existingDetails = $penjualan->details()->get();
+        $existingIds     = $existingDetails->pluck('id')->toArray();
+        $submittedIds    = [];
+        $totalHarga      = 0;
 
         foreach ($items as $item) {
             $namaBarang = trim($item['nama_barang'] ?? '');
             if ($namaBarang === '') continue;
 
-            $qty         = max(1, (int) ($item['qty']          ?? 1));
-            $harga       = max(0, (int) ($item['harga_satuan'] ?? 0));
-            $diskon      = max(0, min(100, (int) ($item['diskon'] ?? 0)));
-            $inventoryId = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
-            $kondisi     = in_array($item['kondisi'] ?? '', ['baru','bekas'])
-                           ? $item['kondisi']
-                           : 'baru';
-            $subtotal    = (int) round($qty * $harga * (1 - $diskon / 100));
+            $qtyBaru      = max(1, (int) ($item['qty']          ?? 1));
+            $harga        = max(0, (int) ($item['harga_satuan'] ?? 0));
+            $diskon       = max(0, min(100, (int) ($item['diskon'] ?? 0)));
+            $inventoryId  = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $kondisi      = in_array($item['kondisi'] ?? '', ['baru','bekas'])
+                            ? $item['kondisi']
+                            : 'baru';
+            $subtotal     = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
                 'penjualan_id' => $penjualan->id,
                 'inventory_id' => $inventoryId,
                 'nama_barang'  => $namaBarang,
                 'kondisi'      => $kondisi,
-                'qty'          => $qty,
+                'qty'          => $qtyBaru,
                 'satuan'       => $item['satuan'] ?? 'unit',
                 'harga_satuan' => $harga,
                 'diskon'       => $diskon,
                 'subtotal'     => $subtotal,
             ];
 
-            if (!empty($item['detail_id']) && in_array((int)$item['detail_id'], $existingIds)) {
-                DetailPenjualan::where('id', (int)$item['detail_id'])->update($data);
-                $submittedIds[] = (int)$item['detail_id'];
+            $detailId   = !empty($item['detail_id']) ? (int) $item['detail_id'] : null;
+            $detailLama = $detailId
+                ? $existingDetails->firstWhere('id', $detailId)
+                : null;
+
+            // Hitung dan update stok sesuai kondisi
+            if ($inventoryId) {
+                /** @var Inventory $inv */
+                $inv = Inventory::find($inventoryId);
+                if ($inv) {
+                    $qtyLama   = $detailLama ? (int) $detailLama->qty : 0;
+                    $kondisiLama = $detailLama ? $detailLama->kondisi : $kondisi;
+                    $selisih   = $qtyBaru - $qtyLama;
+
+                    if ($detailLama && $kondisiLama !== $kondisi) {
+                        // Kondisi berubah, kembalikan stok ke kondisi lama lalu kurangi di kondisi baru
+                        if ($qtyLama > 0) {
+                            $inv->tambahStok($qtyLama, $kondisiLama);
+                        }
+                        $inv->kurangiStok($qtyBaru, $kondisi);
+                    } else {
+                        if ($selisih > 0) {
+                            $inv->kurangiStok($selisih, $kondisi);
+                        } elseif ($selisih < 0) {
+                            $inv->tambahStok(abs($selisih), $kondisi);
+                        }
+                    }
+                }
+            }
+
+            if ($detailLama) {
+                DetailPenjualan::where('id', $detailId)->update($data);
+                $submittedIds[] = $detailId;
             } else {
                 $created        = DetailPenjualan::create($data);
                 $submittedIds[] = $created->id;
@@ -57,9 +89,18 @@ class PenjualanController extends Controller
             $totalHarga += $subtotal;
         }
 
-        // Hapus detail yang tidak ada di submitted
+        // Hapus detail yang tidak ada di submitted + kembalikan stok
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
+            $detailsToDelete = DetailPenjualan::whereIn('id', $toDelete)->get();
+            foreach ($detailsToDelete as $detail) {
+                if ($detail->inventory_id) {
+                    $inv = Inventory::find($detail->inventory_id);
+                    if ($inv) {
+                        $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
+                    }
+                }
+            }
             DetailPenjualan::whereIn('id', $toDelete)->delete();
         }
 
@@ -79,11 +120,11 @@ class PenjualanController extends Controller
 
         $penjualans = Penjualan::query()
             ->when($search, function ($q) use ($search) {
-                $q->where('nama_pelanggan',    'like', "%{$search}%")
-                  ->orWhere('nomor_telepon',   'like', "%{$search}%")
-                  ->orWhere('alamat_pelanggan','like', "%{$search}%")
-                  ->orWhere('jenis_pembayaran','like', "%{$search}%")
-                  ->orWhere('keterangan',      'like', "%{$search}%")
+                $q->where('nama_pelanggan',     'like', "%{$search}%")
+                  ->orWhere('nomor_telepon',    'like', "%{$search}%")
+                  ->orWhere('alamat_pelanggan', 'like', "%{$search}%")
+                  ->orWhere('jenis_pembayaran', 'like', "%{$search}%")
+                  ->orWhere('keterangan',       'like', "%{$search}%")
                   ->orWhere('tanggal_penjualan','like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
@@ -123,7 +164,6 @@ class PenjualanController extends Controller
             'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ]);
 
-        // Upload foto bukti
         if ($request->hasFile('foto_bukti')) {
             $validated['foto_bukti'] = $request->file('foto_bukti')
                 ->store('penjualan/bukti', 'public');
@@ -134,6 +174,7 @@ class PenjualanController extends Controller
 
         $penjualan = Penjualan::create(collect($validated)->except('items')->toArray());
 
+        // sync details + update stok
         $this->syncDetails($penjualan, $validated['items']);
 
         ActivityLog::record(
@@ -203,7 +244,6 @@ class PenjualanController extends Controller
             'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ]);
 
-        // Upload foto bukti (replace jika ada)
         if ($request->hasFile('foto_bukti')) {
             if ($penjualan->foto_bukti &&
                 \Storage::disk('public')->exists($penjualan->foto_bukti)) {
@@ -217,6 +257,7 @@ class PenjualanController extends Controller
 
         $penjualan->update(collect($validated)->except('items')->toArray());
 
+        // sync details + update stok (diff)
         $this->syncDetails($penjualan, $validated['items']);
 
         ActivityLog::record(
@@ -242,7 +283,17 @@ class PenjualanController extends Controller
 
     public function destroy(string $id)
     {
-        $penjualan = Penjualan::findOrFail($id);
+        $penjualan = Penjualan::with('details')->findOrFail($id);
+
+        // Kembalikan stok ketika penjualan dihapus
+        foreach ($penjualan->details as $detail) {
+            if ($detail->inventory_id) {
+                $inv = Inventory::find($detail->inventory_id);
+                if ($inv) {
+                    $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
+                }
+            }
+        }
 
         ActivityLog::record(
             module:   'Penjualan',

@@ -15,8 +15,7 @@
     .section-title i { font-size:16px; color:var(--brand-500); }
     .form-grid { display:grid; gap:16px; }
     .form-grid-2 { grid-template-columns:1fr 1fr; }
-    .form-grid-3 { grid-template-columns:1fr 1fr 1fr; }
-    @media(max-width:640px) { .form-grid-2,.form-grid-3 { grid-template-columns:1fr; } }
+    @media(max-width:640px) { .form-grid-2 { grid-template-columns:1fr; } }
     .form-group { display:flex; flex-direction:column; gap:6px; }
     .form-label { font-size:13px; font-weight:600; color:var(--text-primary); }
     .form-label .required { color:#EF4444; margin-left:2px; }
@@ -27,8 +26,6 @@
     textarea.form-control { resize:vertical; min-height:80px; }
     select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
     .invalid-feedback { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; }
-
-    /* Dropzone */
     .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
     .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
     html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
@@ -44,8 +41,6 @@
     .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
     .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
     .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
-
-    /* Items Table */
     .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -58,17 +53,9 @@
     .btn-add-row { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1.5px dashed var(--brand-500); background:transparent; color:var(--brand-500); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); }
     .btn-add-row:hover { background:var(--brand-50); }
     html.dark .btn-add-row:hover { background:rgba(29,111,164,0.1); }
-
-    /* Stok badge */
     .stok-ok   { background:#D1FAE5; color:#065F46; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-low  { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-zero { background:#FEE2E2; color:#991B1B; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
-
-    /* Kondisi badge */
-    .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600; }
-    .badge-bekas { background:#F3F4F6; color:#374151; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600; }
-
-    /* Ringkasan */
     .ringkasan-box { display:flex; justify-content:flex-end; margin-top:14px; }
     .ringkasan-inner { width:280px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
     .ringkasan-row { display:flex; justify-content:space-between; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border); }
@@ -76,18 +63,13 @@
     .ringkasan-row .r-label { color:var(--text-muted); }
     .ringkasan-row .r-value { font-weight:700; color:var(--text-primary); }
     .ringkasan-row.total { background:var(--brand-500); }
-    .ringkasan-row.total .r-label,
-    .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
-
-    /* Footer */
+    .ringkasan-row.total .r-label, .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
     .form-footer { padding:16px 24px; display:flex; gap:12px; justify-content:flex-end; background:var(--bg-primary); border-top:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13.5px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
     .btn-cancel { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-cancel:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-save { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-save:hover { background:var(--brand-600); border-color:var(--brand-600); }
-
-    /* Select2 */
     .select2-container { width: 100% !important; }
     .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
@@ -98,24 +80,25 @@
     .select2-container--default .select2-results__option { font-size:13px; color:var(--text-primary); padding:8px 12px; }
     .select2-container--default .select2-results__option--highlighted[aria-selected] { background:var(--brand-500); color:#fff; }
     .select2-search--dropdown .select2-search__field { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); width:100%; box-sizing:border-box; }
+    .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:4px; min-height:18px; flex-wrap:wrap; }
+    .stok-info-row span { font-size:12px; }
 </style>
 @endpush
 
 @section('content')
 
-<div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
     <a href="{{ route('penjualan.index') }}"
-       style="display:inline-flex; align-items:center; justify-content:center;
-              width:36px; height:36px; border-radius:8px; background:var(--bg-card);
-              border:1px solid var(--border); color:var(--text-secondary);
-              text-decoration:none; transition:all 0.2s;"
+       style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+              border-radius:8px;background:var(--bg-card);border:1px solid var(--border);
+              color:var(--text-secondary);text-decoration:none;transition:all 0.2s;"
        onmouseover="this.style.background='var(--bg-hover)'"
        onmouseout="this.style.background='var(--bg-card)'">
         <i class="ri-arrow-left-line"></i>
     </a>
     <div>
-        <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">Tambah Penjualan</h1>
-        <p style="font-size:13px; color:var(--text-muted);">Isi form berikut untuk menambah data penjualan baru</p>
+        <h1 style="font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Tambah Penjualan</h1>
+        <p style="font-size:13px;color:var(--text-muted);">Isi form berikut untuk menambah data penjualan baru</p>
     </div>
 </div>
 
@@ -130,11 +113,9 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama Pelanggan <span class="required">*</span></label>
-                    <input type="text" name="nama_pelanggan"
-                           value="{{ old('nama_pelanggan') }}"
+                    <input type="text" name="nama_pelanggan" value="{{ old('nama_pelanggan') }}"
                            placeholder="Nama lengkap pelanggan"
-                           class="form-control {{ $errors->has('nama_pelanggan') ? 'is-invalid' : '' }}"
-                           required>
+                           class="form-control {{ $errors->has('nama_pelanggan') ? 'is-invalid' : '' }}" required>
                     @error('nama_pelanggan')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
@@ -142,8 +123,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon <span class="hint">(opsional)</span></label>
-                    <input type="tel" name="nomor_telepon"
-                           value="{{ old('nomor_telepon') }}"
+                    <input type="tel" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
                            placeholder="08xxxxxxxxxx"
                            class="form-control {{ $errors->has('nomor_telepon') ? 'is-invalid' : '' }}">
                     @error('nomor_telepon')
@@ -174,13 +154,13 @@
                     <thead>
                         <tr>
                             <th style="width:32px;">#</th>
-                            <th style="min-width:200px;">Nama Barang</th>
+                            <th style="min-width:220px;">Nama Barang</th>
                             <th style="width:90px;">Kondisi</th>
                             <th style="width:70px;">Qty</th>
                             <th style="width:80px;">Satuan</th>
                             <th style="width:140px;">Harga/Satuan (Rp)</th>
                             <th style="width:70px;">Diskon (%)</th>
-                            <th style="width:120px; text-align:right;">Subtotal</th>
+                            <th style="width:120px;text-align:right;">Subtotal</th>
                             <th style="width:36px;"></th>
                         </tr>
                     </thead>
@@ -229,13 +209,12 @@
                 <div class="form-group">
                     <label class="form-label">Jenis Pembayaran <span class="required">*</span></label>
                     <select name="jenis_pembayaran"
-                            class="form-control {{ $errors->has('jenis_pembayaran') ? 'is-invalid' : '' }}"
-                            required>
+                            class="form-control {{ $errors->has('jenis_pembayaran') ? 'is-invalid' : '' }}" required>
                         <option value="" disabled {{ old('jenis_pembayaran') ? '' : 'selected' }}>-- Pilih metode --</option>
-                        <option value="tunai"    {{ old('jenis_pembayaran') == 'tunai'    ? 'selected' : '' }}>Tunai / Cash</option>
-                        <option value="transfer" {{ old('jenis_pembayaran') == 'transfer' ? 'selected' : '' }}>Transfer Bank</option>
-                        <option value="qris"     {{ old('jenis_pembayaran') == 'qris'     ? 'selected' : '' }}>QRIS</option>
-                        <option value="kredit"   {{ old('jenis_pembayaran') == 'kredit'   ? 'selected' : '' }}>Kredit / Cicilan</option>
+                        <option value="tunai"    {{ old('jenis_pembayaran')=='tunai'   ?'selected':'' }}>Tunai / Cash</option>
+                        <option value="transfer" {{ old('jenis_pembayaran')=='transfer'?'selected':'' }}>Transfer Bank</option>
+                        <option value="qris"     {{ old('jenis_pembayaran')=='qris'   ?'selected':'' }}>QRIS</option>
+                        <option value="kredit"   {{ old('jenis_pembayaran')=='kredit' ?'selected':'' }}>Kredit / Cicilan</option>
                     </select>
                     @error('jenis_pembayaran')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
@@ -245,8 +224,7 @@
                 <div class="form-group">
                     <label class="form-label">Diskon Global <span class="hint">(Rp)</span></label>
                     <input type="number" name="diskon_global" id="diskon_global"
-                           value="{{ old('diskon_global', 0) }}"
-                           min="0" placeholder="0"
+                           value="{{ old('diskon_global', 0) }}" min="0" placeholder="0"
                            class="form-control {{ $errors->has('diskon_global') ? 'is-invalid' : '' }}"
                            oninput="hitungRingkasan()">
                     @error('diskon_global')
@@ -311,36 +289,36 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-// ─────────────────────────────────────────────
-//  FLATPICKR
-// ─────────────────────────────────────────────
+// ── FLATPICKR ──
 flatpickr('#tanggal_penjualan', {
-    locale: 'id',
-    dateFormat: 'Y-m-d',
+    locale: 'id', dateFormat: 'Y-m-d',
     defaultDate: '{{ old("tanggal_penjualan", date("Y-m-d")) }}',
     allowInput: false,
 });
 
-// ─────────────────────────────────────────────
-//  SELECT2 TEMPLATE
-// ─────────────────────────────────────────────
+// ── SELECT2 TEMPLATE ──
 function templateBarang(item) {
     if (!item.id) return item.text || 'Cari nama barang...';
-    const badge = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' };
+    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
     return $(`
         <div style="padding:3px 0">
             <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${item.text}</div>
             <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
-                <span style="font-size:11px;color:var(--text-muted)">${item.kategori || ''}</span>
-                <span class="${badge[item.stok_status] || 'stok-ok'}">${item.stok_label || ''}</span>
+                <span style="font-size:11px;color:var(--text-muted)">${item.kategori||''}</span>
+                <span class="${badgeClass}">${item.stok_label||''}</span>
             </div>
         </div>
     `);
 }
+function templateBarangSelection(item) {
+    if (!item.id) return item.text || 'Pilih barang...';
+    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+    const stokLabel  = item.stok_label || '';
+    if (!stokLabel) return item.text;
+    return $(`<span>${item.text}&nbsp;<span class="${badgeClass}" style="font-size:11px">${stokLabel}</span></span>`);
+}
 
-// ─────────────────────────────────────────────
-//  ITEMS TABLE
-// ─────────────────────────────────────────────
+// ── ITEMS TABLE ──
 let rowIndex = 0;
 
 function addRow(data = {}) {
@@ -356,15 +334,21 @@ function addRow(data = {}) {
 
     tr.innerHTML = `
         <td style="text-align:center;font-size:12px;color:var(--text-muted)">${idx}</td>
-        <td style="min-width:200px">
+        <td style="min-width:220px">
+            {{-- ▼ HIDDEN INPUT nama_barang — wajib diisi controller ▼ --}}
+            <input type="hidden"
+                   name="items[${idx}][nama_barang]"
+                   id="nama-barang-${idx}"
+                   value="${data.nama_barang || ''}">
+
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
-                    class="form-control"
-                    required>
+                    class="form-control" required>
                 ${data.inventory_id
                     ? `<option value="${data.inventory_id}" selected>${data.nama_barang||''}</option>`
                     : ''}
             </select>
+            <div class="stok-info-row" id="stok-info-${idx}"></div>
         </td>
         <td>
             <select name="items[${idx}][kondisi]"
@@ -372,13 +356,12 @@ function addRow(data = {}) {
                     class="form-control" style="width:90px"
                     onchange="onKondisiChange(${idx})">
                 <option value="baru"  ${(data.kondisi||'baru')==='baru' ?'selected':''}>Baru</option>
-                <option value="bekas" ${(data.kondisi||'')   ==='bekas'?'selected':''}>Bekas</option>
+                <option value="bekas" ${(data.kondisi||'')==='bekas'?'selected':''}>Bekas</option>
             </select>
         </td>
         <td>
             <input type="number" name="items[${idx}][qty]"
-                   id="qty-${idx}"
-                   value="${data.qty||1}" min="1"
+                   id="qty-${idx}" value="${data.qty||1}" min="1"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -387,15 +370,13 @@ function addRow(data = {}) {
         </td>
         <td>
             <input type="number" name="items[${idx}][harga_satuan]"
-                   id="harga-${idx}"
-                   value="${data.harga_satuan||0}" min="0"
+                   id="harga-${idx}" value="${data.harga_satuan||0}" min="0"
                    class="form-control" style="width:130px"
                    oninput="hitungSubtotal(${idx})">
         </td>
         <td>
             <input type="number" name="items[${idx}][diskon]"
-                   id="diskon-${idx}"
-                   value="${data.diskon||0}" min="0" max="100"
+                   id="diskon-${idx}" value="${data.diskon||0}" min="0" max="100"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -408,18 +389,18 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    // Init Select2 pada row baru
-    $(`#inv-select-${idx}`).select2({
+    const $sel = $(`#inv-select-${idx}`);
+    $sel.select2({
         dropdownParent: $(`#row-${idx}`),
-        placeholder: 'Cari nama barang...',
-        minimumInputLength: 0,
+        placeholder: 'Pilih atau cari nama barang...',
         allowClear: true,
+        minimumInputLength: 0,
         ajax: {
             url: '{{ route("api.inventory.index") }}',
             dataType: 'json',
-            delay: 200,
+            delay: 250,
             data: params => ({
-                q:       params.term || '',
+                q:       params.term ?? '',
                 mode:    'jual',
                 kondisi: $(`#kondisi-${idx}`).val(),
             }),
@@ -427,22 +408,50 @@ function addRow(data = {}) {
             cache: false,
         },
         templateResult:    templateBarang,
-        templateSelection: d => d.text || d.nama_barang || 'Pilih barang...',
-    }).on('select2:select', function(e) {
+        templateSelection: templateBarangSelection,
+    })
+    .on('select2:open', function () {
+        const searchInput = document.querySelector('.select2-container--open .select2-search__field');
+        if (searchInput) searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    })
+    .on('select2:select', function (e) {
         const item = e.params.data;
+
+        // ▼ ISI HIDDEN INPUT nama_barang ▼
+        document.getElementById(`nama-barang-${idx}`).value = item.text || '';
+
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
-        // Max qty sesuai kondisi
+
         const kondisi = $(`#kondisi-${idx}`).val();
-        const maxStok = kondisi === 'baru' ? item.stok_baru : item.stok_bekas;
-        $(`#qty-${idx}`).attr('max', maxStok);
-        // Satuan
-        const satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
-        if (item.satuan && satSel.find(`option[value="${item.satuan}"]`).length) {
-            satSel.val(item.satuan);
+        const maxStok = kondisi === 'bekas' ? item.stok_bekas : item.stok_baru;
+        $(`#qty-${idx}`).attr('max', maxStok || 999);
+
+        const $satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
+        if (item.satuan) {
+            if ($satSel.find(`option[value="${item.satuan}"]`).length) {
+                $satSel.val(item.satuan);
+            } else {
+                $satSel.append(new Option(item.satuan, item.satuan, true, true));
+            }
         }
+
+        const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+        $(`#stok-info-${idx}`).html(
+            `<i class="ri-stack-line" style="font-size:12px;color:var(--text-muted)"></i>
+             <span class="${badgeClass}">${item.stok_label}</span>
+             <span style="color:var(--text-muted);font-size:11px">
+               | Baru: <strong>${item.stok_baru??0}</strong>
+               &nbsp;Bekas: <strong>${item.stok_bekas??0}</strong>
+             </span>`
+        );
         hitungSubtotal(idx);
-    }).on('select2:clear', function() {
+    })
+    .on('select2:clear', function () {
+        // ▼ BERSIHKAN HIDDEN INPUT nama_barang ▼
+        document.getElementById(`nama-barang-${idx}`).value = '';
         $(`#harga-${idx}`).val(0);
+        $(`#stok-info-${idx}`).html('');
+        $(`#qty-${idx}`).removeAttr('max');
         hitungSubtotal(idx);
     });
 
@@ -450,9 +459,11 @@ function addRow(data = {}) {
 }
 
 function onKondisiChange(idx) {
-    // Reset pilihan barang karena stok per kondisi berbeda
     $(`#inv-select-${idx}`).val(null).trigger('change');
+    document.getElementById(`nama-barang-${idx}`).value = '';
     $(`#harga-${idx}`).val(0);
+    $(`#stok-info-${idx}`).html('');
+    $(`#qty-${idx}`).removeAttr('max');
     hitungSubtotal(idx);
 }
 
@@ -485,9 +496,7 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ─────────────────────────────────────────────
-//  DROPZONE
-// ─────────────────────────────────────────────
+// ── DROPZONE ──
 function initDropzone(inputId, previewId, zoneId) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
@@ -513,9 +522,7 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_bukti', 'bukti-preview', 'dropzone-bukti');
 

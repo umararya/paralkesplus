@@ -27,16 +27,12 @@
     textarea.form-control { resize:vertical; min-height:80px; }
     select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
     .invalid-feedback { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; }
-
-    /* Date range */
     .date-range-wrap { display:flex; align-items:center; gap:8px; }
     .date-range-wrap .form-control { flex:1; }
     .date-range-sep { font-size:13px; color:var(--text-muted); white-space:nowrap; }
     .durasi-display { margin-top:6px; font-size:12.5px; color:var(--brand-500); font-weight:600; display:flex; align-items:center; gap:5px; min-height:18px; }
     .pengiriman-note { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
     .metode-info { margin-top:5px; font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px; min-height:16px; }
-
-    /* Dropzone */
     .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
     .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
     html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
@@ -52,8 +48,6 @@
     .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
     .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
     .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
-
-    /* Items Table */
     .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -66,13 +60,9 @@
     .btn-add-row { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1.5px dashed var(--brand-500); background:transparent; color:var(--brand-500); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); }
     .btn-add-row:hover { background:var(--brand-50); }
     html.dark .btn-add-row:hover { background:rgba(29,111,164,0.1); }
-
-    /* Stok badge */
     .stok-ok   { background:#D1FAE5; color:#065F46; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-low  { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-zero { background:#FEE2E2; color:#991B1B; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
-
-    /* Ringkasan */
     .ringkasan-box { display:flex; justify-content:flex-end; margin-top:14px; }
     .ringkasan-inner { width:280px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
     .ringkasan-row { display:flex; justify-content:space-between; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border); }
@@ -80,18 +70,13 @@
     .ringkasan-row .r-label { color:var(--text-muted); }
     .ringkasan-row .r-value { font-weight:700; color:var(--text-primary); }
     .ringkasan-row.total { background:var(--brand-500); }
-    .ringkasan-row.total .r-label,
-    .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
-
-    /* Footer */
+    .ringkasan-row.total .r-label, .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
     .form-footer { padding:16px 24px; display:flex; gap:12px; justify-content:flex-end; background:var(--bg-primary); border-top:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13.5px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
     .btn-cancel { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-cancel:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-save { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-save:hover { background:var(--brand-600); border-color:var(--brand-600); }
-
-    /* Select2 custom */
     .select2-container { width: 100% !important; }
     .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
@@ -102,6 +87,8 @@
     .select2-container--default .select2-results__option { font-size:13px; color:var(--text-primary); padding:8px 12px; }
     .select2-container--default .select2-results__option--highlighted[aria-selected] { background:var(--brand-500); color:#fff; }
     .select2-search--dropdown .select2-search__field { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); width:100%; box-sizing:border-box; }
+    .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:4px; min-height:18px; }
+    .stok-info-row span { font-size:12px; }
 </style>
 @endpush
 
@@ -109,17 +96,16 @@
 
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
     <a href="{{ route('penyewaan.index') }}"
-       style="display:inline-flex; align-items:center; justify-content:center;
-              width:36px; height:36px; border-radius:8px; background:var(--bg-card);
-              border:1px solid var(--border); color:var(--text-secondary);
-              text-decoration:none; transition:all 0.2s;"
+       style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+              border-radius:8px;background:var(--bg-card);border:1px solid var(--border);
+              color:var(--text-secondary);text-decoration:none;transition:all 0.2s;"
        onmouseover="this.style.background='var(--bg-hover)'"
        onmouseout="this.style.background='var(--bg-card)'">
         <i class="ri-arrow-left-line"></i>
     </a>
     <div>
-        <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">Tambah Penyewaan</h1>
-        <p style="font-size:13px; color:var(--text-muted);">Isi form berikut untuk menambah data penyewaan baru</p>
+        <h1 style="font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Tambah Penyewaan</h1>
+        <p style="font-size:13px;color:var(--text-muted);">Isi form berikut untuk menambah data penyewaan baru</p>
     </div>
 </div>
 
@@ -134,11 +120,9 @@
 
                 <div class="form-group">
                     <label class="form-label">Nama <span class="required">*</span></label>
-                    <input type="text" name="nama_penyewa"
-                           value="{{ old('nama_penyewa') }}"
+                    <input type="text" name="nama_penyewa" value="{{ old('nama_penyewa') }}"
                            placeholder="Nama lengkap penyewa"
-                           class="form-control {{ $errors->has('nama_penyewa') ? 'is-invalid' : '' }}"
-                           required>
+                           class="form-control {{ $errors->has('nama_penyewa') ? 'is-invalid' : '' }}" required>
                     @error('nama_penyewa')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
@@ -146,23 +130,17 @@
 
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon/HP <span class="required">*</span></label>
-                    <input type="tel" name="nomor_telepon"
-                           value="{{ old('nomor_telepon') }}"
+                    <input type="tel" name="nomor_telepon" value="{{ old('nomor_telepon') }}"
                            placeholder="08xxxxxxxxxx"
-                           class="form-control {{ $errors->has('nomor_telepon') ? 'is-invalid' : '' }}"
-                           required>
+                           class="form-control {{ $errors->has('nomor_telepon') ? 'is-invalid' : '' }}" required>
                     @error('nomor_telepon')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">
-                        Tempat/Tanggal Lahir
-                        <span class="hint">(untuk formulir perjanjian)</span>
-                    </label>
-                    <input type="text" name="tempat_tanggal_lahir"
-                           value="{{ old('tempat_tanggal_lahir') }}"
+                    <label class="form-label">Tempat/Tanggal Lahir <span class="hint">(untuk formulir perjanjian)</span></label>
+                    <input type="text" name="tempat_tanggal_lahir" value="{{ old('tempat_tanggal_lahir') }}"
                            placeholder="Contoh: Semarang, 01 Januari 1990"
                            class="form-control {{ $errors->has('tempat_tanggal_lahir') ? 'is-invalid' : '' }}">
                     @error('tempat_tanggal_lahir')
@@ -171,14 +149,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">
-                        Nomor KTP (NIK)
-                        <span class="hint">(16 digit)</span>
-                    </label>
-                    <input type="text" name="nomor_ktp"
-                           value="{{ old('nomor_ktp') }}"
-                           placeholder="3374xxxxxxxxxxxxxxx"
-                           maxlength="16" inputmode="numeric" pattern="[0-9]{16}"
+                    <label class="form-label">Nomor KTP (NIK) <span class="hint">(16 digit)</span></label>
+                    <input type="text" name="nomor_ktp" value="{{ old('nomor_ktp') }}"
+                           placeholder="3374xxxxxxxxxxxxxxx" maxlength="16"
+                           inputmode="numeric" pattern="[0-9]{16}"
                            class="form-control {{ $errors->has('nomor_ktp') ? 'is-invalid' : '' }}"
                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                     @error('nomor_ktp')
@@ -188,8 +162,7 @@
 
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Alamat Penyewa <span class="required">*</span></label>
-                    <textarea name="alamat_penyewa" rows="3"
-                              placeholder="Alamat lengkap penyewa"
+                    <textarea name="alamat_penyewa" rows="3" placeholder="Alamat lengkap penyewa"
                               class="form-control {{ $errors->has('alamat_penyewa') ? 'is-invalid' : '' }}"
                               required>{{ old('alamat_penyewa') }}</textarea>
                     @error('alamat_penyewa')
@@ -209,12 +182,12 @@
                     <thead>
                         <tr>
                             <th style="width:32px;">#</th>
-                            <th style="min-width:220px;">Nama Alat</th>
+                            <th style="min-width:240px;">Nama Alat</th>
                             <th style="width:70px;">Qty</th>
                             <th style="width:80px;">Satuan</th>
                             <th style="width:140px;">Harga/Satuan (Rp)</th>
                             <th style="width:70px;">Diskon (%)</th>
-                            <th style="width:120px; text-align:right;">Subtotal</th>
+                            <th style="width:120px;text-align:right;">Subtotal</th>
                             <th style="width:36px;"></th>
                         </tr>
                     </thead>
@@ -257,14 +230,12 @@
                     <label class="form-label">Periode Sewa <span class="required">*</span></label>
                     <div class="date-range-wrap">
                         <input type="text" id="tgl_mulai" name="tgl_mulai"
-                               value="{{ old('tgl_mulai') }}"
-                               placeholder="Tanggal Mulai"
+                               value="{{ old('tgl_mulai') }}" placeholder="Tanggal Mulai"
                                class="form-control {{ $errors->has('tgl_mulai') ? 'is-invalid' : '' }}"
                                autocomplete="off" readonly required>
                         <span class="date-range-sep"><i class="ri-arrow-right-line"></i></span>
                         <input type="text" id="tgl_selesai" name="tgl_selesai"
-                               value="{{ old('tgl_selesai') }}"
-                               placeholder="Tanggal Selesai"
+                               value="{{ old('tgl_selesai') }}" placeholder="Tanggal Selesai"
                                class="form-control {{ $errors->has('tgl_selesai') ? 'is-invalid' : '' }}"
                                autocomplete="off" readonly required>
                     </div>
@@ -290,9 +261,9 @@
                                 class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled {{ old('pengiriman') ? '' : 'selected' }}>-- Pilih metode pengiriman --</option>
-                            <option value="mandiri" {{ old('pengiriman') == 'mandiri' ? 'selected' : '' }}>Ambil dan Antar kembali sendiri oleh Penyewa</option>
-                            <option value="Gosend / GrabExpress" {{ old('pengiriman') == 'Gosend / GrabExpress' ? 'selected' : '' }}>via Gosend / GrabExpress</option>
-                            <option value="Rental Mobil Paralkes" {{ old('pengiriman') == 'Rental Mobil Paralkes' ? 'selected' : '' }}>via Rental Mobil Paralkes</option>
+                            <option value="mandiri" {{ old('pengiriman')=='mandiri'?'selected':'' }}>Ambil dan Antar kembali sendiri oleh Penyewa</option>
+                            <option value="Gosend / GrabExpress" {{ old('pengiriman')=='Gosend / GrabExpress'?'selected':'' }}>via Gosend / GrabExpress</option>
+                            <option value="Rental Mobil Paralkes" {{ old('pengiriman')=='Rental Mobil Paralkes'?'selected':'' }}>via Rental Mobil Paralkes</option>
                         </select>
                         <div class="pengiriman-note" id="pengiriman-note">
                             <i class="ri-information-line"></i>
@@ -306,8 +277,7 @@
                     <div class="form-group">
                         <label class="form-label">Biaya Ongkir <span class="hint">(Rp, isi 0 jika ambil sendiri)</span></label>
                         <input type="number" name="biaya_ongkir" id="biaya_ongkir"
-                               value="{{ old('biaya_ongkir', 0) }}"
-                               min="0" placeholder="0"
+                               value="{{ old('biaya_ongkir', 0) }}" min="0" placeholder="0"
                                class="form-control {{ $errors->has('biaya_ongkir') ? 'is-invalid' : '' }}"
                                oninput="hitungRingkasan()">
                         @error('biaya_ongkir')
@@ -330,9 +300,9 @@
                             class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled {{ old('metode_pembayaran') ? '' : 'selected' }}>-- Pilih metode --</option>
-                        <option value="tunai" {{ old('metode_pembayaran') == 'tunai' ? 'selected' : '' }}>Tunai / Cash</option>
-                        <option value="transfer" {{ old('metode_pembayaran') == 'transfer' ? 'selected' : '' }}>Transfer via Bank BCA</option>
-                        <option value="qris" {{ old('metode_pembayaran') == 'qris' ? 'selected' : '' }}>QRIS</option>
+                        <option value="tunai"    {{ old('metode_pembayaran')=='tunai'   ?'selected':'' }}>Tunai / Cash</option>
+                        <option value="transfer" {{ old('metode_pembayaran')=='transfer'?'selected':'' }}>Transfer via Bank BCA</option>
+                        <option value="qris"     {{ old('metode_pembayaran')=='qris'   ?'selected':'' }}>QRIS</option>
                     </select>
                     <div class="metode-info" id="metode-info">
                         <i class="ri-information-line"></i>
@@ -346,8 +316,7 @@
                 <div class="form-group">
                     <label class="form-label">Diskon Global <span class="hint">(Rp)</span></label>
                     <input type="number" name="diskon_global" id="diskon_global"
-                           value="{{ old('diskon_global', 0) }}"
-                           min="0" placeholder="0"
+                           value="{{ old('diskon_global', 0) }}" min="0" placeholder="0"
                            class="form-control {{ $errors->has('diskon_global') ? 'is-invalid' : '' }}"
                            oninput="hitungRingkasan()">
                     @error('diskon_global')
@@ -361,15 +330,14 @@
                         <option>Berjalan</option>
                     </select>
                     <input type="hidden" name="status" value="berjalan">
-                    <span style="font-size:12px; color:var(--text-muted); margin-top:4px; display:flex; align-items:center; gap:4px;">
+                    <span style="font-size:12px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:4px;">
                         <i class="ri-information-line"></i> Status hanya dapat diubah saat edit
                     </span>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Bukti Pembayaran <span class="hint">(link / catatan)</span></label>
-                    <input type="text" name="bukti_pembayaran"
-                           value="{{ old('bukti_pembayaran') }}"
+                    <input type="text" name="bukti_pembayaran" value="{{ old('bukti_pembayaran') }}"
                            placeholder="https://drive.google.com/... atau 'bayar di tempat'"
                            class="form-control {{ $errors->has('bukti_pembayaran') ? 'is-invalid' : '' }}">
                     @error('bukti_pembayaran')
@@ -438,15 +406,13 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-// ─────────────────────────────────────────────
-//  FLATPICKR
-// ─────────────────────────────────────────────
+// ── FLATPICKR ──
 const fpMulai = flatpickr('#tgl_mulai', {
-    locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
+    locale:'id', dateFormat:'Y-m-d', allowInput:false,
     onChange: (sel, str) => { fpSelesai.set('minDate', str); hitungDurasi(); }
 });
 const fpSelesai = flatpickr('#tgl_selesai', {
-    locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
+    locale:'id', dateFormat:'Y-m-d', allowInput:false,
     onChange: () => hitungDurasi()
 });
 
@@ -464,40 +430,49 @@ function hitungDurasi() {
     } else { hidden.value = ''; disp.innerHTML = ''; }
 }
 
-// ─────────────────────────────────────────────
-//  HELPER NOTES
-// ─────────────────────────────────────────────
+// ── HELPER NOTES ──
 function updatePengirimanNote() {
     const v = document.getElementById('pengiriman').value;
-    const n = { mandiri:'Penyewa mengambil dan mengembalikan sendiri.', 'Gosend / GrabExpress':'Pengiriman via ojek online, biaya ditanggung penyewa.', 'Rental Mobil Paralkes':'Pengiriman menggunakan Rental Mobil Paralkes.' };
+    const n = {
+        mandiri:'Penyewa mengambil dan mengembalikan sendiri.',
+        'Gosend / GrabExpress':'Pengiriman via ojek online, biaya ditanggung penyewa.',
+        'Rental Mobil Paralkes':'Pengiriman menggunakan Rental Mobil Paralkes.'
+    };
     document.getElementById('pengiriman-note-text').textContent = n[v] || 'Pilih metode pengiriman di atas';
 }
 function updateMetodeInfo() {
     const v = document.getElementById('metode_pembayaran').value;
-    const i = { tunai:'Pembayaran dilakukan secara tunai saat penyerahan alat.', transfer:'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA.', qris:'Scan QRIS yang tersedia.' };
+    const i = {
+        tunai:'Pembayaran dilakukan secara tunai saat penyerahan alat.',
+        transfer:'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA.',
+        qris:'Scan QRIS yang tersedia.'
+    };
     document.getElementById('metode-info-text').textContent = i[v] || 'Pilih metode pembayaran';
 }
 
-// ─────────────────────────────────────────────
-//  SELECT2 TEMPLATE
-// ─────────────────────────────────────────────
+// ── SELECT2 TEMPLATE ──
 function templateInventory(item) {
     if (!item.id) return item.text || 'Cari nama alat...';
-    const badge = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' };
+    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
     return $(`
         <div style="padding:3px 0">
             <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${item.text}</div>
             <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
-                <span style="font-size:11px;color:var(--text-muted)">${item.kategori || ''}</span>
-                <span class="${badge[item.stok_status] || 'stok-ok'}">${item.stok_label || ''}</span>
+                <span style="font-size:11px;color:var(--text-muted)">${item.kategori||''}</span>
+                <span class="${badgeClass}">${item.stok_label||''}</span>
             </div>
         </div>
     `);
 }
+function templateInventorySelection(item) {
+    if (!item.id) return item.text || 'Pilih alat...';
+    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+    const stokLabel  = item.stok_label || '';
+    if (!stokLabel) return item.text;
+    return $(`<span>${item.text}&nbsp;<span class="${badgeClass}" style="font-size:11px">${stokLabel}</span></span>`);
+}
 
-// ─────────────────────────────────────────────
-//  ITEMS TABLE
-// ─────────────────────────────────────────────
+// ── ITEMS TABLE ──
 let rowIndex = 0;
 
 function addRow(data = {}) {
@@ -513,20 +488,25 @@ function addRow(data = {}) {
 
     tr.innerHTML = `
         <td style="text-align:center;font-size:12px;color:var(--text-muted)">${idx}</td>
-        <td style="min-width:220px">
+        <td style="min-width:240px">
+            {{-- ▼ HIDDEN INPUT nama_alat — wajib diisi controller ▼ --}}
+            <input type="hidden"
+                   name="items[${idx}][nama_alat]"
+                   id="nama-alat-${idx}"
+                   value="${data.nama_alat || ''}">
+
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
-                    class="inv-select form-control"
-                    required>
+                    class="form-control" required>
                 ${data.inventory_id
                     ? `<option value="${data.inventory_id}" selected>${data.nama_alat||''}</option>`
                     : ''}
             </select>
+            <div class="stok-info-row" id="stok-info-${idx}"></div>
         </td>
         <td>
             <input type="number" name="items[${idx}][qty]"
-                   id="qty-${idx}"
-                   value="${data.qty||1}" min="1"
+                   id="qty-${idx}" value="${data.qty||1}" min="1"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -535,15 +515,13 @@ function addRow(data = {}) {
         </td>
         <td>
             <input type="number" name="items[${idx}][harga_satuan]"
-                   id="harga-${idx}"
-                   value="${data.harga_satuan||0}" min="0"
+                   id="harga-${idx}" value="${data.harga_satuan||0}" min="0"
                    class="form-control" style="width:130px"
                    oninput="hitungSubtotal(${idx})">
         </td>
         <td>
             <input type="number" name="items[${idx}][diskon]"
-                   id="diskon-${idx}"
-                   value="${data.diskon||0}" min="0" max="100"
+                   id="diskon-${idx}" value="${data.diskon||0}" min="0" max="100"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -556,38 +534,59 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    // Init Select2 pada row baru
-    $(`#inv-select-${idx}`).select2({
+    const $sel = $(`#inv-select-${idx}`);
+    $sel.select2({
         dropdownParent: $(`#row-${idx}`),
-        placeholder: 'Cari nama alat...',
-        minimumInputLength: 0,
+        placeholder: 'Pilih atau cari nama alat...',
         allowClear: true,
+        minimumInputLength: 0,
         ajax: {
             url: '{{ route("api.inventory.index") }}',
             dataType: 'json',
-            delay: 200,
-            data: params => ({ q: params.term || '', mode: 'sewa' }),
+            delay: 250,
+            data: params => ({ q: params.term ?? '', mode: 'sewa' }),
             processResults: data => ({ results: data.results }),
             cache: true,
         },
         templateResult:    templateInventory,
-        templateSelection: d => d.text || d.nama_alat || 'Pilih alat...',
-    }).on('select2:select', function(e) {
+        templateSelection: templateInventorySelection,
+    })
+    .on('select2:open', function () {
+        const searchInput = document.querySelector('.select2-container--open .select2-search__field');
+        if (searchInput) searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    })
+    .on('select2:select', function (e) {
         const item = e.params.data;
+
+        // ▼ ISI HIDDEN INPUT nama_alat ▼
+        document.getElementById(`nama-alat-${idx}`).value = item.text || '';
+
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
-        // Update satuan
-        const satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
+        $(`#qty-${idx}`).attr('max', item.stok_tersedia || 999);
+
+        const $satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
         if (item.satuan) {
-            satSel.find(`option[value="${item.satuan}"]`).prop('selected', true);
-            if (!satSel.find(`option[value="${item.satuan}"]`).length) {
-                satSel.append(new Option(item.satuan, item.satuan, true, true));
+            if ($satSel.find(`option[value="${item.satuan}"]`).length) {
+                $satSel.val(item.satuan);
+            } else {
+                $satSel.append(new Option(item.satuan, item.satuan, true, true));
             }
         }
-        // Update max qty
-        $(`#qty-${idx}`).attr('max', item.stok_tersedia);
+
+        const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+        $(`#stok-info-${idx}`).html(
+            `<i class="ri-stack-line" style="font-size:12px;color:var(--text-muted)"></i>
+             <span class="${badgeClass}">${item.stok_label}</span>
+             <span style="color:var(--text-muted);font-size:11px">| Kategori: ${item.kategori||'-'}</span>`
+        );
         hitungSubtotal(idx);
-    }).on('select2:clear', function() {
+    })
+    .on('select2:clear', function () {
+        // ▼ BERSIHKAN HIDDEN INPUT nama_alat ▼
+        document.getElementById(`nama-alat-${idx}`).value = '';
         $(`#harga-${idx}`).val(0);
+        $(`#stok-info-${idx}`).html('');
+        $(`#qty-${idx}`).removeAttr('max');
         hitungSubtotal(idx);
     });
 
@@ -625,9 +624,7 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ─────────────────────────────────────────────
-//  DROPZONE
-// ─────────────────────────────────────────────
+// ── DROPZONE ──
 function initDropzone(inputId, previewId, zoneId) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
@@ -653,9 +650,7 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
 
