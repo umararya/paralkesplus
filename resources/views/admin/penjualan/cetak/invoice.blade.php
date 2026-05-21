@@ -1,10 +1,10 @@
-{{-- resources/views/admin/penyewaan/cetak/invoice.blade.php --}}
+{{-- resources/views/admin/penjualan/cetak/invoice.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Penyewaan - {{ $penyewaan->nama_penyewa }}</title>
+    <title>Invoice Penjualan - {{ $penjualan->nama_pelanggan }}</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -26,12 +26,10 @@
 
         /* KOP */
         .kop {
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             justify-content: space-between;
             border-bottom: 3px solid #1D6FA4;
-            padding-bottom: 10px;
-            margin-bottom: 14px;
+            padding-bottom: 10px; margin-bottom: 14px;
         }
         .kop-left img  { height: 60px; object-fit: contain; }
         .kop-center { text-align: center; flex: 1; padding: 0 12px; }
@@ -94,14 +92,19 @@
             display: inline-block; background: #fef3c7; color: #b45309;
             border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700;
         }
+        .badge-kondisi-baru  {
+            display: inline-block; background: #dcfce7; color: #15803d;
+            border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700;
+        }
+        .badge-kondisi-bekas {
+            display: inline-block; background: #fef3c7; color: #b45309;
+            border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700;
+        }
 
         /* RINGKASAN + TERBILANG */
         .biaya-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 16px;
+            display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 16px; margin-bottom: 16px;
         }
         .terbilang-wrap { flex: 1; }
         .terbilang-table {
@@ -202,44 +205,32 @@
     \Carbon\Carbon::setLocale('id');
     $now = now('Asia/Jakarta');
 
-    $useDetail  = $penyewaan->has_detail;
-    $details    = $useDetail ? $penyewaan->details : collect();
-    $legacyList = (!$useDetail && $penyewaan->produk_alkes)
-                    ? collect(explode(',', $penyewaan->produk_alkes))->map(fn($p) => trim($p))
-                    : collect();
+    $details = $penjualan->details ?? collect();
 
-    /* Kalkulasi ringkasan */
-    if ($useDetail) {
-        $subtotalSewa = $details->sum(function($d) {
-            $sub = $d->qty * $d->harga_satuan;
-            if (($d->diskon ?? 0) > 0) $sub = $sub * (1 - $d->diskon / 100);
-            return round($sub);
-        });
-        $diskonGlobal = (int)($penyewaan->diskon_global  ?? 0);
-        $biayaOngkir  = (int)($penyewaan->biaya_ongkir   ?? 0);
-        $totalTagihan = max(0, $subtotalSewa - $diskonGlobal + $biayaOngkir);
-    } else {
-        $subtotalSewa = 0;
-        $diskonGlobal = 0;
-        $biayaOngkir  = (int)($penyewaan->biaya_ongkir ?? 0);
-        $totalTagihan = $biayaOngkir;
-    }
+    /* Kalkulasi */
+    $subtotalBarang = $details->sum(function($d) {
+        $sub = $d->qty * $d->harga_satuan;
+        if (($d->diskon ?? 0) > 0) $sub = $sub * (1 - $d->diskon / 100);
+        return round($sub);
+    });
+    $diskonGlobal = (int)($penjualan->diskon_global ?? 0);
+    $totalTagihan = max(0, $subtotalBarang - $diskonGlobal);
 
-    /* Fungsi terbilang */
-    function terbilangSewa(int $n): string {
-        if ($n < 0) return 'minus ' . terbilangSewa(-$n);
+    /* Fungsi terbilang — nama unik agar tidak bentrok jika 2 invoice dibuka */
+    function terbilangJual(int $n): string {
+        if ($n < 0) return 'minus ' . terbilangJual(-$n);
         $satuan = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
         if ($n < 12)   return $satuan[$n];
-        if ($n < 20)   return terbilangSewa($n - 10) . ' belas';
-        if ($n < 100)  return terbilangSewa((int)($n / 10)) . ' puluh' . ($n % 10 ? ' ' . terbilangSewa($n % 10) : '');
-        if ($n < 200)  return 'seratus' . ($n - 100 ? ' ' . terbilangSewa($n - 100) : '');
-        if ($n < 1000) return terbilangSewa((int)($n / 100)) . ' ratus' . ($n % 100 ? ' ' . terbilangSewa($n % 100) : '');
-        if ($n < 2000) return 'seribu' . ($n - 1000 ? ' ' . terbilangSewa($n - 1000) : '');
-        if ($n < 1_000_000)    return terbilangSewa((int)($n / 1000)) . ' ribu' . ($n % 1000 ? ' ' . terbilangSewa($n % 1000) : '');
-        if ($n < 1_000_000_000) return terbilangSewa((int)($n / 1_000_000)) . ' juta' . ($n % 1_000_000 ? ' ' . terbilangSewa($n % 1_000_000) : '');
-        return terbilangSewa((int)($n / 1_000_000_000)) . ' miliar' . ($n % 1_000_000_000 ? ' ' . terbilangSewa($n % 1_000_000_000) : '');
+        if ($n < 20)   return terbilangJual($n - 10) . ' belas';
+        if ($n < 100)  return terbilangJual((int)($n / 10)) . ' puluh' . ($n % 10 ? ' ' . terbilangJual($n % 10) : '');
+        if ($n < 200)  return 'seratus' . ($n - 100 ? ' ' . terbilangJual($n - 100) : '');
+        if ($n < 1000) return terbilangJual((int)($n / 100)) . ' ratus' . ($n % 100 ? ' ' . terbilangJual($n % 100) : '');
+        if ($n < 2000) return 'seribu' . ($n - 1000 ? ' ' . terbilangJual($n - 1000) : '');
+        if ($n < 1_000_000)     return terbilangJual((int)($n / 1000)) . ' ribu' . ($n % 1000 ? ' ' . terbilangJual($n % 1000) : '');
+        if ($n < 1_000_000_000) return terbilangJual((int)($n / 1_000_000)) . ' juta' . ($n % 1_000_000 ? ' ' . terbilangJual($n % 1_000_000) : '');
+        return terbilangJual((int)($n / 1_000_000_000)) . ' miliar' . ($n % 1_000_000_000 ? ' ' . terbilangJual($n % 1_000_000_000) : '');
     }
-    $terbilangStr = ucfirst(terbilangSewa($totalTagihan)) . ' Rupiah';
+    $terbilangStr = ucfirst(terbilangJual($totalTagihan)) . ' Rupiah';
 @endphp
 
 <div class="page-wrapper">
@@ -265,73 +256,60 @@
 
         {{-- JUDUL --}}
         <div class="invoice-title-bar">
-            <h2>Invoice Penyewaan Alat Kesehatan</h2>
+            <h2>Invoice Penjualan Alat Kesehatan</h2>
         </div>
 
-        {{-- INFO INVOICE & PENYEWA (TANPA STATUS) --}}
+        {{-- INFO (TANPA STATUS) --}}
         <div class="info-section">
             <div class="info-box">
                 <div class="info-title">📋 Informasi Invoice</div>
                 <div class="info-row">
                     <span class="info-label">No. Invoice</span>
-                    <span class="info-value">: INV-{{ str_pad($penyewaan->id, 5, '0', STR_PAD_LEFT) }}</span>
+                    <span class="info-value">: INV-JL-{{ str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Tgl Mulai Sewa</span>
+                    <span class="info-label">Tgl Penjualan</span>
                     <span class="info-value">:
-                        {{ $penyewaan->tgl_mulai
-                            ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y')
+                        {{ $penjualan->tanggal_penjualan
+                            ? \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->locale('id')->translatedFormat('d F Y')
                             : '-' }}
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Tgl Selesai Sewa</span>
-                    <span class="info-value">:
-                        {{ $penyewaan->tgl_selesai
-                            ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y')
-                            : '-' }}
-                    </span>
+                    <span class="info-label">Jenis Pembayaran</span>
+                    <span class="info-value">: {{ ucfirst($penjualan->jenis_pembayaran) }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Durasi Sewa</span>
-                    <span class="info-value">: {{ $penyewaan->durasi_hari }} Hari</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Metode Bayar</span>
-                    <span class="info-value">: {{ ucfirst($penyewaan->metode_pembayaran) }}</span>
+                    <span class="info-label">Dicetak</span>
+                    <span class="info-value">: {{ $now->translatedFormat('d F Y') }}</span>
                 </div>
             </div>
 
             <div class="info-box">
-                <div class="info-title">👤 Data Penyewa</div>
+                <div class="info-title">👤 Data Pelanggan</div>
                 <div class="info-row">
                     <span class="info-label">Nama Lengkap</span>
-                    <span class="info-value">: {{ $penyewaan->nama_penyewa }}</span>
+                    <span class="info-value">: {{ $penjualan->nama_pelanggan }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">No. Telepon</span>
-                    <span class="info-value">: {{ $penyewaan->nomor_telepon }}</span>
+                    <span class="info-value">: {{ $penjualan->nomor_telepon ?: '-' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Alamat</span>
-                    <span class="info-value">: {{ $penyewaan->alamat_penyewa }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Metode Pengiriman</span>
-                    <span class="info-value">: {{ $penyewaan->pengiriman_label ?? $penyewaan->pengiriman }}</span>
+                    <span class="info-value">: {{ $penjualan->alamat_pelanggan }}</span>
                 </div>
             </div>
         </div>
 
-        {{-- DETAIL --}}
-        <div class="section-title">Detail Penyewaan</div>
-
-        @if($useDetail)
+        {{-- DETAIL PENJUALAN --}}
+        <div class="section-title">Detail Penjualan</div>
         <table class="detail-table">
             <thead>
                 <tr>
                     <th class="center" style="width:28px;">No</th>
-                    <th>Nama Alat Kesehatan</th>
+                    <th>Nama Barang</th>
+                    <th class="center" style="width:58px;">Kondisi</th>
                     <th class="center" style="width:42px;">Qty</th>
                     <th class="center" style="width:48px;">Satuan</th>
                     <th class="right"  style="width:105px;">Harga / Satuan</th>
@@ -347,10 +325,14 @@
                     $diskon      = (float)($item->diskon ?? 0);
                     $subtotalRaw = $qty * $hargaSatuan;
                     $subtotal    = $diskon > 0 ? round($subtotalRaw * (1 - $diskon / 100)) : $subtotalRaw;
+                    $kondisi     = $item->kondisi ?? 'baru';
                 @endphp
                 <tr>
                     <td class="center">{{ $i + 1 }}</td>
-                    <td>{{ $item->nama_alat }}</td>
+                    <td>{{ $item->nama_barang }}</td>
+                    <td class="center">
+                        <span class="badge-kondisi-{{ $kondisi }}">{{ ucfirst($kondisi) }}</span>
+                    </td>
                     <td class="center">{{ $qty }}</td>
                     <td class="center">{{ $item->satuan }}</td>
                     <td class="right">Rp {{ number_format($hargaSatuan, 0, ',', '.') }}</td>
@@ -365,50 +347,17 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="center"
+                    <td colspan="8" class="center"
                         style="color:#aaa; font-style:italic; padding:14px 0;">
-                        Tidak ada item detail tercatat.
+                        Tidak ada item tercatat.
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
 
-        @else
-        {{-- MODE LAMA --}}
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    <th class="center" style="width:30px;">No</th>
-                    <th>Nama Alat Kesehatan</th>
-                    <th class="center">Tgl Mulai</th>
-                    <th class="center">Tgl Selesai</th>
-                    <th class="center">Durasi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($legacyList as $i => $produk)
-                <tr>
-                    <td class="center">{{ $i + 1 }}</td>
-                    <td>{{ $produk }}</td>
-                    @if($i === 0)
-                    <td class="center" rowspan="{{ count($legacyList) }}">
-                        {{ $penyewaan->tgl_mulai ? $penyewaan->tgl_mulai->locale('id')->translatedFormat('d F Y') : '-' }}
-                    </td>
-                    <td class="center" rowspan="{{ count($legacyList) }}">
-                        {{ $penyewaan->tgl_selesai ? $penyewaan->tgl_selesai->locale('id')->translatedFormat('d F Y') : '-' }}
-                    </td>
-                    <td class="center" rowspan="{{ count($legacyList) }}">{{ $penyewaan->durasi_hari }} Hari</td>
-                    @endif
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        @endif
-
         {{-- RINGKASAN + TERBILANG --}}
         <div class="biaya-section">
-
             {{-- Kiri: Terbilang --}}
             <div class="terbilang-wrap">
                 <table class="terbilang-table">
@@ -419,24 +368,16 @@
 
             {{-- Kanan: Ringkasan --}}
             <div class="biaya-box">
-                @if($useDetail)
-                    <div class="biaya-row">
-                        <span class="label">Subtotal Sewa</span>
-                        <span class="value">Rp {{ number_format($subtotalSewa, 0, ',', '.') }}</span>
-                    </div>
-                    @if($diskonGlobal > 0)
-                    <div class="biaya-row diskon-row">
-                        <span class="label">Diskon</span>
-                        <span class="value">– Rp {{ number_format($diskonGlobal, 0, ',', '.') }}</span>
-                    </div>
-                    @endif
-                @endif
                 <div class="biaya-row">
-                    <span class="label">Ongkos Kirim</span>
-                    <span class="value">
-                        {{ $biayaOngkir > 0 ? 'Rp ' . number_format($biayaOngkir, 0, ',', '.') : 'Gratis' }}
-                    </span>
+                    <span class="label">Subtotal</span>
+                    <span class="value">Rp {{ number_format($subtotalBarang, 0, ',', '.') }}</span>
                 </div>
+                @if($diskonGlobal > 0)
+                <div class="biaya-row diskon-row">
+                    <span class="label">Diskon</span>
+                    <span class="value">– Rp {{ number_format($diskonGlobal, 0, ',', '.') }}</span>
+                </div>
+                @endif
                 <div class="biaya-row total-row">
                     <span class="label">Total Tagihan</span>
                     <span class="value">Rp {{ number_format($totalTagihan, 0, ',', '.') }}</span>
@@ -447,10 +388,10 @@
         {{-- CATATAN --}}
         <div class="catatan-box">
             <div class="catatan-title">📝 Catatan</div>
-            <p>{{ $penyewaan->keterangan ?: 'Tidak ada catatan tambahan.' }}</p>
+            <p>{{ $penjualan->keterangan ?: 'Tidak ada catatan tambahan.' }}</p>
             <p style="margin-top:6px; color:#888;">
-                ※ Harap alat kesehatan dikembalikan dalam kondisi baik dan bersih sesuai tanggal selesai
-                yang tertera. Keterlambatan pengembalian akan dikenakan biaya tambahan.
+                ※ Barang yang sudah dibeli tidak dapat dikembalikan kecuali terdapat kerusakan
+                dari pabrik. Harap periksa kondisi barang saat penerimaan.
             </p>
         </div>
 
@@ -465,9 +406,9 @@
                 <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo Paralkes">
             </div>
             <div class="ttd-box">
-                <div class="ttd-label">Penyewa,</div>
-                <div class="ttd-name">{{ $penyewaan->nama_penyewa }}</div>
-                <div class="ttd-jabatan">Penyewa</div>
+                <div class="ttd-label">Pelanggan,</div>
+                <div class="ttd-name">{{ $penjualan->nama_pelanggan }}</div>
+                <div class="ttd-jabatan">Pembeli</div>
             </div>
         </div>
 

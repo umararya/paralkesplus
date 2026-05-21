@@ -56,15 +56,40 @@
     .data-table th.center, .data-table td.center { text-align:center; }
     .data-table th.right, .data-table td.right { text-align:right; }
 
+    /* ── Action Group ── */
     .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
-    .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
-    .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
-    .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
-    .btn-action.view-foto:hover { background:#F0FDF4; color:#16A34A; border-color:#BBF7D0; }
-    .btn-action.buyback:hover { background:#FFFBEB; color:#D97706; border-color:#FDE68A; }
-    html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
-    html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
-    html.dark .btn-action.buyback:hover { background:rgba(217,119,6,0.15); color:#FBBF24; border-color:rgba(217,119,6,0.3); }
+    .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; text-decoration:none; }
+    .btn-action.more:hover { background:var(--bg-hover); color:var(--text-primary); border-color:var(--border); }
+
+    /* ── Dropdown ── */
+    .dropdown-wrap { position:relative; display:inline-block; }
+    .dropdown-menu {
+        display:none; position:absolute; right:0; top:calc(100% + 4px);
+        background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+        box-shadow:0 8px 28px rgba(0,0,0,0.14); min-width:190px; z-index:999;
+        overflow:hidden; animation:dropFade 0.15s ease;
+    }
+    @keyframes dropFade { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
+    .dropdown-menu.show { display:block; }
+    .dropdown-item {
+        display:flex; align-items:center; gap:9px; padding:9px 14px;
+        font-size:13px; color:var(--text-primary); text-decoration:none;
+        cursor:pointer; transition:background 0.15s; border:none;
+        background:none; width:100%; font-family:var(--font); white-space:nowrap;
+        box-sizing:border-box;
+    }
+    .dropdown-item i { font-size:15px; color:var(--text-muted); flex-shrink:0; }
+    .dropdown-item:hover { background:var(--bg-hover); }
+    .dropdown-item:hover i { color:var(--brand-500); }
+    .dropdown-item.warning       { color:#D97706; }
+    .dropdown-item.warning i     { color:#D97706; }
+    .dropdown-item.warning:hover { background:#FFFBEB; }
+    html.dark .dropdown-item.warning:hover { background:rgba(217,119,6,0.12); }
+    .dropdown-item.danger        { color:#E11D48; }
+    .dropdown-item.danger i      { color:#E11D48; }
+    .dropdown-item.danger:hover  { background:#FFF1F2; }
+    html.dark .dropdown-item.danger:hover { background:rgba(225,29,72,0.1); }
+    .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -85,7 +110,7 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* Modal Hapus & Buy Back */
+    /* ── Modals ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
@@ -103,12 +128,10 @@
     .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
-
-    /* Modal Foto */
     .modal-foto { max-width:520px; }
     .foto-preview-modal { width:100%; border-radius:10px; object-fit:contain; max-height:400px; background:#f1f5f9; display:block; }
 
-    /* Badge Styles */
+    /* ── Badge / Cell ── */
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
     .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
     html.dark .qty-badge { background:rgba(29,78,216,0.15); color:#60A5FA; }
@@ -130,7 +153,7 @@
     .foto-thumb:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
     .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
 
-    /* ── Buy Back Modal Form ── */
+    /* ── Buy Back Modal ── */
     .bb-info-box { background:var(--bg-primary); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:16px; }
     .bb-info-box p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.8; }
     .bb-info-box strong { color:var(--text-primary); }
@@ -251,7 +274,7 @@
                     <th class="right">Total</th>
                     <th>Keterangan</th>
                     <th class="center">Bukti Transfer</th>
-                    <th class="center" style="width:110px;">Aksi</th>
+                    <th class="center" style="width:60px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -353,32 +376,67 @@
                         @endif
                     </td>
 
-                    {{-- Aksi --}}
+                    {{-- ══ AKSI: hanya tombol titik tiga ══ --}}
                     <td class="center">
                         <div class="action-group">
-                            {{-- Buy Back Button --}}
-                            <button type="button"
-                                class="btn-action buyback"
-                                title="Buy Back — beli kembali barang ini dari customer"
-                                onclick="openBuyBackModal(
-                                    {{ $item->id }},
-                                    '{{ addslashes($item->nama_barang) }}',
-                                    {{ $item->harga }},
-                                    '{{ addslashes($item->alamat_pelanggan) }}',
-                                    {{ $item->qty }}
-                                )">
-                                <i class="ri-loop-left-line"></i>
-                            </button>
-                            <a href="{{ route('penjualan.edit', $item->id) }}"
-                               class="btn-action edit" title="Edit">
-                                <i class="ri-edit-line"></i>
-                            </a>
-                            <button type="button" class="btn-action delete" title="Hapus"
-                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
+                            <div class="dropdown-wrap" id="dd-wrap-{{ $item->id }}">
+
+                                {{-- Tombol titik tiga --}}
+                                <button type="button"
+                                    class="btn-action more"
+                                    title="Aksi"
+                                    onclick="toggleDropdown({{ $item->id }}, event)">
+                                    <i class="ri-more-2-fill"></i>
+                                </button>
+
+                                {{-- Dropdown menu --}}
+                                <div class="dropdown-menu" id="dd-menu-{{ $item->id }}">
+
+                                    {{-- Edit --}}
+                                    <a href="{{ route('penjualan.edit', $item->id) }}"
+                                       class="dropdown-item">
+                                        <i class="ri-edit-line"></i>
+                                        Edit
+                                    </a>
+
+                                    {{-- Cetak Invoice --}}
+                                    <a href="{{ route('penjualan.invoice', $item->id) }}"
+                                       target="_blank"
+                                       class="dropdown-item">
+                                        <i class="ri-printer-line"></i>
+                                        Cetak Invoice
+                                    </a>
+
+                                    {{-- Buy Back --}}
+                                    <button type="button"
+                                        class="dropdown-item warning"
+                                        onclick="closeAllDropdowns(); openBuyBackModal(
+                                            {{ $item->id }},
+                                            '{{ addslashes($item->nama_barang) }}',
+                                            {{ $item->harga }},
+                                            '{{ addslashes($item->alamat_pelanggan) }}',
+                                            {{ $item->qty }}
+                                        )">
+                                        <i class="ri-loop-left-line"></i>
+                                        Buy Back
+                                    </button>
+
+                                    <div class="dropdown-divider"></div>
+
+                                    {{-- Hapus --}}
+                                    <button type="button"
+                                        class="dropdown-item danger"
+                                        onclick="closeAllDropdowns(); openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
+                                        <i class="ri-delete-bin-line"></i>
+                                        Hapus
+                                    </button>
+
+                                </div>
+                            </div>
                         </div>
                     </td>
+                    {{-- ══ /AKSI ══ --}}
+
                 </tr>
                 @empty
                 <tr>
@@ -445,6 +503,8 @@
     @endif
 
 </div>
+{{-- /table-card --}}
+
 
 {{-- ══════════════════════════════════════════
      MODAL: HAPUS
@@ -455,13 +515,17 @@
             <span class="modal-title">
                 <i class="ri-delete-bin-line" style="color:#EF4444;"></i> Konfirmasi Hapus
             </span>
-            <button class="modal-close" onclick="closeModal('modalHapus')"><i class="ri-close-line"></i></button>
+            <button class="modal-close" onclick="closeModal('modalHapus')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <div class="modal-body">
             <div class="delete-warning">
                 <i class="ri-alert-fill"></i>
                 <h3>Hapus Data Penjualan?</h3>
-                <p>Kamu akan menghapus data:<br><strong id="deleteTarget"></strong><br><br>Tindakan ini tidak dapat dibatalkan.</p>
+                <p>Kamu akan menghapus data:<br>
+                   <strong id="deleteTarget"></strong><br><br>
+                   Tindakan ini tidak dapat dibatalkan.</p>
             </div>
         </div>
         <div class="modal-footer">
@@ -477,16 +541,19 @@
 </div>
 
 {{-- ══════════════════════════════════════════
-     MODAL: FOTO BUKTI
+     MODAL: FOTO BUKTI TRANSFER
 ══════════════════════════════════════════ --}}
 <div class="modal-overlay" id="modalFoto">
     <div class="modal modal-foto">
         <div class="modal-header">
             <span class="modal-title">
                 <i class="ri-image-line" style="color:var(--brand-500);"></i>
-                Bukti Transfer — <span id="fotoNamaBarang" style="font-weight:400;color:var(--text-muted);"></span>
+                Bukti Transfer —
+                <span id="fotoNamaBarang" style="font-weight:400;color:var(--text-muted);"></span>
             </span>
-            <button class="modal-close" onclick="closeModal('modalFoto')"><i class="ri-close-line"></i></button>
+            <button class="modal-close" onclick="closeModal('modalFoto')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
         <div class="modal-body" style="padding:16px;">
             <img id="fotoModalImg" src="" alt="Bukti Transfer" class="foto-preview-modal">
@@ -510,10 +577,14 @@
             <span class="modal-title">
                 <i class="ri-loop-left-line" style="color:#F59E0B;"></i> Buy Back Barang
             </span>
-            <button class="modal-close" onclick="closeModal('modalBuyBack')"><i class="ri-close-line"></i></button>
+            <button class="modal-close" onclick="closeModal('modalBuyBack')">
+                <i class="ri-close-line"></i>
+            </button>
         </div>
 
-        <form id="formBuyBack" method="POST" action="{{ route('pembelian.buyback.store') }}" enctype="multipart/form-data">
+        <form id="formBuyBack" method="POST"
+              action="{{ route('pembelian.buyback.store') }}"
+              enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="penjualan_id" id="bb_penjualan_id">
             <input type="hidden" name="nama_barang"  id="bb_nama_barang">
@@ -522,8 +593,8 @@
 
                 {{-- Info Barang (read-only) --}}
                 <div class="bb-info-box">
-                    <p>📦 Barang &nbsp;: <strong id="bb_nama_barang_label">—</strong></p>
-                    <p>💰 Harga Jual &nbsp;: <strong id="bb_harga_jual_label">—</strong></p>
+                    <p>📦 Barang &nbsp;&nbsp;&nbsp;: <strong id="bb_nama_barang_label">—</strong></p>
+                    <p>💰 Harga Jual : <strong id="bb_harga_jual_label">—</strong></p>
                     <p>📦 Qty Terjual : <strong id="bb_qty_label">—</strong></p>
                 </div>
 
@@ -531,21 +602,27 @@
 
                     {{-- Tanggal Buy Back --}}
                     <div class="form-group">
-                        <label class="form-label">Tanggal Buy Back <span style="color:#EF4444;">*</span></label>
+                        <label class="form-label">
+                            Tanggal Buy Back <span style="color:#EF4444;">*</span>
+                        </label>
                         <input type="date" name="tanggal_pembelian" class="form-control"
                                value="{{ date('Y-m-d') }}" required>
                     </div>
 
                     {{-- Jumlah --}}
                     <div class="form-group">
-                        <label class="form-label">Jumlah <span style="color:#EF4444;">*</span></label>
+                        <label class="form-label">
+                            Jumlah <span style="color:#EF4444;">*</span>
+                        </label>
                         <input type="number" name="jumlah" id="bb_jumlah"
                                class="form-control" min="1" required>
                     </div>
 
                     {{-- Harga Buy Back --}}
                     <div class="form-group">
-                        <label class="form-label">Harga Buy Back (Rp) <span style="color:#EF4444;">*</span></label>
+                        <label class="form-label">
+                            Harga Buy Back (Rp) <span style="color:#EF4444;">*</span>
+                        </label>
                         <input type="number" name="harga_satuan" id="bb_harga_input"
                                class="form-control" min="0" required
                                oninput="checkHargaWarning()">
@@ -557,7 +634,9 @@
 
                     {{-- Kondisi Barang --}}
                     <div class="form-group">
-                        <label class="form-label">Kondisi Barang <span style="color:#EF4444;">*</span></label>
+                        <label class="form-label">
+                            Kondisi Barang <span style="color:#EF4444;">*</span>
+                        </label>
                         <select name="kondisi_barang" class="form-control" required>
                             <option value="">— Pilih kondisi —</option>
                             <option value="baik">✅ Baik</option>
@@ -568,9 +647,12 @@
 
                     {{-- Nama Pelanggan --}}
                     <div class="form-group full">
-                        <label class="form-label">Nama Pelanggan <span style="color:#EF4444;">*</span></label>
+                        <label class="form-label">
+                            Nama Pelanggan <span style="color:#EF4444;">*</span>
+                        </label>
                         <input type="text" name="nama_pelanggan" id="bb_nama_pelanggan"
-                               class="form-control" placeholder="Nama orang yang mengembalikan barang" required>
+                               class="form-control"
+                               placeholder="Nama orang yang mengembalikan barang" required>
                     </div>
 
                     {{-- Keterangan --}}
@@ -583,23 +665,26 @@
                     {{-- Foto Kondisi --}}
                     <div class="form-group full">
                         <label class="form-label">Foto Kondisi Barang (opsional)</label>
-                        <input type="file" name="bukti_transaksi" accept="image/jpeg,image/png,image/webp"
+                        <input type="file" name="bukti_transaksi"
+                               accept="image/jpeg,image/png,image/webp"
                                class="form-control-file">
-                        <span style="font-size:11.5px;color:var(--text-muted);">JPG/PNG/WEBP maks. 2MB</span>
+                        <span style="font-size:11.5px;color:var(--text-muted);">
+                            JPG/PNG/WEBP maks. 2MB
+                        </span>
                     </div>
 
                 </div>{{-- /form-grid --}}
             </div>{{-- /modal-body --}}
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('modalBuyBack')">
-                    Batal
-                </button>
+                <button type="button" class="btn btn-ghost"
+                        onclick="closeModal('modalBuyBack')">Batal</button>
                 <button type="submit" class="btn btn-buyback-submit">
                     <i class="ri-loop-left-line"></i> Konfirmasi Buy Back
                 </button>
             </div>
         </form>
+
     </div>
 </div>
 
@@ -607,49 +692,93 @@
 
 @push('scripts')
 <script>
-    // ── MODAL HELPERS ──
-    function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+    // ══════════════════════════════════════════
+    //  MODAL HELPERS
+    // ══════════════════════════════════════════
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+        document.body.style.overflow = '';
+    }
 
     document.querySelectorAll('.modal-overlay').forEach(el => {
-        el.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
-    });
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+        el.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(this.id);
+        });
     });
 
-    // ── DELETE MODAL ──
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.open')
+                    .forEach(m => closeModal(m.id));
+            closeAllDropdowns();
+        }
+    });
+
+    // ══════════════════════════════════════════
+    //  DROPDOWN TITIK TIGA
+    // ══════════════════════════════════════════
+    function toggleDropdown(id, event) {
+        event.stopPropagation();
+        const menu   = document.getElementById('dd-menu-' + id);
+        const isOpen = menu.classList.contains('show');
+        closeAllDropdowns();
+        if (!isOpen) menu.classList.add('show');
+    }
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu.show')
+                .forEach(m => m.classList.remove('show'));
+    }
+
+    // Klik di luar → tutup semua dropdown
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown-wrap')) {
+            closeAllDropdowns();
+        }
+    });
+
+    // ══════════════════════════════════════════
+    //  DELETE MODAL
+    // ══════════════════════════════════════════
     function openDeleteModal(id, nama) {
         document.getElementById('deleteTarget').textContent = nama;
-        document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
+        document.getElementById('formDeleteSubmit').action  = '/penjualan/' + id;
         openModal('modalHapus');
     }
 
-    // ── FOTO MODAL ──
+    // ══════════════════════════════════════════
+    //  FOTO MODAL
+    // ══════════════════════════════════════════
     function openFotoModal(url, namaBarang) {
-        document.getElementById('fotoModalImg').src        = url;
+        document.getElementById('fotoModalImg').src           = url;
         document.getElementById('fotoNamaBarang').textContent = namaBarang;
-        document.getElementById('fotoDownloadLink').href   = url;
+        document.getElementById('fotoDownloadLink').href      = url;
         openModal('modalFoto');
     }
 
-    // ── BUY BACK MODAL ──
+    // ══════════════════════════════════════════
+    //  BUY BACK MODAL
+    // ══════════════════════════════════════════
     let bbHargaJual = 0;
 
     function openBuyBackModal(penjualanId, namaBarang, hargaJual, namaPelanggan, qty) {
         bbHargaJual = hargaJual;
 
-        document.getElementById('bb_penjualan_id').value       = penjualanId;
-        document.getElementById('bb_nama_barang').value        = namaBarang;
+        document.getElementById('bb_penjualan_id').value            = penjualanId;
+        document.getElementById('bb_nama_barang').value             = namaBarang;
         document.getElementById('bb_nama_barang_label').textContent = namaBarang;
-        document.getElementById('bb_harga_jual_label').textContent  = 'Rp ' + Number(hargaJual).toLocaleString('id-ID');
+        document.getElementById('bb_harga_jual_label').textContent  =
+            'Rp ' + Number(hargaJual).toLocaleString('id-ID');
         document.getElementById('bb_qty_label').textContent         = qty + ' unit';
-        document.getElementById('bb_jumlah').value             = qty;
-        document.getElementById('bb_nama_pelanggan').value     = namaPelanggan ?? '';
+        document.getElementById('bb_jumlah').value                  = qty;
+        document.getElementById('bb_nama_pelanggan').value          = namaPelanggan ?? '';
 
         // Default harga buy back = 50% dari harga jual
-        const defaultHarga = Math.round(hargaJual * 0.5);
-        document.getElementById('bb_harga_input').value = defaultHarga;
+        document.getElementById('bb_harga_input').value = Math.round(hargaJual * 0.5);
 
         // Reset warning
         document.getElementById('bb_harga_warning').classList.remove('show');
