@@ -1,4 +1,5 @@
 <?php
+// app/Exports/PenyewaanExport.php
 
 namespace App\Exports;
 
@@ -7,43 +8,43 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
+use Carbon\Carbon;
 
 class PenyewaanExport implements
     FromCollection,
     WithHeadings,
     WithMapping,
     WithStyles,
-    WithColumnWidths,
-    WithTitle
+    WithTitle,
+    ShouldAutoSize
 {
     protected string $search;
+    protected string $filter;
 
-    public function __construct(string $search = '')
+    public function __construct(?string $search = '', ?string $filter = '')
     {
-        $this->search = $search;
+        $this->search = $search ?? '';
+        $this->filter = $filter ?? '';
     }
 
     public function collection()
     {
         return Penyewaan::with('details')
             ->when($this->search, function ($q) {
-                $search = $this->search;
-                $q->where('nama_penyewa',       'like', "%{$search}%")
-                  ->orWhere('nomor_telepon',     'like', "%{$search}%")
-                  ->orWhere('produk_alkes',      'like', "%{$search}%")
-                  ->orWhere('status',            'like', "%{$search}%")
-                  ->orWhere('pengiriman',        'like', "%{$search}%")
-                  ->orWhere('alamat_penyewa',    'like', "%{$search}%")
-                  ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                  ->orWhere('keterangan',        'like', "%{$search}%")
-                  ->orWhere('tgl_mulai',         'like', "%{$search}%")
-                  ->orWhere('tgl_selesai',       'like', "%{$search}%");
+                $s = $this->search;
+                $q->where('nama_penyewa',       'like', "%{$s}%")
+                  ->orWhere('nomor_telepon',     'like', "%{$s}%")
+                  ->orWhere('produk_alkes',      'like', "%{$s}%")
+                  ->orWhere('status',            'like', "%{$s}%")
+                  ->orWhere('pengiriman',        'like', "%{$s}%")
+                  ->orWhere('alamat_penyewa',    'like', "%{$s}%")
+                  ->orWhere('metode_pembayaran', 'like', "%{$s}%")
+                  ->orWhere('keterangan',        'like', "%{$s}%");
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -52,16 +53,26 @@ class PenyewaanExport implements
     public function headings(): array
     {
         return [
-            'No',
+            '#',
             'Nama Penyewa',
-            'No. HP',
-            'Nama Alat',
+            'No. Telepon',
+            'Tempat, Tgl Lahir',
+            'No. KTP',
+            'Alamat',
+            'Alat / Produk',
             'Tgl Mulai',
             'Tgl Selesai',
-            'Status',
+            'Durasi (Hari)',
+            'Pengiriman',
             'Metode Pembayaran',
-            'Total (Rp)',
+            'Biaya Ongkir (Rp)',
+            'Diskon Global (Rp)',
+            'Total Sewa (Rp)',
+            'Total Tagihan (Rp)',
+            'Status',
             'Keterangan',
+            'Bukti Pembayaran (URL)',
+            'Foto KTP/SIM (URL)',
         ];
     }
 
@@ -70,37 +81,48 @@ class PenyewaanExport implements
         static $no = 0;
         $no++;
 
-        $namaAlat = $row->details->count()
+        $alat = $row->details->count()
             ? $row->details->pluck('nama_alat')->implode(', ')
             : ($row->produk_alkes ?? '-');
 
-        $statusMap = [
-            'berjalan'          => 'Berjalan',
-            'segera_konfirmasi' => 'Segera Konfirmasi',
-            'selesai'           => 'Selesai',
-            'dibatalkan'        => 'Dibatalkan',
-        ];
-        $statusLabel = $statusMap[$row->status] ?? $row->status;
+        $buktiBayar = $row->bukti_pembayaran
+            ? asset('storage/' . $row->bukti_pembayaran)
+            : '-';
+
+        $fotoKtp = $row->foto_ktp_sim
+            ? asset('storage/' . $row->foto_ktp_sim)
+            : '-';
 
         return [
             $no,
             $row->nama_penyewa,
             $row->nomor_telepon,
-            $namaAlat,
-            $row->tgl_mulai ? \Carbon\Carbon::parse($row->tgl_mulai)->format('d M Y') : '-',
-            $row->tgl_selesai ? \Carbon\Carbon::parse($row->tgl_selesai)->format('d M Y') : '-',
-            $statusLabel,
+            $row->tempat_tanggal_lahir ?? '-',
+            $row->nomor_ktp            ?? '-',
+            $row->alamat_penyewa,
+            $alat,
+            $row->tgl_mulai   ? Carbon::parse($row->tgl_mulai)->format('d/m/Y')   : '-',
+            $row->tgl_selesai ? Carbon::parse($row->tgl_selesai)->format('d/m/Y') : '-',
+            $row->durasi_hari      ?? 0,
+            $row->pengiriman,
             ucfirst($row->metode_pembayaran),
-            $row->total_tagihan ?? $row->total_harga_sewa,
+            $row->biaya_ongkir     ?? 0,
+            $row->diskon_global    ?? 0,
+            $row->total_harga_sewa ?? 0,
+            $row->total_tagihan    ?? 0,
+            ucfirst(str_replace('_', ' ', $row->status ?? '')),
             $row->keterangan ?? '-',
+            $buktiBayar,
+            $fotoKtp,
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $sheet->getHighestRow();
 
-        $sheet->getStyle('A1:J1')->applyFromArray([
+        // Styling header row
+        $headerStyle = [
             'font' => [
                 'bold'  => true,
                 'color' => ['argb' => 'FFFFFFFF'],
@@ -113,54 +135,31 @@ class PenyewaanExport implements
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical'   => Alignment::VERTICAL_CENTER,
+                'wrapText'   => true,
             ],
+        ];
+
+        // Styling kolom URL (S & T = kolom 19 & 20)
+        $sheet->getStyle('S2:T' . $lastRow)->applyFromArray([
+            'font' => ['color' => ['argb' => 'FF1D6FA4'], 'underline' => true],
         ]);
 
-        $sheet->getStyle("A1:J{$lastRow}")->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFD1D5DB'],
-                ],
-            ],
-        ]);
-
-        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("E2:F{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("G2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("I2:I{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-        $sheet->getStyle("I2:I{$lastRow}")
-              ->getNumberFormat()
-              ->setFormatCode('#,##0');
-
+        // Warna zebra untuk baris data
         for ($i = 2; $i <= $lastRow; $i++) {
             if ($i % 2 === 0) {
-                $sheet->getStyle("A{$i}:J{$i}")->getFill()
-                      ->setFillType(Fill::FILL_SOLID)
-                      ->getStartColor()->setARGB('FFF8FAFC');
+                $sheet->getStyle('A' . $i . ':T' . $i)->applyFromArray([
+                    'fill' => [
+                        'fillType'   => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFF0F7FF'],
+                    ],
+                ]);
             }
         }
 
-        $sheet->getRowDimension(1)->setRowHeight(22);
+        // Set row height header
+        $sheet->getRowDimension(1)->setRowHeight(28);
 
-        return [];
-    }
-
-    public function columnWidths(): array
-    {
-        return [
-            'A' => 5,
-            'B' => 25,
-            'C' => 15,
-            'D' => 35,
-            'E' => 15,
-            'F' => 15,
-            'G' => 20,
-            'H' => 18,
-            'I' => 18,
-            'J' => 30,
-        ];
+        return [1 => $headerStyle];
     }
 
     public function title(): string
