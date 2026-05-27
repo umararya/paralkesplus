@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PembelianExport;                // ← TAMBAH
 use App\Models\ActivityLog;
 use App\Models\Inventory;
 use App\Models\InventoryLog;
@@ -10,6 +11,7 @@ use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;            // ← TAMBAH
 
 class PembelianController extends Controller
 {
@@ -46,6 +48,19 @@ class PembelianController extends Controller
             'pembelians', 'search', 'perPage', 'totalKeseluruhan',
             'filter', 'countSemua', 'countNormal', 'countBuyBack'
         ));
+    }
+
+    // =========================================================
+    //  EXPORT XLSX  ← TAMBAH METHOD INI
+    // =========================================================
+
+    public function export(Request $request)
+    {
+        $search   = $request->input('search', '');
+        $filter   = $request->input('filter', 'semua');
+        $filename = 'pembelian_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new PembelianExport($search, $filter), $filename);
     }
 
     public function create()
@@ -396,21 +411,19 @@ class PembelianController extends Controller
     }
 
     // ══════════════════════════════════════
-    //  BUY BACK — MULTI ITEM (tiap produk 1 baris di pembelian)
+    //  BUY BACK — MULTI ITEM
     // ══════════════════════════════════════
 
     public function storeBuyBack(Request $request)
     {
-        // Validasi header
         $request->validate([
-            'penjualan_id'      => 'required|exists:penjualans,id',
-            'tanggal_pembelian' => 'required|date',
-            'nama_pelanggan'    => 'required|string|max:255',
-            'kondisi_barang'    => 'required|in:baik,bekas,rusak',
-            'keterangan'        => 'nullable|string',
-            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
-            // Validasi array items
-            'items'             => 'required|array|min:1',
+            'penjualan_id'         => 'required|exists:penjualans,id',
+            'tanggal_pembelian'    => 'required|date',
+            'nama_pelanggan'       => 'required|string|max:255',
+            'kondisi_barang'       => 'required|in:baik,bekas,rusak',
+            'keterangan'           => 'nullable|string',
+            'bukti_transaksi'      => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+            'items'                => 'required|array|min:1',
             'items.*.nama_barang'  => 'required|string|max:150',
             'items.*.jumlah'       => 'required|integer|min:1',
             'items.*.harga_satuan' => 'required|numeric|min:0',
@@ -423,7 +436,6 @@ class PembelianController extends Controller
         $penjualanId = $request->input('penjualan_id');
         $items       = $request->input('items', []);
 
-        // Handle upload foto — satu foto untuk semua item buy back
         $fotoPath = null;
         if ($request->hasFile('bukti_transaksi')) {
             $fotoPath = $request->file('bukti_transaksi')
@@ -441,10 +453,9 @@ class PembelianController extends Controller
                 $total       = $jumlah * $hargaSatuan;
 
                 if (empty($namaBarang) || $jumlah < 1) {
-                    continue; // skip baris kosong
+                    continue;
                 }
 
-                // Simpan 1 baris pembelian per produk
                 $pembelian = Pembelian::create([
                     'penjualan_id'      => $penjualanId,
                     'tanggal_pembelian' => $tanggal,
@@ -459,19 +470,16 @@ class PembelianController extends Controller
                     'status'            => 'buy_back',
                 ]);
 
-                // Update stok_bekas di inventory yang sudah ada
                 $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                     strtolower($namaBarang)
                 ])->first();
 
                 if ($inventory) {
-                    // Masuk ke stok_bekas (bukan baru)
                     $inventory->stok_tersedia      += $jumlah;
                     $inventory->stok_bekas         += $jumlah;
                     $inventory->harga_beli_terakhir = $hargaSatuan;
                     $inventory->save();
                 } else {
-                    // Inventory belum ada → buat baru dengan stok_bekas
                     $inventory = Inventory::create([
                         'nama_produk'         => $namaBarang,
                         'kategori'            => null,
@@ -484,7 +492,6 @@ class PembelianController extends Controller
                     ]);
                 }
 
-                // Log inventory
                 InventoryLog::create([
                     'inventory_id'   => $inventory->id,
                     'reference_type' => 'buyback',
@@ -494,7 +501,6 @@ class PembelianController extends Controller
                     'keterangan'     => 'Buy Back dari: ' . $pelanggan . ' — ' . $namaBarang,
                 ]);
 
-                // Activity log per item
                 ActivityLog::record(
                     module:   'Pembelian',
                     action:   'create',

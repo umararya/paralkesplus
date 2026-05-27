@@ -3,11 +3,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PenjualanExport;                // ← TAMBAH
 use App\Models\ActivityLog;
 use App\Models\DetailPenjualan;
 use App\Models\Inventory;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;            // ← TAMBAH
 
 class PenjualanController extends Controller
 {
@@ -114,7 +116,7 @@ class PenjualanController extends Controller
                    ? (int) $request->input('per_page')
                    : 10;
 
-        $penjualans = Penjualan::with('details')  // <-- WAJIB: eager load untuk accessor
+        $penjualans = Penjualan::with('details')
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_pelanggan',     'like', "%{$search}%")
                   ->orWhere('nomor_telepon',    'like', "%{$search}%")
@@ -128,6 +130,18 @@ class PenjualanController extends Controller
             ->withQueryString();
 
         return view('admin.penjualan.index', compact('penjualans', 'search', 'perPage'));
+    }
+
+    // =========================================================
+    //  EXPORT XLSX  ← TAMBAH METHOD INI
+    // =========================================================
+
+    public function export(Request $request)
+    {
+        $search   = $request->input('search', '');
+        $filename = 'penjualan_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new PenjualanExport($search), $filename);
     }
 
     // =========================================================

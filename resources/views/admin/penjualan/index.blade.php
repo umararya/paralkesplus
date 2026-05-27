@@ -39,6 +39,10 @@
     .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
+    /* ── Export Button ── */
+    .btn-export { background:#10B981; color:#fff; border:1px solid #10B981; }
+    .btn-export:hover { background:#059669; border-color:#059669; }
+    html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
     .info-bar-text { font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
@@ -241,7 +245,12 @@
             </form>
         </div>
 
+        {{-- TOOLBAR RIGHT --}}
         <div class="toolbar-right">
+            <a href="{{ route('penjualan.export', ['search' => $search]) }}"
+               class="btn btn-export" title="Export data ke file Excel">
+                <i class="ri-file-excel-2-line"></i> Export XLSX
+            </a>
             <a href="{{ route('penjualan.create') }}" class="btn btn-primary">
                 <i class="ri-add-line"></i> Tambah Penjualan
             </a>
@@ -287,7 +296,6 @@
             </thead>
             <tbody>
                 @forelse($penjualans as $item)
-                {{-- Encode detail ke JSON di PHP, simpan ke data-attribute --}}
                 @php
                     $bbDetails = $item->details->map(function($d) {
                         return [
@@ -389,32 +397,24 @@
                     <td class="center">
                         <div class="action-group">
                             <div class="dropdown-wrap" id="dd-wrap-{{ $item->id }}">
-
                                 <button type="button"
                                     class="btn-action more"
                                     title="Aksi"
                                     onclick="toggleDropdown({{ $item->id }}, event)">
                                     <i class="ri-more-2-fill"></i>
                                 </button>
-
                                 <div class="dropdown-menu" id="dd-menu-{{ $item->id }}">
-
-                                    {{-- Edit --}}
                                     <a href="{{ route('penjualan.edit', $item->id) }}"
                                        class="dropdown-item">
                                         <i class="ri-edit-line"></i>
                                         Edit
                                     </a>
-
-                                    {{-- Cetak Invoice --}}
                                     <a href="{{ route('penjualan.invoice', $item->id) }}"
                                        target="_blank"
                                        class="dropdown-item">
                                         <i class="ri-printer-line"></i>
                                         Cetak Invoice
                                     </a>
-
-                                    {{-- Buy Back — data via data-attribute, BUKAN @json di onclick --}}
                                     <button type="button"
                                         class="dropdown-item warning"
                                         data-id="{{ $item->id }}"
@@ -427,22 +427,17 @@
                                         <i class="ri-loop-left-line"></i>
                                         Buy Back
                                     </button>
-
                                     <div class="dropdown-divider"></div>
-
-                                    {{-- Hapus --}}
                                     <button type="button"
                                         class="dropdown-item danger"
                                         onclick="closeAllDropdowns(); openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
                                         <i class="ri-delete-bin-line"></i>
                                         Hapus
                                     </button>
-
                                 </div>
                             </div>
                         </div>
                     </td>
-
                 </tr>
                 @empty
                 <tr>
@@ -474,7 +469,6 @@
             @else
                 <a class="page-btn" href="{{ $penjualans->previousPageUrl() }}"><i class="ri-arrow-left-s-line"></i></a>
             @endif
-
             @php
                 $current = $penjualans->currentPage();
                 $last    = $penjualans->lastPage();
@@ -490,14 +484,12 @@
                     $prev = $p;
                 }
             @endphp
-
             @foreach($rendered as $pg)
                 @if($pg === '...') <span class="page-ellipsis">…</span>
                 @elseif($pg == $current) <span class="page-btn active">{{ $pg }}</span>
                 @else <a class="page-btn" href="{{ $penjualans->url($pg) }}">{{ $pg }}</a>
                 @endif
             @endforeach
-
             @if($penjualans->hasMorePages())
                 <a class="page-btn" href="{{ $penjualans->nextPageUrl() }}"><i class="ri-arrow-right-s-line"></i></a>
             @else
@@ -594,14 +586,11 @@
             <input type="hidden" name="penjualan_id" id="bb_penjualan_id">
 
             <div class="modal-body">
-
-                {{-- Info ringkas penjualan asal --}}
                 <div class="bb-info-box">
                     <p>📦 Barang Terjual &nbsp;: <strong id="bb_nama_label">—</strong></p>
                     <p>👤 Pelanggan &nbsp;&nbsp;&nbsp;&nbsp;: <strong id="bb_pelanggan_label">—</strong></p>
                 </div>
 
-                {{-- ── TABEL PRODUK BUY BACK ── --}}
                 <div class="bb-items-section">
                     <div class="bb-items-label">
                         <i class="ri-list-check" style="color:#F59E0B;"></i>
@@ -623,7 +612,6 @@
                                 </tr>
                             </thead>
                             <tbody id="bb-items-tbody">
-                                {{-- Diisi oleh JavaScript --}}
                             </tbody>
                         </table>
                     </div>
@@ -638,9 +626,7 @@
                     </div>
                 </div>
 
-                {{-- Form Umum --}}
                 <div class="form-grid">
-
                     <div class="form-group">
                         <label class="form-label">
                             Tanggal Buy Back <span style="color:#EF4444;">*</span>
@@ -686,9 +672,8 @@
                             JPG/PNG/WEBP maks. 2MB
                         </span>
                     </div>
-
-                </div>{{-- /form-grid --}}
-            </div>{{-- /modal-body --}}
+                </div>
+            </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost"
@@ -698,7 +683,6 @@
                 </button>
             </div>
         </form>
-
     </div>
 </div>
 
@@ -706,7 +690,6 @@
 
 @push('scripts')
 <script>
-// ── Daftar inventory dari server untuk pilihan produk ──
 const inventoryList = {!! json_encode(
     \App\Models\Inventory::orderBy('nama_produk')
         ->get(['nama_produk', 'stok_tersedia', 'stok_bekas'])
@@ -718,9 +701,6 @@ const inventoryList = {!! json_encode(
         ->values()
 ) !!};
 
-// ══════════════════════════════════════════
-//  MODAL HELPERS
-// ══════════════════════════════════════════
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -741,9 +721,6 @@ document.addEventListener('keydown', e => {
     }
 });
 
-// ══════════════════════════════════════════
-//  DROPDOWN
-// ══════════════════════════════════════════
 function toggleDropdown(id, event) {
     event.stopPropagation();
     const menu   = document.getElementById('dd-menu-' + id);
@@ -758,18 +735,12 @@ document.addEventListener('click', function(e) {
     if (!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
 });
 
-// ══════════════════════════════════════════
-//  DELETE MODAL
-// ══════════════════════════════════════════
 function openDeleteModal(id, nama) {
     document.getElementById('deleteTarget').textContent = nama;
     document.getElementById('formDeleteSubmit').action  = '/penjualan/' + id;
     openModal('modalHapus');
 }
 
-// ══════════════════════════════════════════
-//  FOTO MODAL
-// ══════════════════════════════════════════
 function openFotoModal(url, namaBarang) {
     document.getElementById('fotoModalImg').src           = url;
     document.getElementById('fotoNamaBarang').textContent = namaBarang;
@@ -777,46 +748,30 @@ function openFotoModal(url, namaBarang) {
     openModal('modalFoto');
 }
 
-// ══════════════════════════════════════════
-//  BUY BACK MODAL — MULTI ITEM
-//  Menerima satu argumen: element button (this)
-//  Data dibaca dari data-attribute → aman dari ParseError Blade
-// ══════════════════════════════════════════
 let bbRowIndex = 0;
 
 function openBuyBackModal(btn) {
-    const penjualanId  = btn.dataset.id;
-    const namaBarang   = btn.dataset.nama;
-    const hargaJual    = parseInt(btn.dataset.harga)    || 0;
-    const namaPelanggan= btn.dataset.pelanggan          || '';
-    const qty          = parseInt(btn.dataset.qty)      || 1;
-    let   details      = [];
+    const penjualanId   = btn.dataset.id;
+    const namaBarang    = btn.dataset.nama;
+    const hargaJual     = parseInt(btn.dataset.harga)    || 0;
+    const namaPelanggan = btn.dataset.pelanggan          || '';
+    const qty           = parseInt(btn.dataset.qty)      || 1;
+    let   details       = [];
 
-    try {
-        details = JSON.parse(btn.dataset.details);
-    } catch(e) {
-        details = [];
-    }
+    try { details = JSON.parse(btn.dataset.details); } catch(e) { details = []; }
 
-    // Reset state
     bbRowIndex = 0;
-    document.getElementById('bb-items-tbody').innerHTML   = '';
-    document.getElementById('bb_penjualan_id').value      = penjualanId;
-    document.getElementById('bb_nama_label').textContent  = namaBarang || '—';
+    document.getElementById('bb-items-tbody').innerHTML      = '';
+    document.getElementById('bb_penjualan_id').value         = penjualanId;
+    document.getElementById('bb_nama_label').textContent     = namaBarang || '—';
     document.getElementById('bb_pelanggan_label').textContent = namaPelanggan || '—';
-    document.getElementById('bb_nama_pelanggan').value    = namaPelanggan || '';
+    document.getElementById('bb_nama_pelanggan').value       = namaPelanggan || '';
 
-    // Isi baris dari detail penjualan — tiap produk 1 baris
     if (details && details.length > 0) {
         details.forEach(function(d) {
-            addBBItemRow(
-                d.nama_barang  || '',
-                d.qty          || 1,
-                Math.round((d.harga_satuan || 0) * 0.5)
-            );
+            addBBItemRow(d.nama_barang || '', d.qty || 1, Math.round((d.harga_satuan || 0) * 0.5));
         });
     } else {
-        // Fallback: 1 baris dengan data dari penjualan header
         addBBItemRow(namaBarang, qty, Math.round(hargaJual * 0.5));
     }
 
@@ -824,7 +779,6 @@ function openBuyBackModal(btn) {
     openModal('modalBuyBack');
 }
 
-// ── Tambah satu baris produk ──
 function addBBItemRow(namaBarang, jumlah, harga) {
     namaBarang = namaBarang || '';
     jumlah     = jumlah     || 1;
@@ -834,19 +788,16 @@ function addBBItemRow(namaBarang, jumlah, harga) {
     const tbody = document.getElementById('bb-items-tbody');
     const tr    = document.createElement('tr');
 
-    // Build <select> options dari inventoryList
     let options = '<option value="">— Pilih produk atau ketik manual —</option>';
     let matched = false;
     inventoryList.forEach(function(inv) {
-        const isSelected = namaBarang &&
-            inv.nama.toLowerCase() === namaBarang.toLowerCase();
+        const isSelected = namaBarang && inv.nama.toLowerCase() === namaBarang.toLowerCase();
         if (isSelected) matched = true;
         options += '<option value="' + escAttr(inv.nama) + '"'
                 +  (isSelected ? ' selected' : '')
                 +  '>' + escAttr(inv.nama) + ' (stok: ' + inv.stok + ')</option>';
     });
 
-    // Jika nama tidak cocok dengan inventory → tampilkan input manual
     const showManual  = namaBarang && !matched;
     const manualStyle = showManual ? 'display:block;margin-top:4px;' : 'display:none;margin-top:4px;';
     const manualVal   = showManual ? escAttr(namaBarang) : '';
@@ -887,19 +838,14 @@ function addBBItemRow(namaBarang, jumlah, harga) {
         '</td>';
 
     tbody.appendChild(tr);
-
-    // Sync hidden inputs nama_barang
     syncBBItemName(idx);
     updateGrandTotal();
 }
 
-// ── Saat select berubah ──
 function onBBSelectChange(idx) {
     const select      = document.getElementById('bb_select_'  + idx);
     const manualInput = document.getElementById('bb_manual_'  + idx);
-
     if (select.value === '') {
-        // Tampilkan input manual
         manualInput.style.display = 'block';
     } else {
         manualInput.style.display = 'none';
@@ -908,17 +854,12 @@ function onBBSelectChange(idx) {
     syncBBItemName(idx);
 }
 
-// ── Saat input manual berubah ──
-function onBBManualInput(idx) {
-    syncBBItemName(idx);
-}
+function onBBManualInput(idx) { syncBBItemName(idx); }
 
-// ── Sync: pastikan name attribute items[idx][nama_barang] ada di elemen aktif ──
 function syncBBItemName(idx) {
     const select      = document.getElementById('bb_select_'  + idx);
     const manualInput = document.getElementById('bb_manual_'  + idx);
     const nameAttr    = 'items[' + idx + '][nama_barang]';
-
     if (select.value !== '') {
         select.name      = nameAttr;
         manualInput.removeAttribute('name');
@@ -926,8 +867,6 @@ function syncBBItemName(idx) {
         manualInput.name = nameAttr;
         select.removeAttribute('name');
     }
-
-    // Sync jumlah & harga name juga
     const qtyEl   = document.getElementById('bb_qty_'   + idx);
     const hargaEl = document.getElementById('bb_harga_' + idx);
     if (qtyEl)   qtyEl.name   = 'items[' + idx + '][jumlah]';
@@ -952,13 +891,11 @@ function updateGrandTotal() {
 function removeBBRow(btn, idx) {
     btn.closest('tr').remove();
     updateGrandTotal();
-    // Minimal 1 baris
     if (document.getElementById('bb-items-tbody').children.length === 0) {
         addBBItemRow('', 1, 0);
     }
 }
 
-// ── Helpers ──
 function formatRp(num) {
     return Number(num || 0).toLocaleString('id-ID');
 }

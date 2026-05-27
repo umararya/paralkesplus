@@ -79,6 +79,11 @@
     .btn-danger  { background: #EF4444; color: #fff; border: 1px solid #EF4444; }
     .btn-danger:hover  { background: #DC2626; border-color: #DC2626; }
 
+    /* ── Export Button ── */
+    .btn-export { background: #10B981; color: #fff; border: 1px solid #10B981; }
+    .btn-export:hover { background: #059669; border-color: #059669; }
+    html.dark .btn-export { background: rgba(16,185,129,0.2); color: #34D399; border-color: rgba(16,185,129,0.3); }
+
     /* ── Filter Tabs ── */
     .filter-tabs { display: flex; align-items: center; gap: 4px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg-primary); flex-wrap: wrap; }
     .tab-btn {
@@ -334,7 +339,12 @@
             </form>
         </div>
 
+        {{-- ── TOOLBAR RIGHT ── --}}
         <div class="toolbar-right">
+            <a href="{{ route('pembelian.export', ['search' => $search, 'filter' => $filter]) }}"
+               class="btn btn-export" title="Export data ke file Excel">
+                <i class="ri-file-excel-2-line"></i> Export XLSX
+            </a>
             <a href="{{ route('pembelian.create') }}" class="btn btn-primary">
                 <i class="ri-add-line"></i> Tambah Pembelian
             </a>
@@ -441,11 +451,9 @@
                         @endif
                     </td>
 
-                    {{-- ── KONDISI BADGE (BARU) ── --}}
+                    {{-- Kondisi Badge --}}
                     <td class="center">
-                        @php
-                            $k = $item->kondisi_barang;
-                        @endphp
+                        @php $k = $item->kondisi_barang; @endphp
                         @if($k === 'baru')
                             <span class="kondisi-badge kondisi-baru">
                                 <i class="ri-checkbox-blank-circle-fill" style="font-size:8px;"></i> Baru

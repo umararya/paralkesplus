@@ -3,12 +3,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PenyewaanExport; 
 use App\Models\ActivityLog;
 use App\Models\DetailPenyewaan;
 use App\Models\Inventory;
 use App\Models\Penyewaan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PenyewaanController extends Controller
 {
@@ -180,6 +182,18 @@ class PenyewaanController extends Controller
             ->withQueryString();
 
         return view('admin.penyewaan.index', compact('penyewaans', 'search', 'perPage'));
+    }
+
+    // =========================================================
+    //  EXPORT XLSX  ← TAMBAH METHOD INI
+    // =========================================================
+
+    public function export(Request $request)
+    {
+        $search   = $request->input('search', '');
+        $filename = 'penyewaan_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new PenyewaanExport($search), $filename);
     }
 
     // =========================================================

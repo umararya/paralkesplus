@@ -44,6 +44,10 @@
     .btn-monitoring { background:#7C3AED; color:#fff; border:1px solid #7C3AED; }
     .btn-monitoring:hover { background:#6D28D9; border-color:#6D28D9; }
     html.dark .btn-monitoring { background:#7C3AED; color:#fff; }
+    /* ── Export Button ── */
+    .btn-export { background:#10B981; color:#fff; border:1px solid #10B981; }
+    .btn-export:hover { background:#059669; border-color:#059669; }
+    html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
     .info-bar-text { font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
@@ -231,7 +235,12 @@
             </form>
         </div>
 
+        {{-- TOOLBAR RIGHT --}}
         <div class="toolbar-right">
+            <a href="{{ route('penyewaan.export', ['search' => $search]) }}"
+               class="btn btn-export" title="Export data ke file Excel">
+                <i class="ri-file-excel-2-line"></i> Export XLSX
+            </a>
             <button type="button" class="btn btn-monitoring" onclick="openMonitoring()">
                 <i class="ri-radar-line"></i> Monitoring
             </button>
@@ -696,9 +705,6 @@ let currentTglSelesai  = null;
 function openMonitoring() {
     document.getElementById('modalMonitoring').classList.add('open');
     loadMonitoringData();
-    if (window.location.hash === '#monitoring') {
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
 }
 function closeMonitoring() {
     document.getElementById('modalMonitoring').classList.remove('open');
@@ -872,7 +878,7 @@ document.addEventListener('keydown', function(e) {
     });
 });
 
-// ===================== AUTO-OPEN MONITORING DARI HASH #monitoring =====================
+// ===================== AUTO-OPEN MONITORING DARI HASH =====================
 document.addEventListener('DOMContentLoaded', function() {
     if (window.location.hash === '#monitoring') {
         setTimeout(openMonitoring, 200);
