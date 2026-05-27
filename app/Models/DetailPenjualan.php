@@ -29,8 +29,6 @@ class DetailPenjualan extends Model
         'subtotal'     => 'integer',
     ];
 
-    /* ── Relasi ── */
-
     public function penjualan(): BelongsTo
     {
         return $this->belongsTo(Penjualan::class);

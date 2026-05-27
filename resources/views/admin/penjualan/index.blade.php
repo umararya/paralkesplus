@@ -11,15 +11,15 @@
     .page-title i { font-size:22px; color:var(--brand-500); }
     .page-subtitle { font-size:13px; color:var(--text-muted); margin-top:4px; }
 
-    .table-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; transition:background 0.3s, border-color 0.3s; }
+    .table-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; transition:background 0.3s,border-color 0.3s; }
     .table-toolbar { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
     .toolbar-left { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .toolbar-right { display:flex; align-items:center; gap:8px; }
     .per-page-wrap { display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-secondary); }
-    .per-page-select { height:36px; padding:0 30px 0 10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; cursor:pointer; transition:border-color 0.2s; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; }
+    .per-page-select { height:36px; padding:0 30px 0 10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; }
     .per-page-select:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
     .search-form { display:flex; align-items:center; gap:7px; }
-    .search-input-wrap { display:flex; align-items:center; background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:0 11px; height:36px; gap:7px; transition:border-color 0.2s, box-shadow 0.2s; }
+    .search-input-wrap { display:flex; align-items:center; background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:0 11px; height:36px; gap:7px; transition:border-color 0.2s,box-shadow 0.2s; }
     .search-input-wrap:focus-within { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
     .search-input-wrap i { color:var(--text-muted); font-size:14px; flex-shrink:0; }
     .search-input-wrap input { border:none; background:transparent; outline:none; font-size:13px; color:var(--text-primary); font-family:var(--font); width:220px; }
@@ -39,7 +39,6 @@
     .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
-    /* ── Export Button ── */
     .btn-export { background:#10B981; color:#fff; border:1px solid #10B981; }
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
@@ -60,27 +59,24 @@
     .data-table th.center, .data-table td.center { text-align:center; }
     .data-table th.right, .data-table td.right { text-align:right; }
 
+    /* ── Detail Items dalam row ── */
+    .items-list { display:flex; flex-direction:column; gap:4px; }
+    .item-pill { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 8px; font-size:12px; white-space:nowrap; }
+    .item-pill .item-name { font-weight:600; color:var(--text-primary); }
+    .item-pill .item-qty { background:var(--brand-50); color:var(--brand-500); border-radius:4px; padding:1px 5px; font-size:11px; font-weight:700; }
+    html.dark .item-pill .item-qty { background:rgba(29,111,164,0.15); color:#60A5FA; }
+    .item-pill .item-sub { color:var(--text-muted); font-size:11px; }
+    .items-more { font-size:11.5px; color:var(--brand-500); cursor:pointer; margin-top:2px; }
+
     .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
     .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; text-decoration:none; }
-    .btn-action.more:hover { background:var(--bg-hover); color:var(--text-primary); border-color:var(--border); }
-
-    .dropdown-wrap { position:relative; display:inline-block; }
-    .dropdown-menu { display:none; position:absolute; right:0; top:calc(100% + 4px); background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.14); min-width:190px; z-index:999; overflow:hidden; animation:dropFade 0.15s ease; }
-    @keyframes dropFade { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
-    .dropdown-menu.show { display:block; }
-    .dropdown-item { display:flex; align-items:center; gap:9px; padding:9px 14px; font-size:13px; color:var(--text-primary); text-decoration:none; cursor:pointer; transition:background 0.15s; border:none; background:none; width:100%; font-family:var(--font); white-space:nowrap; box-sizing:border-box; }
-    .dropdown-item i { font-size:15px; color:var(--text-muted); flex-shrink:0; }
-    .dropdown-item:hover { background:var(--bg-hover); }
-    .dropdown-item:hover i { color:var(--brand-500); }
-    .dropdown-item.warning { color:#D97706; }
-    .dropdown-item.warning i { color:#D97706; }
-    .dropdown-item.warning:hover { background:#FFFBEB; }
-    html.dark .dropdown-item.warning:hover { background:rgba(217,119,6,0.12); }
-    .dropdown-item.danger { color:#E11D48; }
-    .dropdown-item.danger i { color:#E11D48; }
-    .dropdown-item.danger:hover { background:#FFF1F2; }
-    html.dark .dropdown-item.danger:hover { background:rgba(225,29,72,0.1); }
-    .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
+    .btn-action:hover { background:var(--bg-hover); color:var(--text-primary); }
+    .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
+    .btn-action.view:hover { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
+    .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
+    html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
+    html.dark .btn-action.view:hover { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
+    html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -101,36 +97,10 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* ── Modals ── */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
-    .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
-    @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
-    .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:400px; animation:slideUp 0.2s ease; }
-    .modal-lg  { max-width:540px; }
-    .modal-xl  { max-width:820px; }
-    @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
-    .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-    .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
-    .modal-close { width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
-    .modal-close:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .modal-body { padding:18px 22px; max-height:78vh; overflow-y:auto; }
-    .modal-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:flex-end; gap:8px; }
-    .delete-warning { text-align:center; padding:6px 0; }
-    .delete-warning i { font-size:42px; color:#EF4444; display:block; margin-bottom:10px; }
-    .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
-    .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
-    .delete-warning strong { color:var(--text-primary); }
-    .modal-foto { max-width:520px; }
-    .foto-preview-modal { width:100%; border-radius:10px; object-fit:contain; max-height:400px; background:#f1f5f9; display:block; }
-
-    /* ── Cell badges ── */
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
-    .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
-    html.dark .qty-badge { background:rgba(29,78,216,0.15); color:#60A5FA; }
     .total-value { font-weight:700; color:#059669; }
     html.dark .total-value { color:#34D399; }
-    .harga-value { color:var(--text-secondary); font-size:12.5px; }
-    .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; text-transform:capitalize; }
+    .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; white-space:nowrap; }
     .pay-tunai    { background:#F0FDF4; color:#16A34A; }
     .pay-transfer { background:#EFF6FF; color:#1D4ED8; }
     .pay-qris     { background:#FFF7ED; color:#C2410C; }
@@ -139,49 +109,49 @@
     html.dark .pay-transfer { background:rgba(29,78,216,0.12);  color:#60A5FA; }
     html.dark .pay-qris     { background:rgba(194,65,12,0.12);  color:#FB923C; }
     html.dark .pay-kredit   { background:rgba(124,58,237,0.12); color:#C084FC; }
-    .ket-cell    { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-muted); }
-    .alamat-cell { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
-    .foto-thumb { width:40px; height:40px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; display:block; }
+    .foto-thumb { width:40px; height:40px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; display:block; }
     .foto-thumb:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
     .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
+    .tfoot-total td { padding:12px 14px; font-size:13px; font-weight:700; color:var(--text-primary); background:var(--bg-hover); border-top:2px solid var(--border); }
 
-    /* ── Buy Back Modal ── */
-    .bb-info-box { background:var(--bg-primary); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:16px; }
-    .bb-info-box p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.8; }
-    .bb-info-box strong { color:var(--text-primary); }
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .form-group { display:flex; flex-direction:column; gap:5px; }
-    .form-group.full { grid-column:1 / -1; }
-    .form-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); }
-    .form-control { height:38px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s, box-shadow 0.2s; width:100%; box-sizing:border-box; }
-    .form-control:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
-    textarea.form-control { height:72px; padding:8px 12px; resize:vertical; }
-    .form-control-file { font-size:12.5px; color:var(--text-muted); padding:6px 0; }
-    .btn-buyback-submit { background:#F59E0B; color:#fff; border:1px solid #F59E0B; }
-    .btn-buyback-submit:hover { background:#D97706; border-color:#D97706; }
+    /* ── Modal ── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
+    .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
+    @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
+    .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:460px; animation:slideUp 0.2s ease; }
+    .modal-xl { max-width:680px; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
+    .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+    .modal-close { width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .modal-close:hover { background:var(--bg-hover); color:var(--text-primary); }
+    .modal-body { padding:18px 22px; max-height:75vh; overflow-y:auto; }
+    .modal-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+    .delete-warning { text-align:center; padding:6px 0; }
+    .delete-warning i { font-size:42px; color:#EF4444; display:block; margin-bottom:10px; }
+    .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
+    .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
+    .delete-warning strong { color:var(--text-primary); }
 
-    /* ── Buy Back Items Table ── */
-    .bb-items-section { margin-bottom:16px; }
-    .bb-items-label { font-size:12.5px; font-weight:700; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .bb-table-wrap { width:100%; overflow-x:auto; }
-    .bb-items-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; min-width:520px; }
-    .bb-items-table th { padding:8px 10px; background:var(--bg-primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:1px solid var(--border); text-align:left; }
-    .bb-items-table td { padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
-    .bb-items-table tr:last-child td { border-bottom:none; }
-    .bb-item-input { height:34px; padding:0 8px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); color:var(--text-primary); font-size:12.5px; font-family:var(--font); outline:none; width:100%; box-sizing:border-box; }
-    .bb-item-input:focus { border-color:var(--brand-500); box-shadow:0 0 0 2px rgba(29,111,164,0.1); }
-    .bb-item-select { height:34px; padding:0 8px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); color:var(--text-primary); font-size:12.5px; font-family:var(--font); outline:none; width:100%; box-sizing:border-box; cursor:pointer; }
-    .bb-item-select:focus { border-color:var(--brand-500); box-shadow:0 0 0 2px rgba(29,111,164,0.1); }
-    .bb-subtotal-cell { font-size:12px; font-weight:600; color:#059669; white-space:nowrap; min-width:90px; }
-    html.dark .bb-subtotal-cell { color:#34D399; }
-    .btn-bb-remove { width:28px; height:28px; border:1px solid #FECDD3; border-radius:6px; background:#FFF1F2; color:#E11D48; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:14px; transition:all 0.2s; flex-shrink:0; }
-    .btn-bb-remove:hover { background:#FECDD3; }
-    html.dark .btn-bb-remove { background:rgba(225,29,72,0.12); border-color:rgba(225,29,72,0.25); color:#FB7185; }
-    .btn-bb-add { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border:1px dashed var(--border); border-radius:8px; background:transparent; color:var(--text-secondary); font-size:12.5px; cursor:pointer; transition:all 0.2s; font-family:var(--font); margin-top:8px; }
-    .btn-bb-add:hover { border-color:var(--brand-500); color:var(--brand-500); background:var(--brand-50); }
-    .bb-grand-total { display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:8px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; margin-top:8px; font-size:13px; }
-    .bb-grand-total strong { color:#059669; font-size:14px; }
-    html.dark .bb-grand-total strong { color:#34D399; }
+    /* ── Detail Modal ── */
+    .detail-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+    .detail-info-item { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+    .detail-info-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:3px; }
+    .detail-info-value { font-size:13px; font-weight:600; color:var(--text-primary); }
+    .detail-items-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .detail-items-table th { padding:8px 10px; background:var(--bg-primary); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:1px solid var(--border); text-align:left; }
+    .detail-items-table td { padding:9px 10px; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .detail-items-table tr:last-child td { border-bottom:none; }
+    .detail-items-table td.right { text-align:right; }
+    .detail-total-row td { font-weight:700; background:var(--bg-hover); font-size:13px; }
+
+    /* ── Lightbox ── */
+    .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
+    .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
+    .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; cursor:default; }
+    .lightbox-close { position:fixed; top:16px; right:20px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .lightbox-close:hover { background:rgba(255,255,255,0.28); }
+    .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 </style>
 @endpush
 
@@ -193,7 +163,6 @@
 </div>
 @endif
 
-{{-- Page Header --}}
 <div class="page-header">
     <div>
         <h1 class="page-title">
@@ -203,7 +172,6 @@
     </div>
 </div>
 
-{{-- Table Card --}}
 <div class="table-card">
 
     {{-- TOOLBAR --}}
@@ -231,7 +199,7 @@
                     <i class="ri-search-line"></i>
                     <input type="text" name="search" id="searchInput"
                            value="{{ $search }}"
-                           placeholder="Cari nama barang, alamat, keterangan..."
+                           placeholder="Cari pelanggan, barang, keterangan..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
@@ -245,10 +213,9 @@
             </form>
         </div>
 
-        {{-- TOOLBAR RIGHT --}}
         <div class="toolbar-right">
             <a href="{{ route('penjualan.export', ['search' => $search]) }}"
-               class="btn btn-export" title="Export data ke file Excel">
+               class="btn btn-export" title="Export ke Excel">
                 <i class="ri-file-excel-2-line"></i> Export XLSX
             </a>
             <a href="{{ route('penjualan.create') }}" class="btn btn-primary">
@@ -263,10 +230,10 @@
             @if($search)
                 <i class="ri-filter-3-line"></i>
                 Hasil pencarian: <strong>"{{ $search }}"</strong>
-                &nbsp;<span class="badge-count">{{ $penjualans->total() }} data</span>
+                &nbsp;<span class="badge-count">{{ $penjualans->total() }} transaksi</span>
             @else
                 <i class="ri-exchange-dollar-line"></i>
-                Total <span class="badge-count">{{ $penjualans->total() }} data</span>
+                Total <span class="badge-count">{{ $penjualans->total() }} transaksi</span>
             @endif
         </div>
         @if($penjualans->total() > 0)
@@ -283,29 +250,17 @@
                 <tr>
                     <th style="width:42px;">#</th>
                     <th>Tanggal</th>
-                    <th>Nama Barang</th>
-                    <th class="center">Qty</th>
-                    <th>Alamat Pelanggan</th>
-                    <th>Jenis Pembayaran</th>
-                    <th class="right">Harga</th>
+                    <th>Pelanggan</th>
+                    <th>Barang (Detail)</th>
+                    <th>Pembayaran</th>
                     <th class="right">Total</th>
                     <th>Keterangan</th>
-                    <th class="center">Bukti Transfer</th>
-                    <th class="center" style="width:60px;">Aksi</th>
+                    <th class="center">Bukti</th>
+                    <th class="center" style="width:100px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($penjualans as $item)
-                @php
-                    $bbDetails = $item->details->map(function($d) {
-                        return [
-                            'nama_barang'  => $d->nama_barang,
-                            'qty'          => (int) $d->qty,
-                            'harga_satuan' => (int) $d->harga_satuan,
-                        ];
-                    })->values()->toJson();
-                    $bbDetailsAttr = htmlspecialchars($bbDetails, ENT_QUOTES, 'UTF-8');
-                @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12.5px;font-weight:500;">
                         {{ $penjualans->firstItem() + $loop->index }}
@@ -318,24 +273,43 @@
                         </span>
                     </td>
 
-                    <td style="font-weight:600;">
-                        @if($search)
-                            {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
-                                '<mark style="background:#FEF08A;border-radius:3px;padding:0 2px;">$1</mark>',
-                                e($item->nama_barang)) !!}
-                        @else
-                            {{ $item->nama_barang }}
+                    <td>
+                        <div style="font-weight:600;font-size:13px;">{{ $item->nama_pelanggan }}</div>
+                        @if($item->nomor_telepon)
+                        <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                            <i class="ri-phone-line" style="font-size:11px;"></i> {{ $item->nomor_telepon }}
+                        </div>
+                        @endif
+                        @if($item->alamat_pelanggan)
+                        <div style="font-size:11.5px;color:var(--text-muted);margin-top:1px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            <i class="ri-map-pin-line" style="font-size:11px;"></i> {{ $item->alamat_pelanggan }}
+                        </div>
                         @endif
                     </td>
 
-                    <td class="center">
-                        <span class="qty-badge">{{ number_format($item->qty) }}</span>
-                    </td>
-
-                    <td>
-                        <span class="alamat-cell" title="{{ $item->alamat_pelanggan }}">
-                            {{ $item->alamat_pelanggan }}
-                        </span>
+                    {{-- Detail Barang --}}
+                    <td style="min-width:220px;">
+                        @if($item->details->count() > 0)
+                        <div class="items-list">
+                            @foreach($item->details->take(2) as $d)
+                            <div class="item-pill">
+                                <span class="item-name">{{ $d->nama_barang }}</span>
+                                <span class="item-qty">×{{ $d->qty }}</span>
+                                <span class="item-sub">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            @endforeach
+                            @if($item->details->count() > 2)
+                            <span class="items-more"
+                                  onclick="openDetailModal({{ $item->id }})"
+                                  title="Lihat semua barang">
+                                <i class="ri-add-circle-line"></i>
+                                +{{ $item->details->count() - 2 }} barang lainnya
+                            </span>
+                            @endif
+                        </div>
+                        @else
+                        <span style="color:var(--text-muted);font-size:12.5px;font-style:italic;">—</span>
+                        @endif
                     </td>
 
                     <td>
@@ -361,17 +335,14 @@
                         </span>
                     </td>
 
-                    <td class="right harga-value">
-                        Rp {{ number_format($item->harga, 0, ',', '.') }}
-                    </td>
-
                     <td class="right total-value" style="font-size:13px;white-space:nowrap;">
-                        Rp {{ number_format($item->total, 0, ',', '.') }}
+                        Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
                     </td>
 
-                    <td>
+                    <td style="max-width:130px;">
                         @if($item->keterangan)
-                            <span class="ket-cell" title="{{ $item->keterangan }}">
+                            <span title="{{ $item->keterangan }}"
+                                  style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:var(--text-muted);">
                                 {{ $item->keterangan }}
                             </span>
                         @else
@@ -382,66 +353,46 @@
                     <td class="center">
                         @if($item->foto_bukti)
                             <img src="{{ Storage::url($item->foto_bukti) }}"
-                                 alt="Bukti Transfer"
+                                 alt="Bukti"
                                  class="foto-thumb"
-                                 onclick="openFotoModal('{{ Storage::url($item->foto_bukti) }}', '{{ addslashes($item->nama_barang) }}')"
+                                 onclick="openLightbox('{{ Storage::url($item->foto_bukti) }}', 'Bukti — {{ addslashes($item->nama_pelanggan) }}')"
                                  title="Klik untuk perbesar">
                         @else
-                            <span class="foto-none" title="Tidak ada foto">
+                            <span class="foto-none" title="Tidak ada bukti">
                                 <i class="ri-image-line"></i>
                             </span>
                         @endif
                     </td>
 
-                    {{-- AKSI --}}
                     <td class="center">
                         <div class="action-group">
-                            <div class="dropdown-wrap" id="dd-wrap-{{ $item->id }}">
-                                <button type="button"
-                                    class="btn-action more"
-                                    title="Aksi"
-                                    onclick="toggleDropdown({{ $item->id }}, event)">
-                                    <i class="ri-more-2-fill"></i>
-                                </button>
-                                <div class="dropdown-menu" id="dd-menu-{{ $item->id }}">
-                                    <a href="{{ route('penjualan.edit', $item->id) }}"
-                                       class="dropdown-item">
-                                        <i class="ri-edit-line"></i>
-                                        Edit
-                                    </a>
-                                    <a href="{{ route('penjualan.invoice', $item->id) }}"
-                                       target="_blank"
-                                       class="dropdown-item">
-                                        <i class="ri-printer-line"></i>
-                                        Cetak Invoice
-                                    </a>
-                                    <button type="button"
-                                        class="dropdown-item warning"
-                                        data-id="{{ $item->id }}"
-                                        data-nama="{{ addslashes($item->nama_barang) }}"
-                                        data-harga="{{ $item->harga }}"
-                                        data-pelanggan="{{ addslashes($item->nama_pelanggan ?? $item->alamat_pelanggan ?? '') }}"
-                                        data-qty="{{ $item->qty }}"
-                                        data-details="{{ $bbDetailsAttr }}"
-                                        onclick="closeAllDropdowns(); openBuyBackModal(this)">
-                                        <i class="ri-loop-left-line"></i>
-                                        Buy Back
-                                    </button>
-                                    <div class="dropdown-divider"></div>
-                                    <button type="button"
-                                        class="dropdown-item danger"
-                                        onclick="closeAllDropdowns(); openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
-                                        <i class="ri-delete-bin-line"></i>
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
+                            <button type="button"
+                                    class="btn-action view"
+                                    title="Lihat detail"
+                                    onclick="openDetailModal({{ $item->id }})">
+                                <i class="ri-eye-line"></i>
+                            </button>
+                            <a href="{{ route('penjualan.edit', $item->id) }}"
+                               class="btn-action edit" title="Edit">
+                                <i class="ri-edit-line"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn-action delete"
+                                    title="Hapus"
+                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}')">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                            <form id="formHapus-{{ $item->id }}"
+                                  action="{{ route('penjualan.destroy', $item->id) }}"
+                                  method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="11">
+                    <td colspan="9">
                         <div class="empty-state">
                             <i class="ri-exchange-dollar-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penjualan' }}</h3>
@@ -451,6 +402,18 @@
                 </tr>
                 @endforelse
             </tbody>
+
+            @if($penjualans->count() > 0)
+            <tfoot>
+                <tr class="tfoot-total">
+                    <td colspan="5" class="right">Total keseluruhan:</td>
+                    <td class="right total-value" style="font-size:14px;white-space:nowrap;">
+                        Rp {{ number_format($penjualans->sum('total_harga'), 0, ',', '.') }}
+                    </td>
+                    <td colspan="3"></td>
+                </tr>
+            </tfoot>
+            @endif
         </table>
     </div>
 
@@ -460,15 +423,19 @@
         <div class="pagination-meta">
             Menampilkan
             <strong>{{ $penjualans->firstItem() }} – {{ $penjualans->lastItem() }}</strong>
-            dari <strong>{{ $penjualans->total() }}</strong> data
+            dari <strong>{{ $penjualans->total() }}</strong> transaksi
         </div>
+
         @if($penjualans->hasPages())
-        <nav class="pagination-nav">
+        <nav class="pagination-nav" aria-label="Pagination">
             @if($penjualans->onFirstPage())
                 <span class="page-btn disabled"><i class="ri-arrow-left-s-line"></i></span>
             @else
-                <a class="page-btn" href="{{ $penjualans->previousPageUrl() }}"><i class="ri-arrow-left-s-line"></i></a>
+                <a class="page-btn" href="{{ $penjualans->previousPageUrl() }}">
+                    <i class="ri-arrow-left-s-line"></i>
+                </a>
             @endif
+
             @php
                 $current = $penjualans->currentPage();
                 $last    = $penjualans->lastPage();
@@ -484,14 +451,21 @@
                     $prev = $p;
                 }
             @endphp
-            @foreach($rendered as $pg)
-                @if($pg === '...') <span class="page-ellipsis">…</span>
-                @elseif($pg == $current) <span class="page-btn active">{{ $pg }}</span>
-                @else <a class="page-btn" href="{{ $penjualans->url($pg) }}">{{ $pg }}</a>
+
+            @foreach($rendered as $pageItem)
+                @if($pageItem === '...')
+                    <span class="page-ellipsis">…</span>
+                @elseif($pageItem == $current)
+                    <span class="page-btn active">{{ $pageItem }}</span>
+                @else
+                    <a class="page-btn" href="{{ $penjualans->url($pageItem) }}">{{ $pageItem }}</a>
                 @endif
             @endforeach
+
             @if($penjualans->hasMorePages())
-                <a class="page-btn" href="{{ $penjualans->nextPageUrl() }}"><i class="ri-arrow-right-s-line"></i></a>
+                <a class="page-btn" href="{{ $penjualans->nextPageUrl() }}">
+                    <i class="ri-arrow-right-s-line"></i>
+                </a>
             @else
                 <span class="page-btn disabled"><i class="ri-arrow-right-s-line"></i></span>
             @endif
@@ -503,9 +477,30 @@
 </div>{{-- /table-card --}}
 
 
-{{-- ══════════════════════════════════════════
-     MODAL: HAPUS
-══════════════════════════════════════════ --}}
+{{-- ══ MODAL: DETAIL TRANSAKSI ══ --}}
+<div class="modal-overlay" id="modalDetail">
+    <div class="modal modal-xl">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-receipt-line"></i> Detail Transaksi
+            </span>
+            <button class="modal-close" onclick="closeModal('modalDetail')">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modalDetailBody">
+            <div style="text-align:center;padding:32px;color:var(--text-muted);">
+                <i class="ri-loader-4-line" style="font-size:28px;"></i>
+                <p style="margin-top:8px;font-size:13px;">Memuat data...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" onclick="closeModal('modalDetail')">Tutup</button>
+        </div>
+    </div>
+</div>
+
+{{-- ══ MODAL: KONFIRMASI HAPUS ══ --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
         <div class="modal-header">
@@ -520,9 +515,9 @@
             <div class="delete-warning">
                 <i class="ri-alert-fill"></i>
                 <h3>Hapus Data Penjualan?</h3>
-                <p>Kamu akan menghapus data:<br>
-                   <strong id="deleteTarget"></strong><br><br>
-                   Tindakan ini tidak dapat dibatalkan.</p>
+                <p>Kamu akan menghapus transaksi atas nama:<br>
+                   <strong id="deleteNamaPelanggan"></strong><br><br>
+                   Stok barang akan dikembalikan dan tindakan ini tidak dapat dibatalkan.</p>
             </div>
         </div>
         <div class="modal-footer">
@@ -537,169 +532,47 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════
-     MODAL: FOTO BUKTI TRANSFER
-══════════════════════════════════════════ --}}
-<div class="modal-overlay" id="modalFoto">
-    <div class="modal modal-foto">
-        <div class="modal-header">
-            <span class="modal-title">
-                <i class="ri-image-line" style="color:var(--brand-500);"></i>
-                Bukti Transfer —
-                <span id="fotoNamaBarang" style="font-weight:400;color:var(--text-muted);"></span>
-            </span>
-            <button class="modal-close" onclick="closeModal('modalFoto')">
-                <i class="ri-close-line"></i>
-            </button>
-        </div>
-        <div class="modal-body" style="padding:16px;">
-            <img id="fotoModalImg" src="" alt="Bukti Transfer" class="foto-preview-modal">
-        </div>
-        <div class="modal-footer" style="justify-content:space-between;">
-            <a id="fotoDownloadLink" href="#" download target="_blank"
-               class="btn btn-ghost" style="font-size:12.5px;">
-                <i class="ri-download-line"></i> Unduh Foto
-            </a>
-            <button type="button" class="btn btn-ghost" onclick="closeModal('modalFoto')">Tutup</button>
-        </div>
-    </div>
+{{-- ══ LIGHTBOX ══ --}}
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
+        <i class="ri-close-line"></i>
+    </button>
+    <img id="lightboxImg" src="" alt="Bukti" onclick="event.stopPropagation()">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
 </div>
 
-{{-- ══════════════════════════════════════════
-     MODAL: BUY BACK (MULTI ITEM)
-══════════════════════════════════════════ --}}
-<div class="modal-overlay" id="modalBuyBack">
-    <div class="modal modal-xl">
-        <div class="modal-header">
-            <span class="modal-title">
-                <i class="ri-loop-left-line" style="color:#F59E0B;"></i> Buy Back Barang
-            </span>
-            <button class="modal-close" onclick="closeModal('modalBuyBack')">
-                <i class="ri-close-line"></i>
-            </button>
-        </div>
-
-        <form id="formBuyBack" method="POST"
-              action="{{ route('pembelian.buyback.store') }}"
-              enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="penjualan_id" id="bb_penjualan_id">
-
-            <div class="modal-body">
-                <div class="bb-info-box">
-                    <p>📦 Barang Terjual &nbsp;: <strong id="bb_nama_label">—</strong></p>
-                    <p>👤 Pelanggan &nbsp;&nbsp;&nbsp;&nbsp;: <strong id="bb_pelanggan_label">—</strong></p>
-                </div>
-
-                <div class="bb-items-section">
-                    <div class="bb-items-label">
-                        <i class="ri-list-check" style="color:#F59E0B;"></i>
-                        Produk yang Di-Buy Back
-                        <span style="font-size:11px;color:var(--text-muted);font-weight:400;">
-                            — tiap produk 1 baris, simpan per produk di data pembelian
-                        </span>
-                    </div>
-
-                    <div class="bb-table-wrap">
-                        <table class="bb-items-table" id="bb-items-table">
-                            <thead>
-                                <tr>
-                                    <th style="width:36%;">Nama Produk</th>
-                                    <th style="width:13%;">Jumlah</th>
-                                    <th style="width:26%;">Harga Buy Back (Rp)</th>
-                                    <th style="width:18%;">Subtotal</th>
-                                    <th style="width:7%;text-align:center;">Hapus</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bb-items-tbody">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <button type="button" class="btn-bb-add" onclick="addBBItemRow()">
-                        <i class="ri-add-line"></i> Tambah Produk
-                    </button>
-
-                    <div class="bb-grand-total">
-                        <span style="color:var(--text-secondary);font-size:13px;">Grand Total Buy Back:</span>
-                        <strong id="bb-grand-total-val">Rp 0</strong>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Tanggal Buy Back <span style="color:#EF4444;">*</span>
-                        </label>
-                        <input type="date" name="tanggal_pembelian"
-                               class="form-control"
-                               value="{{ date('Y-m-d') }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            Kondisi Barang <span style="color:#EF4444;">*</span>
-                        </label>
-                        <select name="kondisi_barang" class="form-control" required>
-                            <option value="">— Pilih kondisi —</option>
-                            <option value="baik">✅ Baik</option>
-                            <option value="bekas">🟡 Bekas / Normal Pakai</option>
-                            <option value="rusak">🔴 Rusak / Perlu Servis</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group full">
-                        <label class="form-label">
-                            Nama Pelanggan <span style="color:#EF4444;">*</span>
-                        </label>
-                        <input type="text" name="nama_pelanggan" id="bb_nama_pelanggan"
-                               class="form-control"
-                               placeholder="Nama orang yang mengembalikan barang" required>
-                    </div>
-
-                    <div class="form-group full">
-                        <label class="form-label">Keterangan (opsional)</label>
-                        <textarea name="keterangan" class="form-control"
-                                  placeholder="Catatan kondisi, alasan buy back, dll..."></textarea>
-                    </div>
-
-                    <div class="form-group full">
-                        <label class="form-label">Foto Kondisi Barang (opsional)</label>
-                        <input type="file" name="bukti_transaksi"
-                               accept="image/jpeg,image/png,image/webp"
-                               class="form-control-file">
-                        <span style="font-size:11.5px;color:var(--text-muted);">
-                            JPG/PNG/WEBP maks. 2MB
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost"
-                        onclick="closeModal('modalBuyBack')">Batal</button>
-                <button type="submit" class="btn btn-buyback-submit">
-                    <i class="ri-loop-left-line"></i> Konfirmasi Buy Back
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+{{-- Data JSON untuk modal detail --}}
+@php
+$penjualanData = $penjualans->map(function($item) {
+    return [
+        'id'               => $item->id,
+        'nama_pelanggan'   => $item->nama_pelanggan,
+        'nomor_telepon'    => $item->nomor_telepon,
+        'alamat_pelanggan' => $item->alamat_pelanggan,
+        'tanggal'          => \Carbon\Carbon::parse($item->tanggal_penjualan)->format('d M Y'),
+        'jenis_pembayaran' => ucfirst($item->jenis_pembayaran),
+        'diskon_global'    => $item->diskon_global ?? 0,
+        'total_harga'      => $item->total_harga ?? 0,
+        'total_tagihan'    => $item->total_tagihan,
+        'keterangan'       => $item->keterangan ?? '',
+        'details'          => $item->details->map(fn($d) => [
+            'nama_barang'  => $d->nama_barang,
+            'kondisi'      => ucfirst($d->kondisi ?? 'baru'),
+            'qty'          => $d->qty,
+            'satuan'       => $d->satuan,
+            'harga_satuan' => $d->harga_satuan,
+            'diskon'       => $d->diskon ?? 0,
+            'subtotal'     => $d->subtotal,
+        ])->values(),
+    ];
+})->keyBy('id');
+@endphp
 
 @endsection
 
 @push('scripts')
 <script>
-const inventoryList = {!! json_encode(
-    \App\Models\Inventory::orderBy('nama_produk')
-        ->get(['nama_produk', 'stok_tersedia', 'stok_bekas'])
-        ->map(fn($i) => [
-            'nama'  => $i->nama_produk,
-            'stok'  => (int) $i->stok_tersedia,
-            'bekas' => (int) $i->stok_bekas,
-        ])
-        ->values()
-) !!};
+const penjualanData = @json($penjualanData);
 
 function openModal(id) {
     document.getElementById(id).classList.add('open');
@@ -716,197 +589,110 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+        closeLightbox();
         document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-        closeAllDropdowns();
     }
-});
-
-function toggleDropdown(id, event) {
-    event.stopPropagation();
-    const menu   = document.getElementById('dd-menu-' + id);
-    const isOpen = menu.classList.contains('show');
-    closeAllDropdowns();
-    if (!isOpen) menu.classList.add('show');
-}
-function closeAllDropdowns() {
-    document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
-}
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
 });
 
 function openDeleteModal(id, nama) {
-    document.getElementById('deleteTarget').textContent = nama;
-    document.getElementById('formDeleteSubmit').action  = '/penjualan/' + id;
+    document.getElementById('deleteNamaPelanggan').textContent = nama;
+    document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
     openModal('modalHapus');
 }
 
-function openFotoModal(url, namaBarang) {
-    document.getElementById('fotoModalImg').src           = url;
-    document.getElementById('fotoNamaBarang').textContent = namaBarang;
-    document.getElementById('fotoDownloadLink').href      = url;
-    openModal('modalFoto');
+function openDetailModal(id) {
+    const d = penjualanData[id];
+    if (!d) return;
+
+    const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+
+    let rows = d.details.map(item => `
+        <tr>
+            <td>${item.nama_barang}
+                <div style="font-size:11px;color:var(--text-muted);">${item.kondisi}</div>
+            </td>
+            <td class="right">${item.qty} ${item.satuan}</td>
+            <td class="right">${fmt(item.harga_satuan)}</td>
+            <td class="right">${item.diskon > 0 ? item.diskon + '%' : '—'}</td>
+            <td class="right" style="font-weight:600;color:#059669;">${fmt(item.subtotal)}</td>
+        </tr>
+    `).join('');
+
+    let diskonRow = d.diskon_global > 0 ? `
+        <tr class="detail-total-row">
+            <td colspan="4" style="text-align:right;">Diskon Global:</td>
+            <td class="right" style="color:#EF4444;">- ${fmt(d.diskon_global)}</td>
+        </tr>
+    ` : '';
+
+    document.getElementById('modalDetailBody').innerHTML = `
+        <div class="detail-info-grid">
+            <div class="detail-info-item">
+                <div class="detail-info-label">Pelanggan</div>
+                <div class="detail-info-value">${d.nama_pelanggan}</div>
+            </div>
+            <div class="detail-info-item">
+                <div class="detail-info-label">Tanggal</div>
+                <div class="detail-info-value">${d.tanggal}</div>
+            </div>
+            <div class="detail-info-item">
+                <div class="detail-info-label">No. Telepon</div>
+                <div class="detail-info-value">${d.nomor_telepon || '—'}</div>
+            </div>
+            <div class="detail-info-item">
+                <div class="detail-info-label">Pembayaran</div>
+                <div class="detail-info-value">${d.jenis_pembayaran}</div>
+            </div>
+            <div class="detail-info-item" style="grid-column:1/-1;">
+                <div class="detail-info-label">Alamat</div>
+                <div class="detail-info-value">${d.alamat_pelanggan || '—'}</div>
+            </div>
+            ${d.keterangan ? `
+            <div class="detail-info-item" style="grid-column:1/-1;">
+                <div class="detail-info-label">Keterangan</div>
+                <div class="detail-info-value" style="font-weight:400;font-size:12.5px;">${d.keterangan}</div>
+            </div>` : ''}
+        </div>
+
+        <div style="font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <i class="ri-list-check" style="color:var(--brand-500);"></i> Detail Barang (${d.details.length} item)
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="detail-items-table">
+                <thead>
+                    <tr>
+                        <th>Nama Barang</th>
+                        <th style="text-align:right;">Qty</th>
+                        <th style="text-align:right;">Harga Satuan</th>
+                        <th style="text-align:right;">Diskon</th>
+                        <th style="text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+                <tfoot>
+                    ${diskonRow}
+                    <tr class="detail-total-row">
+                        <td colspan="4" style="text-align:right;">Total Tagihan:</td>
+                        <td class="right" style="color:#059669;">${fmt(d.total_tagihan)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    `;
+
+    openModal('modalDetail');
 }
 
-let bbRowIndex = 0;
-
-function openBuyBackModal(btn) {
-    const penjualanId   = btn.dataset.id;
-    const namaBarang    = btn.dataset.nama;
-    const hargaJual     = parseInt(btn.dataset.harga)    || 0;
-    const namaPelanggan = btn.dataset.pelanggan          || '';
-    const qty           = parseInt(btn.dataset.qty)      || 1;
-    let   details       = [];
-
-    try { details = JSON.parse(btn.dataset.details); } catch(e) { details = []; }
-
-    bbRowIndex = 0;
-    document.getElementById('bb-items-tbody').innerHTML      = '';
-    document.getElementById('bb_penjualan_id').value         = penjualanId;
-    document.getElementById('bb_nama_label').textContent     = namaBarang || '—';
-    document.getElementById('bb_pelanggan_label').textContent = namaPelanggan || '—';
-    document.getElementById('bb_nama_pelanggan').value       = namaPelanggan || '';
-
-    if (details && details.length > 0) {
-        details.forEach(function(d) {
-            addBBItemRow(d.nama_barang || '', d.qty || 1, Math.round((d.harga_satuan || 0) * 0.5));
-        });
-    } else {
-        addBBItemRow(namaBarang, qty, Math.round(hargaJual * 0.5));
-    }
-
-    updateGrandTotal();
-    openModal('modalBuyBack');
+function openLightbox(src, caption) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightboxCaption').textContent = caption;
+    document.getElementById('lightboxOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
 }
-
-function addBBItemRow(namaBarang, jumlah, harga) {
-    namaBarang = namaBarang || '';
-    jumlah     = jumlah     || 1;
-    harga      = harga      || 0;
-
-    const idx   = bbRowIndex++;
-    const tbody = document.getElementById('bb-items-tbody');
-    const tr    = document.createElement('tr');
-
-    let options = '<option value="">— Pilih produk atau ketik manual —</option>';
-    let matched = false;
-    inventoryList.forEach(function(inv) {
-        const isSelected = namaBarang && inv.nama.toLowerCase() === namaBarang.toLowerCase();
-        if (isSelected) matched = true;
-        options += '<option value="' + escAttr(inv.nama) + '"'
-                +  (isSelected ? ' selected' : '')
-                +  '>' + escAttr(inv.nama) + ' (stok: ' + inv.stok + ')</option>';
-    });
-
-    const showManual  = namaBarang && !matched;
-    const manualStyle = showManual ? 'display:block;margin-top:4px;' : 'display:none;margin-top:4px;';
-    const manualVal   = showManual ? escAttr(namaBarang) : '';
-
-    tr.innerHTML =
-        '<td>' +
-            '<select class="bb-item-select" id="bb_select_' + idx + '"' +
-                    ' onchange="onBBSelectChange(' + idx + ')">' +
-                options +
-            '</select>' +
-            '<input type="text" class="bb-item-input" id="bb_manual_' + idx + '"' +
-                   ' placeholder="Ketik nama produk manual..."' +
-                   ' style="' + manualStyle + '"' +
-                   ' value="' + manualVal + '"' +
-                   ' oninput="onBBManualInput(' + idx + ')">' +
-        '</td>' +
-        '<td>' +
-            '<input type="number" class="bb-item-input" id="bb_qty_' + idx + '"' +
-                   ' value="' + jumlah + '" min="1" required' +
-                   ' style="width:65px;"' +
-                   ' oninput="updateRowSubtotal(' + idx + '); updateGrandTotal();">' +
-        '</td>' +
-        '<td>' +
-            '<input type="number" class="bb-item-input" id="bb_harga_' + idx + '"' +
-                   ' value="' + harga + '" min="0" required' +
-                   ' style="width:130px;"' +
-                   ' oninput="updateRowSubtotal(' + idx + '); updateGrandTotal();">' +
-        '</td>' +
-        '<td>' +
-            '<span class="bb-subtotal-cell" id="bb_sub_' + idx + '">' +
-                'Rp ' + formatRp(jumlah * harga) +
-            '</span>' +
-        '</td>' +
-        '<td style="text-align:center;">' +
-            '<button type="button" class="btn-bb-remove" onclick="removeBBRow(this, ' + idx + ')" title="Hapus baris">' +
-                '<i class="ri-delete-bin-line"></i>' +
-            '</button>' +
-        '</td>';
-
-    tbody.appendChild(tr);
-    syncBBItemName(idx);
-    updateGrandTotal();
-}
-
-function onBBSelectChange(idx) {
-    const select      = document.getElementById('bb_select_'  + idx);
-    const manualInput = document.getElementById('bb_manual_'  + idx);
-    if (select.value === '') {
-        manualInput.style.display = 'block';
-    } else {
-        manualInput.style.display = 'none';
-        manualInput.value = '';
-    }
-    syncBBItemName(idx);
-}
-
-function onBBManualInput(idx) { syncBBItemName(idx); }
-
-function syncBBItemName(idx) {
-    const select      = document.getElementById('bb_select_'  + idx);
-    const manualInput = document.getElementById('bb_manual_'  + idx);
-    const nameAttr    = 'items[' + idx + '][nama_barang]';
-    if (select.value !== '') {
-        select.name      = nameAttr;
-        manualInput.removeAttribute('name');
-    } else {
-        manualInput.name = nameAttr;
-        select.removeAttribute('name');
-    }
-    const qtyEl   = document.getElementById('bb_qty_'   + idx);
-    const hargaEl = document.getElementById('bb_harga_' + idx);
-    if (qtyEl)   qtyEl.name   = 'items[' + idx + '][jumlah]';
-    if (hargaEl) hargaEl.name = 'items[' + idx + '][harga_satuan]';
-}
-
-function updateRowSubtotal(idx) {
-    const qty   = parseInt(document.getElementById('bb_qty_'   + idx)?.value) || 0;
-    const harga = parseFloat(document.getElementById('bb_harga_' + idx)?.value) || 0;
-    const subEl = document.getElementById('bb_sub_' + idx);
-    if (subEl) subEl.textContent = 'Rp ' + formatRp(qty * harga);
-}
-
-function updateGrandTotal() {
-    let grand = 0;
-    document.querySelectorAll('.bb-subtotal-cell').forEach(function(el) {
-        grand += parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
-    });
-    document.getElementById('bb-grand-total-val').textContent = 'Rp ' + formatRp(grand);
-}
-
-function removeBBRow(btn, idx) {
-    btn.closest('tr').remove();
-    updateGrandTotal();
-    if (document.getElementById('bb-items-tbody').children.length === 0) {
-        addBBItemRow('', 1, 0);
-    }
-}
-
-function formatRp(num) {
-    return Number(num || 0).toLocaleString('id-ID');
-}
-function escAttr(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g,  '&amp;')
-        .replace(/</g,  '&lt;')
-        .replace(/>/g,  '&gt;')
-        .replace(/"/g,  '&quot;')
-        .replace(/'/g,  '&#39;');
+function closeLightbox() {
+    document.getElementById('lightboxOverlay').classList.remove('open');
+    document.getElementById('lightboxImg').src = '';
+    document.body.style.overflow = '';
 }
 </script>
 @endpush
