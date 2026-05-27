@@ -18,19 +18,16 @@
 
         /* ── SCREEN ── */
         .page-wrapper {
-            width: 215mm;
-            min-height: 330mm;
+            width: 210mm;
+            min-height: 297mm;
             margin: 10mm auto;
             padding: 15mm 19mm 13mm 19mm;
             background: #fff;
             box-shadow: 0 2px 12px rgba(0,0,0,.15);
-
-            /* footer sticky ke bawah */
             display: flex;
             flex-direction: column;
         }
 
-        /* konten utama mengisi ruang tersisa */
         .page-content { flex: 1; }
 
         /* ── KOP SURAT ── */
@@ -42,10 +39,10 @@
             padding-bottom: 8px;
             margin-bottom: 5px;
         }
-        .kop-left img  { height: 54px; object-fit: contain; }
+        .kop-left img  { height: 50px; object-fit: contain; }
         .kop-center    { text-align: center; flex: 1; padding: 0 8px; }
         .kop-center .nama-toko {
-            font-size: 15pt;
+            font-size: 14pt;
             font-weight: 800;
             color: #1D6FA4;
             text-transform: uppercase;
@@ -53,24 +50,24 @@
             font-family: Arial, sans-serif;
         }
         .kop-center .tagline {
-            font-size: 8.5pt;
+            font-size: 8pt;
             color: #555;
             margin-top: 1px;
             font-family: Arial, sans-serif;
         }
         .kop-center .alamat-toko {
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #555;
             margin-top: 2px;
             font-family: Arial, sans-serif;
             line-height: 1.4;
         }
-        .kop-right img { height: 54px; object-fit: contain; }
+        .kop-right img { height: 50px; object-fit: contain; }
 
         /* ── JUDUL ── */
-        .doc-title { text-align: center; margin: 10px 0 4px; }
+        .doc-title { text-align: center; margin: 8px 0 3px; }
         .doc-title h1 {
-            font-size: 12pt;
+            font-size: 11.5pt;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -78,76 +75,76 @@
         .doc-nomor {
             font-size: 10.5pt;
             text-align: center;
-            margin-bottom: 7px;
+            margin-bottom: 6px;
             font-weight: 700;
         }
 
         /* ── PARAGRAF ── */
         .pembuka {
-            font-size: 10.5pt;
+            font-size: 10pt;
             text-align: justify;
-            margin: 6px 0;
-            line-height: 1.5;
+            margin: 5px 0;
+            line-height: 1.45;
         }
 
         /* ── PARA PIHAK ── */
-        .pihak-table-wrap { margin: 5px 0 3px; }
-        .pihak-outer { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+        .pihak-table-wrap { margin: 4px 0 3px; }
+        .pihak-outer { width: 100%; border-collapse: collapse; font-size: 10pt; }
         .pihak-outer td { padding: 1px 3px; vertical-align: top; }
         .pihak-nomor { width: 18px; font-weight: 700; vertical-align: top; }
-        .pihak-data-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+        .pihak-data-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
         .pihak-data-table td { padding: 1px 3px; vertical-align: top; }
-        .pihak-data-table td:first-child  { width: 155px; }
+        .pihak-data-table td:first-child  { width: 150px; }
         .pihak-data-table td:nth-child(2) { width: 10px; text-align: center; }
         .pihak-data-table td:last-child   { font-weight: 600; }
-        .pihak-selanjutnya { font-size: 10.5pt; margin: 2px 0 6px 18px; }
+        .pihak-selanjutnya { font-size: 10pt; margin: 2px 0 5px 18px; }
 
         /* ── MENERANGKAN ── */
-        .menerangkan-block { margin: 5px 0; font-size: 10.5pt; }
-        .menerangkan-item  { display: flex; margin-bottom: 4px; line-height: 1.5; }
+        .menerangkan-block { margin: 4px 0; font-size: 10pt; }
+        .menerangkan-item  { display: flex; margin-bottom: 3px; line-height: 1.45; }
         .mn-nomor { min-width: 26px; }
         .mn-isi   { flex: 1; text-align: justify; }
 
         /* ── PASAL ── */
-        .pasal { margin: 8px 0 6px; }
-        .pasal-heading    { font-size: 11pt; font-weight: 700; text-align: center; margin-bottom: 0; }
-        .pasal-subheading { font-size: 11pt; font-weight: 700; text-align: center; margin-bottom: 4px; }
-        .pasal-body       { font-size: 10.5pt; text-align: justify; margin-bottom: 4px; line-height: 1.5; }
+        .pasal { margin: 6px 0 5px; }
+        .pasal-heading    { font-size: 10.5pt; font-weight: 700; text-align: center; margin-bottom: 0; }
+        .pasal-subheading { font-size: 10.5pt; font-weight: 700; text-align: center; margin-bottom: 3px; }
+        .pasal-body       { font-size: 10pt; text-align: justify; margin-bottom: 3px; line-height: 1.45; }
 
         /* ── AYAT ── */
-        .ayat-item  { display: flex; margin-bottom: 3px; font-size: 10.5pt; line-height: 1.5; }
-        .ayat-nomor { min-width: 26px; flex-shrink: 0; }
+        .ayat-item  { display: flex; margin-bottom: 2px; font-size: 10pt; line-height: 1.45; }
+        .ayat-nomor { min-width: 24px; flex-shrink: 0; }
         .ayat-isi   { flex: 1; text-align: justify; }
 
         /* ── SUB AYAT ── */
-        .sub-ayat-list { margin: 2px 0 0; padding: 0; list-style: none; }
-        .sub-ayat-item { display: flex; margin-bottom: 2px; line-height: 1.5; }
-        .sub-huruf { min-width: 26px; flex-shrink: 0; }
+        .sub-ayat-list { margin: 1px 0 0; padding: 0; list-style: none; }
+        .sub-ayat-item { display: flex; margin-bottom: 1px; line-height: 1.45; }
+        .sub-huruf { min-width: 24px; flex-shrink: 0; }
         .sub-isi   { flex: 1; text-align: justify; }
 
         /* ── SUB-SUB ── */
-        .subsub-list  { margin: 2px 0 0; padding: 0; list-style: none; }
-        .subsub-item  { display: flex; margin-bottom: 2px; line-height: 1.5; }
-        .subsub-nomor { min-width: 28px; flex-shrink: 0; }
+        .subsub-list  { margin: 1px 0 0; padding: 0; list-style: none; }
+        .subsub-item  { display: flex; margin-bottom: 1px; line-height: 1.45; }
+        .subsub-nomor { min-width: 26px; flex-shrink: 0; }
         .subsub-isi   { flex: 1; text-align: justify; }
 
         /* ── TABEL DATA PASAL ── */
-        .data-pasal-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 4px 0 5px; }
-        .data-pasal-table td { padding: 2px 5px; vertical-align: top; line-height: 1.45; }
-        .data-pasal-table td:first-child  { width: 195px; }
+        .data-pasal-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 3px 0 4px; }
+        .data-pasal-table td { padding: 2px 4px; vertical-align: top; line-height: 1.4; }
+        .data-pasal-table td:first-child  { width: 190px; }
         .data-pasal-table td:nth-child(2) { width: 10px; text-align: center; }
         .data-pasal-table td:last-child   { font-weight: 600; }
 
         /* ── TANDA TANGAN ── */
-        .ttd-section    { margin-top: 20px; }
-        .ttd-para-pihak { font-size: 10.5pt; font-weight: 700; margin-bottom: 5px; }
+        .ttd-section    { margin-top: 14px; }
+        .ttd-para-pihak { font-size: 10pt; font-weight: 700; margin-bottom: 4px; }
         .ttd-row        { display: flex; justify-content: space-between; margin-top: 4px; }
         .ttd-col        { width: 44%; text-align: center; }
-        .ttd-col .ttd-label   { font-size: 10.5pt; font-weight: 700; margin-bottom: 65px; }
-        .ttd-col .ttd-garis   { border-top: 1.5px solid #000; padding-top: 4px; font-size: 10.5pt; font-weight: 700; }
-        .ttd-col .ttd-jabatan { font-size: 9.5pt; margin-top: 1px; }
+        .ttd-col .ttd-label   { font-size: 10pt; font-weight: 700; margin-bottom: 58px; }
+        .ttd-col .ttd-garis   { border-top: 1.5px solid #000; padding-top: 4px; font-size: 10pt; font-weight: 700; }
+        .ttd-col .ttd-jabatan { font-size: 9pt; margin-top: 1px; }
         .materai-box {
-            width: 72px; height: 72px;
+            width: 68px; height: 68px;
             border: 1.5px dashed #888; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
             font-size: 7.5pt; color: #999; text-align: center;
@@ -158,39 +155,39 @@
             padding-bottom: 8px;
         }
         .ttd-logo-center img {
-            height: 55px; object-fit: contain;
+            height: 52px; object-fit: contain;
             opacity: 0.10; filter: grayscale(1);
         }
 
         /* ── NO BREAK ── */
         .no-break { page-break-inside: avoid; break-inside: avoid; }
 
-        /* ── FOOTER — sticky ke bawah halaman ── */
+        /* ── FOOTER ── */
         .page-footer {
             border-top: 1px solid #ccc;
             padding-top: 3px;
-            font-size: 7.5pt;
+            font-size: 7pt;
             color: #999;
             text-align: center;
             font-family: Arial, sans-serif;
-            margin-top: auto; /* dorong footer ke paling bawah */
+            margin-top: auto;
         }
 
         /* ══════════════════════════════════════
-           PRINT F4
+           PRINT — A4 (210mm × 297mm)
         ══════════════════════════════════════ */
         @media print {
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
             html, body {
                 background: #fff !important;
-                width: 215mm;
+                width: 210mm;
             }
 
             .no-print { display: none !important; }
 
             @page {
-                size: 215mm 330mm portrait;
+                size: 210mm 297mm portrait;
                 margin-top:    15mm;
                 margin-right:  19mm;
                 margin-bottom: 13mm;
@@ -205,8 +202,7 @@
                 box-shadow: none !important;
                 display: flex !important;
                 flex-direction: column !important;
-                /* tinggi penuh 1 halaman dikurangi margin @page */
-                height: calc(330mm - 15mm - 13mm);
+                height: calc(297mm - 15mm - 13mm);
                 page-break-after: always;
                 break-after: page;
             }
@@ -216,11 +212,9 @@
                 break-after: avoid;
             }
 
-            .page-content { flex: 1; }
+            .page-content { flex: 1; overflow: hidden; }
 
-            .page-footer {
-                margin-top: auto !important;
-            }
+            .page-footer { margin-top: auto !important; }
         }
     </style>
 </head>
@@ -262,9 +256,9 @@
 @endphp
 
 
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- HALAMAN 1 — Para Pihak + Pasal 1 + Pasal 2 + Pasal 3      --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- ══════════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 1 — Para Pihak + Pasal 1 + Pasal 2 + Pasal 3         --}}
+{{-- ══════════════════════════════════════════════════════════════ --}}
 <div class="page-wrapper">
     <div class="page-content">
 
@@ -311,7 +305,7 @@
         </div>
 
         {{-- PIHAK KEDUA --}}
- <div class="pihak-table-wrap no-break">
+        <div class="pihak-table-wrap no-break">
             <table class="pihak-outer"><tr>
                 <td class="pihak-nomor">2</td>
                 <td><table class="pihak-data-table">
@@ -423,14 +417,14 @@
     </div>{{-- end .page-content --}}
 
     <div class="page-footer">
-        Halaman 1 dari 3 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
+        Halaman 1 dari 4 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
     </div>
 </div>
 
 
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- HALAMAN 2 — Pasal 4                                        --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
+{{-- ══════════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 2 — Pasal 4 Ayat 1–3                                  --}}
+{{-- ══════════════════════════════════════════════════════════════ --}}
 <div class="page-wrapper">
     <div class="page-content">
 
@@ -444,8 +438,8 @@
             <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
         </div>
 
-        {{-- PASAL 4 --}}
-        <div class="pasal" style="margin-top:10px;">
+        {{-- PASAL 4 bagian pertama (ayat 1–3) --}}
+        <div class="pasal" style="margin-top:8px;">
             <div class="pasal-heading">Pasal 4</div>
             <div class="pasal-subheading">Pelaksanaan Hak Sewa</div>
 
@@ -509,32 +503,8 @@
             </div>
         </div>
 
-    </div>{{-- end .page-content --}}
-
-    <div class="page-footer">
-        Halaman 2 dari 3 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
-    </div>
-</div>
-
-
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- HALAMAN 3 — Pasal 5–9 + Penutup + TTD                     --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
-<div class="page-wrapper">
-    <div class="page-content">
-
-        <div class="kop">
-            <div class="kop-left"><img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo"></div>
-            <div class="kop-center">
-                <div class="nama-toko">Paralkes</div>
-                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
-                <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
-            </div>
-            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
-        </div>
-
         {{-- PASAL 5 --}}
-        <div class="pasal no-break" style="margin-top:10px;">
+        <div class="pasal no-break">
             <div class="pasal-heading">Pasal 5</div>
             <div class="pasal-subheading">Serah Terima Hak Sewa</div>
             <div class="ayat-item">
@@ -558,8 +528,32 @@
             </div>
         </div>
 
+    </div>{{-- end .page-content --}}
+
+    <div class="page-footer">
+        Halaman 2 dari 4 &nbsp;·&nbsp; Perjanjian Sewa No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes
+    </div>
+</div>
+
+
+{{-- ══════════════════════════════════════════════════════════════ --}}
+{{-- HALAMAN 3 — Pasal 6 + 7 + 8 + 9 + Penutup + TTD              --}}
+{{-- ══════════════════════════════════════════════════════════════ --}}
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <div class="kop">
+            <div class="kop-left"><img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo"></div>
+            <div class="kop-center">
+                <div class="nama-toko">Paralkes</div>
+                <div class="tagline">Penyewaan &amp; Penjualan Alat Kesehatan</div>
+                <div class="alamat-toko">Jl. Srikaton Selatan No.19, Purwoyoso, Kec. Ngaliyan, Kota Semarang, Jawa Tengah 50184</div>
+            </div>
+            <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
+        </div>
+
         {{-- PASAL 6 --}}
-        <div class="pasal no-break">
+        <div class="pasal no-break" style="margin-top:8px;">
             <div class="pasal-heading">Pasal 6</div>
             <div class="pasal-subheading">Masa Sewa</div>
             <div class="ayat-item">
@@ -610,7 +604,7 @@
         </div>
 
         {{-- PENUTUP --}}
-        <div class="pembuka" style="margin-top:12px;">
+        <div class="pembuka" style="margin-top:10px;">
             Demikian Perjanjian ini dibuat disampaikan kepada Pelanggan dan ditandatangani di tempat dan pada
             waktu sebagaimana disebutkan di bagian awal Perjanjian ini dalam rangkap 2 (dua) dan bermeterai cukup,
             masing-masing Pihak memperoleh 1 (satu) rangkap asli yang kesemuanya memiliki kekuatan hukum yang sama.
