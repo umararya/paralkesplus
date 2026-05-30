@@ -28,18 +28,18 @@
 
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 14px; height:36px; border-radius:8px; font-size:13px; font-weight:500; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
     .btn i { font-size:15px; }
-    .btn-search { background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); }
+    .btn-search  { background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); }
     .btn-search:hover { background:var(--brand-100); color:var(--brand-600); }
     html.dark .btn-search { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
-    .btn-reset { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+    .btn-reset   { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-reset:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-primary { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-primary:hover { background:var(--brand-600); border-color:var(--brand-600); }
-    .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+    .btn-ghost   { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .btn-danger { background:#EF4444; color:#fff; border:1px solid #EF4444; }
+    .btn-danger  { background:#EF4444; color:#fff; border:1px solid #EF4444; }
     .btn-danger:hover { background:#DC2626; border-color:#DC2626; }
-    .btn-export { background:#10B981; color:#fff; border:1px solid #10B981; }
+    .btn-export  { background:#10B981; color:#fff; border:1px solid #10B981; }
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
@@ -57,26 +57,34 @@
     .data-table tbody tr { transition:background 0.15s; }
     .data-table tbody tr:hover td { background:var(--bg-hover); }
     .data-table th.center, .data-table td.center { text-align:center; }
-    .data-table th.right, .data-table td.right { text-align:right; }
+    .data-table th.right,  .data-table td.right  { text-align:right; }
 
-    /* ── Detail Items dalam row ── */
     .items-list { display:flex; flex-direction:column; gap:4px; }
     .item-pill { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 8px; font-size:12px; white-space:nowrap; }
     .item-pill .item-name { font-weight:600; color:var(--text-primary); }
-    .item-pill .item-qty { background:var(--brand-50); color:var(--brand-500); border-radius:4px; padding:1px 5px; font-size:11px; font-weight:700; }
+    .item-pill .item-qty  { background:var(--brand-50); color:var(--brand-500); border-radius:4px; padding:1px 5px; font-size:11px; font-weight:700; }
     html.dark .item-pill .item-qty { background:rgba(29,111,164,0.15); color:#60A5FA; }
-    .item-pill .item-sub { color:var(--text-muted); font-size:11px; }
+    .item-pill .item-sub  { color:var(--text-muted); font-size:11px; }
     .items-more { font-size:11.5px; color:var(--brand-500); cursor:pointer; margin-top:2px; }
 
-    .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
-    .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; text-decoration:none; }
-    .btn-action:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .btn-action.edit:hover { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
-    .btn-action.view:hover { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
-    .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
-    html.dark .btn-action.edit:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
-    html.dark .btn-action.view:hover { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
-    html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
+    /* ── Dropdown Aksi (titik tiga) ── */
+    .action-wrap { position:relative; display:inline-flex; }
+    .btn-action-menu { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
+    .btn-action-menu:hover { background:var(--bg-hover); color:var(--text-primary); }
+    .action-dropdown { position:absolute; right:0; top:calc(100% + 5px); background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.14); min-width:178px; z-index:500; display:none; overflow:hidden; animation:fadeMenu 0.12s ease; }
+    .action-dropdown.open { display:block; }
+    @keyframes fadeMenu { from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);} }
+    .action-dropdown-item { display:flex; align-items:center; gap:9px; padding:10px 14px; font-size:13px; color:var(--text-primary); cursor:pointer; transition:background 0.12s; background:none; border:none; width:100%; font-family:var(--font); text-decoration:none; }
+    .action-dropdown-item:hover { background:var(--bg-hover); }
+    .action-dropdown-item i { font-size:15px; width:18px; text-align:center; flex-shrink:0; }
+    .action-dropdown-item.item-view    i { color:var(--brand-500); }
+    .action-dropdown-item.item-edit    i { color:#2563EB; }
+    .action-dropdown-item.item-invoice i { color:#7C3AED; }
+    .action-dropdown-item.item-buyback i { color:#D97706; }
+    .action-dropdown-item.item-delete  i { color:#EF4444; }
+    .action-dropdown-item.item-delete:hover { background:#FFF1F2; color:#E11D48; }
+    html.dark .action-dropdown-item.item-delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; }
+    .dropdown-divider { height:1px; background:var(--border); margin:3px 0; }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -96,6 +104,8 @@
     .alert { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:10px; font-size:13.5px; font-weight:500; margin-bottom:18px; border:1px solid transparent; }
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
+    .alert-info { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
+    html.dark .alert-info { background:rgba(29,78,216,0.1); color:#60A5FA; border-color:rgba(29,78,216,0.25); }
 
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
     .total-value { font-weight:700; color:#059669; }
@@ -119,7 +129,8 @@
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:460px; animation:slideUp 0.2s ease; }
-    .modal-xl { max-width:680px; }
+    .modal-xl  { max-width:720px; }
+    .modal-xxl { max-width:900px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
@@ -132,6 +143,41 @@
     .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
+
+    /* ── Modal Buy Back ── */
+    .buyback-info { background:var(--bg-hover); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
+    .buyback-info-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; padding:4px 0; }
+    .buyback-info-label { color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+    .buyback-info-value { font-weight:600; color:var(--text-primary); }
+    .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+    .form-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); }
+    .form-label .required { color:#EF4444; margin-left:2px; }
+    .form-control { height:40px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s; width:100%; box-sizing:border-box; }
+    .form-control:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
+    select.form-control { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:32px; }
+    textarea.form-control { height:70px; padding:10px 12px; resize:vertical; }
+
+    /* ── Buy Back tabel ── */
+    .bb-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:13px; }
+    .bb-table thead tr { background:var(--bg-primary); border-bottom:1px solid var(--border); }
+    .bb-table th { padding:8px 11px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); white-space:nowrap; }
+    .bb-table td { padding:10px 11px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .bb-table tbody tr:last-child td { border-bottom:none; }
+    .bb-table tfoot tr { background:var(--bg-hover); border-top:2px solid var(--border); }
+    .bb-table tfoot td { padding:10px 11px; font-weight:700; }
+
+    /* Input qty & harga buyback */
+    .bb-input { height:34px; padding:0 9px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s,box-shadow 0.2s; box-sizing:border-box; }
+    .bb-input:focus { border-color:#D97706; box-shadow:0 0 0 3px rgba(217,119,6,0.12); }
+    .bb-input:disabled { opacity:0.4; cursor:not-allowed; background:var(--bg-hover); }
+    .bb-qty-input   { width:64px; text-align:center; }
+    .bb-harga-input { width:130px; text-align:right; }
+
+    /* Hint 50% */
+    .bb-hint-50 { font-size:10.5px; color:var(--text-muted); margin-top:3px; cursor:pointer; user-select:none; }
+    .bb-hint-50:hover { color:#D97706; text-decoration:underline; }
+
+    .bb-row-disabled { opacity:0.4; }
 
     /* ── Detail Modal ── */
     .detail-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
@@ -152,6 +198,10 @@
     .lightbox-close { position:fixed; top:16px; right:20px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── Kondisi badge ── */
+    .kondisi-baru  { background:#F0FDF4; color:#16A34A; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
+    .kondisi-bekas { background:#FFF7ED; color:#C2410C; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
 </style>
 @endpush
 
@@ -199,7 +249,7 @@
                     <i class="ri-search-line"></i>
                     <input type="text" name="search" id="searchInput"
                            value="{{ $search }}"
-                           placeholder="Cari pelanggan, barang, keterangan..."
+                           placeholder="Cari pelanggan, barang..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
@@ -256,7 +306,7 @@
                     <th class="right">Total</th>
                     <th>Keterangan</th>
                     <th class="center">Bukti</th>
-                    <th class="center" style="width:100px;">Aksi</th>
+                    <th class="center" style="width:54px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -287,7 +337,6 @@
                         @endif
                     </td>
 
-                    {{-- Detail Barang --}}
                     <td style="min-width:220px;">
                         @if($item->details->count() > 0)
                         <div class="items-list">
@@ -299,9 +348,7 @@
                             </div>
                             @endforeach
                             @if($item->details->count() > 2)
-                            <span class="items-more"
-                                  onclick="openDetailModal({{ $item->id }})"
-                                  title="Lihat semua barang">
+                            <span class="items-more" onclick="openDetailModal({{ $item->id }})">
                                 <i class="ri-add-circle-line"></i>
                                 +{{ $item->details->count() - 2 }} barang lainnya
                             </span>
@@ -364,29 +411,60 @@
                         @endif
                     </td>
 
+                    {{-- ── KOLOM AKSI: Dropdown titik tiga ── --}}
                     <td class="center">
-                        <div class="action-group">
+                        <div class="action-wrap">
                             <button type="button"
-                                    class="btn-action view"
-                                    title="Lihat detail"
-                                    onclick="openDetailModal({{ $item->id }})">
-                                <i class="ri-eye-line"></i>
+                                    class="btn-action-menu"
+                                    title="Aksi"
+                                    onclick="toggleDropdown(this, event)">
+                                <i class="ri-more-2-fill"></i>
                             </button>
-                            <a href="{{ route('penjualan.edit', $item->id) }}"
-                               class="btn-action edit" title="Edit">
-                                <i class="ri-edit-line"></i>
-                            </a>
-                            <button type="button"
-                                    class="btn-action delete"
-                                    title="Hapus"
-                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}')">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                            <form id="formHapus-{{ $item->id }}"
-                                  action="{{ route('penjualan.destroy', $item->id) }}"
-                                  method="POST" style="display:none;">
-                                @csrf @method('DELETE')
-                            </form>
+                            <div class="action-dropdown">
+
+                                {{-- Lihat Detail --}}
+                                <button type="button"
+                                        class="action-dropdown-item item-view"
+                                        onclick="openDetailModal({{ $item->id }});closeAllDropdowns();">
+                                    <i class="ri-eye-line"></i> Lihat Detail
+                                </button>
+
+                                {{-- Edit --}}
+                                <a href="{{ route('penjualan.edit', $item->id) }}"
+                                   class="action-dropdown-item item-edit">
+                                    <i class="ri-edit-line"></i> Edit Penjualan
+                                </a>
+
+                                {{-- Invoice --}}
+                                <a href="{{ route('penjualan.invoice', $item->id) }}"
+                                   class="action-dropdown-item item-invoice"
+                                   target="_blank">
+                                    <i class="ri-file-text-line"></i> Cetak Invoice
+                                </a>
+
+                                {{-- Buy Back --}}
+                                <button type="button"
+                                        class="action-dropdown-item item-buyback"
+                                        onclick="openBuyBackModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
+                                    <i class="ri-arrow-go-back-line"></i> Buy Back
+                                </button>
+
+                                <div class="dropdown-divider"></div>
+
+                                {{-- Hapus --}}
+                                <button type="button"
+                                        class="action-dropdown-item item-delete"
+                                        onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
+                                    <i class="ri-delete-bin-line"></i> Hapus
+                                </button>
+
+                                {{-- Hidden form hapus --}}
+                                <form id="formHapus-{{ $item->id }}"
+                                      action="{{ route('penjualan.destroy', $item->id) }}"
+                                      method="POST" style="display:none;">
+                                    @csrf @method('DELETE')
+                                </form>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -408,7 +486,7 @@
                 <tr class="tfoot-total">
                     <td colspan="5" class="right">Total keseluruhan:</td>
                     <td class="right total-value" style="font-size:14px;white-space:nowrap;">
-                        Rp {{ number_format($penjualans->sum('total_harga'), 0, ',', '.') }}
+                        Rp {{ number_format($penjualans->sum('total_tagihan'), 0, ',', '.') }}
                     </td>
                     <td colspan="3"></td>
                 </tr>
@@ -500,6 +578,106 @@
     </div>
 </div>
 
+
+{{-- ══ MODAL: BUY BACK ══ --}}
+<div class="modal-overlay" id="modalBuyBack">
+    <div class="modal modal-xxl">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-arrow-go-back-line" style="color:#D97706;"></i>
+                Buy Back — Pembelian Kembali
+            </span>
+            <button class="modal-close" onclick="closeModal('modalBuyBack')">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <form id="formBuyBack" method="POST" action="{{ route('pembelian.buyback.store') }}">
+            @csrf
+            <input type="hidden" name="penjualan_id" id="buyBackPenjualanId">
+
+            <div class="modal-body">
+
+                {{-- Info pelanggan --}}
+                <div class="buyback-info" style="margin-bottom:14px;">
+                    <div class="buyback-info-row">
+                        <span class="buyback-info-label">
+                            <i class="ri-user-line"></i> Pelanggan
+                        </span>
+                        <span class="buyback-info-value" id="buyBackNamaPelanggan">—</span>
+                    </div>
+                </div>
+
+                {{-- Alert info --}}
+                <div class="alert alert-info" style="margin-bottom:14px;align-items:flex-start;">
+                    <i class="ri-information-line" style="font-size:16px;flex-shrink:0;margin-top:1px;"></i>
+                    <span style="font-size:13px;line-height:1.6;">
+                        Centang barang yang dikembalikan, tentukan <strong>qty</strong> dan
+                        <strong>harga buy back</strong> per item secara bebas.
+                        Klik <em>"Isi 50%"</em> untuk mengisi otomatis 50% dari harga jual sebagai acuan.
+                        Kondisi selalu <strong>Bekas</strong> dan stok inventory bertambah otomatis.
+                    </span>
+                </div>
+
+                {{-- Tabel item buyback --}}
+                <div style="overflow-x:auto;margin-bottom:14px;">
+                    <table class="bb-table">
+                        <thead>
+                            <tr>
+                                <th style="width:36px;text-align:center;">✓</th>
+                                <th>Nama Barang</th>
+                                <th style="text-align:center;">Kondisi</th>
+                                <th style="text-align:right;">Harga Jual / unit</th>
+                                <th style="text-align:center;">Maks Qty</th>
+                                <th style="text-align:center;width:80px;">Qty</th>
+                                <th style="text-align:right;min-width:160px;">
+                                    Harga Buyback / unit
+                                    <div style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">
+                                        (bebas, klik "Isi 50%" utk acuan)
+                                    </div>
+                                </th>
+                                <th style="text-align:right;">Total Dibayar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buyBackTableBody">
+                            {{-- diisi JS --}}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="7"
+                                    style="text-align:right;font-size:13px;color:var(--text-secondary);">
+                                    Total yang dibayarkan ke pelanggan:
+                                </td>
+                                <td style="text-align:right;font-size:15px;font-weight:800;color:#D97706;white-space:nowrap;"
+                                    id="buyBackGrandTotal">Rp 0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                {{-- Keterangan --}}
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">
+                        Alasan / Keterangan Buy Back
+                        <span style="font-weight:400;color:var(--text-muted);">(opsional)</span>
+                    </label>
+                    <textarea name="keterangan" class="form-control"
+                              placeholder="Contoh: Barang tidak sesuai, cacat produksi, dll."></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('modalBuyBack')">Batal</button>
+                <button type="submit" id="btnSubmitBuyBack"
+                        class="btn btn-primary"
+                        style="background:#D97706;border-color:#D97706;">
+                    <i class="ri-arrow-go-back-line"></i> Proses Buy Back
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 {{-- ══ MODAL: KONFIRMASI HAPUS ══ --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
@@ -517,7 +695,7 @@
                 <h3>Hapus Data Penjualan?</h3>
                 <p>Kamu akan menghapus transaksi atas nama:<br>
                    <strong id="deleteNamaPelanggan"></strong><br><br>
-                   Stok barang akan dikembalikan dan tindakan ini tidak dapat dibatalkan.</p>
+                   Stok barang akan dikembalikan otomatis. Tindakan ini tidak dapat dibatalkan.</p>
             </div>
         </div>
         <div class="modal-footer">
@@ -532,6 +710,7 @@
     </div>
 </div>
 
+
 {{-- ══ LIGHTBOX ══ --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
@@ -541,7 +720,8 @@
     <div class="lightbox-caption" id="lightboxCaption"></div>
 </div>
 
-{{-- Data JSON untuk modal detail --}}
+
+{{-- Data JSON untuk modal detail & buyback --}}
 @php
 $penjualanData = $penjualans->map(function($item) {
     return [
@@ -552,14 +732,15 @@ $penjualanData = $penjualans->map(function($item) {
         'tanggal'          => \Carbon\Carbon::parse($item->tanggal_penjualan)->format('d M Y'),
         'jenis_pembayaran' => ucfirst($item->jenis_pembayaran),
         'diskon_global'    => $item->diskon_global ?? 0,
-        'total_harga'      => $item->total_harga ?? 0,
         'total_tagihan'    => $item->total_tagihan,
         'keterangan'       => $item->keterangan ?? '',
         'details'          => $item->details->map(fn($d) => [
+            'id'           => $d->id,
+            'inventory_id' => $d->inventory_id,
             'nama_barang'  => $d->nama_barang,
-            'kondisi'      => ucfirst($d->kondisi ?? 'baru'),
+            'kondisi'      => $d->kondisi ?? 'baru',
             'qty'          => $d->qty,
-            'satuan'       => $d->satuan,
+            'satuan'       => $d->satuan ?? 'unit',
             'harga_satuan' => $d->harga_satuan,
             'diskon'       => $d->diskon ?? 0,
             'subtotal'     => $d->subtotal,
@@ -573,7 +754,9 @@ $penjualanData = $penjualans->map(function($item) {
 @push('scripts')
 <script>
 const penjualanData = @json($penjualanData);
+const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 
+/* ══ MODAL HELPERS ══ */
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -591,25 +774,55 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         closeLightbox();
         document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+        closeAllDropdowns();
     }
 });
 
+/* ══ DROPDOWN TITIK TIGA ══ */
+function toggleDropdown(btn, e) {
+    e.stopPropagation();
+    const dropdown = btn.nextElementSibling;
+    const isOpen   = dropdown.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+        dropdown.classList.add('open');
+        requestAnimationFrame(() => {
+            const rect = dropdown.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight - 8) {
+                dropdown.style.top    = 'auto';
+                dropdown.style.bottom = 'calc(100% + 5px)';
+            }
+        });
+    }
+}
+function closeAllDropdowns() {
+    document.querySelectorAll('.action-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.style.top    = '';
+        d.style.bottom = '';
+    });
+}
+document.addEventListener('click', closeAllDropdowns);
+
+/* ══ MODAL DELETE ══ */
 function openDeleteModal(id, nama) {
     document.getElementById('deleteNamaPelanggan').textContent = nama;
     document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
     openModal('modalHapus');
 }
 
+/* ══ MODAL DETAIL ══ */
 function openDetailModal(id) {
     const d = penjualanData[id];
     if (!d) return;
 
-    const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
-
-    let rows = d.details.map(item => `
+    const rows = d.details.map(item => `
         <tr>
-            <td>${item.nama_barang}
-                <div style="font-size:11px;color:var(--text-muted);">${item.kondisi}</div>
+            <td>
+                ${item.nama_barang}
+                <div style="font-size:11px;margin-top:2px;">
+                    <span class="kondisi-${item.kondisi}">${ucfirst(item.kondisi)}</span>
+                </div>
             </td>
             <td class="right">${item.qty} ${item.satuan}</td>
             <td class="right">${fmt(item.harga_satuan)}</td>
@@ -618,7 +831,7 @@ function openDetailModal(id) {
         </tr>
     `).join('');
 
-    let diskonRow = d.diskon_global > 0 ? `
+    const diskonRow = d.diskon_global > 0 ? `
         <tr class="detail-total-row">
             <td colspan="4" style="text-align:right;">Diskon Global:</td>
             <td class="right" style="color:#EF4444;">- ${fmt(d.diskon_global)}</td>
@@ -653,9 +866,9 @@ function openDetailModal(id) {
                 <div class="detail-info-value" style="font-weight:400;font-size:12.5px;">${d.keterangan}</div>
             </div>` : ''}
         </div>
-
         <div style="font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-            <i class="ri-list-check" style="color:var(--brand-500);"></i> Detail Barang (${d.details.length} item)
+            <i class="ri-list-check" style="color:var(--brand-500);"></i>
+            Detail Barang (${d.details.length} item)
         </div>
         <div style="overflow-x:auto;">
             <table class="detail-items-table">
@@ -663,7 +876,7 @@ function openDetailModal(id) {
                     <tr>
                         <th>Nama Barang</th>
                         <th style="text-align:right;">Qty</th>
-                        <th style="text-align:right;">Harga Satuan</th>
+                        <th style="text-align:right;">Harga</th>
                         <th style="text-align:right;">Diskon</th>
                         <th style="text-align:right;">Subtotal</th>
                     </tr>
@@ -683,8 +896,178 @@ function openDetailModal(id) {
     openModal('modalDetail');
 }
 
+/* ══ MODAL BUY BACK ══ */
+function openBuyBackModal(id, nama) {
+    const d = penjualanData[id];
+    if (!d) return;
+
+    document.getElementById('buyBackPenjualanId').value         = id;
+    document.getElementById('buyBackNamaPelanggan').textContent = nama;
+
+    const rows = d.details.map((item, i) => {
+        // default pre-fill 50% dari harga jual sebagai acuan awal
+        const defaultHarga = Math.round(item.harga_satuan * 0.5);
+
+        return `
+        <tr id="bb_row_${i}"
+            data-harga-jual="${item.harga_satuan}"
+            data-default-harga="${defaultHarga}"
+            data-max-qty="${item.qty}">
+
+            {{-- Checkbox --}}
+            <td style="text-align:center;">
+                <input type="checkbox"
+                       name="items[${i}][detail_id]"
+                       value="${item.id}"
+                       id="bb_chk_${i}"
+                       class="bb-checkbox"
+                       style="width:16px;height:16px;cursor:pointer;accent-color:#D97706;"
+                       checked
+                       onchange="toggleBuyBackRow(this, ${i})">
+            </td>
+
+            {{-- Nama barang --}}
+            <td>
+                <div style="font-weight:600;font-size:13px;">${item.nama_barang}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${item.satuan}</div>
+            </td>
+
+            {{-- Kondisi --}}
+            <td style="text-align:center;">
+                <span class="kondisi-${item.kondisi}">${ucfirst(item.kondisi)}</span>
+                <div style="font-size:10.5px;color:#D97706;margin-top:3px;font-weight:600;">→ Bekas</div>
+            </td>
+
+            {{-- Harga jual referensi --}}
+            <td style="text-align:right;color:var(--text-secondary);font-size:13px;white-space:nowrap;">
+                ${fmt(item.harga_satuan)}
+            </td>
+
+            {{-- Maks qty --}}
+            <td style="text-align:center;font-weight:600;">
+                ${item.qty} <span style="font-size:11px;color:var(--text-muted);">${item.satuan}</span>
+            </td>
+
+            {{-- Input qty --}}
+            <td style="text-align:center;">
+                <input type="number"
+                       name="items[${i}][qty_buyback]"
+                       id="bb_qty_${i}"
+                       class="bb-input bb-qty-input"
+                       value="${item.qty}"
+                       min="1"
+                       max="${item.qty}"
+                       oninput="calcBuyBackTotal()">
+            </td>
+
+            {{-- Input harga buyback (fleksibel) --}}
+            <td style="text-align:right;">
+                <input type="number"
+                       name="items[${i}][harga_buyback]"
+                       id="bb_harga_${i}"
+                       class="bb-input bb-harga-input"
+                       value="${defaultHarga}"
+                       min="0"
+                       oninput="calcBuyBackTotal()">
+                <div class="bb-hint-50"
+                     onclick="resetHarga50(${i})"
+                     title="Klik untuk isi ulang 50% dari harga jual">
+                    ↺ Isi 50% (${fmt(defaultHarga)})
+                </div>
+            </td>
+
+            {{-- Subtotal --}}
+            <td style="text-align:right;font-weight:700;color:#059669;white-space:nowrap;font-size:13px;"
+                id="bb_subtotal_${i}">
+                ${fmt(defaultHarga * item.qty)}
+            </td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('buyBackTableBody').innerHTML = rows;
+    calcBuyBackTotal();
+    openModal('modalBuyBack');
+}
+
+/* Isi ulang harga ke 50% dari harga jual untuk 1 baris */
+function resetHarga50(i) {
+    const row   = document.getElementById('bb_row_' + i);
+    const input = document.getElementById('bb_harga_' + i);
+    if (!row || !input) return;
+    input.value = row.dataset.defaultHarga;
+    calcBuyBackTotal();
+
+    // flash animasi input
+    input.style.borderColor = '#D97706';
+    input.style.boxShadow   = '0 0 0 3px rgba(217,119,6,0.18)';
+    setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow   = '';
+    }, 800);
+}
+
+/* Toggle baris aktif/nonaktif */
+function toggleBuyBackRow(chk, i) {
+    const row        = document.getElementById('bb_row_' + i);
+    const qtyInput   = document.getElementById('bb_qty_' + i);
+    const hargaInput = document.getElementById('bb_harga_' + i);
+
+    if (chk.checked) {
+        row.classList.remove('bb-row-disabled');
+        qtyInput.disabled   = false;
+        hargaInput.disabled = false;
+    } else {
+        row.classList.add('bb-row-disabled');
+        qtyInput.disabled   = true;
+        hargaInput.disabled = true;
+    }
+    calcBuyBackTotal();
+}
+
+/* Hitung grand total realtime */
+function calcBuyBackTotal() {
+    let grandTotal = 0;
+    const rows = document.querySelectorAll('#buyBackTableBody tr');
+
+    rows.forEach((row, i) => {
+        const chk        = document.getElementById('bb_chk_' + i);
+        const qtyInput   = document.getElementById('bb_qty_' + i);
+        const hargaInput = document.getElementById('bb_harga_' + i);
+        const subCell    = document.getElementById('bb_subtotal_' + i);
+        if (!chk || !qtyInput || !hargaInput || !subCell) return;
+
+        const maxQty = parseInt(row.dataset.maxQty) || 1;
+        let qty      = parseInt(qtyInput.value)     || 0;
+        let harga    = parseFloat(hargaInput.value) || 0;
+
+        // Clamp qty
+        if (qty > maxQty)           { qty = maxQty; qtyInput.value = maxQty; }
+        if (qty < 1 && chk.checked) { qty = 1;      qtyInput.value = 1; }
+        if (harga < 0)              { harga = 0;     hargaInput.value = 0; }
+
+        const subtotal = chk.checked ? harga * qty : 0;
+
+        subCell.textContent = fmt(subtotal);
+        subCell.style.color = chk.checked ? '#059669' : 'var(--text-muted)';
+
+        grandTotal += subtotal;
+    });
+
+    document.getElementById('buyBackGrandTotal').textContent = fmt(grandTotal);
+
+    // Disable submit jika tidak ada yang dicentang
+    const anyChecked = [...document.querySelectorAll('.bb-checkbox')].some(c => c.checked);
+    const btn        = document.getElementById('btnSubmitBuyBack');
+    if (btn) {
+        btn.disabled      = !anyChecked;
+        btn.style.opacity = anyChecked ? '1' : '0.5';
+        btn.style.cursor  = anyChecked ? 'pointer' : 'not-allowed';
+    }
+}
+
+/* ══ LIGHTBOX ══ */
 function openLightbox(src, caption) {
-    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;
     document.getElementById('lightboxOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -693,6 +1076,11 @@ function closeLightbox() {
     document.getElementById('lightboxOverlay').classList.remove('open');
     document.getElementById('lightboxImg').src = '';
     document.body.style.overflow = '';
+}
+
+/* ══ HELPER ══ */
+function ucfirst(str) {
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 </script>
 @endpush

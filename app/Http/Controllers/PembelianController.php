@@ -3,15 +3,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\PembelianExport;                // ← TAMBAH
+use App\Exports\PembelianExport;
 use App\Models\ActivityLog;
 use App\Models\Inventory;
 use App\Models\InventoryLog;
 use App\Models\Pembelian;
+use App\Models\PenjualanDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;            // ← TAMBAH
+use Maatwebsite\Excel\Facades\Excel;
 
 class PembelianController extends Controller
 {
@@ -49,10 +50,6 @@ class PembelianController extends Controller
             'filter', 'countSemua', 'countNormal', 'countBuyBack'
         ));
     }
-
-    // =========================================================
-    //  EXPORT XLSX  ← TAMBAH METHOD INI
-    // =========================================================
 
     public function export(Request $request)
     {
@@ -410,114 +407,122 @@ class PembelianController extends Controller
             ->with('success', 'Data pembelian berhasil dihapus dan stok inventory disesuaikan.');
     }
 
-    // ══════════════════════════════════════
-    //  BUY BACK — MULTI ITEM
-    // ══════════════════════════════════════
+    // ══════════════════════════════════════════════════════════════
+    //  BUY BACK
+    //  - Kondisi selalu "bekas"
+    //  - Harga buyback = 50% dari harga_satuan penjualan asli
+    //  - Qty bisa ditentukan (tidak boleh melebihi qty penjualan)
+    //  - Stok bekas inventory bertambah sejumlah qty buyback
+    // ══════════════════════════════════════════════════════════════
 
     public function storeBuyBack(Request $request)
     {
         $request->validate([
-            'penjualan_id'         => 'required|exists:penjualans,id',
-            'tanggal_pembelian'    => 'required|date',
-            'nama_pelanggan'       => 'required|string|max:255',
-            'kondisi_barang'       => 'required|in:baik,bekas,rusak',
-            'keterangan'           => 'nullable|string',
-            'bukti_transaksi'      => 'nullable|image|mimes:jpeg,png,webp|max:2048',
-            'items'                => 'required|array|min:1',
-            'items.*.nama_barang'  => 'required|string|max:150',
-            'items.*.jumlah'       => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'penjualan_id'              => 'required|exists:penjualans,id',
+            'keterangan'                => 'nullable|string|max:500',
+            'items'                     => 'required|array|min:1',
+            'items.*.detail_id'         => 'required|integer|exists:penjualan_details,id',
+            'items.*.qty_buyback'       => 'required|integer|min:1',
         ]);
 
-        $tanggal     = $request->input('tanggal_pembelian');
-        $pelanggan   = $request->input('nama_pelanggan');
-        $kondisi     = $request->input('kondisi_barang');
+        $penjualanId = (int) $request->input('penjualan_id');
         $keterangan  = $request->input('keterangan');
-        $penjualanId = $request->input('penjualan_id');
         $items       = $request->input('items', []);
 
-        $fotoPath = null;
-        if ($request->hasFile('bukti_transaksi')) {
-            $fotoPath = $request->file('bukti_transaksi')
-                ->store('pembelian/buyback', 'public');
-        }
+        // Ambil relasi penjualan → nama pelanggan
+        $penjualan = \App\Models\Penjualan::with('details')->findOrFail($penjualanId);
 
-        DB::transaction(function () use (
-            $items, $tanggal, $pelanggan, $kondisi,
-            $keterangan, $penjualanId, $fotoPath
-        ) {
+        DB::transaction(function () use ($penjualan, $items, $keterangan, $penjualanId) {
+
             foreach ($items as $item) {
-                $namaBarang  = trim($item['nama_barang']);
-                $jumlah      = (int) $item['jumlah'];
-                $hargaSatuan = (float) $item['harga_satuan'];
-                $total       = $jumlah * $hargaSatuan;
+                $detailId   = (int) $item['detail_id'];
+                $qtyBuyback = (int) $item['qty_buyback'];
 
-                if (empty($namaBarang) || $jumlah < 1) {
+                // Ambil detail penjualan asli
+                $detail = PenjualanDetail::findOrFail($detailId);
+
+                // Pastikan qty buyback tidak melebihi qty penjualan
+                $qtyBuyback = min($qtyBuyback, $detail->qty);
+
+                if ($qtyBuyback < 1) {
                     continue;
                 }
 
+                $namaBarang      = $detail->nama_barang;
+                $hargaAsli       = (float) $detail->harga_satuan;
+                $hargaBuyback    = round($hargaAsli * 0.5); // 50% dari harga jual
+                $totalBuyback    = $hargaBuyback * $qtyBuyback;
+
+                // Simpan ke tabel pembelian sebagai buy_back
                 $pembelian = Pembelian::create([
                     'penjualan_id'      => $penjualanId,
-                    'tanggal_pembelian' => $tanggal,
+                    'tanggal_pembelian' => now()->toDateString(),
                     'nama_barang'       => $namaBarang,
-                    'jumlah'            => $jumlah,
-                    'harga_satuan'      => $hargaSatuan,
-                    'total'             => $total,
-                    'nama_pelanggan'    => $pelanggan,
-                    'kondisi_barang'    => $kondisi,
-                    'keterangan'        => $keterangan,
-                    'bukti_transaksi'   => $fotoPath,
+                    'jumlah'            => $qtyBuyback,
+                    'harga_satuan'      => $hargaBuyback,
+                    'total'             => $totalBuyback,
+                    'nama_pelanggan'    => $penjualan->nama_pelanggan,
+                    'kondisi_barang'    => 'bekas', // selalu bekas
+                    'keterangan'        => $keterangan ?? 'Buy Back dari penjualan #' . $penjualanId,
+                    'bukti_transaksi'   => null,
                     'status'            => 'buy_back',
                 ]);
 
+                // Update stok inventory — tambah stok_bekas & stok_tersedia
                 $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
                     strtolower($namaBarang)
                 ])->first();
 
                 if ($inventory) {
-                    $inventory->stok_tersedia      += $jumlah;
-                    $inventory->stok_bekas         += $jumlah;
-                    $inventory->harga_beli_terakhir = $hargaSatuan;
+                    $inventory->stok_tersedia += $qtyBuyback;
+                    $inventory->stok_bekas    += $qtyBuyback;
                     $inventory->save();
                 } else {
+                    // Buat baru jika belum ada di inventory
                     $inventory = Inventory::create([
                         'nama_produk'         => $namaBarang,
                         'kategori'            => null,
-                        'satuan'              => 'unit',
-                        'stok_tersedia'       => $jumlah,
+                        'satuan'              => $detail->satuan ?? 'unit',
+                        'stok_tersedia'       => $qtyBuyback,
                         'stok_disewa'         => 0,
                         'stok_baru'           => 0,
-                        'stok_bekas'          => $jumlah,
-                        'harga_beli_terakhir' => $hargaSatuan,
+                        'stok_bekas'          => $qtyBuyback,
+                        'harga_beli_terakhir' => $hargaBuyback,
                     ]);
                 }
 
+                // Log inventory
                 InventoryLog::create([
                     'inventory_id'   => $inventory->id,
                     'reference_type' => 'buyback',
                     'reference_id'   => $pembelian->id,
-                    'qty_change'     => $jumlah,
+                    'qty_change'     => $qtyBuyback,
                     'kondisi'        => 'bekas',
-                    'keterangan'     => 'Buy Back dari: ' . $pelanggan . ' — ' . $namaBarang,
+                    'keterangan'     => 'Buy Back dari: ' . $penjualan->nama_pelanggan . ' — ' . $namaBarang
+                                        . ' (harga jual asli: Rp ' . number_format($hargaAsli, 0, ',', '.')
+                                        . ' → buyback 50%: Rp ' . number_format($hargaBuyback, 0, ',', '.') . ')',
                 ]);
 
+                // Activity log
                 ActivityLog::record(
                     module:   'Pembelian',
                     action:   'create',
-                    subject:  '[Buy Back] ' . $namaBarang . ' dari ' . $pelanggan,
+                    subject:  '[Buy Back] ' . $namaBarang . ' dari ' . $penjualan->nama_pelanggan,
                     newValue: [
-                        'barang'    => $namaBarang,
-                        'pelanggan' => $pelanggan,
-                        'kondisi'   => $kondisi,
-                        'jumlah'    => $jumlah,
-                        'total'     => 'Rp ' . number_format($total, 0, ',', '.'),
+                        'barang'         => $namaBarang,
+                        'pelanggan'      => $penjualan->nama_pelanggan,
+                        'kondisi'        => 'bekas',
+                        'qty'            => $qtyBuyback,
+                        'harga_asli'     => 'Rp ' . number_format($hargaAsli, 0, ',', '.'),
+                        'harga_buyback'  => 'Rp ' . number_format($hargaBuyback, 0, ',', '.') . ' (50%)',
+                        'total_bayar'    => 'Rp ' . number_format($totalBuyback, 0, ',', '.'),
                     ],
-                    pageUrl: 'pembelian/buy-back'
+                    pageUrl: 'penjualan'
                 );
             }
         });
 
         return redirect()->route('penjualan.index')
-            ->with('success', 'Buy back berhasil dicatat. Tiap produk tersimpan di data pembelian dan stok bekas inventory diperbarui.');
+            ->with('success', 'Buy back berhasil! Stok bekas inventory sudah diperbarui dengan harga 50% dari harga jual.');
     }
 }
