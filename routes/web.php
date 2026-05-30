@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     // ── Penyewaan ──
     Route::get('/penyewaan/notifikasi',       [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
     Route::get('/penyewaan-monitoring',       [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
-    Route::get('/penyewaan/export',           [PenyewaanController::class, 'export'])->name('penyewaan.export');   // ← TAMBAH
+    Route::get('/penyewaan/export',           [PenyewaanController::class, 'export'])->name('penyewaan.export');
     Route::resource('penyewaan', PenyewaanController::class);
     Route::post('/penyewaan/{id}/selesaikan', [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
     Route::post('/penyewaan/{id}/extend',     [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
@@ -51,16 +51,18 @@ Route::middleware('auth')->group(function () {
 
 
     // ── Pembelian ──
-    Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');           // ← TAMBAH
+    Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])
          ->name('pembelian.buyback.store');
     Route::resource('pembelian', PembelianController::class);
 
 
     // ── Penjualan ──
-    Route::get('/penjualan/export',   [PenjualanController::class, 'export'])->name('penjualan.export');            // ← TAMBAH
+    Route::get('/penjualan/export',            [PenjualanController::class, 'export'])->name('penjualan.export');
+    // ↓ WAJIB sebelum resource agar tidak ditangkap sebagai {penjualan} wildcard
+    Route::get('/penjualan/search-inventory',  [PenjualanController::class, 'searchInventory'])->name('penjualan.search-inventory');
     Route::resource('penjualan', PenjualanController::class);
-    Route::get('/penjualan/{id}/invoice', [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
+    Route::get('/penjualan/{id}/invoice',      [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
 
 
     // ── Inventory (CRUD penuh) ──
