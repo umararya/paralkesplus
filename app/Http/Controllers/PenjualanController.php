@@ -1,15 +1,14 @@
 <?php
-// app/Http/Controllers/PenjualanController.php
 
 namespace App\Http\Controllers;
 
-use App\Exports\PenjualanExport;                // ← TAMBAH
+use App\Exports\PenjualanExport;
 use App\Models\ActivityLog;
 use App\Models\DetailPenjualan;
 use App\Models\Inventory;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;            // ← TAMBAH
+use Maatwebsite\Excel\Facades\Excel;
 
 class PenjualanController extends Controller
 {
@@ -28,14 +27,14 @@ class PenjualanController extends Controller
             $namaBarang = trim($item['nama_barang'] ?? '');
             if ($namaBarang === '') continue;
 
-            $qtyBaru      = max(1, (int) ($item['qty']          ?? 1));
-            $harga        = max(0, (int) ($item['harga_satuan'] ?? 0));
-            $diskon       = max(0, min(100, (int) ($item['diskon'] ?? 0)));
-            $inventoryId  = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
-            $kondisi      = in_array($item['kondisi'] ?? '', ['baru','bekas'])
-                            ? $item['kondisi']
-                            : 'baru';
-            $subtotal     = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
+            $qtyBaru     = max(1, (int) ($item['qty']          ?? 1));
+            $harga       = max(0, (int) ($item['harga_satuan'] ?? 0));
+            $diskon      = max(0, min(100, (int) ($item['diskon'] ?? 0)));
+            $inventoryId = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $kondisi     = in_array($item['kondisi'] ?? '', ['baru', 'bekas'])
+                           ? $item['kondisi']
+                           : 'baru';
+            $subtotal    = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
                 'penjualan_id' => $penjualan->id,
@@ -55,24 +54,18 @@ class PenjualanController extends Controller
                 : null;
 
             if ($inventoryId) {
-                /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
                 if ($inv) {
                     $qtyLama     = $detailLama ? (int) $detailLama->qty : 0;
-                    $kondisiLama = $detailLama ? $detailLama->kondisi : $kondisi;
+                    $kondisiLama = $detailLama ? $detailLama->kondisi   : $kondisi;
                     $selisih     = $qtyBaru - $qtyLama;
 
                     if ($detailLama && $kondisiLama !== $kondisi) {
-                        if ($qtyLama > 0) {
-                            $inv->tambahStok($qtyLama, $kondisiLama);
-                        }
+                        if ($qtyLama > 0) $inv->tambahStok($qtyLama, $kondisiLama);
                         $inv->kurangiStok($qtyBaru, $kondisi);
                     } else {
-                        if ($selisih > 0) {
-                            $inv->kurangiStok($selisih, $kondisi);
-                        } elseif ($selisih < 0) {
-                            $inv->tambahStok(abs($selisih), $kondisi);
-                        }
+                        if ($selisih > 0)       $inv->kurangiStok($selisih, $kondisi);
+                        elseif ($selisih < 0)   $inv->tambahStok(abs($selisih), $kondisi);
                     }
                 }
             }
@@ -94,9 +87,7 @@ class PenjualanController extends Controller
             foreach ($detailsToDelete as $detail) {
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
-                    if ($inv) {
-                        $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
-                    }
+                    if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
                 }
             }
             DetailPenjualan::whereIn('id', $toDelete)->delete();
@@ -133,14 +124,13 @@ class PenjualanController extends Controller
     }
 
     // =========================================================
-    //  EXPORT XLSX  ← TAMBAH METHOD INI
+    //  EXPORT XLSX
     // =========================================================
 
     public function export(Request $request)
     {
         $search   = $request->input('search', '');
         $filename = 'penjualan_' . now()->format('Ymd_His') . '.xlsx';
-
         return Excel::download(new PenjualanExport($search), $filename);
     }
 
@@ -156,22 +146,22 @@ class PenjualanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_pelanggan'           => 'required|string|max:255',
-            'nomor_telepon'            => 'nullable|string|max:20',
-            'alamat_pelanggan'         => 'required|string',
-            'tanggal_penjualan'        => 'required|date',
-            'jenis_pembayaran'         => 'required|in:tunai,transfer,qris,kredit',
-            'diskon_global'            => 'nullable|integer|min:0',
-            'foto_bukti'               => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
-            'keterangan'               => 'nullable|string',
-            'items'                    => 'required|array|min:1',
-            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
-            'items.*.nama_barang'      => 'required|string|max:255',
-            'items.*.kondisi'          => 'required|in:baru,bekas',
-            'items.*.qty'              => 'required|integer|min:1',
-            'items.*.satuan'           => 'required|string|max:50',
-            'items.*.harga_satuan'     => 'required|integer|min:0',
-            'items.*.diskon'           => 'nullable|integer|min:0|max:100',
+            'nama_pelanggan'       => 'required|string|max:255',
+            'nomor_telepon'        => 'nullable|string|max:20',
+            'alamat_pelanggan'     => 'required|string',
+            'tanggal_penjualan'    => 'required|date',
+            'jenis_pembayaran'     => 'required|in:tunai,transfer,qris,kredit',
+            'diskon_global'        => 'nullable|integer|min:0',
+            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            'keterangan'           => 'nullable|string',
+            'items'                => 'required|array|min:1',
+            'items.*.inventory_id' => 'nullable|integer|exists:inventories,id',
+            'items.*.nama_barang'  => 'required|string|max:255',
+            'items.*.kondisi'      => 'required|in:baru,bekas',
+            'items.*.qty'          => 'required|integer|min:1',
+            'items.*.satuan'       => 'required|string|max:50',
+            'items.*.harga_satuan' => 'required|integer|min:0',
+            'items.*.diskon'       => 'nullable|integer|min:0|max:100',
         ]);
 
         if ($request->hasFile('foto_bukti')) {
@@ -219,8 +209,28 @@ class PenjualanController extends Controller
 
     public function edit(string $id)
     {
-        $penjualan = Penjualan::with('details')->findOrFail($id);
-        return view('admin.penjualan.edit', compact('penjualan'));
+        $penjualan = Penjualan::with('details.inventory')->findOrFail($id);
+
+        // ── Mapping dipindahkan ke CONTROLLER (bukan di blade @json)
+        // ── agar tidak error "Unclosed '['" pada Blade parser
+        $existingItems = $penjualan->details->map(function ($d) {
+            return [
+                'detail_id'        => $d->id,
+                'inventory_id'     => $d->inventory_id,
+                'nama_barang'      => $d->nama_barang,
+                'kondisi'          => $d->kondisi      ?? 'baru',
+                'qty'              => $d->qty,
+                'satuan'           => $d->satuan        ?? 'unit',
+                'harga_satuan'     => $d->harga_satuan  ?? 0,
+                'diskon'           => $d->diskon        ?? 0,
+                'stok_baru'        => $d->inventory ? ($d->inventory->stok_baru        ?? 0) : 0,
+                'stok_bekas'       => $d->inventory ? ($d->inventory->stok_bekas       ?? 0) : 0,
+                'harga_jual_baru'  => $d->inventory ? ($d->inventory->harga_jual_baru  ?? 0) : 0,
+                'harga_jual_bekas' => $d->inventory ? ($d->inventory->harga_jual_bekas ?? 0) : 0,
+            ];
+        })->values()->toArray();
+
+        return view('admin.penjualan.edit', compact('penjualan', 'existingItems'));
     }
 
     public function update(Request $request, string $id)
@@ -234,23 +244,23 @@ class PenjualanController extends Controller
         ];
 
         $validated = $request->validate([
-            'nama_pelanggan'           => 'required|string|max:255',
-            'nomor_telepon'            => 'nullable|string|max:20',
-            'alamat_pelanggan'         => 'required|string',
-            'tanggal_penjualan'        => 'required|date',
-            'jenis_pembayaran'         => 'required|in:tunai,transfer,qris,kredit',
-            'diskon_global'            => 'nullable|integer|min:0',
-            'foto_bukti'               => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
-            'keterangan'               => 'nullable|string',
-            'items'                    => 'required|array|min:1',
-            'items.*.detail_id'        => 'nullable|integer',
-            'items.*.inventory_id'     => 'nullable|integer|exists:inventories,id',
-            'items.*.nama_barang'      => 'required|string|max:255',
-            'items.*.kondisi'          => 'required|in:baru,bekas',
-            'items.*.qty'              => 'required|integer|min:1',
-            'items.*.satuan'           => 'required|string|max:50',
-            'items.*.harga_satuan'     => 'required|integer|min:0',
-            'items.*.diskon'           => 'nullable|integer|min:0|max:100',
+            'nama_pelanggan'       => 'required|string|max:255',
+            'nomor_telepon'        => 'nullable|string|max:20',
+            'alamat_pelanggan'     => 'required|string',
+            'tanggal_penjualan'    => 'required|date',
+            'jenis_pembayaran'     => 'required|in:tunai,transfer,qris,kredit',
+            'diskon_global'        => 'nullable|integer|min:0',
+            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            'keterangan'           => 'nullable|string',
+            'items'                => 'required|array|min:1',
+            'items.*.detail_id'    => 'nullable|integer',
+            'items.*.inventory_id' => 'nullable|integer|exists:inventories,id',
+            'items.*.nama_barang'  => 'required|string|max:255',
+            'items.*.kondisi'      => 'required|in:baru,bekas',
+            'items.*.qty'          => 'required|integer|min:1',
+            'items.*.satuan'       => 'required|string|max:50',
+            'items.*.harga_satuan' => 'required|integer|min:0',
+            'items.*.diskon'       => 'nullable|integer|min:0|max:100',
         ]);
 
         if ($request->hasFile('foto_bukti')) {
@@ -296,9 +306,7 @@ class PenjualanController extends Controller
         foreach ($penjualan->details as $detail) {
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
-                if ($inv) {
-                    $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
-                }
+                if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
             }
         }
 

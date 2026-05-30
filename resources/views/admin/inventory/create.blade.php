@@ -150,22 +150,6 @@
                 </div>
             </div>
 
-            {{-- Harga Beli Terakhir --}}
-            <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">
-                    Harga Beli Terakhir (Rp)
-                    <span style="font-weight:400; color:var(--text-muted); font-size:12px;">(opsional)</span>
-                </label>
-                <input type="number" name="harga_beli_terakhir"
-                       value="{{ old('harga_beli_terakhir', 0) }}" min="0"
-                       placeholder="0"
-                       style="width:100%; padding:10px 14px; border:1px solid var(--border);
-                              border-radius:8px; font-size:13.5px; background:var(--bg-primary);
-                              color:var(--text-primary); outline:none; transition:border-color 0.2s;"
-                       onfocus="this.style.borderColor='var(--brand-500)'"
-                       onblur="this.style.borderColor='var(--border)'">
-            </div>
-
             {{-- Keterangan --}}
             <div>
                 <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">

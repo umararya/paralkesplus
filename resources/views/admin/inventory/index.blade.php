@@ -17,7 +17,6 @@
     .page-title i { font-size: 22px; color: var(--brand-500); }
     .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
-    /* Summary Cards */
     .summary-grid {
         display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
         margin-bottom: 24px;
@@ -36,7 +35,6 @@
     .summary-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
     .summary-value { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-top: 6px; line-height: 1; }
 
-    /* Table */
     .table-card {
         background: var(--bg-card); border: 1px solid var(--border);
         border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
@@ -140,9 +138,7 @@
     html.dark .stok-baru   { background: rgba(29,78,216,0.15);  color: #60A5FA; }
     html.dark .stok-bekas  { background: rgba(124,58,237,0.15); color: #C084FC; }
 
-    /* ── Dropdown Aksi ── */
     .aksi-wrap { position: relative; display: inline-block; }
-
     .btn-aksi {
         width: 32px; height: 32px; border-radius: 8px;
         display: inline-flex; align-items: center; justify-content: center;
@@ -164,7 +160,6 @@
     }
     @keyframes dropDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
     .dropdown-menu.open { display: block; }
-
     .dropdown-item {
         display: flex; align-items: center; gap: 9px;
         padding: 9px 14px; font-size: 13px; font-weight: 500;
@@ -204,14 +199,12 @@
     .empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
     .empty-state p  { font-size: 13px; color: var(--text-muted); }
 
-    /* Alert */
     .alert { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 500; margin-bottom: 18px; border: 1px solid transparent; }
     .alert-success { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
     .alert-error   { background: #FFF1F2; color: #BE123C; border-color: #FECDD3; }
     html.dark .alert-success { background: rgba(21,128,61,0.12); color: #4ADE80; border-color: rgba(21,128,61,0.25); }
     html.dark .alert-error   { background: rgba(190,18,60,0.12); color: #FB7185; border-color: rgba(190,18,60,0.25); }
 
-    /* Modal */
     .modal-overlay {
         display: none; position: fixed; inset: 0;
         background: rgba(0,0,0,0.45); z-index: 1000;
@@ -323,7 +316,6 @@
 
         </div>
 
-        {{-- ── Tombol Tambah ── --}}
         <div class="toolbar-right">
             <a href="{{ route('inventory.create') }}" class="btn btn-primary">
                 <i class="ri-add-line"></i> Tambah Inventory
@@ -362,7 +354,6 @@
                     <th class="center">Sedang Disewa</th>
                     <th class="center">Stok Baru</th>
                     <th class="center">Stok Bekas</th>
-                    <th class="right">Harga Beli Terakhir</th>
                     <th class="center" style="width:60px;">Aksi</th>
                 </tr>
             </thead>
@@ -401,13 +392,8 @@
                     <td class="center">
                         <span class="stok-badge stok-bekas">{{ $item->stok_bekas }}</span>
                     </td>
-                    <td class="right" style="font-size:13px; white-space:nowrap;">
-                        {{ $item->harga_beli_terakhir
-                            ? 'Rp ' . number_format($item->harga_beli_terakhir, 0, ',', '.')
-                            : '—' }}
-                    </td>
 
-                    {{-- ── DROPDOWN AKSI ── --}}
+                    {{-- DROPDOWN AKSI — kolom harga dihapus, colspan disesuaikan --}}
                     <td class="center">
                         <div class="aksi-wrap">
                             <button class="btn-aksi" type="button"
@@ -439,7 +425,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9">
+                    <td colspan="8">
                         <div class="empty-state">
                             <i class="ri-archive-drawer-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Inventory masih kosong' }}</h3>
@@ -508,7 +494,7 @@
 </div>{{-- /table-card --}}
 
 
-{{-- ══════════════ MODAL: KONFIRMASI HAPUS ══════════════ --}}
+{{-- MODAL: KONFIRMASI HAPUS --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
         <div class="modal-header">
@@ -545,30 +531,24 @@
 
 @push('scripts')
 <script>
-    // ── Dropdown toggle ──
     function toggleDropdown(e, id) {
         e.stopPropagation();
         const target = document.getElementById(id);
         const isOpen = target.classList.contains('open');
-
-        // Tutup semua dropdown lain
         document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
-
         if (!isOpen) {
-            // Cek posisi agar tidak terpotong di bawah viewport
             const rect = target.parentElement.getBoundingClientRect();
             if (rect.bottom + 160 > window.innerHeight) {
-                target.style.top  = 'auto';
+                target.style.top    = 'auto';
                 target.style.bottom = 'calc(100% + 6px)';
             } else {
-                target.style.top  = 'calc(100% + 6px)';
+                target.style.top    = 'calc(100% + 6px)';
                 target.style.bottom = 'auto';
             }
             target.classList.add('open');
         }
     }
 
-    // Klik di luar → tutup semua dropdown
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
     });
@@ -580,7 +560,6 @@
         }
     });
 
-    // ── Modal ──
     function openModal(id) {
         document.getElementById(id).classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -596,10 +575,8 @@
     });
 
     function openDeleteModal(id, namaProduk) {
-        // Tutup dropdown dulu
         document.querySelectorAll('.dropdown-menu.open').forEach(el => el.classList.remove('open'));
-
-        document.getElementById('deleteNamaProduk').textContent  = namaProduk;
+        document.getElementById('deleteNamaProduk').textContent = namaProduk;
         document.getElementById('formDeleteSubmit').action = '/inventory/' + id;
         openModal('modalHapus');
     }
