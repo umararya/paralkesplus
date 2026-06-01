@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/PenjualanController.php
 
 namespace App\Http\Controllers;
 
@@ -159,12 +158,10 @@ class PenjualanController extends Controller
             'diskon_global'        => 'nullable|integer|min:0',
             'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
             'keterangan'           => 'nullable|string',
-            // Pembayaran awal
             'metode_pembayaran'    => 'required|in:cash,dp,transfer',
             'metode_bayar_awal'    => 'required|in:cash,transfer,qris',
             'jumlah_bayar_awal'    => 'required|integer|min:0',
             'tanggal_bayar_awal'   => 'required|date',
-            // Items
             'items'                => 'required|array|min:1',
             'items.*.inventory_id' => 'nullable|integer|exists:inventories,id',
             'items.*.nama_barang'  => 'required|string|max:255',
@@ -175,39 +172,38 @@ class PenjualanController extends Controller
             'items.*.diskon'       => 'nullable|integer|min:0|max:100',
         ]);
 
-        DB::transaction(function () use ($validated, $request, &$penjualan) {
-            // ── Upload foto bukti ──
-            $fotoBukti = null;
-            if ($request->hasFile('foto_bukti')) {
-                $fotoBukti = $request->file('foto_bukti')
-                    ->store('penjualan/bukti', 'public');
-            }
+        // Upload foto di luar transaction agar tidak terkunci
+        $fotoBukti = null;
+        if ($request->hasFile('foto_bukti')) {
+            $fotoBukti = $request->file('foto_bukti')
+                ->store('penjualan/bukti', 'public');
+        }
 
-            // ── Buat record penjualan ──
+        $penjualan = DB::transaction(function () use ($validated, $fotoBukti) {
+
             $penjualan = Penjualan::create([
                 'user_id'           => auth()->id(),
                 'nama_pelanggan'    => $validated['nama_pelanggan'],
-                'nomor_telepon'     => $validated['nomor_telepon'] ?? null,
+                'nomor_telepon'     => $validated['nomor_telepon']   ?? null,
                 'alamat_pelanggan'  => $validated['alamat_pelanggan'],
                 'tanggal_penjualan' => $validated['tanggal_penjualan'],
-                'jenis_pembayaran'  => $validated['metode_bayar_awal'],
-                'metode_pembayaran' => $validated['metode_pembayaran'],
-                'diskon_global'     => $validated['diskon_global'] ?? 0,
-                'total_harga'       => 0, // akan diisi oleh syncDetails
+                'jenis_pembayaran'  => $validated['metode_bayar_awal'],  // cash / transfer / qris
+                'metode_pembayaran' => $validated['metode_pembayaran'],  // cash / dp / transfer
+                'diskon_global'     => $validated['diskon_global']   ?? 0,
+                'total_harga'       => 0, // diisi oleh syncDetails
                 'total_terbayar'    => 0,
                 'status_pembayaran' => 'belum_lunas',
                 'status_transaksi'  => 'aktif',
                 'foto_bukti'        => $fotoBukti,
-                'keterangan'        => $validated['keterangan'] ?? null,
+                'keterangan'        => $validated['keterangan']      ?? null,
             ]);
 
-            // ── Sync detail barang + hitung total_harga ──
+            // Sync detail barang + hitung ulang total_harga
             $this->syncDetails($penjualan, $validated['items']);
 
-            // ── Catat pembayaran awal ──
+            // Catat pembayaran awal jika ada
             $jumlahBayar = (int) $validated['jumlah_bayar_awal'];
             if ($jumlahBayar > 0) {
-                $totalTagihan = $penjualan->fresh()->total_tagihan;
                 $tipe = $validated['metode_pembayaran'] === 'dp'
                     ? 'dp'
                     : 'pelunasan';
@@ -217,12 +213,13 @@ class PenjualanController extends Controller
                     'created_by'    => auth()->id(),
                     'tipe'          => $tipe,
                     'metode'        => $validated['metode_bayar_awal'],
-                    'jumlah_bayar'  => min($jumlahBayar, $totalTagihan),
+                    'jumlah_bayar'  => $jumlahBayar,
                     'tanggal_bayar' => $validated['tanggal_bayar_awal'],
                     'keterangan'    => 'Pembayaran awal saat input transaksi',
                 ]);
-                // syncStatusPembayaran() dipanggil otomatis oleh PembayaranPenjualanObserver
             }
+
+            return $penjualan;
         });
 
         ActivityLog::record(
@@ -264,7 +261,7 @@ class PenjualanController extends Controller
     {
         $penjualan = Penjualan::with('details.inventory')->findOrFail($id);
 
-        if ($penjualan->isBatal()) {
+        if (method_exists($penjualan, 'isBatal') && $penjualan->isBatal()) {
             return redirect()->route('penjualan.show', $id)
                 ->with('error', 'Transaksi yang sudah dibatalkan tidak dapat diedit.');
         }
@@ -293,7 +290,7 @@ class PenjualanController extends Controller
     {
         $penjualan = Penjualan::findOrFail($id);
 
-        if ($penjualan->isBatal()) {
+        if (method_exists($penjualan, 'isBatal') && $penjualan->isBatal()) {
             return redirect()->route('penjualan.show', $id)
                 ->with('error', 'Transaksi yang sudah dibatalkan tidak dapat diubah.');
         }
@@ -301,7 +298,7 @@ class PenjualanController extends Controller
         $oldData = [
             'pelanggan' => $penjualan->nama_pelanggan,
             'tanggal'   => $penjualan->tanggal_penjualan?->format('d M Y'),
-            'total'     => 'Rp ' . number_format($penjualan->total_tagihan, 0, ',', '.'),
+            'total'     => 'Rp ' . number_format($penjualan->total_tagihan ?? 0, 0, ',', '.'),
         ];
 
         $validated = $request->validate([
@@ -309,7 +306,7 @@ class PenjualanController extends Controller
             'nomor_telepon'        => 'nullable|string|max:20',
             'alamat_pelanggan'     => 'required|string',
             'tanggal_penjualan'    => 'required|date',
-            'jenis_pembayaran'     => 'required|in:tunai,transfer,qris,kredit',
+            'jenis_pembayaran'     => 'required|string|max:30',
             'diskon_global'        => 'nullable|integer|min:0',
             'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
             'keterangan'           => 'nullable|string',
@@ -340,7 +337,9 @@ class PenjualanController extends Controller
             $this->syncDetails($penjualan, $validated['items']);
 
             // Re-sync status pembayaran karena total_harga mungkin berubah
-            $penjualan->fresh()->syncStatusPembayaran();
+            if (method_exists($penjualan, 'syncStatusPembayaran')) {
+                $penjualan->fresh()->syncStatusPembayaran();
+            }
         });
 
         ActivityLog::record(
@@ -351,7 +350,7 @@ class PenjualanController extends Controller
             newValue: [
                 'pelanggan' => $penjualan->fresh()->nama_pelanggan,
                 'tanggal'   => $penjualan->fresh()->tanggal_penjualan?->format('d M Y'),
-                'total'     => 'Rp ' . number_format($penjualan->fresh()->total_tagihan, 0, ',', '.'),
+                'total'     => 'Rp ' . number_format($penjualan->fresh()->total_tagihan ?? 0, 0, ',', '.'),
             ],
             pageUrl: 'penjualan/' . $penjualan->id . '/edit'
         );
@@ -361,17 +360,17 @@ class PenjualanController extends Controller
     }
 
     // =========================================================
-    //  TAMBAH PEMBAYARAN (POST dari show.blade)
+    //  TAMBAH PEMBAYARAN
     // =========================================================
 
-    public function tambahPembayaran(Request $request, string $id)
+    public function tambahPembayaran(Request $request, string $penjualan)
     {
-        $penjualan = Penjualan::findOrFail($id);
+        $penjualan = Penjualan::findOrFail($penjualan);
 
-        if ($penjualan->isBatal()) {
+        if (method_exists($penjualan, 'isBatal') && $penjualan->isBatal()) {
             return back()->with('error', 'Transaksi sudah dibatalkan.');
         }
-        if ($penjualan->isLunas()) {
+        if (method_exists($penjualan, 'isLunas') && $penjualan->isLunas()) {
             return back()->with('error', 'Transaksi sudah lunas.');
         }
 
@@ -384,8 +383,8 @@ class PenjualanController extends Controller
             'foto_bukti'    => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Jangan boleh bayar melebihi sisa tagihan
-        $sisaTagihan = $penjualan->sisa_tagihan;
+        // Cegah bayar melebihi sisa tagihan
+        $sisaTagihan = $penjualan->sisa_tagihan ?? 0;
         if ((int) $validated['jumlah_bayar'] > $sisaTagihan) {
             return back()
                 ->withInput()
@@ -409,7 +408,6 @@ class PenjualanController extends Controller
             'keterangan'    => $validated['keterangan'] ?? null,
             'foto_bukti'    => $fotoBukti,
         ]);
-        // syncStatusPembayaran() otomatis via PembayaranPenjualanObserver
 
         ActivityLog::record(
             module:   'Penjualan',
@@ -431,13 +429,13 @@ class PenjualanController extends Controller
     //  HAPUS PEMBAYARAN
     // =========================================================
 
-    public function hapusPembayaran(string $penjualanId, string $pembayaranId)
+    public function hapusPembayaran(string $penjualan, string $pembayaran)
     {
-        $penjualan  = Penjualan::findOrFail($penjualanId);
-        $pembayaran = PembayaranPenjualan::where('penjualan_id', $penjualanId)
-                        ->findOrFail($pembayaranId);
+        $penjualan  = Penjualan::findOrFail($penjualan);
+        $pembayaran = PembayaranPenjualan::where('penjualan_id', $penjualan->id)
+                        ->findOrFail($pembayaran);
 
-        if ($penjualan->isBatal()) {
+        if (method_exists($penjualan, 'isBatal') && $penjualan->isBatal()) {
             return back()->with('error', 'Transaksi sudah dibatalkan.');
         }
 
@@ -447,9 +445,12 @@ class PenjualanController extends Controller
         }
 
         $pembayaran->delete();
-        // syncStatusPembayaran() otomatis via PembayaranPenjualanObserver
 
-        return redirect()->route('penjualan.show', $penjualanId)
+        if (method_exists($penjualan, 'syncStatusPembayaran')) {
+            $penjualan->syncStatusPembayaran();
+        }
+
+        return redirect()->route('penjualan.show', $penjualan->id)
             ->with('success', 'Data pembayaran berhasil dihapus.');
     }
 
@@ -457,11 +458,11 @@ class PenjualanController extends Controller
     //  BATALKAN TRANSAKSI
     // =========================================================
 
-    public function batalkan(Request $request, string $id)
+    public function batalkan(Request $request, string $penjualan)
     {
-        $penjualan = Penjualan::with('details')->findOrFail($id);
+        $penjualan = Penjualan::with('details')->findOrFail($penjualan);
 
-        if ($penjualan->isBatal()) {
+        if (method_exists($penjualan, 'isBatal') && $penjualan->isBatal()) {
             return back()->with('error', 'Transaksi sudah dibatalkan sebelumnya.');
         }
 
@@ -478,12 +479,11 @@ class PenjualanController extends Controller
                 }
             }
 
-            Penjualan::withoutEvents(function () use ($penjualan, $request) {
-                $penjualan->update([
-                    'status_transaksi'   => 'batal',
-                    'catatan_pembatalan' => $request->input('catatan_pembatalan'),
-                ]);
-            });
+            $penjualan->update([
+                'status_transaksi'   => 'batal',
+                'catatan_pembatalan' => $request->input('catatan_pembatalan'),
+                'status_pembayaran'  => $penjualan->status_pembayaran, // tetap
+            ]);
         });
 
         ActivityLog::record(
@@ -507,8 +507,10 @@ class PenjualanController extends Controller
         $penjualan = Penjualan::with('details')->findOrFail($id);
 
         DB::transaction(function () use ($penjualan) {
-            // Kembalikan stok hanya jika bukan transaksi yang sudah dibatalkan
-            if (!$penjualan->isBatal()) {
+            $isBatal = method_exists($penjualan, 'isBatal') && $penjualan->isBatal();
+
+            // Kembalikan stok hanya jika transaksi tidak dibatalkan
+            if (!$isBatal) {
                 foreach ($penjualan->details as $detail) {
                     if ($detail->inventory_id) {
                         $inv = Inventory::find($detail->inventory_id);
@@ -517,18 +519,22 @@ class PenjualanController extends Controller
                 }
             }
 
+            // Hapus foto utama
             if ($penjualan->foto_bukti &&
                 Storage::disk('public')->exists($penjualan->foto_bukti)) {
                 Storage::disk('public')->delete($penjualan->foto_bukti);
             }
 
-            // Hapus semua pembayaran terkait
-            $penjualan->pembayarans()->each(function ($p) {
-                if ($p->foto_bukti && Storage::disk('public')->exists($p->foto_bukti)) {
-                    Storage::disk('public')->delete($p->foto_bukti);
-                }
-                $p->delete();
-            });
+            // Hapus semua record pembayaran + fotonya
+            if (method_exists($penjualan, 'pembayarans')) {
+                $penjualan->pembayarans()->each(function ($p) {
+                    if ($p->foto_bukti &&
+                        Storage::disk('public')->exists($p->foto_bukti)) {
+                        Storage::disk('public')->delete($p->foto_bukti);
+                    }
+                    $p->delete();
+                });
+            }
 
             $penjualan->delete();
         });
@@ -540,7 +546,7 @@ class PenjualanController extends Controller
             oldValue: [
                 'pelanggan' => $penjualan->nama_pelanggan,
                 'tanggal'   => $penjualan->tanggal_penjualan?->format('d M Y'),
-                'total'     => 'Rp ' . number_format($penjualan->total_tagihan, 0, ',', '.'),
+                'total'     => 'Rp ' . number_format($penjualan->total_tagihan ?? 0, 0, ',', '.'),
             ],
             pageUrl: 'penjualan'
         );

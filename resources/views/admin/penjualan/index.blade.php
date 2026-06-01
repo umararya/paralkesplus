@@ -67,7 +67,7 @@
     .item-pill .item-sub  { color:var(--text-muted); font-size:11px; }
     .items-more { font-size:11.5px; color:var(--brand-500); cursor:pointer; margin-top:2px; }
 
-    /* ── Dropdown Aksi (titik tiga) ── */
+    /* ── Dropdown Aksi ── */
     .action-wrap { position:relative; display:inline-flex; }
     .btn-action-menu { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
     .btn-action-menu:hover { background:var(--bg-hover); color:var(--text-primary); }
@@ -110,15 +110,33 @@
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
     .total-value { font-weight:700; color:#059669; }
     html.dark .total-value { color:#34D399; }
+
+    /* ── Badge Metode Bayar ── */
     .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; white-space:nowrap; }
+    .pay-cash     { background:#F0FDF4; color:#16A34A; }
     .pay-tunai    { background:#F0FDF4; color:#16A34A; }
     .pay-transfer { background:#EFF6FF; color:#1D4ED8; }
     .pay-qris     { background:#FFF7ED; color:#C2410C; }
     .pay-kredit   { background:#FDF4FF; color:#7C3AED; }
+    .pay-dp       { background:#FEF3C7; color:#92400E; }
+    html.dark .pay-cash     { background:rgba(22,163,74,0.12);  color:#4ADE80; }
     html.dark .pay-tunai    { background:rgba(22,163,74,0.12);  color:#4ADE80; }
     html.dark .pay-transfer { background:rgba(29,78,216,0.12);  color:#60A5FA; }
     html.dark .pay-qris     { background:rgba(194,65,12,0.12);  color:#FB923C; }
     html.dark .pay-kredit   { background:rgba(124,58,237,0.12); color:#C084FC; }
+    html.dark .pay-dp       { background:rgba(146,64,14,0.12);  color:#FCD34D; }
+
+    /* ── Badge Status Pembayaran ── */
+    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; margin-top:4px; }
+    .status-lunas       { background:#D1FAE5; color:#065F46; }
+    .status-dp          { background:#FEF3C7; color:#92400E; }
+    .status-belum-lunas { background:#FEE2E2; color:#991B1B; }
+    .status-batal       { background:#F1F5F9; color:#64748B; }
+    html.dark .status-lunas       { background:rgba(6,95,70,.25);    color:#6EE7B7; }
+    html.dark .status-dp          { background:rgba(146,64,14,.25);  color:#FCD34D; }
+    html.dark .status-belum-lunas { background:rgba(153,27,27,.25);  color:#FCA5A5; }
+    html.dark .status-batal       { background:rgba(100,116,139,.2); color:#94A3B8; }
+
     .foto-thumb { width:40px; height:40px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; display:block; }
     .foto-thumb:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
     .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
@@ -157,7 +175,6 @@
     select.form-control { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:32px; }
     textarea.form-control { height:70px; padding:10px 12px; resize:vertical; }
 
-    /* ── Buy Back tabel ── */
     .bb-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:13px; }
     .bb-table thead tr { background:var(--bg-primary); border-bottom:1px solid var(--border); }
     .bb-table th { padding:8px 11px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); white-space:nowrap; }
@@ -165,21 +182,15 @@
     .bb-table tbody tr:last-child td { border-bottom:none; }
     .bb-table tfoot tr { background:var(--bg-hover); border-top:2px solid var(--border); }
     .bb-table tfoot td { padding:10px 11px; font-weight:700; }
-
-    /* Input qty & harga buyback */
     .bb-input { height:34px; padding:0 9px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s,box-shadow 0.2s; box-sizing:border-box; }
     .bb-input:focus { border-color:#D97706; box-shadow:0 0 0 3px rgba(217,119,6,0.12); }
     .bb-input:disabled { opacity:0.4; cursor:not-allowed; background:var(--bg-hover); }
     .bb-qty-input   { width:64px; text-align:center; }
     .bb-harga-input { width:130px; text-align:right; }
-
-    /* Hint 50% */
     .bb-hint-50 { font-size:10.5px; color:var(--text-muted); margin-top:3px; cursor:pointer; user-select:none; }
     .bb-hint-50:hover { color:#D97706; text-decoration:underline; }
-
     .bb-row-disabled { opacity:0.4; }
 
-    /* ── Detail Modal ── */
     .detail-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
     .detail-info-item { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
     .detail-info-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:3px; }
@@ -191,7 +202,6 @@
     .detail-items-table td.right { text-align:right; }
     .detail-total-row td { font-weight:700; background:var(--bg-hover); font-size:13px; }
 
-    /* ── Lightbox ── */
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; cursor:default; }
@@ -199,7 +209,6 @@
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 
-    /* ── Kondisi badge ── */
     .kondisi-baru  { background:#F0FDF4; color:#16A34A; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
     .kondisi-bekas { background:#FFF7ED; color:#C2410C; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
 </style>
@@ -243,11 +252,11 @@
 
             <div class="toolbar-divider"></div>
 
-            <form method="GET" action="{{ route('penjualan.index') }}" class="search-form" id="searchForm">
+            <form method="GET" action="{{ route('penjualan.index') }}" class="search-form">
                 <input type="hidden" name="per_page" value="{{ $perPage }}">
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
-                    <input type="text" name="search" id="searchInput"
+                    <input type="text" name="search"
                            value="{{ $search }}"
                            placeholder="Cari pelanggan, barang..."
                            autocomplete="off">
@@ -288,7 +297,8 @@
         </div>
         @if($penjualans->total() > 0)
         <div class="info-bar-text">
-            Halaman <strong>{{ $penjualans->currentPage() }}</strong> dari <strong>{{ $penjualans->lastPage() }}</strong>
+            Halaman <strong>{{ $penjualans->currentPage() }}</strong>
+            dari <strong>{{ $penjualans->lastPage() }}</strong>
         </div>
         @endif
     </div>
@@ -302,8 +312,8 @@
                     <th>Tanggal</th>
                     <th>Pelanggan</th>
                     <th>Barang (Detail)</th>
-                    <th>Pembayaran</th>
-                    <th class="right">Total</th>
+                    <th>Metode & Status</th>
+                    <th class="right">Total Tagihan</th>
                     <th>Keterangan</th>
                     <th class="center">Bukti</th>
                     <th class="center" style="width:54px;">Aksi</th>
@@ -348,7 +358,8 @@
                             </div>
                             @endforeach
                             @if($item->details->count() > 2)
-                            <span class="items-more" onclick="openDetailModal({{ $item->id }})">
+                            <span class="items-more"
+                                  onclick="window.location='{{ route('penjualan.show', $item->id) }}'">
                                 <i class="ri-add-circle-line"></i>
                                 +{{ $item->details->count() - 2 }} barang lainnya
                             </span>
@@ -359,31 +370,59 @@
                         @endif
                     </td>
 
+                    {{-- ── Kolom Metode + Status Pembayaran ── --}}
                     <td>
                         @php
-                            $payClass = match($item->jenis_pembayaran) {
-                                'tunai'    => 'pay-tunai',
+                            $metode = $item->jenis_pembayaran ?? 'cash';
+                            $payClass = match(strtolower($metode)) {
                                 'transfer' => 'pay-transfer',
                                 'qris'     => 'pay-qris',
                                 'kredit'   => 'pay-kredit',
-                                default    => 'pay-tunai',
+                                'dp'       => 'pay-dp',
+                                default    => 'pay-cash',
                             };
-                            $payIcon = match($item->jenis_pembayaran) {
-                                'tunai'    => 'ri-money-dollar-circle-line',
+                            $payIcon = match(strtolower($metode)) {
                                 'transfer' => 'ri-bank-line',
                                 'qris'     => 'ri-qr-code-line',
                                 'kredit'   => 'ri-bank-card-line',
                                 default    => 'ri-money-dollar-circle-line',
                             };
+                            $statusClass = match($item->status_pembayaran ?? 'belum_lunas') {
+                                'lunas'       => 'status-lunas',
+                                'dp'          => 'status-dp',
+                                'belum_lunas' => 'status-belum-lunas',
+                                default       => 'status-belum-lunas',
+                            };
+                            if ($item->isBatal()) $statusClass = 'status-batal';
+                            $statusLabel = $item->isBatal()
+                                ? 'Dibatalkan'
+                                : $item->status_pembayaran_label;
+                            $statusIcon = match($item->status_pembayaran ?? 'belum_lunas') {
+                                'lunas'       => 'ri-checkbox-circle-fill',
+                                'dp'          => 'ri-time-line',
+                                'belum_lunas' => 'ri-close-circle-line',
+                                default       => 'ri-close-circle-line',
+                            };
+                            if ($item->isBatal()) $statusIcon = 'ri-forbid-line';
                         @endphp
                         <span class="pay-badge {{ $payClass }}">
                             <i class="{{ $payIcon }}"></i>
-                            {{ ucfirst($item->jenis_pembayaran) }}
+                            {{ ucfirst($metode) }}
+                        </span>
+                        <br>
+                        <span class="status-badge {{ $statusClass }}">
+                            <i class="{{ $statusIcon }}" style="font-size:10px;"></i>
+                            {{ $statusLabel }}
                         </span>
                     </td>
 
                     <td class="right total-value" style="font-size:13px;white-space:nowrap;">
                         Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
+                        @if(($item->total_terbayar ?? 0) > 0 && !$item->isLunas())
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">
+                            Terbayar: Rp {{ number_format($item->total_terbayar, 0, ',', '.') }}
+                        </div>
+                        @endif
                     </td>
 
                     <td style="max-width:130px;">
@@ -411,7 +450,7 @@
                         @endif
                     </td>
 
-                    {{-- ── KOLOM AKSI: Dropdown titik tiga ── --}}
+                    {{-- ── KOLOM AKSI ── --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button type="button"
@@ -422,18 +461,19 @@
                             </button>
                             <div class="action-dropdown">
 
-                                {{-- Lihat Detail --}}
-                                <button type="button"
-                                        class="action-dropdown-item item-view"
-                                        onclick="openDetailModal({{ $item->id }});closeAllDropdowns();">
+                                {{-- ✅ PERBAIKAN: Lihat Detail sekarang ke halaman show, bukan modal lama --}}
+                                <a href="{{ route('penjualan.show', $item->id) }}"
+                                   class="action-dropdown-item item-view">
                                     <i class="ri-eye-line"></i> Lihat Detail
-                                </button>
+                                </a>
 
                                 {{-- Edit --}}
+                                @if(!$item->isBatal())
                                 <a href="{{ route('penjualan.edit', $item->id) }}"
                                    class="action-dropdown-item item-edit">
                                     <i class="ri-edit-line"></i> Edit Penjualan
                                 </a>
+                                @endif
 
                                 {{-- Invoice --}}
                                 <a href="{{ route('penjualan.invoice', $item->id) }}"
@@ -443,11 +483,13 @@
                                 </a>
 
                                 {{-- Buy Back --}}
+                                @if(!$item->isBatal())
                                 <button type="button"
                                         class="action-dropdown-item item-buyback"
                                         onclick="openBuyBackModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
                                     <i class="ri-arrow-go-back-line"></i> Buy Back
                                 </button>
+                                @endif
 
                                 <div class="dropdown-divider"></div>
 
@@ -458,7 +500,6 @@
                                     <i class="ri-delete-bin-line"></i> Hapus
                                 </button>
 
-                                {{-- Hidden form hapus --}}
                                 <form id="formHapus-{{ $item->id }}"
                                       action="{{ route('penjualan.destroy', $item->id) }}"
                                       method="POST" style="display:none;">
@@ -484,7 +525,7 @@
             @if($penjualans->count() > 0)
             <tfoot>
                 <tr class="tfoot-total">
-                    <td colspan="5" class="right">Total keseluruhan:</td>
+                    <td colspan="5" class="right">Total keseluruhan halaman ini:</td>
                     <td class="right total-value" style="font-size:14px;white-space:nowrap;">
                         Rp {{ number_format($penjualans->sum('total_tagihan'), 0, ',', '.') }}
                     </td>
@@ -555,30 +596,6 @@
 </div>{{-- /table-card --}}
 
 
-{{-- ══ MODAL: DETAIL TRANSAKSI ══ --}}
-<div class="modal-overlay" id="modalDetail">
-    <div class="modal modal-xl">
-        <div class="modal-header">
-            <span class="modal-title">
-                <i class="ri-receipt-line"></i> Detail Transaksi
-            </span>
-            <button class="modal-close" onclick="closeModal('modalDetail')">
-                <i class="ri-close-line"></i>
-            </button>
-        </div>
-        <div class="modal-body" id="modalDetailBody">
-            <div style="text-align:center;padding:32px;color:var(--text-muted);">
-                <i class="ri-loader-4-line" style="font-size:28px;"></i>
-                <p style="margin-top:8px;font-size:13px;">Memuat data...</p>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-ghost" onclick="closeModal('modalDetail')">Tutup</button>
-        </div>
-    </div>
-</div>
-
-
 {{-- ══ MODAL: BUY BACK ══ --}}
 <div class="modal-overlay" id="modalBuyBack">
     <div class="modal modal-xxl">
@@ -594,31 +611,21 @@
         <form id="formBuyBack" method="POST" action="{{ route('pembelian.buyback.store') }}">
             @csrf
             <input type="hidden" name="penjualan_id" id="buyBackPenjualanId">
-
             <div class="modal-body">
-
-                {{-- Info pelanggan --}}
                 <div class="buyback-info" style="margin-bottom:14px;">
                     <div class="buyback-info-row">
-                        <span class="buyback-info-label">
-                            <i class="ri-user-line"></i> Pelanggan
-                        </span>
+                        <span class="buyback-info-label"><i class="ri-user-line"></i> Pelanggan</span>
                         <span class="buyback-info-value" id="buyBackNamaPelanggan">—</span>
                     </div>
                 </div>
-
-                {{-- Alert info --}}
                 <div class="alert alert-info" style="margin-bottom:14px;align-items:flex-start;">
                     <i class="ri-information-line" style="font-size:16px;flex-shrink:0;margin-top:1px;"></i>
                     <span style="font-size:13px;line-height:1.6;">
                         Centang barang yang dikembalikan, tentukan <strong>qty</strong> dan
                         <strong>harga buy back</strong> per item secara bebas.
                         Klik <em>"Isi 50%"</em> untuk mengisi otomatis 50% dari harga jual sebagai acuan.
-                        Kondisi selalu <strong>Bekas</strong> dan stok inventory bertambah otomatis.
                     </span>
                 </div>
-
-                {{-- Tabel item buyback --}}
                 <div style="overflow-x:auto;margin-bottom:14px;">
                     <table class="bb-table">
                         <thead>
@@ -629,22 +636,14 @@
                                 <th style="text-align:right;">Harga Jual / unit</th>
                                 <th style="text-align:center;">Maks Qty</th>
                                 <th style="text-align:center;width:80px;">Qty</th>
-                                <th style="text-align:right;min-width:160px;">
-                                    Harga Buyback / unit
-                                    <div style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);">
-                                        (bebas, klik "Isi 50%" utk acuan)
-                                    </div>
-                                </th>
+                                <th style="text-align:right;min-width:160px;">Harga Buyback / unit</th>
                                 <th style="text-align:right;">Total Dibayar</th>
                             </tr>
                         </thead>
-                        <tbody id="buyBackTableBody">
-                            {{-- diisi JS --}}
-                        </tbody>
+                        <tbody id="buyBackTableBody"></tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="7"
-                                    style="text-align:right;font-size:13px;color:var(--text-secondary);">
+                                <td colspan="7" style="text-align:right;font-size:13px;color:var(--text-secondary);">
                                     Total yang dibayarkan ke pelanggan:
                                 </td>
                                 <td style="text-align:right;font-size:15px;font-weight:800;color:#D97706;white-space:nowrap;"
@@ -653,17 +652,13 @@
                         </tfoot>
                     </table>
                 </div>
-
-                {{-- Keterangan --}}
                 <div class="form-group" style="margin-bottom:0;">
-                    <label class="form-label">
-                        Alasan / Keterangan Buy Back
+                    <label class="form-label">Alasan / Keterangan Buy Back
                         <span style="font-weight:400;color:var(--text-muted);">(opsional)</span>
                     </label>
                     <textarea name="keterangan" class="form-control"
                               placeholder="Contoh: Barang tidak sesuai, cacat produksi, dll."></textarea>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost" onclick="closeModal('modalBuyBack')">Batal</button>
@@ -721,20 +716,13 @@
 </div>
 
 
-{{-- Data JSON untuk modal detail & buyback --}}
+{{-- Data JSON untuk modal buyback --}}
 @php
 $penjualanData = $penjualans->map(function($item) {
     return [
-        'id'               => $item->id,
-        'nama_pelanggan'   => $item->nama_pelanggan,
-        'nomor_telepon'    => $item->nomor_telepon,
-        'alamat_pelanggan' => $item->alamat_pelanggan,
-        'tanggal'          => \Carbon\Carbon::parse($item->tanggal_penjualan)->format('d M Y'),
-        'jenis_pembayaran' => ucfirst($item->jenis_pembayaran),
-        'diskon_global'    => $item->diskon_global ?? 0,
-        'total_tagihan'    => $item->total_tagihan,
-        'keterangan'       => $item->keterangan ?? '',
-        'details'          => $item->details->map(fn($d) => [
+        'id'             => $item->id,
+        'nama_pelanggan' => $item->nama_pelanggan,
+        'details'        => $item->details->map(fn($d) => [
             'id'           => $d->id,
             'inventory_id' => $d->inventory_id,
             'nama_barang'  => $d->nama_barang,
@@ -756,7 +744,6 @@ $penjualanData = $penjualans->map(function($item) {
 const penjualanData = @json($penjualanData);
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 
-/* ══ MODAL HELPERS ══ */
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -778,7 +765,7 @@ document.addEventListener('keydown', e => {
     }
 });
 
-/* ══ DROPDOWN TITIK TIGA ══ */
+/* ══ DROPDOWN ══ */
 function toggleDropdown(btn, e) {
     e.stopPropagation();
     const dropdown = btn.nextElementSibling;
@@ -811,91 +798,6 @@ function openDeleteModal(id, nama) {
     openModal('modalHapus');
 }
 
-/* ══ MODAL DETAIL ══ */
-function openDetailModal(id) {
-    const d = penjualanData[id];
-    if (!d) return;
-
-    const rows = d.details.map(item => `
-        <tr>
-            <td>
-                ${item.nama_barang}
-                <div style="font-size:11px;margin-top:2px;">
-                    <span class="kondisi-${item.kondisi}">${ucfirst(item.kondisi)}</span>
-                </div>
-            </td>
-            <td class="right">${item.qty} ${item.satuan}</td>
-            <td class="right">${fmt(item.harga_satuan)}</td>
-            <td class="right">${item.diskon > 0 ? item.diskon + '%' : '—'}</td>
-            <td class="right" style="font-weight:600;color:#059669;">${fmt(item.subtotal)}</td>
-        </tr>
-    `).join('');
-
-    const diskonRow = d.diskon_global > 0 ? `
-        <tr class="detail-total-row">
-            <td colspan="4" style="text-align:right;">Diskon Global:</td>
-            <td class="right" style="color:#EF4444;">- ${fmt(d.diskon_global)}</td>
-        </tr>
-    ` : '';
-
-    document.getElementById('modalDetailBody').innerHTML = `
-        <div class="detail-info-grid">
-            <div class="detail-info-item">
-                <div class="detail-info-label">Pelanggan</div>
-                <div class="detail-info-value">${d.nama_pelanggan}</div>
-            </div>
-            <div class="detail-info-item">
-                <div class="detail-info-label">Tanggal</div>
-                <div class="detail-info-value">${d.tanggal}</div>
-            </div>
-            <div class="detail-info-item">
-                <div class="detail-info-label">No. Telepon</div>
-                <div class="detail-info-value">${d.nomor_telepon || '—'}</div>
-            </div>
-            <div class="detail-info-item">
-                <div class="detail-info-label">Pembayaran</div>
-                <div class="detail-info-value">${d.jenis_pembayaran}</div>
-            </div>
-            <div class="detail-info-item" style="grid-column:1/-1;">
-                <div class="detail-info-label">Alamat</div>
-                <div class="detail-info-value">${d.alamat_pelanggan || '—'}</div>
-            </div>
-            ${d.keterangan ? `
-            <div class="detail-info-item" style="grid-column:1/-1;">
-                <div class="detail-info-label">Keterangan</div>
-                <div class="detail-info-value" style="font-weight:400;font-size:12.5px;">${d.keterangan}</div>
-            </div>` : ''}
-        </div>
-        <div style="font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-            <i class="ri-list-check" style="color:var(--brand-500);"></i>
-            Detail Barang (${d.details.length} item)
-        </div>
-        <div style="overflow-x:auto;">
-            <table class="detail-items-table">
-                <thead>
-                    <tr>
-                        <th>Nama Barang</th>
-                        <th style="text-align:right;">Qty</th>
-                        <th style="text-align:right;">Harga</th>
-                        <th style="text-align:right;">Diskon</th>
-                        <th style="text-align:right;">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-                <tfoot>
-                    ${diskonRow}
-                    <tr class="detail-total-row">
-                        <td colspan="4" style="text-align:right;">Total Tagihan:</td>
-                        <td class="right" style="color:#059669;">${fmt(d.total_tagihan)}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    `;
-
-    openModal('modalDetail');
-}
-
 /* ══ MODAL BUY BACK ══ */
 function openBuyBackModal(id, nama) {
     const d = penjualanData[id];
@@ -905,78 +807,46 @@ function openBuyBackModal(id, nama) {
     document.getElementById('buyBackNamaPelanggan').textContent = nama;
 
     const rows = d.details.map((item, i) => {
-        // default pre-fill 50% dari harga jual sebagai acuan awal
         const defaultHarga = Math.round(item.harga_satuan * 0.5);
-
         return `
         <tr id="bb_row_${i}"
             data-harga-jual="${item.harga_satuan}"
             data-default-harga="${defaultHarga}"
             data-max-qty="${item.qty}">
-
-            {{-- Checkbox --}}
             <td style="text-align:center;">
-                <input type="checkbox"
-                       name="items[${i}][detail_id]"
-                       value="${item.id}"
-                       id="bb_chk_${i}"
-                       class="bb-checkbox"
+                <input type="checkbox" name="items[${i}][detail_id]" value="${item.id}"
+                       id="bb_chk_${i}" class="bb-checkbox"
                        style="width:16px;height:16px;cursor:pointer;accent-color:#D97706;"
-                       checked
-                       onchange="toggleBuyBackRow(this, ${i})">
+                       checked onchange="toggleBuyBackRow(this, ${i})">
             </td>
-
-            {{-- Nama barang --}}
             <td>
                 <div style="font-weight:600;font-size:13px;">${item.nama_barang}</div>
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${item.satuan}</div>
             </td>
-
-            {{-- Kondisi --}}
             <td style="text-align:center;">
                 <span class="kondisi-${item.kondisi}">${ucfirst(item.kondisi)}</span>
                 <div style="font-size:10.5px;color:#D97706;margin-top:3px;font-weight:600;">→ Bekas</div>
             </td>
-
-            {{-- Harga jual referensi --}}
             <td style="text-align:right;color:var(--text-secondary);font-size:13px;white-space:nowrap;">
                 ${fmt(item.harga_satuan)}
             </td>
-
-            {{-- Maks qty --}}
             <td style="text-align:center;font-weight:600;">
                 ${item.qty} <span style="font-size:11px;color:var(--text-muted);">${item.satuan}</span>
             </td>
-
-            {{-- Input qty --}}
             <td style="text-align:center;">
-                <input type="number"
-                       name="items[${i}][qty_buyback]"
-                       id="bb_qty_${i}"
-                       class="bb-input bb-qty-input"
-                       value="${item.qty}"
-                       min="1"
-                       max="${item.qty}"
-                       oninput="calcBuyBackTotal()">
+                <input type="number" name="items[${i}][qty_buyback]" id="bb_qty_${i}"
+                       class="bb-input bb-qty-input" value="${item.qty}"
+                       min="1" max="${item.qty}" oninput="calcBuyBackTotal()">
             </td>
-
-            {{-- Input harga buyback (fleksibel) --}}
             <td style="text-align:right;">
-                <input type="number"
-                       name="items[${i}][harga_buyback]"
-                       id="bb_harga_${i}"
-                       class="bb-input bb-harga-input"
-                       value="${defaultHarga}"
-                       min="0"
-                       oninput="calcBuyBackTotal()">
-                <div class="bb-hint-50"
-                     onclick="resetHarga50(${i})"
+                <input type="number" name="items[${i}][harga_buyback]" id="bb_harga_${i}"
+                       class="bb-input bb-harga-input" value="${defaultHarga}"
+                       min="0" oninput="calcBuyBackTotal()">
+                <div class="bb-hint-50" onclick="resetHarga50(${i})"
                      title="Klik untuk isi ulang 50% dari harga jual">
                     ↺ Isi 50% (${fmt(defaultHarga)})
                 </div>
             </td>
-
-            {{-- Subtotal --}}
             <td style="text-align:right;font-weight:700;color:#059669;white-space:nowrap;font-size:13px;"
                 id="bb_subtotal_${i}">
                 ${fmt(defaultHarga * item.qty)}
@@ -989,47 +859,34 @@ function openBuyBackModal(id, nama) {
     openModal('modalBuyBack');
 }
 
-/* Isi ulang harga ke 50% dari harga jual untuk 1 baris */
 function resetHarga50(i) {
     const row   = document.getElementById('bb_row_' + i);
     const input = document.getElementById('bb_harga_' + i);
     if (!row || !input) return;
     input.value = row.dataset.defaultHarga;
     calcBuyBackTotal();
-
-    // flash animasi input
     input.style.borderColor = '#D97706';
     input.style.boxShadow   = '0 0 0 3px rgba(217,119,6,0.18)';
-    setTimeout(() => {
-        input.style.borderColor = '';
-        input.style.boxShadow   = '';
-    }, 800);
+    setTimeout(() => { input.style.borderColor = ''; input.style.boxShadow = ''; }, 800);
 }
 
-/* Toggle baris aktif/nonaktif */
 function toggleBuyBackRow(chk, i) {
     const row        = document.getElementById('bb_row_' + i);
     const qtyInput   = document.getElementById('bb_qty_' + i);
     const hargaInput = document.getElementById('bb_harga_' + i);
-
     if (chk.checked) {
         row.classList.remove('bb-row-disabled');
-        qtyInput.disabled   = false;
-        hargaInput.disabled = false;
+        qtyInput.disabled = false; hargaInput.disabled = false;
     } else {
         row.classList.add('bb-row-disabled');
-        qtyInput.disabled   = true;
-        hargaInput.disabled = true;
+        qtyInput.disabled = true; hargaInput.disabled = true;
     }
     calcBuyBackTotal();
 }
 
-/* Hitung grand total realtime */
 function calcBuyBackTotal() {
     let grandTotal = 0;
-    const rows = document.querySelectorAll('#buyBackTableBody tr');
-
-    rows.forEach((row, i) => {
+    document.querySelectorAll('#buyBackTableBody tr').forEach((row, i) => {
         const chk        = document.getElementById('bb_chk_' + i);
         const qtyInput   = document.getElementById('bb_qty_' + i);
         const hargaInput = document.getElementById('bb_harga_' + i);
@@ -1037,27 +894,22 @@ function calcBuyBackTotal() {
         if (!chk || !qtyInput || !hargaInput || !subCell) return;
 
         const maxQty = parseInt(row.dataset.maxQty) || 1;
-        let qty      = parseInt(qtyInput.value)     || 0;
-        let harga    = parseFloat(hargaInput.value) || 0;
+        let qty   = parseInt(qtyInput.value)     || 0;
+        let harga = parseFloat(hargaInput.value) || 0;
 
-        // Clamp qty
-        if (qty > maxQty)           { qty = maxQty; qtyInput.value = maxQty; }
-        if (qty < 1 && chk.checked) { qty = 1;      qtyInput.value = 1; }
-        if (harga < 0)              { harga = 0;     hargaInput.value = 0; }
+        if (qty > maxQty) { qty = maxQty; qtyInput.value = maxQty; }
+        if (qty < 1 && chk.checked) { qty = 1; qtyInput.value = 1; }
+        if (harga < 0) { harga = 0; hargaInput.value = 0; }
 
         const subtotal = chk.checked ? harga * qty : 0;
-
         subCell.textContent = fmt(subtotal);
         subCell.style.color = chk.checked ? '#059669' : 'var(--text-muted)';
-
         grandTotal += subtotal;
     });
-
     document.getElementById('buyBackGrandTotal').textContent = fmt(grandTotal);
 
-    // Disable submit jika tidak ada yang dicentang
     const anyChecked = [...document.querySelectorAll('.bb-checkbox')].some(c => c.checked);
-    const btn        = document.getElementById('btnSubmitBuyBack');
+    const btn = document.getElementById('btnSubmitBuyBack');
     if (btn) {
         btn.disabled      = !anyChecked;
         btn.style.opacity = anyChecked ? '1' : '0.5';
@@ -1078,7 +930,6 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
-/* ══ HELPER ══ */
 function ucfirst(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
