@@ -35,7 +35,7 @@ Route::post('/theme', function (\Illuminate\Http\Request $request) {
 Route::middleware('auth')->group(function () {
 
 
-    // Dashboard
+    // ── Dashboard ──
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
@@ -52,20 +52,25 @@ Route::middleware('auth')->group(function () {
 
     // ── Pembelian ──
     Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');
-    Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])
-         ->name('pembelian.buyback.store');
+    Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])->name('pembelian.buyback.store');
     Route::resource('pembelian', PembelianController::class);
 
 
     // ── Penjualan ──
-    Route::get('/penjualan/export',            [PenjualanController::class, 'export'])->name('penjualan.export');
-    // ↓ WAJIB sebelum resource agar tidak ditangkap sebagai {penjualan} wildcard
-    Route::get('/penjualan/search-inventory',  [PenjualanController::class, 'searchInventory'])->name('penjualan.search-inventory');
+    // CATATAN: Route non-resource WAJIB dideklarasikan SEBELUM Route::resource
+    // agar tidak ditangkap sebagai wildcard {penjualan}
+
+    Route::get('/penjualan/export',        [PenjualanController::class, 'export'])->name('penjualan.export');
     Route::resource('penjualan', PenjualanController::class);
-    Route::get('/penjualan/{id}/invoice',      [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
+
+    // ── Sub-route penjualan (setelah resource) ──
+    Route::get( '/penjualan/{id}/invoice',                         [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
+    Route::post('/penjualan/{penjualan}/pembayaran',               [PenjualanController::class, 'tambahPembayaran'])->name('penjualan.tambahPembayaran');
+    Route::delete('/penjualan/{penjualan}/pembayaran/{pembayaran}', [PenjualanController::class, 'hapusPembayaran'])->name('penjualan.hapusPembayaran');
+    Route::post('/penjualan/{penjualan}/batalkan',                 [PenjualanController::class, 'batalkan'])->name('penjualan.batalkan');
 
 
-    // ── Inventory (CRUD penuh) ──
+    // ── Inventory ──
     Route::resource('inventory', InventoryController::class);
 
 
