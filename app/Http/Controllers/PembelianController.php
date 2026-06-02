@@ -8,7 +8,7 @@ use App\Models\ActivityLog;
 use App\Models\Inventory;
 use App\Models\InventoryLog;
 use App\Models\Pembelian;
-use App\Models\PenjualanDetail;
+use App\Models\DetailPenjualan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -421,7 +421,7 @@ class PembelianController extends Controller
             'penjualan_id'              => 'required|exists:penjualans,id',
             'keterangan'                => 'nullable|string|max:500',
             'items'                     => 'required|array|min:1',
-            'items.*.detail_id'         => 'required|integer|exists:penjualan_details,id',
+            'items.*.detail_id' => 'required|integer|exists:detail_penjualans,id',
             'items.*.qty_buyback'       => 'required|integer|min:1',
         ]);
 
@@ -439,7 +439,7 @@ class PembelianController extends Controller
                 $qtyBuyback = (int) $item['qty_buyback'];
 
                 // Ambil detail penjualan asli
-                $detail = PenjualanDetail::findOrFail($detailId);
+                $detail = DetailPenjualan::findOrFail($detailId);
 
                 // Pastikan qty buyback tidak melebihi qty penjualan
                 $qtyBuyback = min($qtyBuyback, $detail->qty);
@@ -524,5 +524,18 @@ class PembelianController extends Controller
 
         return redirect()->route('penjualan.index')
             ->with('success', 'Buy back berhasil! Stok bekas inventory sudah diperbarui dengan harga 50% dari harga jual.');
+    }
+        // ══════════════════════════════════════════════════════════════
+    //  INVOICE BUY BACK
+    // ══════════════════════════════════════════════════════════════
+
+    public function invoice(string $id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+
+        // Hanya invoice untuk buy back
+        abort_if($pembelian->status !== 'buy_back', 404, 'Invoice hanya tersedia untuk transaksi buy back.');
+
+        return view('admin.pembelian.cetak.invoice', compact('pembelian'));
     }
 }

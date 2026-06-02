@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])->name('pembelian.buyback.store');
     Route::resource('pembelian', PembelianController::class);
-
+    Route::get('pembelian/{id}/invoice', [PembelianController::class, 'invoice'])->name('pembelian.invoice');
 
     // ── Penjualan ──
     // CATATAN: Route non-resource WAJIB dideklarasikan SEBELUM Route::resource

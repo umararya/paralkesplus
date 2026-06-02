@@ -523,25 +523,34 @@
                     </td>
 
                     <td class="center">
-                        <div class="action-group">
-                            <a href="{{ route('pembelian.edit', $item->id) }}"
-                               class="btn-action edit" title="Edit data">
-                                <i class="ri-edit-line"></i>
-                            </a>
-                            <button type="button"
-                                    class="btn-action delete"
-                                    title="Hapus data"
-                                    onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                            <form id="formHapus-{{ $item->id }}"
-                                  action="{{ route('pembelian.destroy', $item->id) }}"
-                                  method="POST" style="display:none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                        </div>
-                    </td>
+    <div class="action-group">
+        @if($item->status === 'buy_back')
+        <a href="{{ route('pembelian.invoice', $item->id) }}"
+           target="_blank"
+           class="btn-action"
+           title="Cetak Invoice Buy Back"
+           style="color:#D97706; border-color:#FDE68A; background:#FFFBEB;">
+            <i class="ri-printer-line"></i>
+        </a>
+        @endif
+        <a href="{{ route('pembelian.edit', $item->id) }}"
+           class="btn-action edit" title="Edit data">
+            <i class="ri-edit-line"></i>
+        </a>
+        <button type="button"
+                class="btn-action delete"
+                title="Hapus data"
+                onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_barang) }}')">
+            <i class="ri-delete-bin-line"></i>
+        </button>
+        <form id="formHapus-{{ $item->id }}"
+              action="{{ route('pembelian.destroy', $item->id) }}"
+              method="POST" style="display:none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
+</td>
                 </tr>
                 @empty
                 <tr>
