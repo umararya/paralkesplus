@@ -21,10 +21,11 @@
             background: #fff;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .page-content { flex: 1; }
 
-        /* KOP */
+        /* ── KOP ── */
         .kop {
             display: flex; align-items: center;
             justify-content: space-between;
@@ -41,21 +42,43 @@
         .kop-center .alamat-toko { font-size: 9.5px; color: #666; margin-top: 3px; line-height: 1.5; }
         .kop-right img { height: 60px; object-fit: contain; }
 
-        /* JUDUL */
+        /* ── JUDUL + STATUS BADGE ── */
         .invoice-title-bar {
             background: #1D6FA4; color: #fff;
-            text-align: center; padding: 7px 0;
+            padding: 7px 14px;
             border-radius: 4px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
         }
         .invoice-title-bar h2 {
             font-size: 15px; font-weight: 700;
             letter-spacing: 2px; text-transform: uppercase;
+            text-align: center;
+        }
+        .status-badge-print {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            padding: 3px 10px; border-radius: 4px;
+            font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+            text-transform: uppercase; border: 2px solid;
+        }
+        .status-lunas   { background:#dcfce7; color:#15803d; border-color:#15803d; }
+        .status-dp      { background:#fef3c7; color:#b45309; border-color:#b45309; }
+        .status-belum   { background:#fee2e2; color:#b91c1c; border-color:#b91c1c; }
+
+        /* ── WATERMARK BATAL ── */
+        .watermark-batal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 88px; font-weight: 900; color: rgba(220,38,38,0.10);
+            text-transform: uppercase; letter-spacing: 10px;
+            pointer-events: none; z-index: 0; white-space: nowrap;
+            user-select: none;
         }
 
-        /* INFO */
+        /* ── INFO BOXES ── */
         .info-section {
             display: flex; justify-content: space-between;
-            gap: 20px; margin-bottom: 16px;
+            gap: 10px; margin-bottom: 16px;
         }
         .info-box {
             flex: 1; border: 1px solid #dde3ea;
@@ -67,10 +90,21 @@
             border-bottom: 1px solid #dde3ea; padding-bottom: 5px; margin-bottom: 8px;
         }
         .info-row { display: flex; gap: 6px; margin-bottom: 4px; line-height: 1.5; }
-        .info-label { color: #666; min-width: 120px; font-size: 11px; }
+        .info-label { color: #666; min-width: 110px; font-size: 11px; }
         .info-value { font-weight: 600; color: #1a1a1a; font-size: 11px; }
 
-        /* TABEL DETAIL */
+        /* Pengiriman box — warna aksen berbeda */
+        .info-box.kirim-box { border-color: #bfdbfe; background: #f0f7ff; }
+        .info-box.kirim-box .info-title { color: #1D6FA4; border-bottom-color: #bfdbfe; }
+
+        /* Ambil sendiri — chip kecil */
+        .chip-ambil {
+            display: inline-block; background: #fef3c7; color: #92400e;
+            border: 1px solid #fde68a; border-radius: 4px;
+            padding: 2px 8px; font-size: 10px; font-weight: 700; margin-top: 2px;
+        }
+
+        /* ── TABEL DETAIL ── */
         .section-title {
             font-size: 11px; font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.8px; color: #1D6FA4; margin-bottom: 7px;
@@ -101,15 +135,16 @@
             border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700;
         }
 
-        /* RINGKASAN + TERBILANG */
+        /* ── BIAYA + TERBILANG ── */
         .biaya-section {
             display: flex; justify-content: space-between;
-            align-items: flex-start; gap: 16px; margin-bottom: 16px;
+            align-items: flex-start; gap: 16px; margin-bottom: 14px;
         }
         .terbilang-wrap { flex: 1; }
         .terbilang-table {
             width: 100%; border-collapse: collapse;
             border: 1px solid #dde3ea; border-radius: 6px; overflow: hidden;
+            margin-bottom: 8px;
         }
         .terbilang-table .tb-title {
             background: #1D6FA4; color: #fff; font-size: 10.5px; font-weight: 700;
@@ -121,8 +156,14 @@
             font-weight: 600; line-height: 1.6; font-style: italic; text-align: center;
             display: block;
         }
+        .terbilang-table .tb-sub {
+            padding: 6px 12px 8px; font-size: 10.5px; color: #b45309;
+            font-style: italic; text-align: center; display: block;
+            border-top: 1px dashed #fde68a; background: #fffbeb;
+        }
+
         .biaya-box {
-            width: 300px; flex-shrink: 0;
+            width: 290px; flex-shrink: 0;
             border: 1px solid #dde3ea; border-radius: 6px; overflow: hidden;
         }
         .biaya-row {
@@ -134,11 +175,55 @@
         .biaya-row .value { font-weight: 600; }
         .biaya-row.diskon-row .label { color: #b45309; font-weight: 600; }
         .biaya-row.diskon-row .value { color: #b45309; font-weight: 700; }
+        .biaya-row.ongkir-row .label { color: #1D6FA4; }
+        .biaya-row.ongkir-row .value { color: #1D6FA4; font-weight: 700; }
+        .biaya-row.instalasi-row .label { color: #7c3aed; }
+        .biaya-row.instalasi-row .value { color: #7c3aed; font-weight: 700; }
         .biaya-row.total-row { background: #1D6FA4; color: #fff; }
         .biaya-row.total-row .label,
         .biaya-row.total-row .value { color: #fff; font-weight: 700; font-size: 12.5px; }
+        .biaya-row.dibayar-row { background: #f0fdf4; }
+        .biaya-row.dibayar-row .label { color: #15803d; font-weight: 600; }
+        .biaya-row.dibayar-row .value { color: #15803d; font-weight: 700; }
+        .biaya-row.sisa-row-lunas { background: #f0fdf4; }
+        .biaya-row.sisa-row-lunas .label,
+        .biaya-row.sisa-row-lunas .value { color: #15803d; font-weight: 700; }
+        .biaya-row.sisa-row-belum { background: #fff7ed; }
+        .biaya-row.sisa-row-belum .label { color: #b91c1c; font-weight: 600; }
+        .biaya-row.sisa-row-belum .value { color: #b91c1c; font-weight: 800; font-size: 12px; }
 
-        /* CATATAN */
+        /* ── RIWAYAT PEMBAYARAN ── */
+        .riwayat-section { margin-bottom: 14px; }
+        .riwayat-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; color: #1D6FA4; margin-bottom: 7px;
+        }
+        .riwayat-table { width: 100%; border-collapse: collapse; }
+        .riwayat-table thead tr { background: #1e40af; color: #fff; }
+        .riwayat-table th {
+            padding: 7px 10px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.4px; text-align: left;
+        }
+        .riwayat-table th.right, .riwayat-table td.right { text-align: right; }
+        .riwayat-table th.center, .riwayat-table td.center { text-align: center; }
+        .riwayat-table td {
+            padding: 7px 10px; font-size: 11px;
+            border-bottom: 1px solid #eef0f3; vertical-align: middle;
+        }
+        .riwayat-table tbody tr:nth-child(even) td { background: #f8fafc; }
+        .badge-tipe {
+            display: inline-block; border-radius: 4px;
+            padding: 1px 7px; font-size: 10px; font-weight: 700;
+        }
+        .tipe-dp        { background: #fef3c7; color: #b45309; }
+        .tipe-cicilan   { background: #dbeafe; color: #1e40af; }
+        .tipe-pelunasan { background: #dcfce7; color: #15803d; }
+        .riwayat-table tfoot td {
+            padding: 7px 10px; font-size: 11.5px; font-weight: 700;
+            border-top: 2px solid #1D6FA4; color: #1D6FA4;
+        }
+
+        /* ── CATATAN ── */
         .catatan-box {
             border: 1px solid #dde3ea; border-radius: 6px;
             padding: 10px 12px; margin-bottom: 20px; background: #f8fafc;
@@ -149,7 +234,7 @@
         }
         .catatan-box p { font-size: 11px; color: #555; line-height: 1.6; }
 
-        /* TTD */
+        /* ── TTD ── */
         .ttd-section {
             display: flex; justify-content: space-between;
             align-items: flex-end; margin-top: 10px;
@@ -167,7 +252,7 @@
             filter: invert(1) sepia(1) saturate(2) hue-rotate(180deg); opacity: 0.15;
         }
 
-        /* FOOTER */
+        /* ── FOOTER ── */
         .page-footer {
             margin-top: auto; padding-top: 10px;
             border-top: 1.5px solid #1D6FA4; text-align: center;
@@ -205,18 +290,61 @@
     \Carbon\Carbon::setLocale('id');
     $now = now('Asia/Jakarta');
 
-    $details = $penjualan->details ?? collect();
+    $details    = $penjualan->details ?? collect();
+    $pembayarans = $penjualan->pembayarans ?? collect();
 
-    /* Kalkulasi */
-    $subtotalBarang = $details->sum(function($d) {
+    /* ── Kalkulasi ── */
+    $subtotalBarang  = $details->sum(function($d) {
         $sub = $d->qty * $d->harga_satuan;
         if (($d->diskon ?? 0) > 0) $sub = $sub * (1 - $d->diskon / 100);
         return round($sub);
     });
-    $diskonGlobal = (int)($penjualan->diskon_global ?? 0);
-    $totalTagihan = max(0, $subtotalBarang - $diskonGlobal);
+    $diskonGlobal    = max(0, (int)($penjualan->diskon_global    ?? 0));
+    $hargaPengiriman = max(0, (int)($penjualan->harga_pengiriman ?? 0));
+    $jasaInstalasi   = max(0, (int)($penjualan->jasa_instalasi   ?? 0));
+    $jasaPengiriman  = $penjualan->jasa_pengiriman ?? 'ambil_sendiri';
 
-    /* Fungsi terbilang — nama unik agar tidak bentrok jika 2 invoice dibuka */
+    $totalTagihan    = max(0, $subtotalBarang - $diskonGlobal + $hargaPengiriman + $jasaInstalasi);
+    $totalTerbayar   = max(0, (int)($penjualan->total_terbayar ?? $pembayarans->sum('jumlah_bayar')));
+    $sisaTagihan     = max(0, $totalTagihan - $totalTerbayar);
+
+    /* ── Label pengiriman ── */
+    $kirimLabel = match($jasaPengiriman) {
+        'gosend_grab'  => 'Via GoSend / GrabExpress',
+        'rental_mobil' => 'Via Rental Mobil Paralkes',
+        default        => 'Ambil dan antar kembali oleh penyewa',
+    };
+    $kirimIcon = match($jasaPengiriman) {
+        'gosend_grab'  => '🛵',
+        'rental_mobil' => '🚗',
+        default        => '🚶',
+    };
+
+    /* ── Status badge ── */
+    $statusPembayaran = $penjualan->status_pembayaran ?? 'belum_lunas';
+    $statusTransaksi  = $penjualan->status_transaksi  ?? 'aktif';
+    $isBatal          = $statusTransaksi === 'batal';
+
+    $badgeClass = match($statusPembayaran) {
+        'lunas' => 'status-lunas',
+        'dp'    => 'status-dp',
+        default => 'status-belum',
+    };
+    $badgeLabel = match($statusPembayaran) {
+        'lunas' => '✓ LUNAS',
+        'dp'    => '⚠ DOWN PAYMENT',
+        default => '⚠ BELUM LUNAS',
+    };
+    if ($isBatal) {
+        $badgeClass = 'status-belum';
+        $badgeLabel = '✕ DIBATALKAN';
+    }
+
+    /* ── Tampilkan riwayat pembayaran? ── */
+    $tampilRiwayat = $pembayarans->count() > 0
+        && ($statusPembayaran !== 'lunas' || $pembayarans->count() > 1);
+
+    /* ── Terbilang ── */
     function terbilangJual(int $n): string {
         if ($n < 0) return 'minus ' . terbilangJual(-$n);
         $satuan = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
@@ -230,13 +358,25 @@
         if ($n < 1_000_000_000) return terbilangJual((int)($n / 1_000_000)) . ' juta' . ($n % 1_000_000 ? ' ' . terbilangJual($n % 1_000_000) : '');
         return terbilangJual((int)($n / 1_000_000_000)) . ' miliar' . ($n % 1_000_000_000 ? ' ' . terbilangJual($n % 1_000_000_000) : '');
     }
-    $terbilangStr = ucfirst(terbilangJual($totalTagihan)) . ' Rupiah';
+
+    $terbilangTotal  = ucfirst(terbilangJual($totalTagihan)) . ' Rupiah';
+    $terbilangTerbayar = $totalTerbayar > 0
+        ? ucfirst(terbilangJual($totalTerbayar)) . ' Rupiah'
+        : null;
+    $terbilangSisa = $sisaTagihan > 0
+        ? ucfirst(terbilangJual($sisaTagihan)) . ' Rupiah'
+        : null;
 @endphp
+
+{{-- Watermark BATAL --}}
+@if($isBatal)
+<div class="watermark-batal">DIBATALKAN</div>
+@endif
 
 <div class="page-wrapper">
     <div class="page-content">
 
-        {{-- KOP --}}
+        {{-- ── KOP ── --}}
         <div class="kop">
             <div class="kop-left">
                 <img src="{{ asset('images/logo-cop-paralkesplus2.png') }}" alt="Logo Kiri">
@@ -254,13 +394,16 @@
             </div>
         </div>
 
-        {{-- JUDUL --}}
+        {{-- ── JUDUL + STATUS BADGE ── --}}
         <div class="invoice-title-bar">
             <h2>Invoice Penjualan Alat Kesehatan</h2>
+            <span class="status-badge-print {{ $badgeClass }}">{{ $badgeLabel }}</span>
         </div>
 
-        {{-- INFO (TANPA STATUS) --}}
+        {{-- ── INFO BOXES ── --}}
         <div class="info-section">
+
+            {{-- Box 1: Info Invoice --}}
             <div class="info-box">
                 <div class="info-title">📋 Informasi Invoice</div>
                 <div class="info-row">
@@ -276,8 +419,20 @@
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Jenis Pembayaran</span>
-                    <span class="info-value">: {{ ucfirst($penjualan->jenis_pembayaran) }}</span>
+                    <span class="info-label">Metode Bayar</span>
+                    <span class="info-value">: {{ ucfirst($penjualan->jenis_pembayaran ?? '-') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status Bayar</span>
+                    <span class="info-value">:
+                        @if($statusPembayaran === 'lunas')
+                            <span style="color:#15803d;font-weight:700;">✓ Lunas</span>
+                        @elseif($statusPembayaran === 'dp')
+                            <span style="color:#b45309;font-weight:700;">Down Payment</span>
+                        @else
+                            <span style="color:#b91c1c;font-weight:700;">Belum Lunas</span>
+                        @endif
+                    </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Dicetak</span>
@@ -285,6 +440,7 @@
                 </div>
             </div>
 
+            {{-- Box 2: Data Pelanggan --}}
             <div class="info-box">
                 <div class="info-title">👤 Data Pelanggan</div>
                 <div class="info-row">
@@ -300,9 +456,48 @@
                     <span class="info-value">: {{ $penjualan->alamat_pelanggan }}</span>
                 </div>
             </div>
+
+            {{-- Box 3: Pengiriman (hanya jika bukan ambil sendiri ATAU ada biaya pengiriman/instalasi) --}}
+            @if($jasaPengiriman !== 'ambil_sendiri' || $hargaPengiriman > 0 || $jasaInstalasi > 0)
+            <div class="info-box kirim-box">
+                <div class="info-title">{{ $kirimIcon }} Informasi Pengiriman</div>
+                <div class="info-row">
+                    <span class="info-label">Jasa Kirim</span>
+                    <span class="info-value">: {{ $kirimLabel }}</span>
+                </div>
+                @if($hargaPengiriman > 0)
+                <div class="info-row">
+                    <span class="info-label">Ongkos Kirim</span>
+                    <span class="info-value" style="color:#1D6FA4;">
+                        : Rp {{ number_format($hargaPengiriman, 0, ',', '.') }}
+                    </span>
+                </div>
+                @else
+                <div class="info-row">
+                    <span class="info-label">Ongkos Kirim</span>
+                    <span class="info-value" style="color:#15803d;">: Gratis (Rp 0)</span>
+                </div>
+                @endif
+                @if($jasaInstalasi > 0)
+                <div class="info-row">
+                    <span class="info-label">Jasa Instalasi</span>
+                    <span class="info-value" style="color:#7c3aed;">
+                        : Rp {{ number_format($jasaInstalasi, 0, ',', '.') }}
+                    </span>
+                </div>
+                @endif
+            </div>
+            @else
+            {{-- Ambil sendiri tanpa biaya tambahan → chip kecil saja di box pelanggan bawah --}}
+            <div class="info-box" style="display:flex;flex-direction:column;justify-content:flex-end;max-width:160px;flex:0 0 160px;">
+                <div class="info-title">📦 Pengiriman</div>
+                <span class="chip-ambil">🚶 {{ $kirimLabel }}</span>
+            </div>
+            @endif
+
         </div>
 
-        {{-- DETAIL PENJUALAN --}}
+        {{-- ── DETAIL BARANG ── --}}
         <div class="section-title">Detail Penjualan</div>
         <table class="detail-table">
             <thead>
@@ -356,46 +551,151 @@
             </tbody>
         </table>
 
-        {{-- RINGKASAN + TERBILANG --}}
+        {{-- ── BIAYA + TERBILANG ── --}}
         <div class="biaya-section">
+
             {{-- Kiri: Terbilang --}}
             <div class="terbilang-wrap">
                 <table class="terbilang-table">
-                    <tr><td class="tb-title">Terbilang</td></tr>
-                    <tr><td class="tb-value">{{ $terbilangStr }}</td></tr>
+                    <tr>
+                        <td class="tb-title">Terbilang — Total Tagihan</td>
+                    </tr>
+                    <tr>
+                        <td class="tb-value">{{ $terbilangTotal }}</td>
+                    </tr>
+                    @if($terbilangSisa && $sisaTagihan > 0)
+                    <tr>
+                        <td class="tb-sub">
+                            Sisa: {{ $terbilangSisa }}
+                        </td>
+                    </tr>
+                    @endif
                 </table>
             </div>
 
-            {{-- Kanan: Ringkasan --}}
+            {{-- Kanan: Biaya Box --}}
             <div class="biaya-box">
                 <div class="biaya-row">
-                    <span class="label">Subtotal</span>
+                    <span class="label">Subtotal Barang</span>
                     <span class="value">Rp {{ number_format($subtotalBarang, 0, ',', '.') }}</span>
                 </div>
+
                 @if($diskonGlobal > 0)
                 <div class="biaya-row diskon-row">
                     <span class="label">Diskon</span>
                     <span class="value">– Rp {{ number_format($diskonGlobal, 0, ',', '.') }}</span>
                 </div>
                 @endif
+
+                @if($hargaPengiriman > 0)
+                <div class="biaya-row ongkir-row">
+                    <span class="label">🛵 Ongkos Kirim</span>
+                    <span class="value">+ Rp {{ number_format($hargaPengiriman, 0, ',', '.') }}</span>
+                </div>
+                @endif
+
+                @if($jasaInstalasi > 0)
+                <div class="biaya-row instalasi-row">
+                    <span class="label">🔧 Jasa Instalasi</span>
+                    <span class="value">+ Rp {{ number_format($jasaInstalasi, 0, ',', '.') }}</span>
+                </div>
+                @endif
+
                 <div class="biaya-row total-row">
                     <span class="label">Total Tagihan</span>
                     <span class="value">Rp {{ number_format($totalTagihan, 0, ',', '.') }}</span>
                 </div>
+
+                @if($totalTerbayar > 0)
+                <div class="biaya-row dibayar-row">
+                    <span class="label">✓ Sudah Dibayar</span>
+                    <span class="value">– Rp {{ number_format($totalTerbayar, 0, ',', '.') }}</span>
+                </div>
+
+                @if($sisaTagihan > 0)
+                <div class="biaya-row sisa-row-belum">
+                    <span class="label">⚠ Sisa Tagihan</span>
+                    <span class="value">Rp {{ number_format($sisaTagihan, 0, ',', '.') }}</span>
+                </div>
+                @else
+                <div class="biaya-row sisa-row-lunas">
+                    <span class="label">✓ Sisa Tagihan</span>
+                    <span class="value">Rp 0 (LUNAS)</span>
+                </div>
+                @endif
+                @endif
+
             </div>
         </div>
 
-        {{-- CATATAN --}}
+        {{-- ── RIWAYAT PEMBAYARAN (kondisional) ── --}}
+        @if($tampilRiwayat)
+        <div class="riwayat-section">
+            <div class="riwayat-title">💳 Riwayat Pembayaran</div>
+            <table class="riwayat-table">
+                <thead>
+                    <tr>
+                        <th class="center" style="width:28px;">#</th>
+                        <th style="width:100px;">Tanggal</th>
+                        <th style="width:90px;">Tipe</th>
+                        <th style="width:80px;">Via</th>
+                        <th class="right">Jumlah</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($pembayarans as $i => $bayar)
+                    <tr>
+                        <td class="center">{{ $i + 1 }}</td>
+                        <td>
+                            {{ $bayar->tanggal_bayar
+                                ? \Carbon\Carbon::parse($bayar->tanggal_bayar)->translatedFormat('d M Y')
+                                : '-' }}
+                        </td>
+                        <td>
+                            <span class="badge-tipe tipe-{{ $bayar->tipe ?? 'dp' }}">
+                                {{ ucfirst($bayar->tipe ?? '-') }}
+                            </span>
+                        </td>
+                        <td style="text-transform:uppercase; font-size:10.5px; font-weight:700; color:#555;">
+                            {{ $bayar->metode ?? '-' }}
+                        </td>
+                        <td class="right" style="font-weight:700;">
+                            Rp {{ number_format($bayar->jumlah_bayar ?? 0, 0, ',', '.') }}
+                        </td>
+                        <td style="font-size:10.5px; color:#666;">
+                            {{ $bayar->keterangan ?: '-' }}
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align:right;">Total Terbayar</td>
+                        <td class="right">Rp {{ number_format($totalTerbayar, 0, ',', '.') }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @endif
+
+        {{-- ── CATATAN ── --}}
         <div class="catatan-box">
             <div class="catatan-title">📝 Catatan</div>
             <p>{{ $penjualan->keterangan ?: 'Tidak ada catatan tambahan.' }}</p>
+            @if($isBatal && $penjualan->catatan_pembatalan)
+            <p style="margin-top:6px; color:#b91c1c; font-weight:600;">
+                ⚠ Alasan Pembatalan: {{ $penjualan->catatan_pembatalan }}
+            </p>
+            @endif
             <p style="margin-top:6px; color:#888;">
                 ※ Barang yang sudah dibeli tidak dapat dikembalikan kecuali terdapat kerusakan
                 dari pabrik. Harap periksa kondisi barang saat penerimaan.
             </p>
         </div>
 
-        {{-- TTD --}}
+        {{-- ── TTD ── --}}
         <div class="ttd-section">
             <div class="ttd-box">
                 <div class="ttd-label">Hormat Kami,</div>
