@@ -63,9 +63,28 @@
     /* ── Stok Badge ── */
     .stok-baru-badge  { background:#DBEAFE; color:#1D4ED8; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-bekas-badge { background:#F3E8FF; color:#7C3AED; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
-
     .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:5px; min-height:20px; flex-wrap:wrap; }
     .stok-info-row span { font-size:12px; }
+
+    /* ── Input prefix Rp ── */
+    .input-prefix-wrap { position:relative; }
+    .input-prefix { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--text-muted); pointer-events:none; font-weight:500; }
+    .input-prefix-wrap .form-control { padding-left:36px; }
+
+    /* ── Pengiriman Preview Badge ── */
+    .kirim-preview-wrap { margin-top:10px; }
+    .kirim-preview-badge {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:6px 14px; border-radius:9px; font-size:12.5px; font-weight:600;
+        border:1px solid transparent;
+    }
+    .kirim-preview-badge i { font-size:15px; }
+    .kirim-p-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
+    .kirim-p-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
+    .kirim-p-rental { background:#DBEAFE; color:#1E40AF; border-color:#BFDBFE; }
+    html.dark .kirim-p-ambil  { background:rgba(146,64,14,.2);  color:#FCD34D; border-color:rgba(146,64,14,.35); }
+    html.dark .kirim-p-gosend { background:rgba(6,95,70,.2);    color:#6EE7B7; border-color:rgba(6,95,70,.35); }
+    html.dark .kirim-p-rental { background:rgba(30,64,175,.2);  color:#93C5FD; border-color:rgba(30,64,175,.35); }
 
     /* ── Select2 Overrides ── */
     .select2-container { width:100% !important; }
@@ -106,7 +125,7 @@
       enctype="multipart/form-data" id="formPenjualan">
 @csrf @method('PUT')
 
-{{-- ── INFO PELANGGAN ── --}}
+{{-- ════ CARD 1: INFO PELANGGAN ════ --}}
 <div class="form-card">
     <div class="form-card-header">
         <div class="form-card-title"><i class="ri-user-line"></i> Informasi Pelanggan & Transaksi</div>
@@ -144,7 +163,10 @@
                 <label class="form-label">Jenis Pembayaran <span class="req">*</span></label>
                 <select name="jenis_pembayaran" class="form-control" required>
                     @foreach(['tunai'=>'Tunai','transfer'=>'Transfer Bank','qris'=>'QRIS','kredit'=>'Kredit'] as $v=>$l)
-                    <option value="{{ $v }}" {{ old('jenis_pembayaran', $penjualan->jenis_pembayaran)==$v ? 'selected' : '' }}>{{ $l }}</option>
+                    <option value="{{ $v }}"
+                        {{ old('jenis_pembayaran', $penjualan->jenis_pembayaran) == $v ? 'selected' : '' }}>
+                        {{ $l }}
+                    </option>
                     @endforeach
                 </select>
             </div>
@@ -154,7 +176,9 @@
                 @if($penjualan->foto_bukti)
                 <div class="current-foto">
                     <img src="{{ Storage::url($penjualan->foto_bukti) }}" alt="Bukti">
-                    <div class="current-foto-info">Foto tersimpan. Upload baru untuk mengganti.</div>
+                    <div class="current-foto-info">
+                        Foto tersimpan. Upload baru untuk mengganti.
+                    </div>
                 </div>
                 @endif
                 <input type="file" name="foto_bukti" class="form-control" accept="image/*">
@@ -169,62 +193,60 @@
     </div>
 </div>
 
-{{-- ════ CARD: JASA PENGIRIMAN & INSTALASI ════ --}}
+{{-- ════ CARD 2: PENGIRIMAN & INSTALASI ════ --}}
 <div class="form-card">
     <div class="form-card-header">
-        <div class="form-card-title"><i class="ri-truck-line"></i> Jasa Pengiriman & Instalasi</div>
+        <div class="form-card-title">
+            <i class="ri-truck-line"></i> Jasa Pengiriman & Instalasi
+        </div>
     </div>
     <div class="form-card-body">
-
-        <div class="form-group" style="margin-bottom:18px;">
-            <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
-            <div class="kirim-options">
-
-                @php
-                $kirimOpts = [
-                    'diambil_sendiri' => ['icon' => 'ri-walk-line',      'label' => 'Diambil Sendiri'],
-                    'jne'             => ['icon' => 'ri-truck-line',      'label' => 'JNE'],
-                    'jnt'             => ['icon' => 'ri-truck-line',      'label' => 'J&T'],
-                    'sicepat'         => ['icon' => 'ri-truck-line',      'label' => 'SiCepat'],
-                    'anteraja'        => ['icon' => 'ri-truck-line',      'label' => 'Anteraja'],
-                    'gosend'          => ['icon' => 'ri-motorbike-line',  'label' => 'GoSend'],
-                    'grab'            => ['icon' => 'ri-motorbike-line',  'label' => 'GrabExpress'],
-                    'lainnya'         => ['icon' => 'ri-more-line',       'label' => 'Lainnya'],
-                ];
-                $selectedKirim = old('jasa_pengiriman', $penjualan->jasa_pengiriman ?? 'diambil_sendiri');
-                @endphp
-
-                @foreach($kirimOpts as $val => $opt)
-                <div class="kirim-option">
-                    <input type="radio" name="jasa_pengiriman"
-                           id="kirim_{{ $val }}" value="{{ $val }}"
-                           {{ $selectedKirim === $val ? 'checked' : '' }}
-                           onchange="onKirimChange(this.value)">
-                    <label for="kirim_{{ $val }}">
-                        <i class="{{ $opt['icon'] }}"></i> {{ $opt['label'] }}
-                    </label>
-                </div>
-                @endforeach
-
-            </div>
-        </div>
-
         <div class="form-grid">
+
+            {{-- ── Dropdown Jasa Pengiriman ── --}}
+            <div class="form-group full">
+                <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
+                <select name="jasa_pengiriman" id="jasa_pengiriman"
+                        class="form-control {{ $errors->has('jasa_pengiriman') ? 'is-invalid' : '' }}"
+                        onchange="onKirimChange(this.value)" required>
+                    <option value="ambil_sendiri"
+                        {{ old('jasa_pengiriman', $penjualan->jasa_pengiriman ?? 'ambil_sendiri') === 'ambil_sendiri' ? 'selected' : '' }}>
+                        🚶 Ambil dan antar kembali oleh penyewa
+                    </option>
+                    <option value="gosend_grab"
+                        {{ old('jasa_pengiriman', $penjualan->jasa_pengiriman) === 'gosend_grab' ? 'selected' : '' }}>
+                        🛵 Via GoSend / GrabExpress
+                    </option>
+                    <option value="rental_mobil"
+                        {{ old('jasa_pengiriman', $penjualan->jasa_pengiriman) === 'rental_mobil' ? 'selected' : '' }}>
+                        🚗 Via Rental Mobil Paralkes
+                    </option>
+                </select>
+                @error('jasa_pengiriman')<div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>@enderror
+
+                {{-- Preview badge pilihan aktif --}}
+                <div class="kirim-preview-wrap" id="kirim-preview-wrap">
+                    <span class="kirim-preview-badge" id="kirim-preview-badge"></span>
+                </div>
+            </div>
+
+            {{-- ── Harga Ongkos Kirim ── --}}
             <div class="form-group" id="wrap-harga-pengiriman">
-                <label class="form-label">Harga Jasa Pengiriman</label>
+                <label class="form-label">Ongkos Kirim</label>
                 <div class="input-prefix-wrap">
                     <span class="input-prefix">Rp</span>
                     <input type="number" name="harga_pengiriman" id="harga_pengiriman"
                            class="form-control"
                            value="{{ old('harga_pengiriman', $penjualan->harga_pengiriman ?? 0) }}"
-                           min="0" placeholder="0"
-                           oninput="recalcTotal()">
+                           min="0" placeholder="0">
                 </div>
-                <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
-                    <i class="ri-information-line"></i> Diambil sendiri = otomatis Rp 0
+                <span id="hint-ongkir" style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                    <i class="ri-information-line"></i>
+                    Pilih "Ambil sendiri" untuk ongkos otomatis Rp 0
                 </span>
             </div>
 
+            {{-- ── Jasa Instalasi ── --}}
             <div class="form-group">
                 <label class="form-label">Jasa Instalasi</label>
                 <div class="input-prefix-wrap">
@@ -232,19 +254,18 @@
                     <input type="number" name="jasa_instalasi" id="jasa_instalasi"
                            class="form-control"
                            value="{{ old('jasa_instalasi', $penjualan->jasa_instalasi ?? 0) }}"
-                           min="0" placeholder="0 (tidak ada instalasi)"
-                           oninput="recalcTotal()">
+                           min="0" placeholder="0 (tidak ada instalasi)">
                 </div>
                 <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
                     <i class="ri-tools-line"></i> Isi 0 jika tidak ada jasa instalasi
                 </span>
             </div>
-        </div>
 
+        </div>
     </div>
 </div>
 
-{{-- ── DETAIL BARANG ── --}}
+{{-- ════ CARD 3: DETAIL BARANG ════ --}}
 <div class="form-card">
     <div class="form-card-header">
         <div class="form-card-title"><i class="ri-shopping-bag-line"></i> Detail Barang</div>
@@ -271,11 +292,12 @@
     </div>
 </div>
 
+{{-- ── Action Buttons ── --}}
 <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:24px;">
-    <a href="{{ route('penjualan.index') }}" class="btn btn-ghost">
+    <a href="{{ route('penjualan.show', $penjualan->id) }}" class="btn btn-ghost">
         <i class="ri-arrow-left-line"></i> Batal
     </a>
-    <button type="submit" class="btn btn-primary">
+    <button type="submit" class="btn btn-primary" id="btnSubmit">
         <i class="ri-save-line"></i> Simpan Perubahan
     </button>
 </div>
@@ -287,12 +309,57 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-/* ── Data existing dari controller (aman, sudah di-encode PHP) ── */
 const existingItems = @json($existingItems);
-
 let rowIndex = 0;
 
-/* ── Template Select2 dropdown ── */
+/* ════ CONFIG PENGIRIMAN ════ */
+const KIRIM_CONFIG = {
+    ambil_sendiri: {
+        icon:       'ri-walk-line',
+        label:      'Ambil dan antar kembali oleh penyewa',
+        badgeClass: 'kirim-p-ambil',
+        freeOngkir:  true,
+    },
+    gosend_grab: {
+        icon:       'ri-motorbike-line',
+        label:      'Via GoSend / GrabExpress',
+        badgeClass: 'kirim-p-gosend',
+        freeOngkir:  false,
+    },
+    rental_mobil: {
+        icon:       'ri-car-line',
+        label:      'Via Rental Mobil Paralkes',
+        badgeClass: 'kirim-p-rental',
+        freeOngkir:  false,
+    },
+};
+
+/* ════ ON KIRIM CHANGE ════ */
+function onKirimChange(val) {
+    const cfg         = KIRIM_CONFIG[val] || KIRIM_CONFIG['ambil_sendiri'];
+    const ongkirInput = document.getElementById('harga_pengiriman');
+    const hintEl      = document.getElementById('hint-ongkir');
+    const previewBadge= document.getElementById('kirim-preview-badge');
+
+    if (cfg.freeOngkir) {
+        ongkirInput.value    = 0;
+        ongkirInput.readOnly = true;
+        ongkirInput.style.opacity = '0.5';
+        if (hintEl) hintEl.innerHTML =
+            '<i class="ri-checkbox-circle-line" style="color:#059669"></i> ' +
+            '<span style="color:#059669;font-weight:600;">Ongkos kirim otomatis Rp 0 (ambil sendiri)</span>';
+    } else {
+        ongkirInput.readOnly = false;
+        ongkirInput.style.opacity = '1';
+        if (hintEl) hintEl.innerHTML =
+            '<i class="ri-information-line"></i> Masukkan nominal ongkos kirim';
+    }
+
+    previewBadge.className = 'kirim-preview-badge ' + cfg.badgeClass;
+    previewBadge.innerHTML = '<i class="' + cfg.icon + '"></i> ' + cfg.label;
+}
+
+/* ════ SELECT2 TEMPLATES ════ */
 function templateBarang(item) {
     if (!item.id) return item.text || 'Pilih atau cari nama barang...';
     return $(
@@ -306,7 +373,6 @@ function templateBarang(item) {
         '</div>'
     );
 }
-
 function templateBarangSelected(item) {
     if (!item.id) return item.text || 'Pilih barang...';
     return $(
@@ -317,7 +383,7 @@ function templateBarangSelected(item) {
     );
 }
 
-/* ── Tambah baris ── */
+/* ════ TAMBAH BARIS BARANG ════ */
 function addRow(data) {
     data = data || {};
     rowIndex++;
@@ -339,7 +405,7 @@ function addRow(data) {
     var stokInfoHtml = '';
     if (data.inventory_id && data.stok_baru !== undefined) {
         stokInfoHtml =
-            '<span class="stok-baru-badge">Baru: ' + (data.stok_baru || 0) + '</span>' +
+            '<span class="stok-baru-badge">Baru: '   + (data.stok_baru  || 0) + '</span>' +
             '<span class="stok-bekas-badge">Bekas: ' + (data.stok_bekas || 0) + '</span>';
     }
 
@@ -401,9 +467,8 @@ function addRow(data) {
     })
     .on('select2:select', function(e) {
         var item = e.params.data;
-
-        document.getElementById('inv-id-' + idx).value   = item.id;
-        document.getElementById('nama-'    + idx).value  = item.text;
+        document.getElementById('inv-id-' + idx).value  = item.id;
+        document.getElementById('nama-'   + idx).value  = item.text;
 
         var infoHtml =
             '<span class="stok-baru-badge">Baru: '   + (item.stok_baru  || 0) + '</span>' +
@@ -413,7 +478,6 @@ function addRow(data) {
         }
         document.getElementById('stok-info-' + idx).innerHTML = infoHtml;
 
-        /* satuan otomatis */
         var $sat = $('select[name="items[' + idx + '][satuan]"]');
         if (item.satuan) {
             if ($sat.find('option[value="' + item.satuan + '"]').length) {
@@ -422,7 +486,6 @@ function addRow(data) {
                 $sat.append(new Option(item.satuan, item.satuan, true, true));
             }
         }
-
         updateHargaHidden(idx, item);
     })
     .on('select2:clear', function() {
@@ -459,8 +522,19 @@ function removeRow(idx) {
     if (row) row.parentNode.removeChild(row);
 }
 
-/* ── INIT: load existing items dari controller ── */
+/* ════ SUBMIT ════ */
+document.getElementById('formPenjualan').addEventListener('submit', function () {
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite"></i> Menyimpan...';
+});
+
+/* ════ INIT ════ */
 document.addEventListener('DOMContentLoaded', function() {
+    // Trigger preview badge pengiriman sesuai data tersimpan
+    onKirimChange(document.getElementById('jasa_pengiriman').value);
+
+    // Load existing items dari controller
     if (existingItems && existingItems.length > 0) {
         existingItems.forEach(function(item) { addRow(item); });
     } else {
@@ -468,4 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<style>
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
 @endpush
