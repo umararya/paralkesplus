@@ -169,6 +169,81 @@
     </div>
 </div>
 
+{{-- ════ CARD: JASA PENGIRIMAN & INSTALASI ════ --}}
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="form-card-title"><i class="ri-truck-line"></i> Jasa Pengiriman & Instalasi</div>
+    </div>
+    <div class="form-card-body">
+
+        <div class="form-group" style="margin-bottom:18px;">
+            <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
+            <div class="kirim-options">
+
+                @php
+                $kirimOpts = [
+                    'diambil_sendiri' => ['icon' => 'ri-walk-line',      'label' => 'Diambil Sendiri'],
+                    'jne'             => ['icon' => 'ri-truck-line',      'label' => 'JNE'],
+                    'jnt'             => ['icon' => 'ri-truck-line',      'label' => 'J&T'],
+                    'sicepat'         => ['icon' => 'ri-truck-line',      'label' => 'SiCepat'],
+                    'anteraja'        => ['icon' => 'ri-truck-line',      'label' => 'Anteraja'],
+                    'gosend'          => ['icon' => 'ri-motorbike-line',  'label' => 'GoSend'],
+                    'grab'            => ['icon' => 'ri-motorbike-line',  'label' => 'GrabExpress'],
+                    'lainnya'         => ['icon' => 'ri-more-line',       'label' => 'Lainnya'],
+                ];
+                $selectedKirim = old('jasa_pengiriman', $penjualan->jasa_pengiriman ?? 'diambil_sendiri');
+                @endphp
+
+                @foreach($kirimOpts as $val => $opt)
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman"
+                           id="kirim_{{ $val }}" value="{{ $val }}"
+                           {{ $selectedKirim === $val ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_{{ $val }}">
+                        <i class="{{ $opt['icon'] }}"></i> {{ $opt['label'] }}
+                    </label>
+                </div>
+                @endforeach
+
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group" id="wrap-harga-pengiriman">
+                <label class="form-label">Harga Jasa Pengiriman</label>
+                <div class="input-prefix-wrap">
+                    <span class="input-prefix">Rp</span>
+                    <input type="number" name="harga_pengiriman" id="harga_pengiriman"
+                           class="form-control"
+                           value="{{ old('harga_pengiriman', $penjualan->harga_pengiriman ?? 0) }}"
+                           min="0" placeholder="0"
+                           oninput="recalcTotal()">
+                </div>
+                <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                    <i class="ri-information-line"></i> Diambil sendiri = otomatis Rp 0
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jasa Instalasi</label>
+                <div class="input-prefix-wrap">
+                    <span class="input-prefix">Rp</span>
+                    <input type="number" name="jasa_instalasi" id="jasa_instalasi"
+                           class="form-control"
+                           value="{{ old('jasa_instalasi', $penjualan->jasa_instalasi ?? 0) }}"
+                           min="0" placeholder="0 (tidak ada instalasi)"
+                           oninput="recalcTotal()">
+                </div>
+                <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                    <i class="ri-tools-line"></i> Isi 0 jika tidak ada jasa instalasi
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 {{-- ── DETAIL BARANG ── --}}
 <div class="form-card">
     <div class="form-card-header">

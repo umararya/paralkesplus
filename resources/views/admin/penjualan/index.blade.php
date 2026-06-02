@@ -67,6 +67,24 @@
     .item-pill .item-sub  { color:var(--text-muted); font-size:11px; }
     .items-more { font-size:11.5px; color:var(--brand-500); cursor:pointer; margin-top:2px; }
 
+    /* ── Kolom Pengiriman ── */
+    .kirim-wrap { display:flex; flex-direction:column; gap:4px; }
+    .kirim-badge {
+        display:inline-flex; align-items:center; gap:6px;
+        padding:4px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
+        border:1px solid transparent; width:fit-content;
+    }
+    .kirim-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
+    .kirim-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
+    .kirim-rental { background:#DBEAFE; color:#1E40AF; border-color:#BFDBFE; }
+    html.dark .kirim-ambil  { background:rgba(146,64,14,.2);   color:#FCD34D; border-color:rgba(146,64,14,.35); }
+    html.dark .kirim-gosend { background:rgba(6,95,70,.2);     color:#6EE7B7; border-color:rgba(6,95,70,.35); }
+    html.dark .kirim-rental { background:rgba(30,64,175,.2);   color:#93C5FD; border-color:rgba(30,64,175,.35); }
+    .kirim-badge i { font-size:13px; }
+    .kirim-ongkir { font-size:11px; color:var(--text-muted); padding-left:2px; }
+    .kirim-free   { color:#059669; font-weight:600; }
+    .kirim-instalasi { font-size:11px; color:#7C3AED; padding-left:2px; display:flex; align-items:center; gap:4px; }
+
     /* ── Dropdown Aksi ── */
     .action-wrap { position:relative; display:inline-flex; }
     .btn-action-menu { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
@@ -111,7 +129,6 @@
     .total-value { font-weight:700; color:#059669; }
     html.dark .total-value { color:#34D399; }
 
-    /* ── Badge Metode Bayar ── */
     .pay-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; white-space:nowrap; }
     .pay-cash     { background:#F0FDF4; color:#16A34A; }
     .pay-tunai    { background:#F0FDF4; color:#16A34A; }
@@ -126,7 +143,6 @@
     html.dark .pay-kredit   { background:rgba(124,58,237,0.12); color:#C084FC; }
     html.dark .pay-dp       { background:rgba(146,64,14,0.12);  color:#FCD34D; }
 
-    /* ── Badge Status Pembayaran ── */
     .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; margin-top:4px; }
     .status-lunas       { background:#D1FAE5; color:#065F46; }
     .status-dp          { background:#FEF3C7; color:#92400E; }
@@ -142,7 +158,6 @@
     .foto-none { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:7px; background:var(--bg-primary); border:1px dashed var(--border); color:var(--text-muted); font-size:18px; }
     .tfoot-total td { padding:12px 14px; font-size:13px; font-weight:700; color:var(--text-primary); background:var(--bg-hover); border-top:2px solid var(--border); }
 
-    /* ── Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
@@ -162,7 +177,6 @@
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
-    /* ── Modal Buy Back ── */
     .buyback-info { background:var(--bg-hover); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
     .buyback-info-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; padding:4px 0; }
     .buyback-info-label { color:var(--text-muted); display:flex; align-items:center; gap:5px; }
@@ -190,17 +204,6 @@
     .bb-hint-50 { font-size:10.5px; color:var(--text-muted); margin-top:3px; cursor:pointer; user-select:none; }
     .bb-hint-50:hover { color:#D97706; text-decoration:underline; }
     .bb-row-disabled { opacity:0.4; }
-
-    .detail-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-    .detail-info-item { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
-    .detail-info-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:3px; }
-    .detail-info-value { font-size:13px; font-weight:600; color:var(--text-primary); }
-    .detail-items-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-    .detail-items-table th { padding:8px 10px; background:var(--bg-primary); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); border-bottom:1px solid var(--border); text-align:left; }
-    .detail-items-table td { padding:9px 10px; border-bottom:1px solid var(--border); font-size:12.5px; }
-    .detail-items-table tr:last-child td { border-bottom:none; }
-    .detail-items-table td.right { text-align:right; }
-    .detail-total-row td { font-weight:700; background:var(--bg-hover); font-size:13px; }
 
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
@@ -313,6 +316,7 @@
                     <th>Pelanggan</th>
                     <th>Barang (Detail)</th>
                     <th>Metode & Status</th>
+                    <th>Pengiriman</th>
                     <th class="right">Total Tagihan</th>
                     <th>Keterangan</th>
                     <th class="center">Bukti</th>
@@ -321,6 +325,14 @@
             </thead>
             <tbody>
                 @forelse($penjualans as $item)
+                @php
+                    $kirimKey   = $item->jasa_pengiriman ?? 'ambil_sendiri';
+                    $kirimClass = match($kirimKey) {
+                        'gosend_grab'  => 'kirim-gosend',
+                        'rental_mobil' => 'kirim-rental',
+                        default        => 'kirim-ambil',
+                    };
+                @endphp
                 <tr>
                     <td style="color:var(--text-muted);font-size:12.5px;font-weight:500;">
                         {{ $penjualans->firstItem() + $loop->index }}
@@ -370,7 +382,7 @@
                         @endif
                     </td>
 
-                    {{-- ── Kolom Metode + Status Pembayaran ── --}}
+                    {{-- Metode + Status Pembayaran --}}
                     <td>
                         @php
                             $metode = $item->jenis_pembayaran ?? 'cash';
@@ -416,6 +428,32 @@
                         </span>
                     </td>
 
+                    {{-- ── KOLOM PENGIRIMAN ── --}}
+                    <td style="min-width:170px;">
+                        <div class="kirim-wrap">
+                            <span class="kirim-badge {{ $kirimClass }}">
+                                <i class="{{ $item->jasa_pengiriman_icon }}"></i>
+                                {{ $item->jasa_pengiriman_label }}
+                            </span>
+                            @if(($item->harga_pengiriman ?? 0) > 0)
+                                <span class="kirim-ongkir">
+                                    <i class="ri-price-tag-3-line" style="font-size:10px;"></i>
+                                    Ongkir: Rp {{ number_format($item->harga_pengiriman, 0, ',', '.') }}
+                                </span>
+                            @else
+                                <span class="kirim-ongkir kirim-free">
+                                    <i class="ri-check-double-line" style="font-size:10px;"></i> Gratis
+                                </span>
+                            @endif
+                            @if(($item->jasa_instalasi ?? 0) > 0)
+                                <span class="kirim-instalasi">
+                                    <i class="ri-tools-line"></i>
+                                    Instalasi: Rp {{ number_format($item->jasa_instalasi, 0, ',', '.') }}
+                                </span>
+                            @endif
+                        </div>
+                    </td>
+
                     <td class="right total-value" style="font-size:13px;white-space:nowrap;">
                         Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
                         @if(($item->total_terbayar ?? 0) > 0 && !$item->isLunas())
@@ -450,7 +488,7 @@
                         @endif
                     </td>
 
-                    {{-- ── KOLOM AKSI ── --}}
+                    {{-- KOLOM AKSI --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button type="button"
@@ -460,29 +498,21 @@
                                 <i class="ri-more-2-fill"></i>
                             </button>
                             <div class="action-dropdown">
-
-                                {{-- ✅ PERBAIKAN: Lihat Detail sekarang ke halaman show, bukan modal lama --}}
                                 <a href="{{ route('penjualan.show', $item->id) }}"
                                    class="action-dropdown-item item-view">
                                     <i class="ri-eye-line"></i> Lihat Detail
                                 </a>
-
-                                {{-- Edit --}}
                                 @if(!$item->isBatal())
                                 <a href="{{ route('penjualan.edit', $item->id) }}"
                                    class="action-dropdown-item item-edit">
                                     <i class="ri-edit-line"></i> Edit Penjualan
                                 </a>
                                 @endif
-
-                                {{-- Invoice --}}
                                 <a href="{{ route('penjualan.invoice', $item->id) }}"
                                    class="action-dropdown-item item-invoice"
                                    target="_blank">
                                     <i class="ri-file-text-line"></i> Cetak Invoice
                                 </a>
-
-                                {{-- Buy Back --}}
                                 @if(!$item->isBatal())
                                 <button type="button"
                                         class="action-dropdown-item item-buyback"
@@ -490,16 +520,12 @@
                                     <i class="ri-arrow-go-back-line"></i> Buy Back
                                 </button>
                                 @endif
-
                                 <div class="dropdown-divider"></div>
-
-                                {{-- Hapus --}}
                                 <button type="button"
                                         class="action-dropdown-item item-delete"
                                         onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
                                     <i class="ri-delete-bin-line"></i> Hapus
                                 </button>
-
                                 <form id="formHapus-{{ $item->id }}"
                                       action="{{ route('penjualan.destroy', $item->id) }}"
                                       method="POST" style="display:none;">
@@ -511,7 +537,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9">
+                    <td colspan="10">
                         <div class="empty-state">
                             <i class="ri-exchange-dollar-line"></i>
                             <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penjualan' }}</h3>
@@ -525,7 +551,7 @@
             @if($penjualans->count() > 0)
             <tfoot>
                 <tr class="tfoot-total">
-                    <td colspan="5" class="right">Total keseluruhan halaman ini:</td>
+                    <td colspan="6" class="right">Total keseluruhan halaman ini:</td>
                     <td class="right total-value" style="font-size:14px;white-space:nowrap;">
                         Rp {{ number_format($penjualans->sum('total_tagihan'), 0, ',', '.') }}
                     </td>
@@ -765,7 +791,6 @@ document.addEventListener('keydown', e => {
     }
 });
 
-/* ══ DROPDOWN ══ */
 function toggleDropdown(btn, e) {
     e.stopPropagation();
     const dropdown = btn.nextElementSibling;
@@ -791,14 +816,12 @@ function closeAllDropdowns() {
 }
 document.addEventListener('click', closeAllDropdowns);
 
-/* ══ MODAL DELETE ══ */
 function openDeleteModal(id, nama) {
     document.getElementById('deleteNamaPelanggan').textContent = nama;
     document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
     openModal('modalHapus');
 }
 
-/* ══ MODAL BUY BACK ══ */
 function openBuyBackModal(id, nama) {
     const d = penjualanData[id];
     if (!d) return;
@@ -917,7 +940,6 @@ function calcBuyBackTotal() {
     }
 }
 
-/* ══ LIGHTBOX ══ */
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;

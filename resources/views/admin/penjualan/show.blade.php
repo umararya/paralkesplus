@@ -30,6 +30,24 @@
     html.dark .badge-red    { background:rgba(153,27,27,.25);  color:#FCA5A5; }
     html.dark .badge-blue   { background:rgba(30,64,175,.25);  color:#93C5FD; }
 
+    /* ── Pengiriman Badge ── */
+    .kirim-show-badge {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 14px; border-radius:10px;
+        font-size:13px; font-weight:600; border:1px solid transparent;
+    }
+    .kirim-show-badge i { font-size:16px; }
+    .kirim-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
+    .kirim-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
+    .kirim-rental { background:#DBEAFE; color:#1E40AF; border-color:#BFDBFE; }
+    html.dark .kirim-ambil  { background:rgba(146,64,14,.2);  color:#FCD34D; border-color:rgba(146,64,14,.35); }
+    html.dark .kirim-gosend { background:rgba(6,95,70,.2);    color:#6EE7B7; border-color:rgba(6,95,70,.35); }
+    html.dark .kirim-rental { background:rgba(30,64,175,.2);  color:#93C5FD; border-color:rgba(30,64,175,.35); }
+
+    /* ── Section Divider Pengiriman ── */
+    .section-divider { display:flex; align-items:center; gap:10px; margin:20px 0 16px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
+    .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
     .items-table { width:100%; border-collapse:collapse; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 12px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -101,7 +119,7 @@
 
 @section('content')
 
-{{-- Flash --}}
+{{-- ── Flash Messages ── --}}
 @if(session('success'))
 <div class="alert alert-success">
     <i class="ri-checkbox-circle-fill" style="font-size:17px;flex-shrink:0;margin-top:1px;"></i>
@@ -139,9 +157,15 @@
         'belum_lunas' => 'badge-red',
         default       => 'badge-gray',
     };
+    $kirimKey   = $penjualan->jasa_pengiriman ?? 'ambil_sendiri';
+    $kirimClass = match($kirimKey) {
+        'gosend_grab'  => 'kirim-gosend',
+        'rental_mobil' => 'kirim-rental',
+        default        => 'kirim-ambil',
+    };
 @endphp
 
-{{-- Top Action Bar --}}
+{{-- ── Top Action Bar ── --}}
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
     <div style="display:flex;align-items:center;gap:10px;">
         <a href="{{ route('penjualan.index') }}" class="btn btn-ghost btn-sm">
@@ -153,7 +177,8 @@
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
         @if(!$penjualan->isBatal())
-            <a href="{{ route('penjualan.invoice', $penjualan->id) }}" target="_blank" class="btn btn-ghost btn-sm">
+            <a href="{{ route('penjualan.invoice', $penjualan->id) }}" target="_blank"
+               class="btn btn-ghost btn-sm">
                 <i class="ri-printer-line"></i> Cetak Invoice
             </a>
             <a href="{{ route('penjualan.edit', $penjualan->id) }}" class="btn btn-primary btn-sm">
@@ -166,17 +191,20 @@
         <form method="POST" action="{{ route('penjualan.destroy', $penjualan->id) }}"
               onsubmit="return confirm('Hapus data penjualan ini permanen?')">
             @csrf @method('DELETE')
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#DC2626;border-color:#DC2626;">
+            <button type="submit" class="btn btn-ghost btn-sm"
+                    style="color:#DC2626;border-color:#DC2626;">
                 <i class="ri-delete-bin-line"></i> Hapus
             </button>
         </form>
     </div>
 </div>
 
-{{-- ═══ CARD: Info Transaksi ═══ --}}
+{{-- ════ CARD 1: Info Transaksi ════ --}}
 <div class="detail-card">
     <div class="detail-card-header">
-        <div class="detail-card-title"><i class="ri-file-list-3-line"></i> Informasi Transaksi</div>
+        <div class="detail-card-title">
+            <i class="ri-file-list-3-line"></i> Informasi Transaksi
+        </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <span class="badge {{ $transaksiColor }}">{{ $penjualan->status_transaksi_label }}</span>
             <span class="badge {{ $bayarColor }}">{{ $penjualan->status_pembayaran_label }}</span>
@@ -184,36 +212,43 @@
     </div>
     <div class="detail-card-body">
         <div class="info-grid">
+
             <div class="info-item">
                 <span class="info-label">Tanggal Penjualan</span>
                 <span class="info-value">
                     {{ $penjualan->tanggal_penjualan?->translatedFormat('d F Y') ?? '-' }}
                 </span>
             </div>
+
             <div class="info-item">
                 <span class="info-label">Metode Pembayaran</span>
                 <span class="info-value" style="text-transform:capitalize;">
                     {{ $penjualan->metode_pembayaran ?? $penjualan->jenis_pembayaran ?? '-' }}
                 </span>
             </div>
+
             <div class="info-item">
                 <span class="info-label">Nama Pelanggan</span>
                 <span class="info-value">{{ $penjualan->nama_pelanggan }}</span>
             </div>
+
             <div class="info-item">
                 <span class="info-label">No. Telepon</span>
                 <span class="info-value">{{ $penjualan->nomor_telepon ?? '-' }}</span>
             </div>
+
             <div class="info-item full">
                 <span class="info-label">Alamat</span>
                 <span class="info-value">{{ $penjualan->alamat_pelanggan ?? '-' }}</span>
             </div>
+
             @if($penjualan->keterangan)
             <div class="info-item full">
                 <span class="info-label">Keterangan</span>
                 <span class="info-value">{{ $penjualan->keterangan }}</span>
             </div>
             @endif
+
             @if($penjualan->foto_bukti)
             <div class="info-item full">
                 <span class="info-label">Foto Bukti</span>
@@ -223,22 +258,80 @@
                 </a>
             </div>
             @endif
+
         </div>
+
+        {{-- ──────────────── BLOK PENGIRIMAN ──────────────── --}}
+        <div class="section-divider">
+            <i class="ri-truck-line" style="font-size:13px;"></i> Informasi Pengiriman
+        </div>
+
+        <div class="info-grid">
+
+            <div class="info-item full">
+                <span class="info-label">Jasa Pengiriman</span>
+                <span class="info-value">
+                    <span class="kirim-show-badge {{ $kirimClass }}">
+                        <i class="{{ $penjualan->jasa_pengiriman_icon }}"></i>
+                        {{ $penjualan->jasa_pengiriman_label }}
+                    </span>
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Ongkos Kirim</span>
+                <span class="info-value">
+                    @if(($penjualan->harga_pengiriman ?? 0) > 0)
+                        <strong style="color:var(--text-primary);">
+                            Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}
+                        </strong>
+                    @else
+                        <span style="color:#059669;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                            <i class="ri-check-double-line"></i> Gratis (Rp 0)
+                        </span>
+                    @endif
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Jasa Instalasi</span>
+                <span class="info-value">
+                    @if(($penjualan->jasa_instalasi ?? 0) > 0)
+                        <strong style="color:#7C3AED;display:inline-flex;align-items:center;gap:4px;">
+                            <i class="ri-tools-line"></i>
+                            Rp {{ number_format($penjualan->jasa_instalasi, 0, ',', '.') }}
+                        </strong>
+                    @else
+                        <span style="color:var(--text-muted);font-style:italic;">Tidak ada</span>
+                    @endif
+                </span>
+            </div>
+
+        </div>
+        {{-- ──────────────── END PENGIRIMAN ──────────────── --}}
 
         @if($penjualan->isBatal() && $penjualan->catatan_pembatalan)
         <div class="alert alert-error" style="margin-top:16px;margin-bottom:0;">
             <i class="ri-close-circle-fill" style="font-size:17px;flex-shrink:0;margin-top:1px;"></i>
-            <div><strong>Transaksi Dibatalkan.</strong> Alasan: {{ $penjualan->catatan_pembatalan }}</div>
+            <div>
+                <strong>Transaksi Dibatalkan.</strong>
+                Alasan: {{ $penjualan->catatan_pembatalan }}
+            </div>
         </div>
         @endif
+
     </div>
 </div>
 
-{{-- ═══ CARD: Detail Barang ═══ --}}
+{{-- ════ CARD 2: Detail Barang ════ --}}
 <div class="detail-card">
     <div class="detail-card-header">
-        <div class="detail-card-title"><i class="ri-shopping-bag-line"></i> Detail Barang</div>
-        <span style="font-size:12px;color:var(--text-muted);">{{ $penjualan->details->count() }} item</span>
+        <div class="detail-card-title">
+            <i class="ri-shopping-bag-line"></i> Detail Barang
+        </div>
+        <span style="font-size:12px;color:var(--text-muted);">
+            {{ $penjualan->details->count() }} item
+        </span>
     </div>
     <div class="detail-card-body" style="padding:0;">
         <div style="overflow-x:auto;">
@@ -258,13 +351,16 @@
                 <tbody>
                     @forelse($penjualan->details as $i => $detail)
                     <tr>
-                        <td style="text-align:center;color:var(--text-muted);font-size:12px;">{{ $i+1 }}</td>
+                        <td style="text-align:center;color:var(--text-muted);font-size:12px;">
+                            {{ $i + 1 }}
+                        </td>
                         <td>
                             <span style="font-weight:600;">{{ $detail->nama_barang }}</span>
                             @if($detail->inventory)
-                                <br><span style="font-size:11px;color:var(--text-muted);">
-                                    {{ $detail->inventory->nama_produk ?? '' }}
-                                </span>
+                            <br>
+                            <span style="font-size:11px;color:var(--text-muted);">
+                                {{ $detail->inventory->nama_produk ?? '' }}
+                            </span>
                             @endif
                         </td>
                         <td>
@@ -274,15 +370,20 @@
                         </td>
                         <td style="text-align:center;">{{ $detail->qty }}</td>
                         <td style="color:var(--text-muted);">{{ $detail->satuan ?? 'unit' }}</td>
-                        <td style="text-align:right;">Rp {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align:center;color:var(--text-muted);">{{ $detail->diskon ?? 0 }}%</td>
+                        <td style="text-align:right;">
+                            Rp {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}
+                        </td>
+                        <td style="text-align:center;color:var(--text-muted);">
+                            {{ $detail->diskon ?? 0 }}%
+                        </td>
                         <td style="text-align:right;font-weight:700;">
                             Rp {{ number_format($detail->subtotal ?? 0, 0, ',', '.') }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">
+                        <td colspan="8"
+                            style="text-align:center;color:var(--text-muted);padding:24px;">
                             Tidak ada data barang.
                         </td>
                     </tr>
@@ -290,17 +391,56 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="7" style="text-align:right;color:var(--text-muted);">Total Harga Barang</td>
-                        <td style="text-align:right;">Rp {{ number_format($penjualan->total_harga ?? 0, 0, ',', '.') }}</td>
+                        <td colspan="7" style="text-align:right;color:var(--text-muted);font-weight:400;">
+                            Subtotal Barang
+                        </td>
+                        <td style="text-align:right;">
+                            Rp {{ number_format($penjualan->total_harga ?? 0, 0, ',', '.') }}
+                        </td>
                     </tr>
+
                     @if(($penjualan->diskon_global ?? 0) > 0)
                     <tr>
-                        <td colspan="7" style="text-align:right;color:#DC2626;">Diskon Global</td>
+                        <td colspan="7" style="text-align:right;color:#DC2626;font-weight:400;">
+                            Diskon Global
+                        </td>
                         <td style="text-align:right;color:#DC2626;">
                             - Rp {{ number_format($penjualan->diskon_global, 0, ',', '.') }}
                         </td>
                     </tr>
                     @endif
+
+                    @if(($penjualan->harga_pengiriman ?? 0) > 0)
+                    <tr>
+                        <td colspan="7" style="text-align:right;color:var(--text-secondary);font-weight:400;">
+                            <span style="display:inline-flex;align-items:center;gap:5px;">
+                                <i class="ri-truck-line" style="font-size:12px;"></i>
+                                Ongkos Kirim
+                                <span style="font-size:11px;color:var(--text-muted);">
+                                    ({{ $penjualan->jasa_pengiriman_label }})
+                                </span>
+                            </span>
+                        </td>
+                        <td style="text-align:right;">
+                            + Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                    @endif
+
+                    @if(($penjualan->jasa_instalasi ?? 0) > 0)
+                    <tr>
+                        <td colspan="7" style="text-align:right;color:#7C3AED;font-weight:400;">
+                            <span style="display:inline-flex;align-items:center;gap:5px;">
+                                <i class="ri-tools-line" style="font-size:12px;"></i>
+                                Jasa Instalasi
+                            </span>
+                        </td>
+                        <td style="text-align:right;color:#7C3AED;">
+                            + Rp {{ number_format($penjualan->jasa_instalasi, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                    @endif
+
                     <tr style="background:var(--bg-hover);">
                         <td colspan="7" style="text-align:right;font-size:14px;">
                             <strong>Total Tagihan</strong>
@@ -315,14 +455,16 @@
     </div>
 </div>
 
-{{-- ═══ CARD: Pembayaran ═══ --}}
+{{-- ════ CARD 3: Riwayat Pembayaran ════ --}}
 <div class="detail-card">
     <div class="detail-card-header">
-        <div class="detail-card-title"><i class="ri-wallet-3-line"></i> Riwayat Pembayaran</div>
+        <div class="detail-card-title">
+            <i class="ri-wallet-3-line"></i> Riwayat Pembayaran
+        </div>
     </div>
     <div class="detail-card-body">
 
-        {{-- Ringkasan keuangan --}}
+        {{-- Ringkasan Keuangan --}}
         <div class="pay-summary">
             <div class="pay-summary-item">
                 <div class="pay-summary-label">Total Tagihan</div>
@@ -344,7 +486,7 @@
             </div>
         </div>
 
-        {{-- Tabel riwayat --}}
+        {{-- Tabel Riwayat Pembayaran --}}
         @if($penjualan->pembayarans->count() > 0)
         <div style="overflow-x:auto;">
             <table class="pay-table">
@@ -363,7 +505,7 @@
                 <tbody>
                     @foreach($penjualan->pembayarans as $i => $bayar)
                     <tr>
-                        <td style="color:var(--text-muted);">{{ $i+1 }}</td>
+                        <td style="color:var(--text-muted);">{{ $i + 1 }}</td>
                         <td>{{ $bayar->tanggal_bayar?->format('d/m/Y') ?? '-' }}</td>
                         <td>
                             <span class="badge {{
@@ -387,11 +529,11 @@
                         <td style="font-size:12px;color:var(--text-muted);max-width:160px;">
                             {{ $bayar->keterangan ?? '-' }}
                             @if($bayar->foto_bukti)
-                                <br>
-                                <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
-                                   style="color:var(--brand-500);font-size:11px;">
-                                    <i class="ri-image-line"></i> Lihat bukti
-                                </a>
+                            <br>
+                            <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
+                               style="color:var(--brand-500);font-size:11px;">
+                                <i class="ri-image-line"></i> Lihat bukti
+                            </a>
                             @endif
                         </td>
                         <td>
@@ -400,7 +542,7 @@
                                   action="{{ route('penjualan.hapusPembayaran', [$penjualan->id, $bayar->id]) }}"
                                   onsubmit="return confirm('Hapus data pembayaran ini?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn-link-danger">
+                                <button type="submit" class="btn-link-danger" title="Hapus pembayaran">
                                     <i class="ri-delete-bin-line"></i>
                                 </button>
                             </form>
@@ -413,7 +555,8 @@
         </div>
         @else
         <div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:13px;">
-            <i class="ri-wallet-line" style="font-size:28px;display:block;margin-bottom:6px;opacity:.4;"></i>
+            <i class="ri-wallet-line"
+               style="font-size:28px;display:block;margin-bottom:6px;opacity:.4;"></i>
             Belum ada riwayat pembayaran.
         </div>
         @endif
@@ -491,7 +634,7 @@
     </div>
 </div>
 
-{{-- ═══ Modal Batalkan Transaksi ═══ --}}
+{{-- ════ Modal: Batalkan Transaksi ════ --}}
 @if(!$penjualan->isBatal())
 <div class="modal-overlay" id="modalBatal">
     <div class="modal-box">
@@ -500,21 +643,22 @@
             Batalkan Transaksi
         </div>
         <div class="modal-desc">
-            Transaksi <strong>#{{ $penjualan->id }}</strong> akan dibatalkan dan stok barang akan dikembalikan.
-            Tindakan ini tidak dapat diurungkan.
+            Transaksi <strong>#{{ $penjualan->id }}</strong> akan dibatalkan dan stok barang
+            akan dikembalikan otomatis. Tindakan ini tidak dapat diurungkan.
         </div>
         <form method="POST" action="{{ route('penjualan.batalkan', $penjualan->id) }}">
             @csrf
             <div class="form-group" style="margin-bottom:4px;">
-                <label class="form-label">Alasan Pembatalan <span class="req">*</span></label>
+                <label class="form-label">
+                    Alasan Pembatalan <span class="req">*</span>
+                </label>
                 <textarea name="catatan_pembatalan" class="form-control" rows="3"
                           placeholder="Tulis alasan pembatalan..." required
                           style="resize:vertical;min-height:80px;">{{ old('catatan_pembatalan') }}</textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModalBatal()" class="btn btn-ghost btn-sm">
-                    Batal
-                </button>
+                <button type="button" onclick="closeModalBatal()"
+                        class="btn btn-ghost btn-sm">Batal</button>
                 <button type="submit" class="btn btn-danger btn-sm">
                     <i class="ri-close-circle-line"></i> Ya, Batalkan
                 </button>
@@ -534,11 +678,12 @@ function openModalBatal() {
 function closeModalBatal() {
     document.getElementById('modalBatal')?.classList.remove('active');
 }
-// Tutup modal saat klik overlay
 document.getElementById('modalBatal')?.addEventListener('click', function(e) {
     if (e.target === this) closeModalBatal();
 });
-// Buka modal otomatis jika ada error dari form batalkan
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalBatal();
+});
 @if($errors->has('catatan_pembatalan'))
     document.addEventListener('DOMContentLoaded', () => openModalBatal());
 @endif

@@ -13,6 +13,7 @@
     .form-card-title i { color:var(--brand-500); font-size:16px; }
     .form-card-body { padding:22px; }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
     .form-group { display:flex; flex-direction:column; gap:5px; }
     .form-group.full { grid-column:1/-1; }
     .form-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); }
@@ -43,7 +44,6 @@
     .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
 
-    /* ── Items Table ── */
     .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -57,32 +57,54 @@
     .btn-add-row:hover { background:var(--brand-50); }
     html.dark .btn-add-row:hover { background:rgba(29,111,164,0.1); }
 
-    /* ── Total Preview ── */
     .total-preview { background:var(--bg-primary); border:1px solid var(--border); border-radius:10px; padding:14px 18px; }
     .total-preview-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text-secondary); padding:3px 0; }
     .total-preview-row.grand { font-size:15px; font-weight:800; color:var(--text-primary); border-top:1px solid var(--border); margin-top:6px; padding-top:10px; }
     .total-preview-row span:last-child { font-weight:600; color:var(--text-primary); }
     .total-preview-row.grand span:last-child { color:var(--brand-500); font-size:16px; }
 
-    /* ── Stok Badge ── */
     .stok-baru-badge  { background:#DBEAFE; color:#1D4ED8; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-bekas-badge { background:#F3E8FF; color:#7C3AED; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:5px; min-height:20px; flex-wrap:wrap; }
     .stok-info-row span { font-size:12px; }
 
-    /* ── Input prefix Rp ── */
     .input-prefix-wrap { position:relative; }
     .input-prefix { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--text-muted); pointer-events:none; font-weight:500; }
     .input-prefix-wrap .form-control { padding-left:36px; }
 
-    /* ── Pembayaran Awal Section ── */
     .pay-divider { display:flex; align-items:center; gap:10px; margin:6px 0 18px; color:var(--text-muted); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
     .pay-divider::before,.pay-divider::after { content:''; flex:1; height:1px; background:var(--border); }
     .pay-info-box { display:flex; align-items:flex-start; gap:8px; padding:10px 14px; border-radius:8px; font-size:12.5px; font-weight:500; background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; margin-top:6px; }
     .pay-info-box i { font-size:15px; flex-shrink:0; margin-top:1px; }
     html.dark .pay-info-box { background:rgba(146,64,14,0.15); color:#FCD34D; border-color:rgba(146,64,14,0.3); }
 
-    /* ── Select2 Overrides ── */
+    /* Pengiriman opsi radio */
+    .kirim-options { display:flex; flex-wrap:wrap; gap:8px; }
+    .kirim-option { position:relative; }
+    .kirim-option input[type=radio] { position:absolute; opacity:0; width:0; height:0; }
+    .kirim-option label {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:8px 14px; border-radius:8px;
+        border:1.5px solid var(--border);
+        background:var(--bg-primary); color:var(--text-secondary);
+        font-size:12.5px; font-weight:600; cursor:pointer;
+        transition:all 0.18s; user-select:none;
+    }
+    .kirim-option label i { font-size:15px; }
+    .kirim-option input[type=radio]:checked + label {
+        border-color:var(--brand-500);
+        background:var(--brand-50);
+        color:var(--brand-600);
+        box-shadow:0 0 0 2px rgba(29,111,164,0.12);
+    }
+    html.dark .kirim-option input[type=radio]:checked + label {
+        background:rgba(29,111,164,0.12);
+        color:#60A5FA;
+    }
+    .kirim-option label:hover { border-color:var(--brand-400); background:var(--bg-hover); }
+
+    .section-divider { height:1px; background:var(--border); margin:20px 0; }
+
     .select2-container { width:100% !important; }
     .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
@@ -168,7 +190,117 @@
     </div>
 </div>
 
-{{-- ════ CARD 2: DETAIL BARANG ════ --}}
+{{-- ════ CARD 2: JASA PENGIRIMAN & INSTALASI ════ --}}
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="form-card-title"><i class="ri-truck-line"></i> Jasa Pengiriman & Instalasi</div>
+    </div>
+    <div class="form-card-body">
+
+        {{-- Opsi Pengiriman --}}
+        <div class="form-group" style="margin-bottom:18px;">
+            <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
+            <div class="kirim-options" id="kirim-options">
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_diambil" value="diambil_sendiri"
+                           {{ old('jasa_pengiriman', 'diambil_sendiri') === 'diambil_sendiri' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_diambil"><i class="ri-walk-line"></i> Diambil Sendiri</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_jne" value="jne"
+                           {{ old('jasa_pengiriman') === 'jne' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_jne"><i class="ri-truck-line"></i> JNE</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_jnt" value="jnt"
+                           {{ old('jasa_pengiriman') === 'jnt' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_jnt"><i class="ri-truck-line"></i> J&T</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_sicepat" value="sicepat"
+                           {{ old('jasa_pengiriman') === 'sicepat' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_sicepat"><i class="ri-truck-line"></i> SiCepat</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_anteraja" value="anteraja"
+                           {{ old('jasa_pengiriman') === 'anteraja' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_anteraja"><i class="ri-truck-line"></i> Anteraja</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_gosend" value="gosend"
+                           {{ old('jasa_pengiriman') === 'gosend' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_gosend"><i class="ri-motorbike-line"></i> GoSend</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_grab" value="grab"
+                           {{ old('jasa_pengiriman') === 'grab' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_grab"><i class="ri-motorbike-line"></i> GrabExpress</label>
+                </div>
+
+                <div class="kirim-option">
+                    <input type="radio" name="jasa_pengiriman" id="kirim_lainnya" value="lainnya"
+                           {{ old('jasa_pengiriman') === 'lainnya' ? 'checked' : '' }}
+                           onchange="onKirimChange(this.value)">
+                    <label for="kirim_lainnya"><i class="ri-more-line"></i> Lainnya</label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-grid">
+            {{-- Harga Pengiriman --}}
+            <div class="form-group" id="wrap-harga-pengiriman">
+                <label class="form-label">Harga Jasa Pengiriman</label>
+                <div class="input-prefix-wrap">
+                    <span class="input-prefix">Rp</span>
+                    <input type="number" name="harga_pengiriman" id="harga_pengiriman"
+                           class="form-control"
+                           value="{{ old('harga_pengiriman', 0) }}"
+                           min="0" placeholder="0"
+                           oninput="recalcTotal()">
+                </div>
+                <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                    <i class="ri-information-line"></i>
+                    Diambil sendiri = otomatis Rp 0
+                </span>
+            </div>
+
+            {{-- Jasa Instalasi --}}
+            <div class="form-group">
+                <label class="form-label">Jasa Instalasi</label>
+                <div class="input-prefix-wrap">
+                    <span class="input-prefix">Rp</span>
+                    <input type="number" name="jasa_instalasi" id="jasa_instalasi"
+                           class="form-control"
+                           value="{{ old('jasa_instalasi', 0) }}"
+                           min="0" placeholder="0 (tidak ada instalasi)"
+                           oninput="recalcTotal()">
+                </div>
+                <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
+                    <i class="ri-tools-line"></i>
+                    Isi 0 jika tidak ada jasa instalasi
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{{-- ════ CARD 3: DETAIL BARANG ════ --}}
 <div class="form-card">
     <div class="form-card-header">
         <div class="form-card-title"><i class="ri-shopping-bag-line"></i> Detail Barang</div>
@@ -196,16 +328,30 @@
             <i class="ri-add-line"></i> Tambah Barang
         </button>
 
-        {{-- ── Total Preview ── --}}
+        {{-- Total Preview --}}
         <div style="display:flex;justify-content:flex-end;margin-top:20px;">
-            <div class="total-preview" style="min-width:280px;">
+            <div class="total-preview" style="min-width:300px;">
                 <div class="total-preview-row">
-                    <span>Subtotal</span>
+                    <span>Subtotal Barang</span>
                     <span id="preview-subtotal">Rp 0</span>
                 </div>
                 <div class="total-preview-row" id="row-diskon-global" style="color:#DC2626;">
                     <span>Diskon Global</span>
                     <span id="preview-diskon">- Rp 0</span>
+                </div>
+                <div class="total-preview-row" id="row-pengiriman">
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <i class="ri-truck-line" style="font-size:13px;"></i>
+                        Jasa Pengiriman
+                    </span>
+                    <span id="preview-pengiriman">Rp 0</span>
+                </div>
+                <div class="total-preview-row" id="row-instalasi">
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <i class="ri-tools-line" style="font-size:13px;"></i>
+                        Jasa Instalasi
+                    </span>
+                    <span id="preview-instalasi">Rp 0</span>
                 </div>
                 <div class="total-preview-row grand">
                     <span>Total Tagihan</span>
@@ -214,7 +360,7 @@
             </div>
         </div>
 
-        {{-- Diskon Global Input --}}
+        {{-- Diskon Global --}}
         <div style="display:flex;justify-content:flex-end;margin-top:12px;align-items:center;gap:10px;">
             <label class="form-label" style="margin:0;white-space:nowrap;">Diskon Global (Rp)</label>
             <div class="input-prefix-wrap" style="width:200px;">
@@ -229,7 +375,7 @@
     </div>
 </div>
 
-{{-- ════ CARD 3: PEMBAYARAN AWAL ════ --}}
+{{-- ════ CARD 4: PEMBAYARAN AWAL ════ --}}
 <div class="form-card">
     <div class="form-card-header">
         <div class="form-card-title">
@@ -293,7 +439,7 @@
     </div>
 </div>
 
-{{-- ── Action Buttons ── --}}
+{{-- Action Buttons --}}
 <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:24px;">
     <a href="{{ route('penjualan.index') }}" class="btn btn-ghost">
         <i class="ri-arrow-left-line"></i> Batal
@@ -312,7 +458,6 @@
 <script>
 let rowIndex = 0;
 
-/* ════ SELECT2 TEMPLATES ════ */
 function templateBarang(item) {
     if (!item.id) return item.text || 'Pilih atau cari nama barang...';
     return $(`
@@ -334,38 +479,59 @@ function templateBarangSelected(item) {
     </span>`);
 }
 
-/* ════ KALKULASI TOTAL ════ */
+/* ════ KALKULASI TOTAL (termasuk pengiriman & instalasi) ════ */
 function recalcTotal() {
     let subtotal = 0;
     document.querySelectorAll('#items-body tr').forEach(tr => {
-        const idx      = tr.id.replace('row-', '');
-        const harga    = parseFloat(document.getElementById('harga-'   + idx)?.value  || 0);
-        const qty      = parseFloat(document.getElementById('qty-'     + idx)?.value  || 0);
-        const diskon   = parseFloat(document.getElementById('diskon-'  + idx)?.value  || 0);
-        const sub      = harga * qty * (1 - diskon / 100);
-        subtotal      += sub;
-
-        const subEl = document.getElementById('subtotal-display-' + idx);
+        const idx    = tr.id.replace('row-', '');
+        const harga  = parseFloat(document.getElementById('harga-'  + idx)?.value || 0);
+        const qty    = parseFloat(document.getElementById('qty-'    + idx)?.value || 0);
+        const diskon = parseFloat(document.getElementById('diskon-' + idx)?.value || 0);
+        const sub    = harga * qty * (1 - diskon / 100);
+        subtotal    += sub;
+        const subEl  = document.getElementById('subtotal-display-' + idx);
         if (subEl) subEl.textContent = 'Rp ' + formatRp(sub);
     });
 
-    const diskonGlobal = parseFloat(document.getElementById('diskon_global')?.value || 0);
-    const total        = Math.max(0, subtotal - diskonGlobal);
+    const diskonGlobal  = parseFloat(document.getElementById('diskon_global')?.value    || 0);
+    const hargaKirim    = parseFloat(document.getElementById('harga_pengiriman')?.value  || 0);
+    const hargaInstal   = parseFloat(document.getElementById('jasa_instalasi')?.value    || 0);
+    const total         = Math.max(0, subtotal - diskonGlobal + hargaKirim + hargaInstal);
 
-    document.getElementById('preview-subtotal').textContent = 'Rp ' + formatRp(subtotal);
-    document.getElementById('preview-diskon').textContent   = '- Rp ' + formatRp(diskonGlobal);
-    document.getElementById('preview-total').textContent    = 'Rp ' + formatRp(total);
+    document.getElementById('preview-subtotal').textContent   = 'Rp ' + formatRp(subtotal);
+    document.getElementById('preview-diskon').textContent     = '- Rp ' + formatRp(diskonGlobal);
+    document.getElementById('preview-pengiriman').textContent = 'Rp ' + formatRp(hargaKirim);
+    document.getElementById('preview-instalasi').textContent  = 'Rp ' + formatRp(hargaInstal);
+    document.getElementById('preview-total').textContent      = 'Rp ' + formatRp(total);
 
-    // Sembunyikan baris diskon jika 0
-    document.getElementById('row-diskon-global').style.display =
-        diskonGlobal > 0 ? 'flex' : 'none';
+    document.getElementById('row-diskon-global').style.display = diskonGlobal > 0 ? 'flex' : 'none';
+    document.getElementById('row-pengiriman').style.display    = hargaKirim  > 0 ? 'flex' : 'none';
+    document.getElementById('row-instalasi').style.display     = hargaInstal > 0 ? 'flex' : 'none';
 }
 
 function formatRp(num) {
     return Math.round(num).toLocaleString('id-ID');
 }
 
-/* ════ TAMBAH BARIS ════ */
+/* ════ OPSI PENGIRIMAN ════ */
+function onKirimChange(value) {
+    const hargaInput = document.getElementById('harga_pengiriman');
+    if (value === 'diambil_sendiri') {
+        hargaInput.value    = 0;
+        hargaInput.readOnly = true;
+        hargaInput.style.background   = 'var(--bg-hover)';
+        hargaInput.style.color        = 'var(--text-muted)';
+        hargaInput.style.cursor       = 'not-allowed';
+    } else {
+        hargaInput.readOnly = false;
+        hargaInput.style.background   = '';
+        hargaInput.style.color        = '';
+        hargaInput.style.cursor       = '';
+    }
+    recalcTotal();
+}
+
+/* ════ TAMBAH BARIS BARANG ════ */
 function addRow(data = {}) {
     rowIndex++;
     const idx   = rowIndex;
@@ -376,22 +542,19 @@ function addRow(data = {}) {
     const satuanOpts = ['unit','pcs','set','buah','pasang']
         .map(s => `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`)
         .join('');
-
     const kondisiOpts = [
         `<option value="baru"  ${(data.kondisi||'baru')==='baru' ?'selected':''}>Baru</option>`,
         `<option value="bekas" ${(data.kondisi||'')==='bekas'?'selected':''}>Bekas</option>`,
     ].join('');
-
     const initOption = data.inventory_id
         ? `<option value="${data.inventory_id}" selected>${data.nama_barang || ''}</option>`
         : '';
 
     tr.innerHTML = `
         <td style="text-align:center;font-size:12px;color:var(--text-muted)">${idx}</td>
-
         <td style="min-width:240px">
-            <input type="hidden" name="items[${idx}][inventory_id]" id="inv-id-${idx}"  value="${data.inventory_id || ''}">
-            <input type="hidden" name="items[${idx}][nama_barang]"  id="nama-${idx}"    value="${data.nama_barang  || ''}">
+            <input type="hidden" name="items[${idx}][inventory_id]" id="inv-id-${idx}" value="${data.inventory_id || ''}">
+            <input type="hidden" name="items[${idx}][nama_barang]"  id="nama-${idx}"   value="${data.nama_barang  || ''}">
             <select id="inv-select-${idx}" class="form-control" required>${initOption}</select>
             <div class="stok-info-row" id="stok-info-${idx}">
                 ${data.inventory_id && data.stok_baru !== undefined
@@ -400,26 +563,22 @@ function addRow(data = {}) {
                     : ''}
             </div>
         </td>
-
         <td>
             <select name="items[${idx}][kondisi]" id="kondisi-${idx}"
                     class="form-control" style="width:100px"
                     onchange="onKondisiChange(${idx})">${kondisiOpts}</select>
         </td>
-
         <td>
             <input type="number" name="items[${idx}][qty]" id="qty-${idx}"
                    value="${data.qty || 1}" min="1"
                    class="form-control" style="text-align:center;width:60px"
                    required oninput="recalcTotal()">
         </td>
-
         <td>
             <select name="items[${idx}][satuan]" class="form-control" style="width:78px">
                 ${satuanOpts}
             </select>
         </td>
-
         <td>
             <div class="input-prefix-wrap" style="width:130px">
                 <span class="input-prefix">Rp</span>
@@ -429,7 +588,6 @@ function addRow(data = {}) {
                        oninput="recalcTotal()">
             </div>
         </td>
-
         <td>
             <div style="display:flex;align-items:center;gap:2px;width:66px">
                 <input type="number" name="items[${idx}][diskon]" id="diskon-${idx}"
@@ -439,13 +597,11 @@ function addRow(data = {}) {
                 <span style="font-size:12px;color:var(--text-muted)">%</span>
             </div>
         </td>
-
         <td style="text-align:right;white-space:nowrap">
             <span id="subtotal-display-${idx}" style="font-size:13px;font-weight:600;color:var(--text-primary)">
                 Rp 0
             </span>
         </td>
-
         <td style="text-align:center">
             <button type="button" class="btn-remove-row" onclick="removeRow(${idx})">
                 <i class="ri-delete-bin-line"></i>
@@ -454,7 +610,6 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    /* ── Init Select2 ── */
     $(`#inv-select-${idx}`).select2({
         dropdownParent: $(`#row-${idx}`),
         placeholder:    'Pilih atau cari nama barang...',
@@ -478,23 +633,19 @@ function addRow(data = {}) {
     })
     .on('select2:select', function (e) {
         const item = e.params.data;
-
         $(`#inv-id-${idx}`).val(item.id);
         $(`#nama-${idx}`).val(item.text);
-
         $(`#stok-info-${idx}`).html(`
             <span class="stok-baru-badge">Baru: ${item.stok_baru ?? 0}</span>
             <span class="stok-bekas-badge">Bekas: ${item.stok_bekas ?? 0}</span>
             ${item.kategori ? `<span style="font-size:11px;color:var(--text-muted)">| ${item.kategori}</span>` : ''}
         `);
-
         const $sat = $(`select[name="items[${idx}][satuan]"]`);
         if (item.satuan) {
             $sat.find(`option[value="${item.satuan}"]`).length
                 ? $sat.val(item.satuan)
                 : $sat.append(new Option(item.satuan, item.satuan, true, true));
         }
-
         updateHargaField(idx, item);
         recalcTotal();
     })
@@ -509,7 +660,6 @@ function addRow(data = {}) {
     recalcTotal();
 }
 
-/* ── Update field harga_satuan sesuai kondisi ── */
 function updateHargaField(idx, item) {
     const kondisi = $(`#kondisi-${idx}`).val();
     const harga   = kondisi === 'bekas'
@@ -533,29 +683,29 @@ function removeRow(idx) {
     recalcTotal();
 }
 
-/* ════ PEMBAYARAN AWAL ════ */
+/* ════ METODE PEMBAYARAN ════ */
 function onMetodePembayaranChange(value) {
     const dpInfoBox   = document.getElementById('dp-info-box');
     const jumlahInput = document.getElementById('jumlah_bayar_awal');
     const viaSelect   = document.getElementById('metode_bayar_awal');
-
     dpInfoBox.style.display = value === 'dp' ? 'block' : 'none';
     jumlahInput.min         = value === 'dp' ? '1' : '0';
     jumlahInput.placeholder = value === 'dp' ? 'Masukkan nominal DP...' : '0';
-
     if (value === 'transfer') viaSelect.value = 'transfer';
     else                      viaSelect.value = 'cash';
 }
 
-/* ════ SUBMIT ════ */
 document.getElementById('formPenjualan').addEventListener('submit', function () {
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
     btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite"></i> Menyimpan...';
 });
 
-/* ════ INIT ════ */
 document.addEventListener('DOMContentLoaded', function () {
+    // Init state pengiriman
+    const selectedKirim = document.querySelector('input[name="jasa_pengiriman"]:checked');
+    if (selectedKirim) onKirimChange(selectedKirim.value);
+
     onMetodePembayaranChange(document.getElementById('metode_pembayaran').value);
 
     @if(old('items'))
