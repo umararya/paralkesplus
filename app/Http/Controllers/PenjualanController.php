@@ -129,14 +129,32 @@ class PenjualanController extends Controller
     }
 
     // =========================================================
-    //  EXPORT XLSX
+    //  EXPORT XLSX — DIPERBARUI
     // =========================================================
 
     public function export(Request $request)
     {
-        $search   = $request->input('search', '');
-        $filename = 'penjualan_' . now()->format('Ymd_His') . '.xlsx';
-        return Excel::download(new PenjualanExport($search), $filename);
+        $search           = $request->input('search', '');
+        $dateFrom         = $request->input('date_from')          ?: null;
+        $dateTo           = $request->input('date_to')            ?: null;
+        $statusPembayaran = $request->input('status_pembayaran')  ?: null;
+        $statusTransaksi  = $request->input('status_transaksi')   ?: null;
+
+        // Nama file dinamis dengan range tanggal jika ada
+        if ($dateFrom && $dateTo) {
+            $rangeLabel = \Carbon\Carbon::parse($dateFrom)->format('d-m-Y')
+                . '_sd_'
+                . \Carbon\Carbon::parse($dateTo)->format('d-m-Y');
+        } else {
+            $rangeLabel = now()->format('Ymd_His');
+        }
+
+        $filename = 'penjualan_' . $rangeLabel . '.xlsx';
+
+        return Excel::download(
+            new PenjualanExport($search, $dateFrom, $dateTo, $statusPembayaran, $statusTransaksi),
+            $filename
+        );
     }
 
     // =========================================================
@@ -162,11 +180,9 @@ class PenjualanController extends Controller
             'metode_bayar_awal'    => 'required|in:cash,transfer,qris',
             'jumlah_bayar_awal'    => 'required|integer|min:0',
             'tanggal_bayar_awal'   => 'required|date',
-            // Pengiriman
             'jasa_pengiriman'      => 'nullable|in:ambil_sendiri,gosend_grab,rental_mobil',
             'harga_pengiriman'     => 'nullable|integer|min:0',
             'jasa_instalasi'       => 'nullable|integer|min:0',
-            // Items
             'items'                => 'required|array|min:1',
             'items.*.inventory_id' => 'nullable|integer|exists:inventories,id',
             'items.*.nama_barang'  => 'required|string|max:255',
@@ -177,7 +193,6 @@ class PenjualanController extends Controller
             'items.*.diskon'       => 'nullable|integer|min:0|max:100',
         ]);
 
-        // Upload foto di luar transaction agar tidak terkunci
         $fotoBukti = null;
         if ($request->hasFile('foto_bukti')) {
             $fotoBukti = $request->file('foto_bukti')
@@ -186,15 +201,10 @@ class PenjualanController extends Controller
 
         $penjualan = DB::transaction(function () use ($validated, $fotoBukti) {
 
-            // ── Sanitasi nilai numerik ──
-            // diskon_global TIDAK boleh lebih besar dari total_harga
-            // Karena total_harga belum dihitung di sini (syncDetails belum jalan),
-            // kita simpan dulu diskon_global = 0 lalu update setelah sync.
             $diskonGlobal    = max(0, (int) ($validated['diskon_global']    ?? 0));
             $hargaPengiriman = max(0, (int) ($validated['harga_pengiriman'] ?? 0));
             $jasaInstalasi   = max(0, (int) ($validated['jasa_instalasi']   ?? 0));
 
-            // Jasa pengiriman ambil_sendiri → ongkir paksa 0
             $jasaPengiriman = $validated['jasa_pengiriman'] ?? 'ambil_sendiri';
             if ($jasaPengiriman === 'ambil_sendiri') {
                 $hargaPengiriman = 0;
@@ -206,13 +216,10 @@ class PenjualanController extends Controller
                 'nomor_telepon'     => $validated['nomor_telepon']  ?? null,
                 'alamat_pelanggan'  => $validated['alamat_pelanggan'],
                 'tanggal_penjualan' => $validated['tanggal_penjualan'],
-                'jenis_pembayaran'  => $validated['metode_bayar_awal'],  // cash / transfer / qris
-                'metode_pembayaran' => $validated['metode_pembayaran'],  // cash / dp / transfer
-                // ── PENTING: simpan diskon_global = 0 dulu ──
-                // Akan di-update setelah syncDetails karena BIGINT UNSIGNED
-                // tidak boleh menghasilkan nilai negatif (total_harga - diskon_global)
+                'jenis_pembayaran'  => $validated['metode_bayar_awal'],
+                'metode_pembayaran' => $validated['metode_pembayaran'],
                 'diskon_global'     => 0,
-                'total_harga'       => 0, // diisi oleh syncDetails
+                'total_harga'       => 0,
                 'total_terbayar'    => 0,
                 'jasa_pengiriman'   => $jasaPengiriman,
                 'harga_pengiriman'  => $hargaPengiriman,
@@ -223,16 +230,12 @@ class PenjualanController extends Controller
                 'keterangan'        => $validated['keterangan'] ?? null,
             ]);
 
-            // Sync detail barang + hitung ulang total_harga
             $this->syncDetails($penjualan, $validated['items']);
 
-            // Setelah total_harga terisi, baru update diskon_global dengan aman
-            // Pastikan diskon tidak melebihi total_harga
             $penjualan->refresh();
             $diskonGlobalSafe = min($diskonGlobal, (int) $penjualan->total_harga);
             $penjualan->update(['diskon_global' => $diskonGlobalSafe]);
 
-            // Catat pembayaran awal jika ada
             $jumlahBayar = (int) $validated['jumlah_bayar_awal'];
             if ($jumlahBayar > 0) {
                 $tipe = $validated['metode_pembayaran'] === 'dp'
@@ -341,11 +344,9 @@ class PenjualanController extends Controller
             'diskon_global'        => 'nullable|integer|min:0',
             'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
             'keterangan'           => 'nullable|string',
-            // Pengiriman
             'jasa_pengiriman'      => 'nullable|in:ambil_sendiri,gosend_grab,rental_mobil',
             'harga_pengiriman'     => 'nullable|integer|min:0',
             'jasa_instalasi'       => 'nullable|integer|min:0',
-            // Items
             'items'                => 'required|array|min:1',
             'items.*.detail_id'    => 'nullable|integer',
             'items.*.inventory_id' => 'nullable|integer|exists:inventories,id',
@@ -368,7 +369,6 @@ class PenjualanController extends Controller
                     ->store('penjualan/bukti', 'public');
             }
 
-            // ── Sanitasi nilai pengiriman ──
             $jasaPengiriman  = $validated['jasa_pengiriman']  ?? 'ambil_sendiri';
             $hargaPengiriman = max(0, (int) ($validated['harga_pengiriman'] ?? 0));
             $jasaInstalasi   = max(0, (int) ($validated['jasa_instalasi']   ?? 0));
@@ -377,28 +377,24 @@ class PenjualanController extends Controller
                 $hargaPengiriman = 0;
             }
 
-            // ── Update data utama TANPA diskon_global dulu ──
             $penjualan->update(collect($validated)
                 ->except(['items', 'diskon_global'])
                 ->merge([
                     'jasa_pengiriman'  => $jasaPengiriman,
                     'harga_pengiriman' => $hargaPengiriman,
                     'jasa_instalasi'   => $jasaInstalasi,
-                    'diskon_global'    => 0, // reset sementara agar tidak underflow
+                    'diskon_global'    => 0,
                 ])
                 ->toArray()
             );
 
-            // Sync detail barang + hitung ulang total_harga
             $this->syncDetails($penjualan, $validated['items']);
 
-            // Setelah total_harga terisi, update diskon_global dengan aman
             $penjualan->refresh();
             $diskonGlobal     = max(0, (int) ($validated['diskon_global'] ?? 0));
             $diskonGlobalSafe = min($diskonGlobal, (int) $penjualan->total_harga);
             $penjualan->update(['diskon_global' => $diskonGlobalSafe]);
 
-            // Re-sync status pembayaran karena total_harga mungkin berubah
             if (method_exists($penjualan, 'syncStatusPembayaran')) {
                 $penjualan->fresh()->syncStatusPembayaran();
             }
@@ -445,7 +441,6 @@ class PenjualanController extends Controller
             'foto_bukti'    => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Cegah bayar melebihi sisa tagihan
         $sisaTagihan = $penjualan->sisa_tagihan ?? 0;
         if ((int) $validated['jumlah_bayar'] > $sisaTagihan) {
             return back()
@@ -533,7 +528,6 @@ class PenjualanController extends Controller
         ]);
 
         DB::transaction(function () use ($penjualan, $request) {
-            // Kembalikan stok inventory
             foreach ($penjualan->details as $detail) {
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
@@ -544,7 +538,7 @@ class PenjualanController extends Controller
             $penjualan->update([
                 'status_transaksi'   => 'batal',
                 'catatan_pembatalan' => $request->input('catatan_pembatalan'),
-                'status_pembayaran'  => $penjualan->status_pembayaran, // tetap
+                'status_pembayaran'  => $penjualan->status_pembayaran,
             ]);
         });
 
@@ -571,7 +565,6 @@ class PenjualanController extends Controller
         DB::transaction(function () use ($penjualan) {
             $isBatal = method_exists($penjualan, 'isBatal') && $penjualan->isBatal();
 
-            // Kembalikan stok hanya jika transaksi tidak dibatalkan
             if (!$isBatal) {
                 foreach ($penjualan->details as $detail) {
                     if ($detail->inventory_id) {
@@ -581,13 +574,11 @@ class PenjualanController extends Controller
                 }
             }
 
-            // Hapus foto utama
             if ($penjualan->foto_bukti &&
                 Storage::disk('public')->exists($penjualan->foto_bukti)) {
                 Storage::disk('public')->delete($penjualan->foto_bukti);
             }
 
-            // Hapus semua record pembayaran + fotonya
             if (method_exists($penjualan, 'pembayarans')) {
                 $penjualan->pembayarans()->each(function ($p) {
                     if ($p->foto_bukti &&

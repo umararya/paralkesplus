@@ -1,101 +1,50 @@
 <?php
-// app/Exports/PenjualanExport.php
+// app/exports/PenjualanExport.php
 
 namespace App\Exports;
 
 use App\Models\Penjualan;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class PenjualanExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithTitle,
-    ShouldAutoSize
+class PenjualanExport implements WithMultipleSheets
 {
-    protected string $search;
+    protected ?string $search;
+    protected ?string $dateFrom;
+    protected ?string $dateTo;
+    protected ?string $statusPembayaran;
+    protected ?string $statusTransaksi;
 
-    // ← FIX: nullable string, default ''
-    public function __construct(?string $search = '')
-    {
-        $this->search = $search ?? '';
+    public function __construct(
+        ?string $search           = '',
+        ?string $dateFrom         = null,
+        ?string $dateTo           = null,
+        ?string $statusPembayaran = null,
+        ?string $statusTransaksi  = null
+    ) {
+        $this->search           = $search           ?? '';
+        $this->dateFrom         = $dateFrom;
+        $this->dateTo           = $dateTo;
+        $this->statusPembayaran = $statusPembayaran;
+        $this->statusTransaksi  = $statusTransaksi;
     }
 
-    public function collection()
-    {
-        return Penjualan::when($this->search, function ($q) {
-                $s = $this->search;
-                $q->where('nama_barang',      'like', "%{$s}%")
-                  ->orWhere('alamat_pelanggan','like', "%{$s}%")
-                  ->orWhere('jenis_pembayaran','like', "%{$s}%")
-                  ->orWhere('keterangan',      'like', "%{$s}%");
-            })
-            ->orderBy('tanggal_penjualan', 'desc')
-            ->get();
-    }
-
-    public function headings(): array
+    public function sheets(): array
     {
         return [
-            '#',
-            'Tanggal',
-            'Nama Barang',
-            'Qty',
-            'Alamat Pelanggan',
-            'Jenis Pembayaran',
-            'Harga Satuan',
-            'Total',
-            'Keterangan',
+            new PenjualanRekapSheet(
+                $this->search,
+                $this->dateFrom,
+                $this->dateTo,
+                $this->statusPembayaran,
+                $this->statusTransaksi
+            ),
+            new PenjualanDetailSheet(
+                $this->search,
+                $this->dateFrom,
+                $this->dateTo,
+                $this->statusPembayaran,
+                $this->statusTransaksi
+            ),
         ];
-    }
-
-    public function map($row): array
-    {
-        static $no = 0;
-        $no++;
-
-        return [
-            $no,
-            Carbon::parse($row->tanggal_penjualan)->format('d/m/Y'),
-            $row->nama_barang,
-            $row->qty,
-            $row->alamat_pelanggan,
-            ucfirst($row->jenis_pembayaran),
-            $row->harga  ?? 0,
-            $row->total  ?? 0,
-            $row->keterangan ?? '',
-        ];
-    }
-
-    public function styles(Worksheet $sheet): array
-    {
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => 'FF1D6FA4'],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
-                ],
-            ],
-        ];
-    }
-
-    public function title(): string
-    {
-        return 'Data Penjualan';
     }
 }

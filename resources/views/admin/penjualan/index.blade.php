@@ -43,6 +43,21 @@
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
+    /* ── Export Filter Panel ── */
+    .export-panel { padding:12px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:none; }
+    .export-panel.open { display:block; animation:fadePanel 0.15s ease; }
+    @keyframes fadePanel { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
+    .export-panel-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .export-panel-title i { font-size:13px; color:#10B981; }
+    .export-filter-row { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; }
+    .export-filter-group { display:flex; flex-direction:column; gap:4px; }
+    .export-filter-label { font-size:11.5px; font-weight:600; color:var(--text-secondary); }
+    .export-filter-input { height:34px; padding:0 10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s; }
+    .export-filter-input:focus { border-color:#10B981; box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
+    select.export-filter-input { padding-right:28px; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; }
+    .export-filter-hint { font-size:11px; color:var(--text-muted); margin-top:6px; }
+    .export-filter-hint strong { color:#10B981; }
+
     .info-bar { padding:9px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
     .info-bar-text { font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
     .info-bar-text strong { color:var(--text-primary); }
@@ -276,14 +291,90 @@
         </div>
 
         <div class="toolbar-right">
-            <a href="{{ route('penjualan.export', ['search' => $search]) }}"
-               class="btn btn-export" title="Export ke Excel">
+            {{-- ── Tombol Export: klik buka/tutup panel filter ── --}}
+            <button type="button" class="btn btn-export" id="btnToggleExport"
+                    onclick="toggleExportPanel()" title="Export ke Excel">
                 <i class="ri-file-excel-2-line"></i> Export XLSX
-            </a>
+                <i class="ri-arrow-down-s-line" id="exportArrow" style="font-size:14px;transition:transform 0.2s;"></i>
+            </button>
             <a href="{{ route('penjualan.create') }}" class="btn btn-primary">
                 <i class="ri-add-line"></i> Tambah Penjualan
             </a>
         </div>
+    </div>
+
+    {{-- ── EXPORT FILTER PANEL ── --}}
+    <div class="export-panel" id="exportPanel">
+        <div class="export-panel-title">
+            <i class="ri-file-excel-2-line"></i>
+            Filter Export XLSX
+        </div>
+        <form method="GET" action="{{ route('penjualan.export') }}" id="formExport">
+            <input type="hidden" name="search" value="{{ $search }}">
+            <div class="export-filter-row">
+
+                {{-- Tanggal Dari --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label">Dari Tanggal</label>
+                    <input type="date" name="date_from" class="export-filter-input"
+                           value="{{ request('date_from') }}"
+                           style="width:150px;">
+                </div>
+
+                {{-- Tanggal Sampai --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label">Sampai Tanggal</label>
+                    <input type="date" name="date_to" class="export-filter-input"
+                           value="{{ request('date_to') }}"
+                           style="width:150px;">
+                </div>
+
+                {{-- Status Pembayaran --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label">Status Pembayaran</label>
+                    <select name="status_pembayaran" class="export-filter-input" style="width:155px;">
+                        <option value="semua">Semua Status</option>
+                        <option value="lunas"       {{ request('status_pembayaran') === 'lunas'       ? 'selected' : '' }}>Lunas</option>
+                        <option value="dp"          {{ request('status_pembayaran') === 'dp'          ? 'selected' : '' }}>DP / Sebagian</option>
+                        <option value="belum_lunas" {{ request('status_pembayaran') === 'belum_lunas' ? 'selected' : '' }}>Belum Lunas</option>
+                    </select>
+                </div>
+
+                {{-- Status Transaksi --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label">Status Transaksi</label>
+                    <select name="status_transaksi" class="export-filter-input" style="width:140px;">
+                        <option value="semua">Semua Transaksi</option>
+                        <option value="aktif"   {{ request('status_transaksi') === 'aktif'   ? 'selected' : '' }}>Aktif</option>
+                        <option value="selesai" {{ request('status_transaksi') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                        <option value="batal"   {{ request('status_transaksi') === 'batal'   ? 'selected' : '' }}>Dibatalkan</option>
+                    </select>
+                </div>
+
+                {{-- Tombol Download --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label" style="visibility:hidden;">-</label>
+                    <button type="submit" class="btn btn-export" style="height:34px;padding:0 16px;">
+                        <i class="ri-download-2-line"></i> Download
+                    </button>
+                </div>
+
+                {{-- Reset Filter Export --}}
+                <div class="export-filter-group">
+                    <label class="export-filter-label" style="visibility:hidden;">-</label>
+                    <button type="button" class="btn btn-ghost" style="height:34px;padding:0 12px;"
+                            onclick="resetExportFilter()">
+                        <i class="ri-refresh-line"></i> Reset
+                    </button>
+                </div>
+
+            </div>
+            <div class="export-filter-hint" style="margin-top:8px;">
+                <i class="ri-information-line" style="font-size:12px;"></i>
+                File yang dihasilkan memiliki <strong>2 sheet</strong>: <strong>Rekap Transaksi</strong> &amp; <strong>Detail Barang</strong>.
+                Kosongkan tanggal untuk export semua data.
+            </div>
+        </form>
     </div>
 
     {{-- INFO BAR --}}
@@ -770,6 +861,24 @@ $penjualanData = $penjualans->map(function($item) {
 const penjualanData = @json($penjualanData);
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 
+// ── Export Panel Toggle ──
+function toggleExportPanel() {
+    const panel = document.getElementById('exportPanel');
+    const arrow = document.getElementById('exportArrow');
+    const isOpen = panel.classList.contains('open');
+    panel.classList.toggle('open');
+    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function resetExportFilter() {
+    const form = document.getElementById('formExport');
+    form.querySelector('[name="date_from"]').value         = '';
+    form.querySelector('[name="date_to"]').value           = '';
+    form.querySelector('[name="status_pembayaran"]').value = 'semua';
+    form.querySelector('[name="status_transaksi"]').value  = 'semua';
+}
+
+// ── Modal & Dropdown ──
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -814,7 +923,17 @@ function closeAllDropdowns() {
         d.style.bottom = '';
     });
 }
-document.addEventListener('click', closeAllDropdowns);
+document.addEventListener('click', function(e) {
+    closeAllDropdowns();
+    // Tutup export panel jika klik di luar
+    const panel  = document.getElementById('exportPanel');
+    const btnExp = document.getElementById('btnToggleExport');
+    if (panel && panel.classList.contains('open') &&
+        !panel.contains(e.target) && !btnExp.contains(e.target)) {
+        panel.classList.remove('open');
+        document.getElementById('exportArrow').style.transform = 'rotate(0deg)';
+    }
+});
 
 function openDeleteModal(id, nama) {
     document.getElementById('deleteNamaPelanggan').textContent = nama;
