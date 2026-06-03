@@ -425,7 +425,7 @@
     {{-- ===== SIDEBAR ===== --}}
     <aside class="sidebar" id="sidebar">
 
-        <a href="{{ route('dashboard') }}" class="sidebar-logo">
+        <a href="{{ route('penyewaan.index') }}" class="sidebar-logo">
             <img src="{{ asset('images/logo-paralkes.png') }}" alt="Paralkes+"
                  onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 rx=%228%22 fill=%22%231D6FA4%22/><text x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2214%22 font-weight=%22bold%22>P+</text></svg>'">
             <div class="sidebar-logo-text">
@@ -436,30 +436,7 @@
 
         <nav class="sidebar-nav">
 
-            <span class="nav-section-title">Utama</span>
-            <a href="{{ route('dashboard') }}"
-               class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <i class="ri-dashboard-3-line"></i>
-                <span class="nav-label">Dashboard</span>
-            </a>
-
-            <span class="nav-section-title" style="margin-top:8px;">Manajemen</span>
-            <a href="#" class="nav-item">
-                <i class="ri-user-line"></i>
-                <span class="nav-label">Pengguna</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="ri-stethoscope-line"></i>
-                <span class="nav-label">Tenaga Kesehatan</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="ri-file-list-3-line"></i>
-                <span class="nav-label">Laporan</span>
-            </a>
-            <a href="#" class="nav-item">
-                <i class="ri-calendar-line"></i>
-                <span class="nav-label">Jadwal</span>
-            </a>
+            <span class="nav-section-title">Manajemen</span>
 
             <a href="{{ route('penyewaan.index') }}"
                class="nav-item {{ request()->routeIs('penyewaan.*') ? 'active' : '' }}">
@@ -520,12 +497,6 @@
             {{-- ══════════════════════════════════════════ --}}
             @endif
 
-            <span class="nav-section-title" style="margin-top:8px;">Sistem</span>
-            <a href="#" class="nav-item">
-                <i class="ri-settings-3-line"></i>
-                <span class="nav-label">Pengaturan</span>
-            </a>
-
         </nav>
 
         <div class="sidebar-footer">
@@ -554,7 +525,7 @@
             <div class="topbar-breadcrumb">
                 <span class="breadcrumb-item">Paralkes+</span>
                 <i class="ri-arrow-right-s-line breadcrumb-separator"></i>
-                <span class="breadcrumb-item active">@yield('breadcrumb', 'Dashboard')</span>
+                <span class="breadcrumb-item active">@yield('breadcrumb', 'Penyewaan')</span>
             </div>
             <div class="topbar-actions">
 
@@ -607,9 +578,6 @@
                     <div class="dropdown-menu" id="userDropdown">
                         <a href="#" class="dropdown-item">
                             <i class="ri-user-line"></i> Profil Saya
-                        </a>
-                        <a href="#" class="dropdown-item">
-                            <i class="ri-settings-3-line"></i> Pengaturan
                         </a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
