@@ -43,6 +43,23 @@
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
+    /* ── Date Filter Bar ── */
+    .date-filter-bar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .date-filter-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:flex; align-items:center; gap:5px; white-space:nowrap; flex-shrink:0; }
+    .date-filter-label i { font-size:13px; color:var(--brand-500); }
+    .date-inputs-wrap { display:flex; align-items:center; gap:6px; }
+    .date-input { height:34px; padding:0 10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s,box-shadow 0.2s; width:150px; }
+    .date-input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
+    .date-input.active { border-color:var(--brand-500); background:var(--brand-50); }
+    html.dark .date-input.active { background:rgba(29,111,164,0.1); }
+    .date-sep { font-size:12px; color:var(--text-muted); font-weight:500; padding:0 2px; }
+    .date-filter-active-badge { display:inline-flex; align-items:center; gap:4px; background:var(--brand-500); color:#fff; border-radius:99px; padding:2px 9px; font-size:11px; font-weight:700; }
+    .date-shortcuts { display:flex; align-items:center; gap:4px; margin-left:2px; }
+    .date-shortcuts span { font-size:11px; color:var(--text-muted); margin-right:2px; }
+    .shortcut-btn { height:26px; padding:0 9px; border-radius:6px; font-size:11.5px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); font-family:var(--font); transition:all 0.15s; white-space:nowrap; }
+    .shortcut-btn:hover { background:var(--brand-50); color:var(--brand-500); border-color:var(--brand-200); }
+    html.dark .shortcut-btn:hover { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
+
     /* ── Export Filter Panel ── */
     .export-panel { padding:12px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:none; }
     .export-panel.open { display:block; animation:fadePanel 0.15s ease; }
@@ -84,11 +101,7 @@
 
     /* ── Kolom Pengiriman ── */
     .kirim-wrap { display:flex; flex-direction:column; gap:4px; }
-    .kirim-badge {
-        display:inline-flex; align-items:center; gap:6px;
-        padding:4px 10px; border-radius:8px; font-size:11.5px; font-weight:600;
-        border:1px solid transparent; width:fit-content;
-    }
+    .kirim-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:8px; font-size:11.5px; font-weight:600; border:1px solid transparent; width:fit-content; }
     .kirim-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
     .kirim-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
     .kirim-rental { background:#DBEAFE; color:#1E40AF; border-color:#BFDBFE; }
@@ -251,11 +264,15 @@
 
 <div class="table-card">
 
-    {{-- TOOLBAR --}}
+    {{-- ══ TOOLBAR ══ --}}
     <div class="table-toolbar">
         <div class="toolbar-left">
+
+            {{-- Per Page --}}
             <form method="GET" action="{{ route('penjualan.index') }}" id="perPageForm">
-                <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="search"    value="{{ $search }}">
+                <input type="hidden" name="date_from" value="{{ $dateFrom }}">
+                <input type="hidden" name="date_to"   value="{{ $dateTo }}">
                 <div class="per-page-wrap">
                     <span>Tampilkan</span>
                     <select name="per_page" class="per-page-select"
@@ -270,8 +287,11 @@
 
             <div class="toolbar-divider"></div>
 
-            <form method="GET" action="{{ route('penjualan.index') }}" class="search-form">
-                <input type="hidden" name="per_page" value="{{ $perPage }}">
+            {{-- Search --}}
+            <form method="GET" action="{{ route('penjualan.index') }}" class="search-form" id="searchForm">
+                <input type="hidden" name="per_page"  value="{{ $perPage }}">
+                <input type="hidden" name="date_from" value="{{ $dateFrom }}">
+                <input type="hidden" name="date_to"   value="{{ $dateTo }}">
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
                     <input type="text" name="search"
@@ -283,15 +303,16 @@
                     <i class="ri-search-2-line"></i> Cari
                 </button>
                 @if($search)
-                <a href="{{ route('penjualan.index', ['per_page' => $perPage]) }}" class="btn btn-reset">
+                <a href="{{ route('penjualan.index', ['per_page' => $perPage, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                   class="btn btn-reset">
                     <i class="ri-close-line"></i> Reset
                 </a>
                 @endif
             </form>
+
         </div>
 
         <div class="toolbar-right">
-            {{-- ── Tombol Export: klik buka/tutup panel filter ── --}}
             <button type="button" class="btn btn-export" id="btnToggleExport"
                     onclick="toggleExportPanel()" title="Export ke Excel">
                 <i class="ri-file-excel-2-line"></i> Export XLSX
@@ -303,7 +324,54 @@
         </div>
     </div>
 
-    {{-- ── EXPORT FILTER PANEL ── --}}
+    {{-- ══ DATE FILTER BAR ══ --}}
+    <div class="date-filter-bar">
+        <span class="date-filter-label">
+            <i class="ri-calendar-2-line"></i> Filter Tanggal
+        </span>
+
+        <form method="GET" action="{{ route('penjualan.index') }}" id="dateFilterForm"
+              style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <input type="hidden" name="search"   value="{{ $search }}">
+            <input type="hidden" name="per_page" value="{{ $perPage }}">
+
+            <div class="date-inputs-wrap">
+                <input type="date" name="date_from" id="inputDateFrom"
+                       class="date-input {{ $dateFrom ? 'active' : '' }}"
+                       value="{{ $dateFrom }}"
+                       title="Dari tanggal"
+                       onchange="document.getElementById('dateFilterForm').submit()">
+                <span class="date-sep">—</span>
+                <input type="date" name="date_to" id="inputDateTo"
+                       class="date-input {{ $dateTo ? 'active' : '' }}"
+                       value="{{ $dateTo }}"
+                       title="Sampai tanggal"
+                       onchange="document.getElementById('dateFilterForm').submit()">
+            </div>
+
+            @if($dateFrom || $dateTo)
+            <span class="date-filter-active-badge">
+                <i class="ri-filter-fill" style="font-size:10px;"></i>
+                Aktif{{ $dateFrom && $dateTo ? ': ' . \Carbon\Carbon::parse($dateFrom)->format('d M') . ' – ' . \Carbon\Carbon::parse($dateTo)->format('d M Y') : '' }}
+            </span>
+            <a href="{{ route('penjualan.index', ['search' => $search, 'per_page' => $perPage]) }}"
+               class="btn btn-ghost" style="height:28px;font-size:12px;padding:0 10px;">
+                <i class="ri-close-line"></i> Hapus Filter
+            </a>
+            @endif
+        </form>
+
+        {{-- Shortcut cepat --}}
+        <div class="date-shortcuts">
+            <span>Cepat:</span>
+            <button type="button" class="shortcut-btn" onclick="setDateRange('today')">Hari ini</button>
+            <button type="button" class="shortcut-btn" onclick="setDateRange('week')">7 hari</button>
+            <button type="button" class="shortcut-btn" onclick="setDateRange('month')">Bulan ini</button>
+            <button type="button" class="shortcut-btn" onclick="setDateRange('year')">Tahun ini</button>
+        </div>
+    </div>
+
+    {{-- ══ EXPORT FILTER PANEL ══ --}}
     <div class="export-panel" id="exportPanel">
         <div class="export-panel-title">
             <i class="ri-file-excel-2-line"></i>
@@ -313,23 +381,20 @@
             <input type="hidden" name="search" value="{{ $search }}">
             <div class="export-filter-row">
 
-                {{-- Tanggal Dari --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label">Dari Tanggal</label>
                     <input type="date" name="date_from" class="export-filter-input"
-                           value="{{ request('date_from') }}"
+                           value="{{ $dateFrom ?: request('date_from') }}"
                            style="width:150px;">
                 </div>
 
-                {{-- Tanggal Sampai --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label">Sampai Tanggal</label>
                     <input type="date" name="date_to" class="export-filter-input"
-                           value="{{ request('date_to') }}"
+                           value="{{ $dateTo ?: request('date_to') }}"
                            style="width:150px;">
                 </div>
 
-                {{-- Status Pembayaran --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label">Status Pembayaran</label>
                     <select name="status_pembayaran" class="export-filter-input" style="width:155px;">
@@ -340,7 +405,6 @@
                     </select>
                 </div>
 
-                {{-- Status Transaksi --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label">Status Transaksi</label>
                     <select name="status_transaksi" class="export-filter-input" style="width:140px;">
@@ -351,7 +415,6 @@
                     </select>
                 </div>
 
-                {{-- Tombol Download --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label" style="visibility:hidden;">-</label>
                     <button type="submit" class="btn btn-export" style="height:34px;padding:0 16px;">
@@ -359,7 +422,6 @@
                     </button>
                 </div>
 
-                {{-- Reset Filter Export --}}
                 <div class="export-filter-group">
                     <label class="export-filter-label" style="visibility:hidden;">-</label>
                     <button type="button" class="btn btn-ghost" style="height:34px;padding:0 12px;"
@@ -377,12 +439,25 @@
         </form>
     </div>
 
-    {{-- INFO BAR --}}
+    {{-- ══ INFO BAR ══ --}}
     <div class="info-bar">
         <div class="info-bar-text">
-            @if($search)
+            @if($search || $dateFrom || $dateTo)
                 <i class="ri-filter-3-line"></i>
-                Hasil pencarian: <strong>"{{ $search }}"</strong>
+                @if($search)
+                    Pencarian: <strong>"{{ $search }}"</strong>
+                @endif
+                @if($dateFrom || $dateTo)
+                    @if($search) &nbsp;·&nbsp; @endif
+                    <i class="ri-calendar-line" style="font-size:12px;"></i>
+                    @if($dateFrom && $dateTo)
+                        {{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }} — {{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}
+                    @elseif($dateFrom)
+                        Dari {{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}
+                    @else
+                        S/d {{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}
+                    @endif
+                @endif
                 &nbsp;<span class="badge-count">{{ $penjualans->total() }} transaksi</span>
             @else
                 <i class="ri-exchange-dollar-line"></i>
@@ -397,7 +472,7 @@
         @endif
     </div>
 
-    {{-- TABLE --}}
+    {{-- ══ TABLE ══ --}}
     <div style="overflow-x:auto;">
         <table class="data-table">
             <thead>
@@ -406,7 +481,7 @@
                     <th>Tanggal</th>
                     <th>Pelanggan</th>
                     <th>Barang (Detail)</th>
-                    <th>Metode & Status</th>
+                    <th>Metode &amp; Status</th>
                     <th>Pengiriman</th>
                     <th class="right">Total Tagihan</th>
                     <th>Keterangan</th>
@@ -497,10 +572,8 @@
                                 default       => 'status-belum-lunas',
                             };
                             if ($item->isBatal()) $statusClass = 'status-batal';
-                            $statusLabel = $item->isBatal()
-                                ? 'Dibatalkan'
-                                : $item->status_pembayaran_label;
-                            $statusIcon = match($item->status_pembayaran ?? 'belum_lunas') {
+                            $statusLabel = $item->isBatal() ? 'Dibatalkan' : $item->status_pembayaran_label;
+                            $statusIcon  = match($item->status_pembayaran ?? 'belum_lunas') {
                                 'lunas'       => 'ri-checkbox-circle-fill',
                                 'dp'          => 'ri-time-line',
                                 'belum_lunas' => 'ri-close-circle-line',
@@ -519,7 +592,7 @@
                         </span>
                     </td>
 
-                    {{-- ── KOLOM PENGIRIMAN ── --}}
+                    {{-- Kolom Pengiriman --}}
                     <td style="min-width:170px;">
                         <div class="kirim-wrap">
                             <span class="kirim-badge {{ $kirimClass }}">
@@ -579,7 +652,7 @@
                         @endif
                     </td>
 
-                    {{-- KOLOM AKSI --}}
+                    {{-- Kolom Aksi --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button type="button"
@@ -631,8 +704,20 @@
                     <td colspan="10">
                         <div class="empty-state">
                             <i class="ri-exchange-dollar-line"></i>
-                            <h3>{{ $search ? 'Tidak ditemukan' : 'Belum ada data penjualan' }}</h3>
-                            <p>{{ $search ? 'Coba kata kunci lain atau klik Reset.' : 'Klik "Tambah Penjualan" untuk mencatat transaksi baru.' }}</p>
+                            <h3>
+                                @if($search || $dateFrom || $dateTo)
+                                    Tidak ada data yang cocok
+                                @else
+                                    Belum ada data penjualan
+                                @endif
+                            </h3>
+                            <p>
+                                @if($search || $dateFrom || $dateTo)
+                                    Coba ubah kata kunci atau filter tanggal.
+                                @else
+                                    Klik "Tambah Penjualan" untuk mencatat transaksi baru.
+                                @endif
+                            </p>
                         </div>
                     </td>
                 </tr>
@@ -653,7 +738,7 @@
         </table>
     </div>
 
-    {{-- PAGINATION --}}
+    {{-- ══ PAGINATION ══ --}}
     @if($penjualans->total() > 0)
     <div class="table-footer">
         <div class="pagination-meta">
@@ -861,6 +946,32 @@ $penjualanData = $penjualans->map(function($item) {
 const penjualanData = @json($penjualanData);
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 
+// ── Date Filter Shortcuts ──
+function setDateRange(range) {
+    const today = new Date();
+    const pad   = n => String(n).padStart(2, '0');
+    const ymd   = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+    let from, to;
+    to = ymd(today);
+
+    if (range === 'today') {
+        from = to;
+    } else if (range === 'week') {
+        const w = new Date(today);
+        w.setDate(today.getDate() - 6);
+        from = ymd(w);
+    } else if (range === 'month') {
+        from = `${today.getFullYear()}-${pad(today.getMonth()+1)}-01`;
+    } else if (range === 'year') {
+        from = `${today.getFullYear()}-01-01`;
+    }
+
+    document.getElementById('inputDateFrom').value = from;
+    document.getElementById('inputDateTo').value   = to;
+    document.getElementById('dateFilterForm').submit();
+}
+
 // ── Export Panel Toggle ──
 function toggleExportPanel() {
     const panel = document.getElementById('exportPanel');
@@ -925,7 +1036,6 @@ function closeAllDropdowns() {
 }
 document.addEventListener('click', function(e) {
     closeAllDropdowns();
-    // Tutup export panel jika klik di luar
     const panel  = document.getElementById('exportPanel');
     const btnExp = document.getElementById('btnToggleExport');
     if (panel && panel.classList.contains('open') &&
@@ -941,6 +1051,7 @@ function openDeleteModal(id, nama) {
     openModal('modalHapus');
 }
 
+// ── Buy Back Modal ──
 function openBuyBackModal(id, nama) {
     const d = penjualanData[id];
     if (!d) return;
@@ -1059,6 +1170,7 @@ function calcBuyBackTotal() {
     }
 }
 
+// ── Lightbox ──
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;

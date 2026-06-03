@@ -101,15 +101,17 @@ class PenjualanController extends Controller
     }
 
     // =========================================================
-    //  INDEX
+    //  INDEX — dengan filter tanggal
     // =========================================================
 
     public function index(Request $request)
     {
-        $search  = $request->input('search', '');
-        $perPage = in_array($request->input('per_page'), [5, 10, 25, 50])
-                   ? (int) $request->input('per_page')
-                   : 10;
+        $search   = $request->input('search', '');
+        $dateFrom = $request->input('date_from', '');
+        $dateTo   = $request->input('date_to', '');
+        $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
+                    ? (int) $request->input('per_page')
+                    : 10;
 
         $penjualans = Penjualan::with('details')
             ->when($search, function ($q) use ($search) {
@@ -121,26 +123,33 @@ class PenjualanController extends Controller
                   ->orWhere('tanggal_penjualan', 'like', "%{$search}%")
                   ->orWhere('status_pembayaran', 'like', "%{$search}%");
             })
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('tanggal_penjualan', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('tanggal_penjualan', '<=', $dateTo);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
-        return view('admin.penjualan.index', compact('penjualans', 'search', 'perPage'));
+        return view('admin.penjualan.index', compact(
+            'penjualans', 'search', 'perPage', 'dateFrom', 'dateTo'
+        ));
     }
 
     // =========================================================
-    //  EXPORT XLSX — DIPERBARUI
+    //  EXPORT XLSX
     // =========================================================
 
     public function export(Request $request)
     {
         $search           = $request->input('search', '');
-        $dateFrom         = $request->input('date_from')          ?: null;
-        $dateTo           = $request->input('date_to')            ?: null;
-        $statusPembayaran = $request->input('status_pembayaran')  ?: null;
-        $statusTransaksi  = $request->input('status_transaksi')   ?: null;
+        $dateFrom         = $request->input('date_from')         ?: null;
+        $dateTo           = $request->input('date_to')           ?: null;
+        $statusPembayaran = $request->input('status_pembayaran') ?: null;
+        $statusTransaksi  = $request->input('status_transaksi')  ?: null;
 
-        // Nama file dinamis dengan range tanggal jika ada
         if ($dateFrom && $dateTo) {
             $rangeLabel = \Carbon\Carbon::parse($dateFrom)->format('d-m-Y')
                 . '_sd_'

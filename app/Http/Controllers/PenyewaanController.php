@@ -3,7 +3,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\PenyewaanExport; 
+use App\Exports\PenyewaanExport;
 use App\Models\ActivityLog;
 use App\Models\DetailPenyewaan;
 use App\Models\Inventory;
@@ -26,7 +26,6 @@ class PenyewaanController extends Controller
 
         if ($sisaHari <= 0) {
             $item->update(['status' => 'selesai']);
-            // Kembalikan stok saat otomatis selesai
             $this->kembalikanStok($item);
             return;
         }
@@ -47,7 +46,6 @@ class PenyewaanController extends Controller
 
     private function kembalikanStok(Penyewaan $penyewaan): void
     {
-        // Eager load details jika belum dimuat
         if (! $penyewaan->relationLoaded('details')) {
             $penyewaan->load('details');
         }
@@ -56,7 +54,6 @@ class PenyewaanController extends Controller
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    // dariSewa = true: akan mengurangi stok_disewa sekaligus menambah stok_tersedia
                     $inv->tambahStok($detail->qty, 'baru', true);
                 }
             }
@@ -78,11 +75,11 @@ class PenyewaanController extends Controller
             $namaAlat = trim($item['nama_alat'] ?? '');
             if ($namaAlat === '') continue;
 
-            $qtyBaru      = max(1, (int) ($item['qty']          ?? 1));
-            $harga        = max(0, (int) ($item['harga_satuan'] ?? 0));
-            $diskon       = max(0, min(100, (int) ($item['diskon'] ?? 0)));
-            $inventoryId  = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
-            $subtotal     = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
+            $qtyBaru     = max(1, (int) ($item['qty']          ?? 1));
+            $harga       = max(0, (int) ($item['harga_satuan'] ?? 0));
+            $diskon      = max(0, min(100, (int) ($item['diskon'] ?? 0)));
+            $inventoryId = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $subtotal    = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
                 'penyewaan_id' => $penyewaan->id,
@@ -100,7 +97,6 @@ class PenyewaanController extends Controller
                 ? $existingDetails->firstWhere('id', $detailId)
                 : null;
 
-            // Update stok dengan flag untukSewa = true
             if ($inventoryId) {
                 /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
@@ -109,10 +105,8 @@ class PenyewaanController extends Controller
                     $selisih = $qtyBaru - $qtyLama;
 
                     if ($selisih > 0) {
-                        // Tambah sewa → kurangi stok_tersedia, tambah stok_disewa
                         $inv->kurangiStok($selisih, 'baru', true);
                     } elseif ($selisih < 0) {
-                        // Kurangi sewa → kembalikan stok_tersedia, kurangi stok_disewa
                         $inv->tambahStok(abs($selisih), 'baru', true);
                     }
                 }
@@ -137,7 +131,6 @@ class PenyewaanController extends Controller
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
                     if ($inv) {
-                        // dariSewa = true: kurangi stok_disewa, tambah stok_tersedia
                         $inv->tambahStok($detail->qty, 'baru', true);
                     }
                 }
@@ -149,22 +142,24 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  INDEX
+    //  INDEX — dengan filter tanggal
     // =========================================================
 
     public function index(Request $request)
     {
-        $search  = $request->input('search', '');
-        $perPage = in_array($request->input('per_page'), [5, 10, 25, 50])
-                   ? (int) $request->input('per_page')
-                   : 10;
+        $search   = $request->input('search', '');
+        $dateFrom = $request->input('date_from', '');
+        $dateTo   = $request->input('date_to', '');
+        $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
+                    ? (int) $request->input('per_page')
+                    : 10;
 
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
         foreach ($aktif as $item) {
             $this->syncStatus($item);
         }
 
-        $penyewaans = Penyewaan::with('details')  // <-- WAJIB: eager load untuk accessor nama_alat
+        $penyewaans = Penyewaan::with('details')
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_penyewa',       'like', "%{$search}%")
                   ->orWhere('nomor_telepon',     'like', "%{$search}%")
@@ -177,15 +172,23 @@ class PenyewaanController extends Controller
                   ->orWhere('tgl_mulai',         'like', "%{$search}%")
                   ->orWhere('tgl_selesai',       'like', "%{$search}%");
             })
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('tgl_mulai', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('tgl_mulai', '<=', $dateTo);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
-        return view('admin.penyewaan.index', compact('penyewaans', 'search', 'perPage'));
+        return view('admin.penyewaan.index', compact(
+            'penyewaans', 'search', 'perPage', 'dateFrom', 'dateTo'
+        ));
     }
 
     // =========================================================
-    //  EXPORT XLSX  ← TAMBAH METHOD INI
+    //  EXPORT XLSX
     // =========================================================
 
     public function export(Request $request)
@@ -291,7 +294,6 @@ class PenyewaanController extends Controller
                 'tgl_selesai' => Carbon::today()->format('Y-m-d'),
             ]);
 
-            // PERBAIKAN: Kembalikan stok semua barang yang disewa
             $this->kembalikanStok($penyewaan);
 
             ActivityLog::record(
@@ -415,7 +417,6 @@ class PenyewaanController extends Controller
 
         $penyewaan = Penyewaan::create(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok (untukSewa = true sudah ditangani di syncDetails)
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -511,7 +512,6 @@ class PenyewaanController extends Controller
 
         $penyewaan->update(collect($validated)->except('items')->toArray());
 
-        // sync details + update stok (diff, dengan flag sewa)
         $this->syncDetails($penyewaan, $validated['items']);
 
         ActivityLog::record(
@@ -540,7 +540,6 @@ class PenyewaanController extends Controller
     {
         $penyewaan = Penyewaan::with('details')->findOrFail($id);
 
-        // Kembalikan semua stok ketika penyewaan dihapus (dariSewa = true)
         foreach ($penyewaan->details as $detail) {
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
@@ -569,7 +568,7 @@ class PenyewaanController extends Controller
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }
 
-        $penyewaan->delete(); // details ikut cascade delete
+        $penyewaan->delete();
 
         return redirect()->route('penyewaan.index')
             ->with('success', 'Data penyewaan berhasil dihapus.');
