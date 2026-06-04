@@ -204,10 +204,17 @@ class PenyewaanController extends Controller
 
     public function export(Request $request)
     {
-        $search   = $request->input('search', '');
-        $filename = 'penyewaan_' . now()->format('Ymd_His') . '.xlsx';
+        $search   = $request->get('search',   '');
+    $dateFrom = $request->get('date_from');
+    $dateTo   = $request->get('date_to');
+    $status   = $request->get('status',   'semua');
 
-        return Excel::download(new PenyewaanExport($search), $filename);
+    $filename = 'penyewaan_' . now()->format('Ymd_His') . '.xlsx';
+
+    return Excel::download(
+        new PenyewaanExport($search, $dateFrom, $dateTo, $status),
+        $filename
+    );
     }
 
     // =========================================================
