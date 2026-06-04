@@ -54,7 +54,8 @@ class PenyewaanController extends Controller
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    $inv->tambahStok($detail->qty, 'baru', true);
+                    // Barang yang dikembalikan dari sewa selalu masuk stok_bekas
+                    $inv->tambahStok($detail->qty, 'bekas', true);
                 }
             }
         }
@@ -79,11 +80,15 @@ class PenyewaanController extends Controller
             $harga       = max(0, (int) ($item['harga_satuan'] ?? 0));
             $diskon      = max(0, min(100, (int) ($item['diskon'] ?? 0)));
             $inventoryId = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $kondisi     = in_array($item['kondisi'] ?? '', ['baru', 'bekas'])
+                           ? $item['kondisi']
+                           : 'baru';
             $subtotal    = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
                 'penyewaan_id' => $penyewaan->id,
                 'inventory_id' => $inventoryId,
+                'kondisi'      => $kondisi,
                 'nama_alat'    => $namaAlat,
                 'qty'          => $qtyBaru,
                 'satuan'       => $item['satuan'] ?? 'unit',
@@ -101,13 +106,18 @@ class PenyewaanController extends Controller
                 /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
                 if ($inv) {
-                    $qtyLama = $detailLama ? (int) $detailLama->qty : 0;
-                    $selisih = $qtyBaru - $qtyLama;
+                    $qtyLama      = $detailLama ? (int) $detailLama->qty : 0;
+                    $kondisiLama  = $detailLama ? ($detailLama->kondisi ?? 'baru') : $kondisi;
+                    $selisih      = $qtyBaru - $qtyLama;
 
-                    if ($selisih > 0) {
-                        $inv->kurangiStok($selisih, 'baru', true);
+                    if ($kondisiLama !== $kondisi && $detailLama) {
+                        // Kondisi berubah: rollback stok kondisi lama, kurangi stok kondisi baru
+                        $inv->tambahStok($qtyLama, $kondisiLama, true);
+                        $inv->kurangiStok($qtyBaru, $kondisi, true);
+                    } elseif ($selisih > 0) {
+                        $inv->kurangiStok($selisih, $kondisi, true);
                     } elseif ($selisih < 0) {
-                        $inv->tambahStok(abs($selisih), 'baru', true);
+                        $inv->tambahStok(abs($selisih), $kondisi, true);
                     }
                 }
             }
@@ -123,7 +133,7 @@ class PenyewaanController extends Controller
             $totalSewa += $subtotal;
         }
 
-        // Hapus detail yang tidak ada + kembalikan stok
+        // Hapus detail yang tidak ada + kembalikan stok ke kondisi asal
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
             $detailsToDelete = DetailPenyewaan::whereIn('id', $toDelete)->get();
@@ -131,7 +141,8 @@ class PenyewaanController extends Controller
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
                     if ($inv) {
-                        $inv->tambahStok($detail->qty, 'baru', true);
+                        // Kembalikan ke kondisi asal saat dihapus dari daftar item
+                        $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
                     }
                 }
             }
@@ -251,10 +262,10 @@ class PenyewaanController extends Controller
                 $sisaHari = $item->sisa_hari;
 
                 $sisaLabel = match (true) {
-                    $sisaHari <= 0 => 'Lewat deadline!',
+                    $sisaHari <= 0  => 'Lewat deadline!',
                     $sisaHari === 1 => 'Besok deadline!',
                     $sisaHari === 2 => '2 hari lagi',
-                    default        => $sisaHari . ' hari lagi',
+                    default         => $sisaHari . ' hari lagi',
                 };
 
                 $barang = $item->details->count()
@@ -308,7 +319,7 @@ class PenyewaanController extends Controller
             return response()->json([
                 'success' => true,
                 'action'  => 'selesai_sekarang',
-                'message' => 'Penyewaan berhasil diselesaikan dan stok barang telah dikembalikan.',
+                'message' => 'Penyewaan berhasil diselesaikan dan stok barang telah dikembalikan sebagai bekas.',
             ]);
         }
 
@@ -395,6 +406,7 @@ class PenyewaanController extends Controller
             'keterangan'               => 'nullable|string',
             'items'                    => 'required|array|min:1',
             'items.*.inventory_id'     => 'nullable|integer',
+            'items.*.kondisi'          => 'nullable|in:baru,bekas',
             'items.*.nama_alat'        => 'required|string|max:255',
             'items.*.qty'              => 'required|integer|min:1',
             'items.*.satuan'           => 'required|string|max:50',
@@ -488,6 +500,7 @@ class PenyewaanController extends Controller
             'items'                    => 'required|array|min:1',
             'items.*.detail_id'        => 'nullable|integer',
             'items.*.inventory_id'     => 'nullable|integer',
+            'items.*.kondisi'          => 'nullable|in:baru,bekas',
             'items.*.nama_alat'        => 'required|string|max:255',
             'items.*.qty'              => 'required|integer|min:1',
             'items.*.satuan'           => 'required|string|max:50',
@@ -544,7 +557,8 @@ class PenyewaanController extends Controller
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    $inv->tambahStok($detail->qty, 'baru', true);
+                    // Kembalikan ke kondisi asal saat data dihapus
+                    $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
                 }
             }
         }

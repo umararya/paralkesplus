@@ -1,10 +1,10 @@
-{{-- resources/views/admin/penyewaan/edit.blade.php --}}
-@extends('admin.layouts.app')
 
-@section('title', 'Edit Penyewaan #' . $penyewaan->id)
-@section('breadcrumb', 'Edit Penyewaan')
 
-@push('styles')
+
+<?php $__env->startSection('title', 'Edit Penyewaan #' . $penyewaan->id); ?>
+<?php $__env->startSection('breadcrumb', 'Edit Penyewaan'); ?>
+
+<?php $__env->startPush('styles'); ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 <style>
@@ -95,12 +95,12 @@
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
-    <a href="{{ route('penyewaan.index') }}"
+    <a href="<?php echo e(route('penyewaan.index')); ?>"
        style="display:inline-flex; align-items:center; justify-content:center;
               width:36px; height:36px; border-radius:8px; background:var(--bg-card);
               border:1px solid var(--border); color:var(--text-secondary);
@@ -111,19 +111,19 @@
     </a>
     <div>
         <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:2px;">
-            Edit Penyewaan <span style="color:var(--text-muted); font-weight:500;">#{{ $penyewaan->id }}</span>
+            Edit Penyewaan <span style="color:var(--text-muted); font-weight:500;">#<?php echo e($penyewaan->id); ?></span>
         </h1>
-        <p style="font-size:13px; color:var(--text-muted);">Ubah data penyewaan a.n. {{ $penyewaan->nama_penyewa }}</p>
+        <p style="font-size:13px; color:var(--text-muted);">Ubah data penyewaan a.n. <?php echo e($penyewaan->nama_penyewa); ?></p>
     </div>
 </div>
 
 <div class="form-card">
-    <form action="{{ route('penyewaan.update', $penyewaan->id) }}" method="POST"
+    <form action="<?php echo e(route('penyewaan.update', $penyewaan->id)); ?>" method="POST"
           enctype="multipart/form-data" id="form-penyewaan">
-        @csrf
-        @method('PUT')
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('PUT'); ?>
 
-        {{-- ===================== DATA PENYEWA ===================== --}}
+        
         <div class="form-section">
             <div class="section-title"><i class="ri-user-line"></i> Data Penyewa</div>
             <div class="form-grid form-grid-2">
@@ -131,25 +131,39 @@
                 <div class="form-group">
                     <label class="form-label">Nama <span class="required">*</span></label>
                     <input type="text" name="nama_penyewa"
-                           value="{{ old('nama_penyewa', $penyewaan->nama_penyewa) }}"
+                           value="<?php echo e(old('nama_penyewa', $penyewaan->nama_penyewa)); ?>"
                            placeholder="Nama lengkap penyewa"
-                           class="form-control {{ $errors->has('nama_penyewa') ? 'is-invalid' : '' }}"
+                           class="form-control <?php echo e($errors->has('nama_penyewa') ? 'is-invalid' : ''); ?>"
                            required>
-                    @error('nama_penyewa')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['nama_penyewa'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon/HP <span class="required">*</span></label>
                     <input type="tel" name="nomor_telepon"
-                           value="{{ old('nomor_telepon', $penyewaan->nomor_telepon) }}"
+                           value="<?php echo e(old('nomor_telepon', $penyewaan->nomor_telepon)); ?>"
                            placeholder="08xxxxxxxxxx"
-                           class="form-control {{ $errors->has('nomor_telepon') ? 'is-invalid' : '' }}"
+                           class="form-control <?php echo e($errors->has('nomor_telepon') ? 'is-invalid' : ''); ?>"
                            required>
-                    @error('nomor_telepon')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['nomor_telepon'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
@@ -158,12 +172,19 @@
                         <span class="hint">(untuk formulir perjanjian)</span>
                     </label>
                     <input type="text" name="tempat_tanggal_lahir"
-                           value="{{ old('tempat_tanggal_lahir', $penyewaan->tempat_tanggal_lahir) }}"
+                           value="<?php echo e(old('tempat_tanggal_lahir', $penyewaan->tempat_tanggal_lahir)); ?>"
                            placeholder="Contoh: Semarang, 01 Januari 1990"
-                           class="form-control {{ $errors->has('tempat_tanggal_lahir') ? 'is-invalid' : '' }}">
-                    @error('tempat_tanggal_lahir')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                           class="form-control <?php echo e($errors->has('tempat_tanggal_lahir') ? 'is-invalid' : ''); ?>">
+                    <?php $__errorArgs = ['tempat_tanggal_lahir'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
@@ -172,31 +193,45 @@
                         <span class="hint">(16 digit)</span>
                     </label>
                     <input type="text" name="nomor_ktp"
-                           value="{{ old('nomor_ktp', $penyewaan->nomor_ktp) }}"
+                           value="<?php echo e(old('nomor_ktp', $penyewaan->nomor_ktp)); ?>"
                            placeholder="3374xxxxxxxxxxxxxxx"
                            maxlength="16" inputmode="numeric" pattern="[0-9]{16}"
-                           class="form-control {{ $errors->has('nomor_ktp') ? 'is-invalid' : '' }}"
+                           class="form-control <?php echo e($errors->has('nomor_ktp') ? 'is-invalid' : ''); ?>"
                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-                    @error('nomor_ktp')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['nomor_ktp'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Alamat Penyewa <span class="required">*</span></label>
                     <textarea name="alamat_penyewa" rows="3"
                               placeholder="Alamat lengkap penyewa"
-                              class="form-control {{ $errors->has('alamat_penyewa') ? 'is-invalid' : '' }}"
-                              required>{{ old('alamat_penyewa', $penyewaan->alamat_penyewa) }}</textarea>
-                    @error('alamat_penyewa')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                              class="form-control <?php echo e($errors->has('alamat_penyewa') ? 'is-invalid' : ''); ?>"
+                              required><?php echo e(old('alamat_penyewa', $penyewaan->alamat_penyewa)); ?></textarea>
+                    <?php $__errorArgs = ['alamat_penyewa'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
             </div>
         </div>
 
-        {{-- ===================== ITEM PENYEWAAN ===================== --}}
+        
         <div class="form-section">
             <div class="section-title"><i class="ri-stethoscope-line"></i> Item Penyewaan</div>
 
@@ -245,7 +280,7 @@
             </div>
         </div>
 
-        {{-- ===================== DURASI & PENGIRIMAN ===================== --}}
+        
         <div class="form-section">
             <div class="section-title"><i class="ri-calendar-line"></i> Durasi &amp; Pengiriman</div>
             <div class="form-grid">
@@ -254,31 +289,45 @@
                     <label class="form-label">Periode Sewa <span class="required">*</span></label>
                     <div class="date-range-wrap">
                         <input type="text" id="tgl_mulai" name="tgl_mulai"
-                               value="{{ old('tgl_mulai', $penyewaan->tgl_mulai?->format('Y-m-d')) }}"
+                               value="<?php echo e(old('tgl_mulai', $penyewaan->tgl_mulai?->format('Y-m-d'))); ?>"
                                placeholder="Tanggal Mulai"
-                               class="form-control {{ $errors->has('tgl_mulai') ? 'is-invalid' : '' }}"
+                               class="form-control <?php echo e($errors->has('tgl_mulai') ? 'is-invalid' : ''); ?>"
                                autocomplete="off" readonly required>
                         <span class="date-range-sep"><i class="ri-arrow-right-line"></i></span>
                         <input type="text" id="tgl_selesai" name="tgl_selesai"
-                               value="{{ old('tgl_selesai', $penyewaan->tgl_selesai?->format('Y-m-d')) }}"
+                               value="<?php echo e(old('tgl_selesai', $penyewaan->tgl_selesai?->format('Y-m-d'))); ?>"
                                placeholder="Tanggal Selesai"
-                               class="form-control {{ $errors->has('tgl_selesai') ? 'is-invalid' : '' }}"
+                               class="form-control <?php echo e($errors->has('tgl_selesai') ? 'is-invalid' : ''); ?>"
                                autocomplete="off" readonly required>
                     </div>
                     <input type="hidden" id="durasi_hari" name="durasi_hari"
-                           value="{{ old('durasi_hari', $penyewaan->durasi_hari) }}">
+                           value="<?php echo e(old('durasi_hari', $penyewaan->durasi_hari)); ?>">
                     <div class="durasi-display" id="durasi-display">
-                        @if(old('durasi_hari', $penyewaan->durasi_hari))
+                        <?php if(old('durasi_hari', $penyewaan->durasi_hari)): ?>
                             <i class="ri-calendar-check-line"></i>
-                            {{ old('durasi_hari', $penyewaan->durasi_hari) }} hari
-                        @endif
+                            <?php echo e(old('durasi_hari', $penyewaan->durasi_hari)); ?> hari
+                        <?php endif; ?>
                     </div>
-                    @error('tgl_mulai')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
-                    @error('tgl_selesai')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['tgl_mulai'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    <?php $__errorArgs = ['tgl_selesai'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-grid form-grid-2" style="grid-column:1/-1;">
@@ -286,42 +335,57 @@
                     <div class="form-group">
                         <label class="form-label">Pengiriman <span class="required">*</span></label>
                         <select name="pengiriman" id="pengiriman"
-                                class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
+                                class="form-control <?php echo e($errors->has('pengiriman') ? 'is-invalid' : ''); ?>"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled>-- Pilih metode pengiriman --</option>
-                            @foreach(['mandiri' => 'Ambil dan Antar kembali sendiri oleh Penyewa', 'Gosend / GrabExpress' => 'via Gosend / GrabExpress', 'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes'] as $val => $label)
-                                <option value="{{ $val }}"
-                                    {{ old('pengiriman', $penyewaan->pengiriman) == $val ? 'selected' : '' }}>
-                                    {{ $label }}
+                            <?php $__currentLoopData = ['mandiri' => 'Ambil dan Antar kembali sendiri oleh Penyewa', 'Gosend / GrabExpress' => 'via Gosend / GrabExpress', 'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($val); ?>"
+                                    <?php echo e(old('pengiriman', $penyewaan->pengiriman) == $val ? 'selected' : ''); ?>>
+                                    <?php echo e($label); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                         <div class="pengiriman-note" id="pengiriman-note">
                             <i class="ri-information-line"></i>
                             <span id="pengiriman-note-text">Pilih metode pengiriman di atas</span>
                         </div>
-                        @error('pengiriman')
-                            <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                        @enderror
+                        <?php $__errorArgs = ['pengiriman'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Biaya Ongkir <span class="hint">(Rp)</span></label>
                         <input type="number" name="biaya_ongkir" id="biaya_ongkir"
-                               value="{{ old('biaya_ongkir', $penyewaan->biaya_ongkir ?? 0) }}"
+                               value="<?php echo e(old('biaya_ongkir', $penyewaan->biaya_ongkir ?? 0)); ?>"
                                min="0" placeholder="0"
-                               class="form-control {{ $errors->has('biaya_ongkir') ? 'is-invalid' : '' }}"
+                               class="form-control <?php echo e($errors->has('biaya_ongkir') ? 'is-invalid' : ''); ?>"
                                oninput="hitungRingkasan()">
-                        @error('biaya_ongkir')
-                            <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                        @enderror
+                        <?php $__errorArgs = ['biaya_ongkir'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        {{-- ===================== PEMBAYARAN ===================== --}}
+        
         <div class="form-section">
             <div class="section-title"><i class="ri-bank-card-line"></i> Pembayaran</div>
             <div class="form-grid form-grid-2">
@@ -329,73 +393,104 @@
                 <div class="form-group">
                     <label class="form-label">Metode Pembayaran <span class="required">*</span></label>
                     <select name="metode_pembayaran" id="metode_pembayaran"
-                            class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
+                            class="form-control <?php echo e($errors->has('metode_pembayaran') ? 'is-invalid' : ''); ?>"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled>-- Pilih metode --</option>
-                        @foreach(['tunai' => 'Tunai / Cash', 'transfer' => 'Transfer via Bank BCA', 'qris' => 'QRIS'] as $val => $label)
-                            <option value="{{ $val }}"
-                                {{ old('metode_pembayaran', $penyewaan->metode_pembayaran) == $val ? 'selected' : '' }}>
-                                {{ $label }}
+                        <?php $__currentLoopData = ['tunai' => 'Tunai / Cash', 'transfer' => 'Transfer via Bank BCA', 'qris' => 'QRIS']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($val); ?>"
+                                <?php echo e(old('metode_pembayaran', $penyewaan->metode_pembayaran) == $val ? 'selected' : ''); ?>>
+                                <?php echo e($label); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                     <div class="metode-info" id="metode-info">
                         <i class="ri-information-line"></i>
                         <span id="metode-info-text">Pilih metode pembayaran</span>
                     </div>
-                    @error('metode_pembayaran')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['metode_pembayaran'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Diskon Global <span class="hint">(Rp)</span></label>
                     <input type="number" name="diskon_global" id="diskon_global"
-                           value="{{ old('diskon_global', $penyewaan->diskon_global ?? 0) }}"
+                           value="<?php echo e(old('diskon_global', $penyewaan->diskon_global ?? 0)); ?>"
                            min="0" placeholder="0"
-                           class="form-control {{ $errors->has('diskon_global') ? 'is-invalid' : '' }}"
+                           class="form-control <?php echo e($errors->has('diskon_global') ? 'is-invalid' : ''); ?>"
                            oninput="hitungRingkasan()">
-                    @error('diskon_global')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['diskon_global'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Status <span class="required">*</span></label>
                     <select name="status"
-                            class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}" required>
-                        @foreach(['berjalan' => 'Berjalan', 'segera_konfirmasi' => 'Segera Konfirmasi', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $val => $label)
-                            <option value="{{ $val }}"
-                                {{ old('status', $penyewaan->status) == $val ? 'selected' : '' }}>
-                                {{ $label }}
+                            class="form-control <?php echo e($errors->has('status') ? 'is-invalid' : ''); ?>" required>
+                        <?php $__currentLoopData = ['berjalan' => 'Berjalan', 'segera_konfirmasi' => 'Segera Konfirmasi', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($val); ?>"
+                                <?php echo e(old('status', $penyewaan->status) == $val ? 'selected' : ''); ?>>
+                                <?php echo e($label); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
-                    @error('status')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['status'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Bukti Pembayaran <span class="hint">(link / catatan)</span></label>
                     <input type="text" name="bukti_pembayaran"
-                           value="{{ old('bukti_pembayaran', $penyewaan->bukti_pembayaran) }}"
+                           value="<?php echo e(old('bukti_pembayaran', $penyewaan->bukti_pembayaran)); ?>"
                            placeholder="https://drive.google.com/... atau 'bayar di tempat'"
-                           class="form-control {{ $errors->has('bukti_pembayaran') ? 'is-invalid' : '' }}">
-                    @error('bukti_pembayaran')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                           class="form-control <?php echo e($errors->has('bukti_pembayaran') ? 'is-invalid' : ''); ?>">
+                    <?php $__errorArgs = ['bukti_pembayaran'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Foto KTP / SIM <span class="hint">(jpg/png/pdf, maks 5MB — kosongkan jika tidak diganti)</span></label>
-                    @if($penyewaan->foto_ktp_sim)
-                        <a href="{{ asset('storage/' . $penyewaan->foto_ktp_sim) }}"
+                    <?php if($penyewaan->foto_ktp_sim): ?>
+                        <a href="<?php echo e(asset('storage/' . $penyewaan->foto_ktp_sim)); ?>"
                            target="_blank" class="existing-file">
-                            <i class="ri-file-check-line"></i> File saat ini: {{ basename($penyewaan->foto_ktp_sim) }}
+                            <i class="ri-file-check-line"></i> File saat ini: <?php echo e(basename($penyewaan->foto_ktp_sim)); ?>
+
                             <i class="ri-external-link-line" style="font-size:12px;"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
                     <div class="dropzone" id="dropzone-ktp" tabindex="0" role="button"
                          onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
                         <input type="file" id="foto_ktp_sim" name="foto_ktp_sim" accept=".jpg,.jpeg,.png,.pdf">
@@ -412,31 +507,45 @@
                             <i class="ri-close-line"></i>
                         </button>
                     </div>
-                    @error('foto_ktp_sim')
-                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['foto_ktp_sim'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
             </div>
         </div>
 
-        {{-- ===================== KETERANGAN ===================== --}}
+        
         <div class="form-section">
             <div class="section-title"><i class="ri-file-text-line"></i> Keterangan</div>
             <div class="form-group">
                 <label class="form-label">Keterangan <span class="hint">(opsional)</span></label>
                 <textarea name="keterangan" rows="3"
                           placeholder="Catatan tambahan jika ada..."
-                          class="form-control {{ $errors->has('keterangan') ? 'is-invalid' : '' }}">{{ old('keterangan', $penyewaan->keterangan) }}</textarea>
-                @error('keterangan')
-                    <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
-                @enderror
+                          class="form-control <?php echo e($errors->has('keterangan') ? 'is-invalid' : ''); ?>"><?php echo e(old('keterangan', $penyewaan->keterangan)); ?></textarea>
+                <?php $__errorArgs = ['keterangan'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="invalid-feedback"><i class="ri-error-warning-line"></i> <?php echo e($message); ?></span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
         </div>
 
-        {{-- ===================== FOOTER ===================== --}}
+        
         <div class="form-footer">
-            <a href="{{ route('penyewaan.index') }}" class="btn btn-cancel">
+            <a href="<?php echo e(route('penyewaan.index')); ?>" class="btn btn-cancel">
                 <i class="ri-close-line"></i> Batal
             </a>
             <button type="submit" class="btn btn-save">
@@ -447,9 +556,9 @@
     </form>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -458,12 +567,12 @@
 // ── FLATPICKR ──
 const fpMulai = flatpickr('#tgl_mulai', {
     locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
-    defaultDate: '{{ old("tgl_mulai", $penyewaan->tgl_mulai?->format("Y-m-d")) }}',
+    defaultDate: '<?php echo e(old("tgl_mulai", $penyewaan->tgl_mulai?->format("Y-m-d"))); ?>',
     onChange: (sel, str) => { fpSelesai.set('minDate', str); hitungDurasi(); }
 });
 const fpSelesai = flatpickr('#tgl_selesai', {
     locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
-    defaultDate: '{{ old("tgl_selesai", $penyewaan->tgl_selesai?->format("Y-m-d")) }}',
+    defaultDate: '<?php echo e(old("tgl_selesai", $penyewaan->tgl_selesai?->format("Y-m-d"))); ?>',
     onChange: () => hitungDurasi()
 });
 
@@ -606,7 +715,7 @@ function addRow(data = {}) {
         minimumInputLength: 0,
         allowClear:     true,
         ajax: {
-            url:      '{{ route("api.inventory.index") }}',
+            url:      '<?php echo e(route("api.inventory.index")); ?>',
             dataType: 'json',
             delay:    200,
             data:     params => ({ q: params.term || '', mode: 'sewa' }),
@@ -716,38 +825,39 @@ function removeFile(inputId, previewId, zoneId) {
 document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
 
-    @if(old('items'))
-        @foreach(old('items') as $i => $oldItem)
+    <?php if(old('items')): ?>
+        <?php $__currentLoopData = old('items'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $oldItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             addRow({
-                detail_id:    '{{ $oldItem["detail_id"] ?? "" }}',
-                inventory_id: '{{ $oldItem["inventory_id"] ?? "" }}',
-                nama_alat:    '{{ addslashes($oldItem["nama_alat"] ?? "") }}',
-                kondisi:      '{{ $oldItem["kondisi"] ?? "baru" }}',
-                qty:          {{ (int)($oldItem['qty'] ?? 1) }},
-                satuan:       '{{ $oldItem["satuan"] ?? "unit" }}',
-                harga_satuan: {{ (int)($oldItem['harga_satuan'] ?? 0) }},
-                diskon:       {{ (int)($oldItem['diskon'] ?? 0) }},
+                detail_id:    '<?php echo e($oldItem["detail_id"] ?? ""); ?>',
+                inventory_id: '<?php echo e($oldItem["inventory_id"] ?? ""); ?>',
+                nama_alat:    '<?php echo e(addslashes($oldItem["nama_alat"] ?? "")); ?>',
+                kondisi:      '<?php echo e($oldItem["kondisi"] ?? "baru"); ?>',
+                qty:          <?php echo e((int)($oldItem['qty'] ?? 1)); ?>,
+                satuan:       '<?php echo e($oldItem["satuan"] ?? "unit"); ?>',
+                harga_satuan: <?php echo e((int)($oldItem['harga_satuan'] ?? 0)); ?>,
+                diskon:       <?php echo e((int)($oldItem['diskon'] ?? 0)); ?>,
             });
-        @endforeach
-    @else
-        @forelse($penyewaan->details as $detail)
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    <?php else: ?>
+        <?php $__empty_1 = true; $__currentLoopData = $penyewaan->details; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $detail): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             addRow({
-                detail_id:    {{ $detail->id }},
-                inventory_id: {{ $detail->inventory_id !== null ? $detail->inventory_id : 'null' }},
-                nama_alat:    '{{ addslashes($detail->nama_alat) }}',
-                kondisi:      '{{ $detail->kondisi ?? "baru" }}',
-                qty:          {{ (int)$detail->qty }},
-                satuan:       '{{ $detail->satuan }}',
-                harga_satuan: {{ (int)$detail->harga_satuan }},
-                diskon:       {{ (int)($detail->diskon ?? 0) }},
+                detail_id:    <?php echo e($detail->id); ?>,
+                inventory_id: <?php echo e($detail->inventory_id !== null ? $detail->inventory_id : 'null'); ?>,
+                nama_alat:    '<?php echo e(addslashes($detail->nama_alat)); ?>',
+                kondisi:      '<?php echo e($detail->kondisi ?? "baru"); ?>',
+                qty:          <?php echo e((int)$detail->qty); ?>,
+                satuan:       '<?php echo e($detail->satuan); ?>',
+                harga_satuan: <?php echo e((int)$detail->harga_satuan); ?>,
+                diskon:       <?php echo e((int)($detail->diskon ?? 0)); ?>,
             });
-        @empty
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             addRow();
-        @endforelse
-    @endif
+        <?php endif; ?>
+    <?php endif; ?>
 
     updatePengirimanNote();
     updateMetodeInfo();
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\paralkesplus\resources\views/admin/penyewaan/edit.blade.php ENDPATH**/ ?>

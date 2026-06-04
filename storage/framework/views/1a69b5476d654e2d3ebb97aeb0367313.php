@@ -171,6 +171,23 @@
     html.dark .badge-gosend  { background:rgba(194,65,12,0.12); color:#FB923C; }
     html.dark .badge-rental  { background:rgba(29,111,164,0.12); color:#38BDF8; }
 
+    /* ── Produk item list ── */
+    .produk-list { display:flex; flex-direction:column; gap:3px; min-width:160px; }
+    .produk-list-item { font-size:12.5px; color:var(--text-primary); white-space:nowrap; display:flex; align-items:center; gap:5px; }
+    .produk-list-item .qty-badge {
+        display:inline-flex; align-items:center;
+        background:var(--brand-50); color:var(--brand-500);
+        border:1px solid var(--brand-100);
+        border-radius:5px; padding:0px 6px;
+        font-size:11.5px; font-weight:700;
+        white-space:nowrap; flex-shrink:0;
+    }
+    html.dark .produk-list-item .qty-badge {
+        background:rgba(29,111,164,0.12); color:#60A5FA;
+        border-color:rgba(29,111,164,0.25);
+    }
+    .produk-list-fallback { font-size:13px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
+
     /* ===== MONITORING MODAL ===== */
     .monitoring-table { width:100%; border-collapse:collapse; font-size:13px; }
     .monitoring-table th { padding:9px 12px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); background:var(--bg-primary); border-bottom:2px solid var(--border); white-space:nowrap; }
@@ -480,11 +497,27 @@
 
                         </a>
                     </td>
-                    <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
-                        title="<?php echo e($item->nama_alat); ?>">
-                        <?php echo e($item->nama_alat); ?>
 
+                    
+                    <td>
+                        <?php $details = $item->details; ?>
+                        <?php if($details->isNotEmpty()): ?>
+                            <div class="produk-list">
+                                <?php $__currentLoopData = $details; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="produk-list-item">
+                                    <span><?php echo e($d->nama_alat); ?></span>
+                                    <span class="qty-badge">× <?php echo e($d->qty); ?></span>
+                                </div>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="produk-list-fallback" title="<?php echo e($item->nama_alat ?? '—'); ?>">
+                                <?php echo e($item->nama_alat ?? '—'); ?>
+
+                            </span>
+                        <?php endif; ?>
                     </td>
+
                     <td class="center">
                         <span style="font-weight:600;"><?php echo e($item->durasi_hari); ?></span>
                         <span style="font-size:11px; color:var(--text-muted);"> hari</span>
@@ -909,7 +942,6 @@ function closeAllDropdowns() {
 }
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.action-wrap')) closeAllDropdowns();
-    // Tutup export panel jika klik di luar
     const panel  = document.getElementById('exportPanel');
     const btnExp = document.getElementById('btnToggleExport');
     if (panel && panel.classList.contains('open') &&

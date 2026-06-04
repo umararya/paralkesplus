@@ -13,6 +13,7 @@ class DetailPenyewaan extends Model
     protected $fillable = [
         'penyewaan_id',
         'inventory_id',
+        'kondisi',         // <-- tambahan baru
         'nama_alat',
         'qty',
         'satuan',
@@ -38,5 +39,17 @@ class DetailPenyewaan extends Model
     public function inventory(): BelongsTo
     {
         return $this->belongsTo(Inventory::class);
+    }
+
+    /* ── Accessor ── */
+
+    /** Label kondisi human-friendly */
+    public function getKondisiLabelAttribute(): string
+    {
+        return match ($this->kondisi) {
+            'baru'  => 'Baru',
+            'bekas' => 'Bekas',
+            default => ucfirst($this->kondisi ?? ''),
+        };
     }
 }

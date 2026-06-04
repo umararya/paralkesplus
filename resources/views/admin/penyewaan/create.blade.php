@@ -89,6 +89,9 @@
     .select2-search--dropdown .select2-search__field { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); width:100%; box-sizing:border-box; }
     .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:4px; min-height:18px; }
     .stok-info-row span { font-size:12px; }
+    /* Badge kondisi */
+    .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
+    .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
 </style>
 @endpush
 
@@ -182,7 +185,8 @@
                     <thead>
                         <tr>
                             <th style="width:32px;">#</th>
-                            <th style="min-width:240px;">Nama Alat</th>
+                            <th style="min-width:220px;">Nama Alat</th>
+                            <th style="width:90px;">Kondisi</th>
                             <th style="width:70px;">Qty</th>
                             <th style="width:80px;">Satuan</th>
                             <th style="width:140px;">Harga/Satuan (Rp)</th>
@@ -486,15 +490,16 @@ function addRow(data = {}) {
         .map(s => `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`)
         .join('');
 
+    // ── KONDISI: default 'baru' ──
+    const kondisiVal = data.kondisi || 'baru';
+
     tr.innerHTML = `
         <td style="text-align:center;font-size:12px;color:var(--text-muted)">${idx}</td>
-        <td style="min-width:240px">
-            {{-- ▼ HIDDEN INPUT nama_alat — wajib diisi controller ▼ --}}
+        <td style="min-width:220px">
             <input type="hidden"
                    name="items[${idx}][nama_alat]"
                    id="nama-alat-${idx}"
                    value="${data.nama_alat || ''}">
-
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
                     class="form-control" required>
@@ -503,6 +508,14 @@ function addRow(data = {}) {
                     : ''}
             </select>
             <div class="stok-info-row" id="stok-info-${idx}"></div>
+        </td>
+        <td>
+            <select name="items[${idx}][kondisi]"
+                    id="kondisi-${idx}"
+                    class="form-control" style="width:90px">
+                <option value="baru"  ${kondisiVal==='baru' ?'selected':''}>Baru</option>
+                <option value="bekas" ${kondisiVal==='bekas'?'selected':''}>Bekas</option>
+            </select>
         </td>
         <td>
             <input type="number" name="items[${idx}][qty]"
@@ -558,11 +571,17 @@ function addRow(data = {}) {
     .on('select2:select', function (e) {
         const item = e.params.data;
 
-        // ▼ ISI HIDDEN INPUT nama_alat ▼
         document.getElementById(`nama-alat-${idx}`).value = item.text || '';
-
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
         $(`#qty-${idx}`).attr('max', item.stok_tersedia || 999);
+
+        // ── Auto-set kondisi berdasarkan stok tersedia ──
+        const kondisiSel = document.getElementById(`kondisi-${idx}`);
+        if (item.stok_baru > 0) {
+            kondisiSel.value = 'baru';
+        } else if (item.stok_bekas > 0) {
+            kondisiSel.value = 'bekas';
+        }
 
         const $satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
         if (item.satuan) {
@@ -582,7 +601,6 @@ function addRow(data = {}) {
         hitungSubtotal(idx);
     })
     .on('select2:clear', function () {
-        // ▼ BERSIHKAN HIDDEN INPUT nama_alat ▼
         document.getElementById(`nama-alat-${idx}`).value = '';
         $(`#harga-${idx}`).val(0);
         $(`#stok-info-${idx}`).html('');
@@ -659,6 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
             addRow({
                 inventory_id: '{{ $oldItem["inventory_id"] ?? "" }}',
                 nama_alat:    '{{ addslashes($oldItem["nama_alat"] ?? "") }}',
+                kondisi:      '{{ $oldItem["kondisi"] ?? "baru" }}',
                 qty:          {{ $oldItem['qty'] ?? 1 }},
                 satuan:       '{{ $oldItem["satuan"] ?? "unit" }}',
                 harga_satuan: {{ $oldItem['harga_satuan'] ?? 0 }},
