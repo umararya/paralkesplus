@@ -93,11 +93,9 @@
         .info-label { color: #666; min-width: 110px; font-size: 11px; }
         .info-value { font-weight: 600; color: #1a1a1a; font-size: 11px; }
 
-        /* Pengiriman box — warna aksen berbeda */
         .info-box.kirim-box { border-color: #bfdbfe; background: #f0f7ff; }
         .info-box.kirim-box .info-title { color: #1D6FA4; border-bottom-color: #bfdbfe; }
 
-        /* Ambil sendiri — chip kecil */
         .chip-ambil {
             display: inline-block; background: #fef3c7; color: #92400e;
             border: 1px solid #fde68a; border-radius: 4px;
@@ -240,10 +238,17 @@
             align-items: flex-end; margin-top: 10px;
         }
         .ttd-box { text-align: center; width: 180px; }
-        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 50px; }
+        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 6px; }
+        .ttd-box .ttd-img {
+            height: 60px; object-fit: contain;
+            display: block; margin: 0 auto 4px auto;
+        }
         .ttd-box .ttd-name {
             border-top: 1.5px solid #1a1a1a; padding-top: 5px;
             font-size: 11.5px; font-weight: 700; color: #1a1a1a;
+        }
+        .ttd-box .ttd-space {
+            height: 60px;
         }
         .ttd-box .ttd-jabatan { font-size: 10px; color: #777; margin-top: 2px; }
         .ttd-logo { text-align: center; }
@@ -457,7 +462,7 @@
                 </div>
             </div>
 
-            {{-- Box 3: Pengiriman (hanya jika bukan ambil sendiri ATAU ada biaya pengiriman/instalasi) --}}
+            {{-- Box 3: Pengiriman --}}
             @if($jasaPengiriman !== 'ambil_sendiri' || $hargaPengiriman > 0 || $jasaInstalasi > 0)
             <div class="info-box kirim-box">
                 <div class="info-title">{{ $kirimIcon }} Informasi Pengiriman</div>
@@ -488,7 +493,6 @@
                 @endif
             </div>
             @else
-            {{-- Ambil sendiri tanpa biaya tambahan → chip kecil saja di box pelanggan bawah --}}
             <div class="info-box" style="display:flex;flex-direction:column;justify-content:flex-end;max-width:160px;flex:0 0 160px;">
                 <div class="info-title">📦 Pengiriman</div>
                 <span class="chip-ambil">🚶 {{ $kirimLabel }}</span>
@@ -554,7 +558,6 @@
         {{-- ── BIAYA + TERBILANG ── --}}
         <div class="biaya-section">
 
-            {{-- Kiri: Terbilang --}}
             <div class="terbilang-wrap">
                 <table class="terbilang-table">
                     <tr>
@@ -573,7 +576,6 @@
                 </table>
             </div>
 
-            {{-- Kanan: Biaya Box --}}
             <div class="biaya-box">
                 <div class="biaya-row">
                     <span class="label">Subtotal Barang</span>
@@ -699,6 +701,7 @@
         <div class="ttd-section">
             <div class="ttd-box">
                 <div class="ttd-label">Hormat Kami,</div>
+                <img src="{{ asset('images/ttd.png') }}" alt="Tanda Tangan Admin" class="ttd-img">
                 <div class="ttd-name">Paralkes</div>
                 <div class="ttd-jabatan">Admin / Pengelola</div>
             </div>
@@ -707,6 +710,7 @@
             </div>
             <div class="ttd-box">
                 <div class="ttd-label">Pelanggan,</div>
+                <div class="ttd-space"></div>
                 <div class="ttd-name">{{ $penjualan->nama_pelanggan }}</div>
                 <div class="ttd-jabatan">Pembeli</div>
             </div>

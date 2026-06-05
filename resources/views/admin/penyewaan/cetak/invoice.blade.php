@@ -152,7 +152,12 @@
             align-items: flex-end; margin-top: 10px;
         }
         .ttd-box { text-align: center; width: 180px; }
-        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 50px; }
+        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 6px; }
+        .ttd-box .ttd-img {
+            height: 60px; object-fit: contain;
+            display: block; margin: 0 auto 4px auto;
+        }
+        .ttd-box .ttd-space { height: 60px; }
         .ttd-box .ttd-name {
             border-top: 1.5px solid #1a1a1a; padding-top: 5px;
             font-size: 11.5px; font-weight: 700; color: #1a1a1a;
@@ -208,7 +213,6 @@
                     ? collect(explode(',', $penyewaan->produk_alkes))->map(fn($p) => trim($p))
                     : collect();
 
-    /* Kalkulasi ringkasan */
     if ($useDetail) {
         $subtotalSewa = $details->sum(function($d) {
             $sub = $d->qty * $d->harga_satuan;
@@ -225,7 +229,6 @@
         $totalTagihan = $biayaOngkir;
     }
 
-    /* Fungsi terbilang */
     function terbilangSewa(int $n): string {
         if ($n < 0) return 'minus ' . terbilangSewa(-$n);
         $satuan = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
@@ -268,7 +271,7 @@
             <h2>Invoice Penyewaan Alat Kesehatan</h2>
         </div>
 
-        {{-- INFO INVOICE & PENYEWA (TANPA STATUS) --}}
+        {{-- INFO --}}
         <div class="info-section">
             <div class="info-box">
                 <div class="info-title">📋 Informasi Invoice</div>
@@ -375,7 +378,6 @@
         </table>
 
         @else
-        {{-- MODE LAMA --}}
         <table class="detail-table">
             <thead>
                 <tr>
@@ -409,7 +411,6 @@
         {{-- RINGKASAN + TERBILANG --}}
         <div class="biaya-section">
 
-            {{-- Kiri: Terbilang --}}
             <div class="terbilang-wrap">
                 <table class="terbilang-table">
                     <tr><td class="tb-title">Terbilang</td></tr>
@@ -417,7 +418,6 @@
                 </table>
             </div>
 
-            {{-- Kanan: Ringkasan --}}
             <div class="biaya-box">
                 @if($useDetail)
                     <div class="biaya-row">
@@ -458,6 +458,7 @@
         <div class="ttd-section">
             <div class="ttd-box">
                 <div class="ttd-label">Hormat Kami,</div>
+                <img src="{{ asset('images/ttd.png') }}" alt="Tanda Tangan Admin" class="ttd-img">
                 <div class="ttd-name">Paralkes</div>
                 <div class="ttd-jabatan">Admin / Pengelola</div>
             </div>
@@ -466,6 +467,7 @@
             </div>
             <div class="ttd-box">
                 <div class="ttd-label">Penyewa,</div>
+                <div class="ttd-space"></div>
                 <div class="ttd-name">{{ $penyewaan->nama_penyewa }}</div>
                 <div class="ttd-jabatan">Penyewa</div>
             </div>
