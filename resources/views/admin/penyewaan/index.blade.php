@@ -986,16 +986,16 @@ function loadMonitoringData() {
             // DIUBAH: threshold warning dari <= 3 menjadi <= 7
             const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
             const sisaText  = d.sisa_hari <= 0 ? 'Lewat deadline' : d.sisa_hari + ' hari';
-            return `<tr>
+return      `<tr>
                 <td style="font-weight:600;">${d.nama}</td>
                 <td>${d.nomor_hp}</td>
                 <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.barang}">${d.barang}</td>
                 <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.alamat}">${d.alamat}</td>
-                <td class="center"><span class="${sisaClass}">${sisaText}</span></td>
+                <td class="center"><span class="${sisaClass}">${d.durasi_hari} hari</span></td>
                 <td class="center"><span class="status-badge ${d.status_class}">${d.status_label}</span></td>
                 <td class="center">
                     <button class="btn btn-sm" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
-                            onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai}')">
+                            onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai_raw}')"
                         <i class="ri-check-double-line"></i> Selesaikan
                     </button>
                 </td>
@@ -1070,12 +1070,15 @@ function doSelesaikan(action) {
 function openExtend() {
     closePilihAction();
     if (currentTglSelesai) {
-        const d = new Date(currentTglSelesai);
+        // FIX: tambah T00:00:00 agar browser tidak geser ke hari sebelumnya
+        const d = new Date(currentTglSelesai + 'T00:00:00');
         d.setDate(d.getDate() + 1);
-        const minDate = d.toISOString().split('T')[0];
+        const pad     = n => String(n).padStart(2, '0');
+        const minDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
         document.getElementById('extendTanggal').min   = minDate;
         document.getElementById('extendTanggal').value = minDate;
-        const tglLabel = new Date(currentTglSelesai).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        const tglAwal  = new Date(currentTglSelesai + 'T00:00:00');
+        const tglLabel = tglAwal.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
         document.getElementById('extendNote').textContent = `Deadline awal: ${tglLabel}. Extend dihitung mulai dari tanggal tersebut.`;
     }
     document.getElementById('modalExtend').classList.add('open');

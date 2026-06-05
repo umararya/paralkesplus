@@ -30,13 +30,11 @@ class PenyewaanController extends Controller
             return;
         }
 
-        // DIUBAH: H-3 → H-7
         if ($sisaHari <= 7 && $item->status === 'berjalan') {
             $item->update(['status' => 'segera_konfirmasi']);
             return;
         }
 
-        // DIUBAH: H-3 → H-7
         if ($sisaHari > 7 && $item->status === 'segera_konfirmasi') {
             $item->update(['status' => 'berjalan']);
         }
@@ -56,7 +54,6 @@ class PenyewaanController extends Controller
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    // Barang yang dikembalikan dari sewa selalu masuk stok_bekas
                     $inv->tambahStok($detail->qty, 'bekas', true);
                 }
             }
@@ -113,7 +110,6 @@ class PenyewaanController extends Controller
                     $selisih      = $qtyBaru - $qtyLama;
 
                     if ($kondisiLama !== $kondisi && $detailLama) {
-                        // Kondisi berubah: rollback stok kondisi lama, kurangi stok kondisi baru
                         $inv->tambahStok($qtyLama, $kondisiLama, true);
                         $inv->kurangiStok($qtyBaru, $kondisi, true);
                     } elseif ($selisih > 0) {
@@ -135,7 +131,6 @@ class PenyewaanController extends Controller
             $totalSewa += $subtotal;
         }
 
-        // Hapus detail yang tidak ada + kembalikan stok ke kondisi asal
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
             $detailsToDelete = DetailPenyewaan::whereIn('id', $toDelete)->get();
@@ -143,7 +138,6 @@ class PenyewaanController extends Controller
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
                     if ($inv) {
-                        // Kembalikan ke kondisi asal saat dihapus dari daftar item
                         $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
                     }
                 }
@@ -152,6 +146,17 @@ class PenyewaanController extends Controller
         }
 
         $penyewaan->update(['total_harga_sewa' => $totalSewa]);
+    }
+
+    // =========================================================
+    //  PRIVATE HELPER — hitung durasi dari tanggal (server-side)
+    // =========================================================
+
+    private function hitungDurasi(string $tglMulai, string $tglSelesai): int
+    {
+        $start = Carbon::parse($tglMulai)->startOfDay();
+        $end   = Carbon::parse($tglSelesai)->startOfDay();
+        return (int) $start->diffInDays($end);
     }
 
     // =========================================================
@@ -240,16 +245,20 @@ class PenyewaanController extends Controller
                     : ($item->produk_alkes ?? '-');
 
                 return [
-                    'id'           => $item->id,
-                    'nama'         => $item->nama_penyewa,
-                    'nomor_hp'     => $item->nomor_telepon,
-                    'barang'       => $barang,
-                    'alamat'       => $item->alamat_penyewa,
-                    'sisa_hari'    => $item->sisa_hari,
-                    'tgl_selesai'  => $item->tgl_selesai?->format('d M Y') ?? '-',
-                    'status'       => $item->status,
-                    'status_label' => $item->status_label,
-                    'status_class' => $item->status_class,
+                    'id'              => $item->id,
+                    'nama'            => $item->nama_penyewa,
+                    'nomor_hp'        => $item->nomor_telepon,
+                    'barang'          => $barang,
+                    'alamat'          => $item->alamat_penyewa,
+                    // FIX: kirim durasi_hari (total hari sewa) agar sama dengan tabel utama
+                    'durasi_hari'     => $item->durasi_hari,
+                    // sisa_hari tetap dikirim untuk logika warna & selesaikan
+                    'sisa_hari'       => $item->sisa_hari,
+                    'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
+                    'tgl_selesai_raw' => $item->tgl_selesai?->format('Y-m-d') ?? null,
+                    'status'          => $item->status,
+                    'status_label'    => $item->status_label,
+                    'status_class'    => $item->status_class,
                 ];
             });
 
@@ -270,16 +279,10 @@ class PenyewaanController extends Controller
             ->map(function ($item) {
                 $sisaHari = $item->sisa_hari;
 
-                // DIUBAH: label disesuaikan dengan cakupan H-7
                 $sisaLabel = match (true) {
                     $sisaHari <= 0  => 'Lewat deadline!',
                     $sisaHari === 1 => 'Besok deadline!',
                     $sisaHari === 2 => '2 hari lagi',
-                    $sisaHari === 3 => '3 hari lagi',
-                    $sisaHari === 4 => '4 hari lagi',
-                    $sisaHari === 5 => '5 hari lagi',
-                    $sisaHari === 6 => '6 hari lagi',
-                    $sisaHari === 7 => '7 hari lagi',
                     default         => $sisaHari . ' hari lagi',
                 };
 
@@ -288,12 +291,15 @@ class PenyewaanController extends Controller
                     : ($item->produk_alkes ?? '-');
 
                 return [
-                    'id'          => $item->id,
-                    'nama'        => $item->nama_penyewa,
-                    'barang'      => $barang,
-                    'sisa_hari'   => $sisaHari,
-                    'sisa_label'  => $sisaLabel,
-                    'tgl_selesai' => $item->tgl_selesai?->format('d M Y') ?? '-',
+                    'id'              => $item->id,
+                    'nama'            => $item->nama_penyewa,
+                    'barang'          => $barang,
+                    // FIX: kirim durasi_hari agar konsisten dengan tabel utama
+                    'durasi_hari'     => $item->durasi_hari,
+                    'sisa_hari'       => $sisaHari,
+                    'sisa_label'      => $sisaLabel,
+                    'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
+                    'tgl_selesai_raw' => $item->tgl_selesai?->format('Y-m-d') ?? null,
                 ];
             });
 
@@ -363,11 +369,9 @@ class PenyewaanController extends Controller
 
         $tglLama    = $penyewaan->tgl_selesai->format('d M Y');
         $tglBaru    = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
-        $tglMulai   = Carbon::parse($penyewaan->tgl_mulai)->startOfDay();
+        $tglMulai   = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
         $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
-        $sisaBaru   = (int) Carbon::today()->diffInDays($tglBaru, false);
-
-        // DIUBAH: H-3 → H-7
+        $sisaBaru   = (int) Carbon::today()->startOfDay()->diffInDays($tglBaru, false);
         $newStatus  = $sisaBaru > 7 ? 'berjalan' : 'segera_konfirmasi';
 
         $penyewaan->update([
@@ -413,7 +417,6 @@ class PenyewaanController extends Controller
             'alamat_penyewa'           => 'required|string',
             'tgl_mulai'                => 'required|date',
             'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'              => 'required|integer|min:0',
             'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
@@ -433,6 +436,12 @@ class PenyewaanController extends Controller
             'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
+
+        // Hitung durasi server-side, abaikan hidden input JS
+        $validated['durasi_hari'] = $this->hitungDurasi(
+            $validated['tgl_mulai'],
+            $validated['tgl_selesai']
+        );
 
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
@@ -505,7 +514,6 @@ class PenyewaanController extends Controller
             'alamat_penyewa'           => 'required|string',
             'tgl_mulai'                => 'required|date',
             'tgl_selesai'              => 'required|date|after_or_equal:tgl_mulai',
-            'durasi_hari'              => 'required|integer|min:0',
             'pengiriman'               => 'required|in:mandiri,Gosend / GrabExpress,Rental Mobil Paralkes',
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
@@ -527,6 +535,12 @@ class PenyewaanController extends Controller
             'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
+
+        // Hitung durasi server-side, abaikan hidden input JS
+        $validated['durasi_hari'] = $this->hitungDurasi(
+            $validated['tgl_mulai'],
+            $validated['tgl_selesai']
+        );
 
         if ($request->hasFile('foto_ktp_sim')) {
             if ($penyewaan->foto_ktp_sim &&
@@ -574,7 +588,6 @@ class PenyewaanController extends Controller
             if ($detail->inventory_id) {
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
-                    // Kembalikan ke kondisi asal saat data dihapus
                     $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
                 }
             }
