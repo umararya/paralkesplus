@@ -154,8 +154,8 @@
         .ttd-box { text-align: center; width: 180px; }
         .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 6px; }
         .ttd-box .ttd-img {
-            height: 60px; object-fit: contain;
-            display: block; margin: 0 auto 4px auto;
+        height: 60px; object-fit: contain;
+        display: block; margin: 0 auto 4px auto;
         }
         .ttd-box .ttd-space { height: 60px; }
         .ttd-box .ttd-name {
