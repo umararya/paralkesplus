@@ -129,11 +129,6 @@
             font-weight: 600; line-height: 1.6; font-style: italic; text-align: center;
             display: block;
         }
-        .terbilang-table .tb-note {
-            padding: 6px 12px 8px; font-size: 10.5px; color: #D97706;
-            font-style: italic; text-align: center; display: block;
-            border-top: 1px dashed #FDE68A; background: #fffbeb;
-        }
 
         .biaya-box {
             width: 290px; flex-shrink: 0;
@@ -146,14 +141,9 @@
         .biaya-row:last-child { border-bottom: none; }
         .biaya-row .label { color: #555; }
         .biaya-row .value { font-weight: 600; }
-        .biaya-row.diskon-row .label { color: #b45309; font-weight: 600; }
-        .biaya-row.diskon-row .value { color: #b45309; font-weight: 700; }
         .biaya-row.total-row { background: #D97706; color: #fff; }
         .biaya-row.total-row .label,
         .biaya-row.total-row .value { color: #fff; font-weight: 700; font-size: 12.5px; }
-        .biaya-row.info-row-persen { background: #fffbeb; }
-        .biaya-row.info-row-persen .label { color: #92400e; font-size: 10.5px; font-style: italic; }
-        .biaya-row.info-row-persen .value { color: #D97706; font-size: 10.5px; font-weight: 700; }
 
         /* ── BUKTI FOTO ── */
         .bukti-section { margin-bottom: 14px; }
@@ -253,7 +243,6 @@
     $jumlah       = (int)   ($pembelian->jumlah       ?? 0);
     $hargaBuyback = (float) ($pembelian->harga_satuan ?? 0);
     $total        = (float) ($pembelian->total        ?? ($jumlah * $hargaBuyback));
-    $hargaAsli    = round($hargaBuyback / 0.5);
     $kondisi      = $pembelian->kondisi_barang ?? 'bekas';
 
     function terbilangBB(int $n): string {
@@ -358,16 +347,9 @@
             <div class="info-box" style="border-color:#FDE68A; background:#fffbeb;">
                 <div class="info-title">💰 Info Pembayaran</div>
                 <div class="info-row">
-                    <span class="info-label">Harga Jual Asli</span>
-                    <span class="info-value">
-                        : Rp {{ number_format($hargaAsli, 0, ',', '.') }} / unit
-                    </span>
-                </div>
-                <div class="info-row">
                     <span class="info-label">Harga Buy Back</span>
                     <span class="info-value" style="color:#D97706;">
                         : Rp {{ number_format($hargaBuyback, 0, ',', '.') }} / unit
-                        <span style="font-size:10px; font-weight:400; color:#9ca3af;">(50%)</span>
                     </span>
                 </div>
                 <div class="info-row">
@@ -393,8 +375,7 @@
                     <th>Nama Barang</th>
                     <th class="center" style="width:70px;">Kondisi</th>
                     <th class="center" style="width:50px;">Qty</th>
-                    <th class="right" style="width:130px;">Harga Jual Asli</th>
-                    <th class="right" style="width:130px;">Harga Buy Back (50%)</th>
+                    <th class="right" style="width:130px;">Harga Buy Back</th>
                     <th class="right" style="width:120px;">Total Dibayar</th>
                 </tr>
             </thead>
@@ -415,9 +396,6 @@
                         </span>
                     </td>
                     <td class="center" style="font-weight:700;">{{ number_format($jumlah) }}</td>
-                    <td class="right" style="color:#9ca3af; text-decoration:line-through; font-size:11px;">
-                        Rp {{ number_format($hargaAsli, 0, ',', '.') }}
-                    </td>
                     <td class="right" style="color:#D97706; font-weight:700;">
                         Rp {{ number_format($hargaBuyback, 0, ',', '.') }}
                     </td>
@@ -435,26 +413,10 @@
                 <table class="terbilang-table">
                     <tr><td class="tb-title">Terbilang — Total Dibayarkan ke Penjual</td></tr>
                     <tr><td class="tb-value">{{ $terbilangStr }}</td></tr>
-                    <tr>
-                        <td class="tb-note">
-                            Harga buy back = 50% dari harga jual asli
-                            (Rp {{ number_format($hargaAsli, 0, ',', '.') }} → Rp {{ number_format($hargaBuyback, 0, ',', '.') }})
-                        </td>
-                    </tr>
                 </table>
             </div>
 
             <div class="biaya-box">
-                <div class="biaya-row">
-                    <span class="label">Harga Jual Asli / unit</span>
-                    <span class="value" style="color:#9ca3af; text-decoration:line-through;">
-                        Rp {{ number_format($hargaAsli, 0, ',', '.') }}
-                    </span>
-                </div>
-                <div class="biaya-row info-row-persen">
-                    <span class="label">Persentase Buy Back</span>
-                    <span class="value">50% dari harga asli</span>
-                </div>
                 <div class="biaya-row">
                     <span class="label">Harga Buy Back / unit</span>
                     <span class="value" style="color:#D97706;">
@@ -488,9 +450,6 @@
             <p>
                 <strong>Ketentuan Buy Back:</strong>
                 Barang yang telah dibeli kembali oleh Paralkes menjadi <strong>milik Paralkes sepenuhnya</strong>.
-                Harga buy back ditetapkan sebesar <strong>50% dari harga jual asli</strong>.
-                Transaksi ini bersifat <strong>final</strong> setelah penandatanganan dokumen.
-                Kondisi barang yang diterima adalah <strong>{{ ucfirst($kondisi) }}</strong>.
             </p>
         </div>
 

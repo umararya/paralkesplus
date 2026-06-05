@@ -89,7 +89,6 @@
     .select2-search--dropdown .select2-search__field { border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); width:100%; box-sizing:border-box; }
     .stok-info-row { display:flex; align-items:center; gap:6px; margin-top:4px; min-height:18px; }
     .stok-info-row span { font-size:12px; }
-    /* Badge kondisi */
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
 </style>
@@ -420,13 +419,18 @@ const fpSelesai = flatpickr('#tgl_selesai', {
     onChange: () => hitungDurasi()
 });
 
+// ── FIX: Parse sebagai local date agar tidak ada offset UTC +/-1 hari ──
 function hitungDurasi() {
     const m = document.getElementById('tgl_mulai').value;
     const s = document.getElementById('tgl_selesai').value;
     const disp   = document.getElementById('durasi-display');
     const hidden = document.getElementById('durasi_hari');
     if (m && s) {
-        const diff = Math.round((new Date(s) - new Date(m)) / 86400000);
+        const [sy, sm, sd] = m.split('-').map(Number);
+        const [ey, em, ed] = s.split('-').map(Number);
+        const start = new Date(sy, sm - 1, sd);
+        const end   = new Date(ey, em - 1, ed);
+        const diff  = Math.round((end - start) / 86400000);
         if (diff >= 0) {
             hidden.value   = diff;
             disp.innerHTML = `<i class="ri-calendar-check-line"></i> ${diff} hari`;
@@ -490,7 +494,6 @@ function addRow(data = {}) {
         .map(s => `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`)
         .join('');
 
-    // ── KONDISI: default 'baru' ──
     const kondisiVal = data.kondisi || 'baru';
 
     tr.innerHTML = `
@@ -575,7 +578,6 @@ function addRow(data = {}) {
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
         $(`#qty-${idx}`).attr('max', item.stok_tersedia || 999);
 
-        // ── Auto-set kondisi berdasarkan stok tersedia ──
         const kondisiSel = document.getElementById(`kondisi-${idx}`);
         if (item.stok_baru > 0) {
             kondisiSel.value = 'baru';

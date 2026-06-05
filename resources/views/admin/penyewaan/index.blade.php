@@ -983,7 +983,8 @@ function loadMonitoringData() {
             return;
         }
         let rows = data.map(d => {
-            const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 3 ? 'sisa-hari-warning' : 'sisa-hari-normal');
+            // DIUBAH: threshold warning dari <= 3 menjadi <= 7
+            const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
             const sisaText  = d.sisa_hari <= 0 ? 'Lewat deadline' : d.sisa_hari + ' hari';
             return `<tr>
                 <td style="font-weight:600;">${d.nama}</td>
@@ -1029,7 +1030,8 @@ function openSelesaikan(id, sisaHari, tglSelesai) {
     currentPenyewaanId = id;
     currentSisaHari    = sisaHari;
     currentTglSelesai  = tglSelesai;
-    if (sisaHari > 3) {
+    // DIUBAH: threshold dari > 3 menjadi > 7
+    if (sisaHari > 7) {
         document.getElementById('sisaHariNormal').textContent = sisaHari;
         document.getElementById('modalSelesaikanNormal').classList.add('open');
     } else {

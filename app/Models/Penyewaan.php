@@ -17,7 +17,7 @@ class Penyewaan extends Model
         'tempat_tanggal_lahir',
         'nomor_ktp',
         'alamat_penyewa',
-        'produk_alkes',          // legacy — tetap ada agar data lama tidak rusak
+        'produk_alkes',
         'tgl_mulai',
         'tgl_selesai',
         'durasi_hari',
@@ -50,11 +50,34 @@ class Penyewaan extends Model
 
     /* ── Accessors ── */
 
-    /** Sisa hari sampai tgl_selesai (negatif = sudah lewat) */
+    /**
+     * Durasi hari — selalu dihitung dari tgl_mulai → tgl_selesai (local-safe).
+     * Memfix data lama yang salah karena timezone UTC offset.
+     */
+    public function getDurasiHariAttribute(): int
+    {
+        if ($this->tgl_mulai && $this->tgl_selesai) {
+            $start = Carbon::parse($this->tgl_mulai->format('Y-m-d'))->startOfDay();
+            $end   = Carbon::parse($this->tgl_selesai->format('Y-m-d'))->startOfDay();
+            return (int) $start->diffInDays($end);
+        }
+        return (int) ($this->attributes['durasi_hari'] ?? 0);
+    }
+
+    /**
+     * Sisa hari sampai tgl_selesai (negatif = sudah lewat).
+     * FIX: parse dari string Y-m-d agar tidak kena offset UTC,
+     * lalu bandingkan dengan today() tanpa komponen waktu.
+     */
     public function getSisaHariAttribute(): int
     {
         if (! $this->tgl_selesai) return 0;
-        return (int) Carbon::today()->diffInDays($this->tgl_selesai, false);
+
+        // Ambil string tanggal murni dari DB, hindari timezone shift
+        $selesai = Carbon::parse($this->tgl_selesai->format('Y-m-d'))->startOfDay();
+        $today   = Carbon::today()->startOfDay();
+
+        return (int) $today->diffInDays($selesai, false);
     }
 
     /** Apakah sudah pakai sistem detail baru */

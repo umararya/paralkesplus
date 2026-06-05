@@ -30,12 +30,14 @@ class PenyewaanController extends Controller
             return;
         }
 
-        if ($sisaHari <= 3 && $item->status === 'berjalan') {
+        // DIUBAH: H-3 → H-7
+        if ($sisaHari <= 7 && $item->status === 'berjalan') {
             $item->update(['status' => 'segera_konfirmasi']);
             return;
         }
 
-        if ($sisaHari > 3 && $item->status === 'segera_konfirmasi') {
+        // DIUBAH: H-3 → H-7
+        if ($sisaHari > 7 && $item->status === 'segera_konfirmasi') {
             $item->update(['status' => 'berjalan']);
         }
     }
@@ -205,16 +207,16 @@ class PenyewaanController extends Controller
     public function export(Request $request)
     {
         $search   = $request->get('search',   '');
-    $dateFrom = $request->get('date_from');
-    $dateTo   = $request->get('date_to');
-    $status   = $request->get('status',   'semua');
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
+        $status   = $request->get('status',   'semua');
 
-    $filename = 'penyewaan_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'penyewaan_' . now()->format('Ymd_His') . '.xlsx';
 
-    return Excel::download(
-        new PenyewaanExport($search, $dateFrom, $dateTo, $status),
-        $filename
-    );
+        return Excel::download(
+            new PenyewaanExport($search, $dateFrom, $dateTo, $status),
+            $filename
+        );
     }
 
     // =========================================================
@@ -268,10 +270,16 @@ class PenyewaanController extends Controller
             ->map(function ($item) {
                 $sisaHari = $item->sisa_hari;
 
+                // DIUBAH: label disesuaikan dengan cakupan H-7
                 $sisaLabel = match (true) {
                     $sisaHari <= 0  => 'Lewat deadline!',
                     $sisaHari === 1 => 'Besok deadline!',
                     $sisaHari === 2 => '2 hari lagi',
+                    $sisaHari === 3 => '3 hari lagi',
+                    $sisaHari === 4 => '4 hari lagi',
+                    $sisaHari === 5 => '5 hari lagi',
+                    $sisaHari === 6 => '6 hari lagi',
+                    $sisaHari === 7 => '7 hari lagi',
                     default         => $sisaHari . ' hari lagi',
                 };
 
@@ -358,7 +366,9 @@ class PenyewaanController extends Controller
         $tglMulai   = Carbon::parse($penyewaan->tgl_mulai)->startOfDay();
         $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
         $sisaBaru   = (int) Carbon::today()->diffInDays($tglBaru, false);
-        $newStatus  = $sisaBaru > 3 ? 'berjalan' : 'segera_konfirmasi';
+
+        // DIUBAH: H-3 → H-7
+        $newStatus  = $sisaBaru > 7 ? 'berjalan' : 'segera_konfirmasi';
 
         $penyewaan->update([
             'tgl_selesai' => $tglBaru->format('Y-m-d'),
