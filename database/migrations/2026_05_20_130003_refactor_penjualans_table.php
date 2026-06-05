@@ -10,46 +10,77 @@ return new class extends Migration
     {
         // ── Step 1: Drop generated column 'total' DULU sebelum drop dependency-nya ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->dropColumn('total');
+            if (Schema::hasColumn('penjualans', 'total')) {
+                $table->dropColumn('total');
+            }
         });
 
         // ── Step 2: Baru drop kolom flat yang punya dependency ke 'total' ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->dropColumn(['nama_barang', 'qty', 'harga']);
+            $cols = ['nama_barang', 'qty', 'harga'];
+            $existing = array_filter($cols, fn($c) => Schema::hasColumn('penjualans', $c));
+            if (!empty($existing)) {
+                $table->dropColumn(array_values($existing));
+            }
         });
 
         // ── Step 3: Tambah kolom header transaksi yang proper ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->string('nama_pelanggan')->after('tanggal_penjualan');
-            $table->string('nomor_telepon', 20)->nullable()->after('nama_pelanggan');
-            $table->unsignedBigInteger('total_harga')->default(0)->after('alamat_pelanggan');
-            $table->unsignedBigInteger('diskon_global')->default(0)->after('total_harga');
-            $table->unsignedBigInteger('total_bayar')
-                  ->storedAs('total_harga - diskon_global')
-                  ->after('diskon_global');
+            if (!Schema::hasColumn('penjualans', 'nama_pelanggan')) {
+                $table->string('nama_pelanggan')->after('tanggal_penjualan');
+            }
+            if (!Schema::hasColumn('penjualans', 'nomor_telepon')) {
+                $table->string('nomor_telepon', 20)->nullable()->after('nama_pelanggan');
+            }
+            if (!Schema::hasColumn('penjualans', 'total_harga')) {
+                $table->unsignedBigInteger('total_harga')->default(0)->after('alamat_pelanggan');
+            }
+            if (!Schema::hasColumn('penjualans', 'diskon_global')) {
+                $table->unsignedBigInteger('diskon_global')->default(0)->after('total_harga');
+            }
+            if (!Schema::hasColumn('penjualans', 'total_bayar')) {
+                $table->unsignedBigInteger('total_bayar')
+                      ->storedAs('total_harga - diskon_global')
+                      ->after('diskon_global');
+            }
         });
     }
 
     public function down(): void
     {
-        // ── Rollback Step 3: Drop kolom baru ──
+        // ── Rollback Step 3: Drop generated column dulu ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->dropColumn('total_bayar'); // generated column dulu
+            if (Schema::hasColumn('penjualans', 'total_bayar')) {
+                $table->dropColumn('total_bayar');
+            }
         });
 
+        // ── Rollback Step 3: Drop kolom lainnya ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->dropColumn(['nama_pelanggan', 'nomor_telepon', 'total_harga', 'diskon_global']);
+            $cols = ['nama_pelanggan', 'nomor_telepon', 'total_harga', 'diskon_global'];
+            $existing = array_filter($cols, fn($c) => Schema::hasColumn('penjualans', $c));
+            if (!empty($existing)) {
+                $table->dropColumn(array_values($existing));
+            }
         });
 
         // ── Rollback Step 1 & 2: Kembalikan kolom flat ──
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->string('nama_barang')->after('tanggal_penjualan');
-            $table->unsignedInteger('qty')->after('nama_barang');
-            $table->decimal('harga', 15, 2)->after('qty');
+            if (!Schema::hasColumn('penjualans', 'nama_barang')) {
+                $table->string('nama_barang')->after('tanggal_penjualan');
+            }
+            if (!Schema::hasColumn('penjualans', 'qty')) {
+                $table->unsignedInteger('qty')->after('nama_barang');
+            }
+            if (!Schema::hasColumn('penjualans', 'harga')) {
+                $table->decimal('harga', 15, 2)->after('qty');
+            }
         });
 
         Schema::table('penjualans', function (Blueprint $table) {
-            $table->decimal('total', 15, 2)->storedAs('harga * qty')->after('harga');
+            if (!Schema::hasColumn('penjualans', 'total')) {
+                $table->decimal('total', 15, 2)->storedAs('harga * qty')->after('harga');
+            }
         });
     }
 };

@@ -15,9 +15,9 @@ return new class extends Migration
             $table->string('nama_barang', 150);
             $table->integer('jumlah');
             $table->bigInteger('harga_satuan');
-            $table->bigInteger('total')->virtualAs('jumlah * harga_satuan');
+            $table->bigInteger('total')->storedAs('jumlah * harga_satuan');
             $table->text('keterangan')->nullable();
-            $table->string('bukti_transaksi')->nullable()->after('keterangan');
+            $table->string('bukti_transaksi')->nullable(); // hapus ->after()
             $table->timestamps();
         });
     }

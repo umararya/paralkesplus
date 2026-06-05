@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pembelians', function (Blueprint $table) {
+        if (!Schema::hasColumn('pembelians', 'bukti_transaksi')) {
             $table->string('bukti_transaksi')->nullable()->after('keterangan');
+        }
         });
     }
 
