@@ -140,16 +140,14 @@
         .ttd-para-pihak { font-size: 10pt; font-weight: 700; margin-bottom: 4px; }
         .ttd-row        { display: flex; justify-content: space-between; margin-top: 4px; }
         .ttd-col        { width: 44%; text-align: center; }
-        .ttd-col .ttd-label   { font-size: 10pt; font-weight: 700; margin-bottom: 58px; }
+        .ttd-col .ttd-label   { font-size: 10pt; font-weight: 700; margin-bottom: 6px; }
+        .ttd-col .ttd-img     {
+            height: 68px; object-fit: contain;
+            display: block; margin: 0 auto 4px auto;
+        }
+        .ttd-col .ttd-space   { height: 68px; }
         .ttd-col .ttd-garis   { border-top: 1.5px solid #000; padding-top: 4px; font-size: 10pt; font-weight: 700; }
         .ttd-col .ttd-jabatan { font-size: 9pt; margin-top: 1px; }
-        .materai-box {
-            width: 68px; height: 68px;
-            border: 1.5px dashed #888; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 7.5pt; color: #999; text-align: center;
-            margin: 0 auto 4px;
-        }
         .ttd-logo-center {
             display: flex; align-items: flex-end; justify-content: center;
             padding-bottom: 8px;
@@ -438,7 +436,7 @@
             <div class="kop-right"><img src="{{ asset('images/logo-cop-paralkesplus3.png') }}" alt="Logo"></div>
         </div>
 
-        {{-- PASAL 4 bagian pertama (ayat 1–3) --}}
+        {{-- PASAL 4 --}}
         <div class="pasal" style="margin-top:8px;">
             <div class="pasal-heading">Pasal 4</div>
             <div class="pasal-subheading">Pelaksanaan Hak Sewa</div>
@@ -614,21 +612,28 @@
         <div class="ttd-section">
             <div class="ttd-para-pihak">Para Pihak,</div>
             <div class="ttd-row">
+
+                {{-- Pihak Pertama: TTD dari file gambar --}}
                 <div class="ttd-col">
                     <div class="ttd-label">Pihak Pertama,</div>
-                    <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
+                    <img src="{{ asset('images/ttd.png') }}" alt="Tanda Tangan Adam Parakitri" class="ttd-img">
                     <div class="ttd-garis">ADAM PARAKITRI</div>
                     <div class="ttd-jabatan">Pemilik Usaha</div>
                 </div>
+
+                {{-- Logo tengah --}}
                 <div class="ttd-logo-center">
                     <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo">
                 </div>
+
+                {{-- Pihak Kedua: ruang kosong untuk TTD manual --}}
                 <div class="ttd-col">
                     <div class="ttd-label">Pihak Kedua,</div>
-                    <div class="materai-box">Tempel<br>Materai<br>Rp 10.000</div>
+                    <div class="ttd-space"></div>
                     <div class="ttd-garis">{{ strtoupper($penyewaan->nama_penyewa) }}</div>
                     <div class="ttd-jabatan">Penyewa</div>
                 </div>
+
             </div>
         </div>
 

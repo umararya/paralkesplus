@@ -109,13 +109,6 @@
         .badge-baik  { background: #d1fae5; color: #065f46; }
         .badge-rusak { background: #fee2e2; color: #b91c1c; }
 
-        /* ── HARGA ASLI INFO ── */
-        .harga-asli-info {
-            font-size: 10px; color: #9ca3af; margin-top: 3px;
-            font-style: italic;
-        }
-        .harga-asli-info span { color: #D97706; font-weight: 700; }
-
         /* ── BIAYA + TERBILANG ── */
         .biaya-section {
             display: flex; justify-content: space-between;
@@ -202,7 +195,12 @@
             align-items: flex-end; margin-top: 10px;
         }
         .ttd-box { text-align: center; width: 180px; }
-        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 50px; }
+        .ttd-box .ttd-label { font-size: 11px; color: #555; margin-bottom: 6px; }
+        .ttd-box .ttd-img {
+            height: 60px; object-fit: contain;
+            display: block; margin: 0 auto 4px auto;
+        }
+        .ttd-box .ttd-space { height: 60px; }
         .ttd-box .ttd-name {
             border-top: 1.5px solid #1a1a1a; padding-top: 5px;
             font-size: 11.5px; font-weight: 700; color: #1a1a1a;
@@ -255,10 +253,9 @@
     $jumlah       = (int)   ($pembelian->jumlah       ?? 0);
     $hargaBuyback = (float) ($pembelian->harga_satuan ?? 0);
     $total        = (float) ($pembelian->total        ?? ($jumlah * $hargaBuyback));
-    $hargaAsli    = round($hargaBuyback / 0.5); // balik hitung: buyback = 50% harga asli
+    $hargaAsli    = round($hargaBuyback / 0.5);
     $kondisi      = $pembelian->kondisi_barang ?? 'bekas';
 
-    /* ── Terbilang ── */
     function terbilangBB(int $n): string {
         if ($n < 0) return 'minus ' . terbilangBB(-$n);
         $satuan = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
@@ -338,7 +335,7 @@
                 </div>
             </div>
 
-            {{-- Box 2: Data Penjual (Pelanggan) --}}
+            {{-- Box 2: Data Penjual --}}
             <div class="info-box">
                 <div class="info-title">👤 Data Penjual</div>
                 <div class="info-row">
@@ -434,7 +431,6 @@
         {{-- ── BIAYA + TERBILANG ── --}}
         <div class="biaya-section">
 
-            {{-- Kiri: Terbilang --}}
             <div class="terbilang-wrap">
                 <table class="terbilang-table">
                     <tr><td class="tb-title">Terbilang — Total Dibayarkan ke Penjual</td></tr>
@@ -448,7 +444,6 @@
                 </table>
             </div>
 
-            {{-- Kanan: Biaya Box --}}
             <div class="biaya-box">
                 <div class="biaya-row">
                     <span class="label">Harga Jual Asli / unit</span>
@@ -477,7 +472,7 @@
             </div>
         </div>
 
-        {{-- ── BUKTI FOTO (jika ada) ── --}}
+        {{-- ── BUKTI FOTO ── --}}
         @if($pembelian->bukti_transaksi)
         <div class="bukti-section">
             <div class="bukti-title">📷 Bukti Transaksi</div>
@@ -509,19 +504,28 @@
 
         {{-- ── TTD ── --}}
         <div class="ttd-section">
+
+            {{-- Pembeli (Paralkes): TTD dari file gambar --}}
             <div class="ttd-box">
                 <div class="ttd-label">Pembeli (Paralkes),</div>
+                <img src="{{ asset('images/ttd.png') }}" alt="Tanda Tangan Admin" class="ttd-img">
                 <div class="ttd-name">Paralkes</div>
                 <div class="ttd-jabatan">Admin / Pengelola</div>
             </div>
+
+            {{-- Logo tengah --}}
             <div class="ttd-logo">
                 <img src="{{ asset('images/logo-paralkes-white.png') }}" alt="Logo Paralkes">
             </div>
+
+            {{-- Penjual: ruang kosong untuk TTD manual --}}
             <div class="ttd-box">
                 <div class="ttd-label">Penjual,</div>
+                <div class="ttd-space"></div>
                 <div class="ttd-name">{{ $pembelian->nama_pelanggan ?: '____________________' }}</div>
                 <div class="ttd-jabatan">Penjual Barang</div>
             </div>
+
         </div>
 
     </div>{{-- end .page-content --}}
