@@ -25,6 +25,9 @@ class PenyewaanController extends Controller
         $sisaHari = $item->sisa_hari;
 
         if ($sisaHari <= 0) {
+            // FIX: Hanya update status, JANGAN update tgl_selesai.
+            // Mengubah tgl_selesai akan membuat durasi_hari (kolom DB) di-override
+            // saat extend, sehingga kolom durasi di tabel utama ikut berubah.
             $item->update(['status' => 'selesai']);
             $this->kembalikanStok($item);
             return;
@@ -150,6 +153,7 @@ class PenyewaanController extends Controller
 
     // =========================================================
     //  PRIVATE HELPER — hitung durasi dari tanggal (server-side)
+    //  Dipakai saat store() dan update() untuk menyimpan nilai awal.
     // =========================================================
 
     private function hitungDurasi(string $tglMulai, string $tglSelesai): int
@@ -250,9 +254,9 @@ class PenyewaanController extends Controller
                     'nomor_hp'        => $item->nomor_telepon,
                     'barang'          => $barang,
                     'alamat'          => $item->alamat_penyewa,
-                    // FIX: kirim durasi_hari (total hari sewa) agar sama dengan tabel utama
+                    // durasi_hari = nilai tetap dari kolom DB (tidak berubah seiring hari)
                     'durasi_hari'     => $item->durasi_hari,
-                    // sisa_hari tetap dikirim untuk logika warna & selesaikan
+                    // sisa_hari = dinamis, untuk warna & logika selesaikan
                     'sisa_hari'       => $item->sisa_hari,
                     'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
                     'tgl_selesai_raw' => $item->tgl_selesai?->format('Y-m-d') ?? null,
@@ -294,8 +298,9 @@ class PenyewaanController extends Controller
                     'id'              => $item->id,
                     'nama'            => $item->nama_penyewa,
                     'barang'          => $barang,
-                    // FIX: kirim durasi_hari agar konsisten dengan tabel utama
+                    // durasi_hari = tetap (info konteks berapa lama sewa)
                     'durasi_hari'     => $item->durasi_hari,
+                    // sisa_hari = dinamis (countdown ke deadline)
                     'sisa_hari'       => $sisaHari,
                     'sisa_label'      => $sisaLabel,
                     'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
@@ -321,9 +326,12 @@ class PenyewaanController extends Controller
         if ($action === 'selesai_sekarang') {
             $oldStatus = $penyewaan->status;
 
+            // FIX: JANGAN update tgl_selesai ke Carbon::today().
+            // Mengubah tgl_selesai akan menyebabkan kolom durasi_hari di tabel utama
+            // ikut berubah (karena accessor sebelumnya menghitung dari tgl_mulai→tgl_selesai).
+            // Cukup update status saja — tgl_selesai tetap sesuai kontrak awal.
             $penyewaan->update([
-                'status'      => 'selesai',
-                'tgl_selesai' => Carbon::today()->format('Y-m-d'),
+                'status' => 'selesai',
             ]);
 
             $this->kembalikanStok($penyewaan);
@@ -333,7 +341,10 @@ class PenyewaanController extends Controller
                 action:   'update',
                 subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
                 oldValue: ['status' => $oldStatus],
-                newValue: ['status' => 'selesai', 'tgl_selesai' => Carbon::today()->format('d M Y')],
+                newValue: [
+                    'status'      => 'selesai',
+                    'diselesaikan' => Carbon::today()->format('d M Y'),
+                ],
                 pageUrl:  'penyewaan/' . $penyewaan->id . '/selesaikan'
             );
 
@@ -370,7 +381,12 @@ class PenyewaanController extends Controller
         $tglLama    = $penyewaan->tgl_selesai->format('d M Y');
         $tglBaru    = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
         $tglMulai   = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
+
+        // FIX: durasi_hari saat extend dihitung dari tgl_mulai → tgl_selesai BARU.
+        // Ini benar karena extend memang memperpanjang kontrak, bukan sekedar status.
+        // Nilai ini disimpan ke kolom DB sehingga tabel utama menampilkan durasi extend.
         $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
+
         $sisaBaru   = (int) Carbon::today()->startOfDay()->diffInDays($tglBaru, false);
         $newStatus  = $sisaBaru > 7 ? 'berjalan' : 'segera_konfirmasi';
 
@@ -437,7 +453,7 @@ class PenyewaanController extends Controller
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
-        // Hitung durasi server-side, abaikan hidden input JS
+        // Hitung durasi server-side dan simpan ke kolom DB sebagai nilai tetap
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']
@@ -536,7 +552,7 @@ class PenyewaanController extends Controller
             'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
         ]);
 
-        // Hitung durasi server-side, abaikan hidden input JS
+        // Hitung ulang durasi dari tanggal yang diinput user (bisa berubah saat edit)
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']

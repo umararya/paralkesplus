@@ -51,21 +51,38 @@ class Penyewaan extends Model
     /* ── Accessors ── */
 
     /**
-     * Durasi hari — selalu dihitung dari tgl_mulai → tgl_selesai (local-safe).
-     * Memfix data lama yang salah karena timezone UTC offset.
+     * Durasi hari — SELALU ambil dari kolom DB (nilai tetap saat input).
+     * Ini adalah total hari sewa yang tidak boleh berubah seiring waktu.
+     *
+     * Hanya fallback ke hitungan tgl_mulai→tgl_selesai jika kolom DB
+     * kosong/null/0 (data lama sebelum fix ini diterapkan).
+     *
+     * JANGAN ubah accessor ini menjadi computed dari tanggal,
+     * karena akan ikut berubah saat tgl_selesai dimodifikasi (extend/selesaikan).
      */
     public function getDurasiHariAttribute(): int
     {
+        // Prioritas 1: pakai nilai raw dari kolom DB
+        $raw = $this->attributes['durasi_hari'] ?? null;
+        if (!is_null($raw) && (int) $raw > 0) {
+            return (int) $raw;
+        }
+
+        // Prioritas 2: fallback hitung dari tanggal (data lama / migrasi)
         if ($this->tgl_mulai && $this->tgl_selesai) {
             $start = Carbon::parse($this->tgl_mulai->format('Y-m-d'))->startOfDay();
             $end   = Carbon::parse($this->tgl_selesai->format('Y-m-d'))->startOfDay();
             return (int) $start->diffInDays($end);
         }
-        return (int) ($this->attributes['durasi_hari'] ?? 0);
+
+        return 0;
     }
 
     /**
      * Sisa hari sampai tgl_selesai (negatif = sudah lewat).
+     * Ini BOLEH dinamis — memang tugasnya menghitung mundur tiap hari.
+     * Dipakai HANYA di: monitoring modal, notifikasi, logika syncStatus().
+     *
      * FIX: parse dari string Y-m-d agar tidak kena offset UTC,
      * lalu bandingkan dengan today() tanpa komponen waktu.
      */
@@ -73,7 +90,6 @@ class Penyewaan extends Model
     {
         if (! $this->tgl_selesai) return 0;
 
-        // Ambil string tanggal murni dari DB, hindari timezone shift
         $selesai = Carbon::parse($this->tgl_selesai->format('Y-m-d'))->startOfDay();
         $today   = Carbon::today()->startOfDay();
 
