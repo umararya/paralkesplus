@@ -29,7 +29,7 @@ class PembelianController extends Controller
         $query = Pembelian::query()
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
-                  ->orWhere('no_invoice', 'like', "%{$search}%")   // ← cari berdasarkan invoice juga
+                  ->orWhere('no_invoice', 'like', "%{$search}%")
                   ->orWhere('keterangan', 'like', "%{$search}%")
                   ->orWhere('nama_pelanggan', 'like', "%{$search}%")
                   ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
@@ -88,20 +88,28 @@ class PembelianController extends Controller
     {
         $validated = $request->validate([
             'tanggal_pembelian' => 'required|date',
-            'no_invoice'        => 'nullable|string|max:100',   // ← TAMBAHAN
+            'no_invoice'        => 'nullable|string|max:100',
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:10240',
+            'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
 
         $validated['status'] = 'normal';
 
+        // Upload bukti pembayaran
         if ($request->hasFile('bukti_transaksi')) {
             $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
                 ->store('pembelian/bukti', 'public');
+        }
+
+        // Upload file invoice / faktur supplier
+        if ($request->hasFile('file_invoice')) {
+            $validated['file_invoice'] = $request->file('file_invoice')
+                ->store('pembelian/invoice', 'public');
         }
 
         $namaBarang  = $validated['nama_barang'];
@@ -156,12 +164,13 @@ class PembelianController extends Controller
                 action:   'create',
                 subject:  $namaBarang,
                 newValue: [
-                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
-                    'barang'     => $namaBarang,
-                    'jumlah'     => $jumlah,
-                    'kondisi'    => $kondisi,
-                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                    'tanggal'    => $pembelian->tanggal_pembelian,
+                    'no_invoice'   => $pembelian->no_invoice ?? '-',
+                    'file_invoice' => $pembelian->file_invoice ? 'Ada' : 'Tidak ada',
+                    'barang'       => $namaBarang,
+                    'jumlah'       => $jumlah,
+                    'kondisi'      => $kondisi,
+                    'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'tanggal'      => $pembelian->tanggal_pembelian,
                 ],
                 pageUrl: 'pembelian'
             );
@@ -196,13 +205,14 @@ class PembelianController extends Controller
 
         $validated = $request->validate([
             'tanggal_pembelian' => 'required|date',
-            'no_invoice'        => 'nullable|string|max:100',   // ← TAMBAHAN
+            'no_invoice'        => 'nullable|string|max:100',
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:10240',
+            'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
 
         $oldNama    = $pembelian->nama_barang;
@@ -210,13 +220,15 @@ class PembelianController extends Controller
         $oldKondisi = $pembelian->kondisi_barang;
 
         $oldData = [
-            'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
-            'barang'     => $oldNama,
-            'jumlah'     => $oldJumlah,
-            'kondisi'    => $oldKondisi,
-            'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+            'no_invoice'   => $pembelian->no_invoice ?? '-',
+            'file_invoice' => $pembelian->file_invoice ? 'Ada' : 'Tidak ada',
+            'barang'       => $oldNama,
+            'jumlah'       => $oldJumlah,
+            'kondisi'      => $oldKondisi,
+            'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
+        // ── Handling bukti pembayaran ──
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
@@ -230,6 +242,22 @@ class PembelianController extends Controller
             $validated['bukti_transaksi'] = null;
         } else {
             unset($validated['bukti_transaksi']);
+        }
+
+        // ── Handling file invoice ──
+        if ($request->hasFile('file_invoice')) {
+            if ($pembelian->file_invoice) {
+                Storage::disk('public')->delete($pembelian->file_invoice);
+            }
+            $validated['file_invoice'] = $request->file('file_invoice')
+                ->store('pembelian/invoice', 'public');
+        } elseif ($request->has('hapus_file_invoice')) {
+            if ($pembelian->file_invoice) {
+                Storage::disk('public')->delete($pembelian->file_invoice);
+            }
+            $validated['file_invoice'] = null;
+        } else {
+            unset($validated['file_invoice']);
         }
 
         $newNama     = $validated['nama_barang'];
@@ -352,11 +380,12 @@ class PembelianController extends Controller
                 subject:  $newNama,
                 oldValue: $oldData,
                 newValue: [
-                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
-                    'barang'     => $newNama,
-                    'jumlah'     => $newJumlah,
-                    'kondisi'    => $newKondisi,
-                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'no_invoice'   => $pembelian->no_invoice ?? '-',
+                    'file_invoice' => $pembelian->file_invoice ? 'Ada' : 'Tidak ada',
+                    'barang'       => $newNama,
+                    'jumlah'       => $newJumlah,
+                    'kondisi'      => $newKondisi,
+                    'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
                 ],
                 pageUrl: 'pembelian/' . $pembelian->id . '/edit'
             );
@@ -401,19 +430,24 @@ class PembelianController extends Controller
                 action:   'delete',
                 subject:  $pembelian->nama_barang,
                 oldValue: [
-                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
-                    'barang'     => $pembelian->nama_barang,
-                    'jumlah'     => $pembelian->jumlah,
-                    'kondisi'    => $pembelian->kondisi_barang,
-                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                    'tanggal'    => $pembelian->tanggal_pembelian,
-                    'status'     => $pembelian->status,
+                    'no_invoice'   => $pembelian->no_invoice ?? '-',
+                    'file_invoice' => $pembelian->file_invoice ? 'Ada' : 'Tidak ada',
+                    'barang'       => $pembelian->nama_barang,
+                    'jumlah'       => $pembelian->jumlah,
+                    'kondisi'      => $pembelian->kondisi_barang,
+                    'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'tanggal'      => $pembelian->tanggal_pembelian,
+                    'status'       => $pembelian->status,
                 ],
                 pageUrl: 'pembelian'
             );
 
+            // Hapus file fisik dari storage
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
+            }
+            if ($pembelian->file_invoice) {
+                Storage::disk('public')->delete($pembelian->file_invoice);
             }
 
             $pembelian->delete();
@@ -458,7 +492,8 @@ class PembelianController extends Controller
                 $pembelian = Pembelian::create([
                     'penjualan_id'      => $penjualanId,
                     'tanggal_pembelian' => now()->toDateString(),
-                    'no_invoice'        => null,  // buy back tidak pakai invoice supplier
+                    'no_invoice'        => null,
+                    'file_invoice'      => null,
                     'nama_barang'       => $namaBarang,
                     'jumlah'            => $qtyBuyback,
                     'harga_satuan'      => $hargaBuyback,

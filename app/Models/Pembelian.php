@@ -16,6 +16,7 @@ class Pembelian extends Model
         'kondisi_barang',
         'keterangan',
         'bukti_transaksi',
+        'file_invoice',
         'status',
         'penjualan_id',
         'nama_pelanggan',

@@ -46,6 +46,69 @@ html.dark .invoice-badge {
     border-color: rgba(29, 78, 216, 0.3);
     color: #93C5FD;
 }
+.upload-section-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 22px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg-primary);
+    transition: all 0.2s;
+}
+.drop-zone:hover {
+    border-color: var(--brand-500);
+    background: var(--bg-hover);
+}
+.drop-zone-placeholder p { margin: 0; }
+.drop-zone-placeholder .icon {
+    font-size: 32px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+.drop-zone-placeholder .title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 3px !important;
+}
+.drop-zone-placeholder .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.btn-hapus-file {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border: 1px solid #FCA5A5;
+    border-radius: 7px;
+    background: #FFF1F2;
+    color: #E11D48;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.existing-file-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    transition: opacity 0.3s;
+}
 </style>
 @endpush
 
@@ -123,8 +186,7 @@ html.dark .invoice-badge {
 
             {{-- Tanggal Pembelian --}}
             <div>
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
+                <label class="upload-section-label">
                     Tanggal Pembelian <span style="color:#EF4444;">*</span>
                 </label>
                 <input type="date" name="tanggal_pembelian"
@@ -136,10 +198,9 @@ html.dark .invoice-badge {
                        onblur="this.style.borderColor='var(--border)'" required>
             </div>
 
-            {{-- ===== NO. INVOICE PEMBELIAN ===== --}}
+            {{-- No. Invoice --}}
             <div>
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
+                <label class="upload-section-label">
                     No. Invoice / Faktur
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
                         &mdash; nomor dari supplier (opsional)
@@ -183,8 +244,7 @@ html.dark .invoice-badge {
 
             {{-- Nama Barang + Autocomplete --}}
             <div style="position:relative;">
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
+                <label class="upload-section-label">
                     Nama Barang <span style="color:#EF4444;">*</span>
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
                         &mdash; ketik untuk saran dari inventory
@@ -222,8 +282,7 @@ html.dark .invoice-badge {
             {{-- Jumlah & Harga Satuan --}}
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div>
-                    <label style="display:block; font-size:13px; font-weight:600;
-                                  color:var(--text-primary); margin-bottom:6px;">
+                    <label class="upload-section-label">
                         Jumlah (Qty) <span style="color:#EF4444;">*</span>
                     </label>
                     <input type="number" name="jumlah" id="inputJumlah"
@@ -236,8 +295,7 @@ html.dark .invoice-badge {
                            oninput="hitungTotal()" required>
                 </div>
                 <div>
-                    <label style="display:block; font-size:13px; font-weight:600;
-                                  color:var(--text-primary); margin-bottom:6px;">
+                    <label class="upload-section-label">
                         Harga Satuan (Rp) <span style="color:#EF4444;">*</span>
                     </label>
                     <input type="number" name="harga_satuan" id="inputHarga"
@@ -253,8 +311,7 @@ html.dark .invoice-badge {
 
             {{-- Kondisi Barang --}}
             <div>
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
+                <label class="upload-section-label">
                     Kondisi Barang <span style="color:#EF4444;">*</span>
                 </label>
                 <div style="display:flex; gap:12px;">
@@ -299,10 +356,7 @@ html.dark .invoice-badge {
 
             {{-- Keterangan --}}
             <div>
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
-                    Keterangan
-                </label>
+                <label class="upload-section-label">Keterangan</label>
                 <textarea name="keterangan" rows="3"
                           placeholder="Catatan tambahan, nama supplier, dll. (opsional)"
                           style="width:100%; padding:10px 14px; border:1px solid var(--border);
@@ -313,10 +367,115 @@ html.dark .invoice-badge {
                           onblur="this.style.borderColor='var(--border)'">{{ old('keterangan', $pembelian->keterangan) }}</textarea>
             </div>
 
-            {{-- Bukti Pembayaran --}}
+            {{-- ===== FILE INVOICE / FAKTUR SUPPLIER ===== --}}
             <div>
-                <label style="display:block; font-size:13px; font-weight:600;
-                              color:var(--text-primary); margin-bottom:6px;">
+                <label class="upload-section-label">
+                    File Invoice / Faktur Supplier
+                    <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
+                        &mdash; PDF, JPG, PNG (opsional)
+                    </span>
+                </label>
+
+                {{-- Tampilkan file invoice yang sudah ada --}}
+                @if($pembelian->file_invoice)
+                <div id="existingInvoice" class="existing-file-card">
+                    @php
+                        $ext = strtolower(pathinfo($pembelian->file_invoice, PATHINFO_EXTENSION));
+                    @endphp
+                    @if(in_array($ext, ['jpg', 'jpeg', 'png']))
+                        <img src="{{ asset('storage/' . $pembelian->file_invoice) }}"
+                             alt="File Invoice"
+                             style="width:64px; height:64px; border-radius:8px; object-fit:cover;
+                                    border:1px solid var(--border); cursor:pointer; flex-shrink:0;"
+                             onclick="window.open('{{ asset('storage/' . $pembelian->file_invoice) }}', '_blank')">
+                    @else
+                        <div style="width:64px; height:64px; border-radius:8px; background:#FEF2F2;
+                                    border:1px solid #FECACA; display:flex; align-items:center;
+                                    justify-content:center; flex-shrink:0; cursor:pointer;"
+                             onclick="window.open('{{ asset('storage/' . $pembelian->file_invoice) }}', '_blank')">
+                            <i class="ri-file-pdf-2-line" style="font-size:28px; color:#EF4444;"></i>
+                        </div>
+                    @endif
+                    <div style="flex:1; min-width:0;">
+                        <p style="font-size:13px; font-weight:600; color:var(--text-primary); margin:0 0 4px;">
+                            <i class="ri-file-text-line" style="color:var(--brand-500);"></i>
+                            File invoice tersedia
+                            <span style="font-size:11px; text-transform:uppercase; color:var(--text-muted);
+                                         background:var(--bg-card); border:1px solid var(--border);
+                                         border-radius:4px; padding:1px 6px; margin-left:4px;">
+                                {{ strtoupper($ext) }}
+                            </span>
+                        </p>
+                        <p style="font-size:12px; color:var(--text-muted); margin:0;">
+                            Klik ikon untuk buka. Upload baru untuk mengganti.
+                        </p>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;
+                                  font-size:12.5px; color:#E11D48; font-weight:600;
+                                  flex-shrink:0; white-space:nowrap;">
+                        <input type="checkbox" name="hapus_file_invoice" value="1"
+                               onchange="toggleHapusInvoice(this)"
+                               style="accent-color:#E11D48; width:14px; height:14px;">
+                        Hapus file
+                    </label>
+                </div>
+                @endif
+
+                <div id="dropZoneInvoice" class="drop-zone"
+                     onclick="document.getElementById('inputFileInvoice').click()"
+                     ondragover="event.preventDefault();
+                                 this.style.borderColor='var(--brand-500)';
+                                 this.style.background='var(--bg-hover)';"
+                     ondragleave="this.style.borderColor='var(--border)';
+                                  this.style.background='var(--bg-primary)';"
+                     ondrop="handleDropInvoice(event)">
+
+                    <div id="dropPlaceholderInvoice" class="drop-zone-placeholder">
+                        <i class="ri-file-text-line icon"></i>
+                        <p class="title">
+                            @if($pembelian->file_invoice)
+                                Upload file baru untuk mengganti
+                            @else
+                                Klik atau seret file invoice ke sini
+                            @endif
+                        </p>
+                        <p class="subtitle">PDF, JPG, PNG &mdash; maks. 10 MB</p>
+                    </div>
+
+                    <div id="previewInvoiceWrap" style="display:none;">
+                        <div id="previewInvoiceImg" style="display:none; margin-bottom:10px;">
+                            <img id="invoiceImgEl" src="" alt="Preview invoice"
+                                 style="max-height:180px; max-width:100%; border-radius:8px;
+                                        object-fit:contain; display:block; margin:0 auto;">
+                        </div>
+                        <div id="previewInvoicePdf" style="display:none; margin-bottom:10px;">
+                            <i class="ri-file-pdf-2-line"
+                               style="font-size:48px; color:#EF4444;"></i>
+                        </div>
+                        <p id="invoiceFileName"
+                           style="font-size:12px; color:var(--text-muted); margin:0;"></p>
+                        <button type="button"
+                                onclick="event.stopPropagation(); hapusInvoice()"
+                                class="btn-hapus-file">
+                            <i class="ri-delete-bin-line"></i> Batal pilih
+                        </button>
+                    </div>
+                </div>
+
+                <input type="file" id="inputFileInvoice" name="file_invoice"
+                       accept="image/jpeg,image/png,application/pdf"
+                       style="display:none;" onchange="previewInvoice(this)">
+
+                @error('file_invoice')
+                <p style="font-size:12px; color:#E11D48; margin-top:6px;">
+                    <i class="ri-error-warning-line"></i> {{ $message }}
+                </p>
+                @enderror
+            </div>
+
+            {{-- ===== BUKTI PEMBAYARAN ===== --}}
+            <div>
+                <label class="upload-section-label">
                     Bukti Pembayaran
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
                         &mdash; foto nota / kwitansi (opsional)
@@ -324,10 +483,7 @@ html.dark .invoice-badge {
                 </label>
 
                 @if($pembelian->bukti_transaksi)
-                <div id="existingBukti"
-                     style="display:flex; align-items:center; gap:14px; padding:12px 14px;
-                            background:var(--bg-hover); border:1px solid var(--border);
-                            border-radius:10px; margin-bottom:12px; transition:opacity 0.3s;">
+                <div id="existingBukti" class="existing-file-card">
                     <img src="{{ asset('storage/' . $pembelian->bukti_transaksi) }}"
                          alt="Bukti Pembayaran"
                          style="width:64px; height:64px; border-radius:8px; object-fit:cover;
@@ -352,11 +508,8 @@ html.dark .invoice-badge {
                 </div>
                 @endif
 
-                <div id="dropZone"
+                <div id="dropZone" class="drop-zone"
                      onclick="document.getElementById('inputBukti').click()"
-                     style="border:2px dashed var(--border); border-radius:10px;
-                            padding:22px 20px; text-align:center; cursor:pointer;
-                            background:var(--bg-primary); transition:all 0.2s;"
                      ondragover="event.preventDefault();
                                  this.style.borderColor='var(--brand-500)';
                                  this.style.background='var(--bg-hover)';"
@@ -364,21 +517,16 @@ html.dark .invoice-badge {
                                   this.style.background='var(--bg-primary)';"
                      ondrop="handleDrop(event)">
 
-                    <div id="dropPlaceholder">
-                        <i class="ri-image-add-line"
-                           style="font-size:32px; color:var(--text-muted);
-                                  display:block; margin-bottom:8px;"></i>
-                        <p style="font-size:13px; font-weight:600;
-                                  color:var(--text-secondary); margin:0 0 3px;">
+                    <div id="dropPlaceholder" class="drop-zone-placeholder">
+                        <i class="ri-image-add-line icon"></i>
+                        <p class="title">
                             @if($pembelian->bukti_transaksi)
                                 Upload gambar baru untuk mengganti
                             @else
                                 Klik atau seret gambar ke sini
                             @endif
                         </p>
-                        <p style="font-size:12px; color:var(--text-muted); margin:0;">
-                            JPG, PNG &mdash; maks. 10 MB
-                        </p>
+                        <p class="subtitle">JPG, PNG &mdash; maks. 10 MB</p>
                     </div>
 
                     <div id="previewWrap" style="display:none;">
@@ -389,11 +537,7 @@ html.dark .invoice-badge {
                            style="font-size:12px; color:var(--text-muted); margin:0;"></p>
                         <button type="button"
                                 onclick="event.stopPropagation(); hapusGambar()"
-                                style="margin-top:8px; display:inline-flex; align-items:center;
-                                       gap:4px; padding:4px 12px; border:1px solid #FCA5A5;
-                                       border-radius:7px; background:#FFF1F2; color:#E11D48;
-                                       font-size:12px; font-weight:600; cursor:pointer;
-                                       font-family:inherit;">
+                                class="btn-hapus-file">
                             <i class="ri-delete-bin-line"></i> Batal pilih
                         </button>
                     </div>
@@ -507,6 +651,7 @@ function filterSuggestions() {
     box.style.display = filtered.length > 0 ? 'block' : 'none';
 }
 
+// -- Preview Bukti Pembayaran --
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
@@ -557,6 +702,73 @@ function handleDrop(event) {
 
 function toggleHapusBukti(checkbox) {
     const existing = document.getElementById('existingBukti');
+    if (existing) existing.style.opacity = checkbox.checked ? '0.4' : '1';
+}
+
+// -- Preview File Invoice --
+function previewInvoice(input) {
+    if (!input.files || !input.files[0]) return;
+    const file    = input.files[0];
+    const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+        alert('Format tidak didukung. Gunakan PDF, JPG, atau PNG.');
+        input.value = '';
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Ukuran file terlalu besar. Maksimal 10 MB.');
+        input.value = '';
+        return;
+    }
+    document.getElementById('dropPlaceholderInvoice').style.display = 'none';
+    document.getElementById('previewInvoiceWrap').style.display     = 'block';
+    document.getElementById('dropZoneInvoice').style.borderColor    = 'var(--brand-500)';
+    document.getElementById('dropZoneInvoice').style.background     = 'var(--bg-hover)';
+    document.getElementById('invoiceFileName').textContent =
+        file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+
+    if (file.type === 'application/pdf') {
+        document.getElementById('previewInvoiceImg').style.display = 'none';
+        document.getElementById('previewInvoicePdf').style.display = 'block';
+    } else {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('invoiceImgEl').src                = e.target.result;
+            document.getElementById('previewInvoicePdf').style.display = 'none';
+            document.getElementById('previewInvoiceImg').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function hapusInvoice() {
+    document.getElementById('inputFileInvoice').value               = '';
+    document.getElementById('invoiceImgEl').src                     = '';
+    document.getElementById('invoiceFileName').textContent          = '';
+    document.getElementById('previewInvoiceWrap').style.display     = 'none';
+    document.getElementById('dropPlaceholderInvoice').style.display = 'block';
+    document.getElementById('dropZoneInvoice').style.borderColor    = 'var(--border)';
+    document.getElementById('dropZoneInvoice').style.background     = 'var(--bg-primary)';
+    document.getElementById('previewInvoiceImg').style.display      = 'none';
+    document.getElementById('previewInvoicePdf').style.display      = 'none';
+}
+
+function handleDropInvoice(event) {
+    event.preventDefault();
+    const dt = event.dataTransfer;
+    if (dt.files && dt.files[0]) {
+        const input    = document.getElementById('inputFileInvoice');
+        const transfer = new DataTransfer();
+        transfer.items.add(dt.files[0]);
+        input.files = transfer.files;
+        previewInvoice(input);
+    }
+    document.getElementById('dropZoneInvoice').style.borderColor = 'var(--border)';
+    document.getElementById('dropZoneInvoice').style.background  = 'var(--bg-primary)';
+}
+
+function toggleHapusInvoice(checkbox) {
+    const existing = document.getElementById('existingInvoice');
     if (existing) existing.style.opacity = checkbox.checked ? '0.4' : '1';
 }
 </script>
