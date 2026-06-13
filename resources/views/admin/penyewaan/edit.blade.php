@@ -292,7 +292,9 @@
                                 class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled>-- Pilih metode pengiriman --</option>
-                            @foreach(['mandiri' => 'Ambil dan Antar kembali sendiri oleh Penyewa', 'Gosend / GrabExpress' => 'via Gosend / GrabExpress', 'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes'] as $val => $label)
+                            @foreach(['mandiri' => 'Ambil dan Antar kembali sendiri oleh Penyewa',
+                                      'Gosend / GrabExpress' => 'via Gosend / GrabExpress',
+                                      'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes'] as $val => $label)
                                 <option value="{{ $val }}"
                                     {{ old('pengiriman', $penyewaan->pengiriman) == $val ? 'selected' : '' }}>
                                     {{ $label }}
@@ -335,7 +337,9 @@
                             class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled>-- Pilih metode --</option>
-                        @foreach(['tunai' => 'Tunai / Cash', 'transfer' => 'Transfer via Bank BCA', 'qris' => 'QRIS'] as $val => $label)
+                        @foreach(['tunai' => 'Tunai / Cash',
+                                  'transfer' => 'Transfer via Bank BCA',
+                                  'qris' => 'QRIS'] as $val => $label)
                             <option value="{{ $val }}"
                                 {{ old('metode_pembayaran', $penyewaan->metode_pembayaran) == $val ? 'selected' : '' }}>
                                 {{ $label }}
@@ -367,7 +371,10 @@
                     <label class="form-label">Status <span class="required">*</span></label>
                     <select name="status"
                             class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}" required>
-                        @foreach(['berjalan' => 'Berjalan', 'segera_konfirmasi' => 'Segera Konfirmasi', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'] as $val => $label)
+                        @foreach(['berjalan' => 'Berjalan',
+                                  'segera_konfirmasi' => 'Segera Konfirmasi',
+                                  'selesai' => 'Selesai',
+                                  'dibatalkan' => 'Dibatalkan'] as $val => $label)
                             <option value="{{ $val }}"
                                 {{ old('status', $penyewaan->status) == $val ? 'selected' : '' }}>
                                 {{ $label }}
@@ -379,25 +386,26 @@
                     @enderror
                 </div>
 
-                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP FILE ===== --}}
+                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP (jpg/png/pdf) ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">
                         Bukti Pembayaran
-                        <span class="hint">(jpg/png, maks 10 MB &mdash; kosongkan jika tidak diganti)</span>
+                        <span class="hint">(jpg/png/pdf, maks 10 MB &mdash; kosongkan jika tidak diganti)</span>
                     </label>
 
-                    {{-- Tampilkan file existing jika ada --}}
                     @if($penyewaan->bukti_pembayaran)
+                        @php $isBuktiPdf = str_ends_with(strtolower($penyewaan->bukti_pembayaran), '.pdf'); @endphp
                         <div class="existing-file-wrap" id="bukti-existing-wrap">
-                            <a href="{{ asset('storage/' . $penyewaan->bukti_pembayaran) }}" target="_blank">
-                                <img src="{{ asset('storage/' . $penyewaan->bukti_pembayaran) }}"
-                                     class="existing-file-thumb"
-                                     alt="Bukti Pembayaran"
-                                     onerror="this.style.display='none'">
-                            </a>
+                            @if(!$isBuktiPdf)
+                                <a href="{{ asset('storage/' . $penyewaan->bukti_pembayaran) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $penyewaan->bukti_pembayaran) }}"
+                                         class="existing-file-thumb" alt="Bukti Pembayaran"
+                                         onerror="this.style.display='none'">
+                                </a>
+                            @endif
                             <a href="{{ asset('storage/' . $penyewaan->bukti_pembayaran) }}"
                                target="_blank" class="existing-file">
-                                <i class="ri-image-line"></i>
+                                <i class="{{ $isBuktiPdf ? 'ri-file-pdf-line' : 'ri-image-line' }}"></i>
                                 File saat ini: {{ basename($penyewaan->bukti_pembayaran) }}
                                 <i class="ri-external-link-line" style="font-size:12px;"></i>
                             </a>
@@ -407,18 +415,21 @@
                     <div class="dropzone" id="dropzone-bukti" tabindex="0" role="button"
                          onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
                         <input type="file" id="bukti_pembayaran" name="bukti_pembayaran"
-                               accept=".jpg,.jpeg,.png">
+                               accept=".jpg,.jpeg,.png,.pdf">
                         <i class="ri-receipt-line dropzone-icon"></i>
                         <div class="dropzone-title">
                             {{ $penyewaan->bukti_pembayaran
                                 ? 'Klik atau seret file baru untuk mengganti'
                                 : 'Klik atau seret file bukti pembayaran ke sini' }}
                         </div>
-                        <div class="dropzone-sub">JPG atau PNG &mdash; maks 10 MB</div>
+                        <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 10 MB</div>
                     </div>
 
                     <div class="dropzone-preview" id="bukti-preview">
-                        <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview">
+                        <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview"
+                             style="display:none;">
+                        <i id="bukti-preview-pdf-icon" class="ri-file-pdf-line"
+                           style="font-size:32px;color:#EF4444;flex-shrink:0;display:none;"></i>
                         <span class="dropzone-preview-name" id="bukti-preview-name"></span>
                         <span class="dropzone-preview-size" id="bukti-preview-size"></span>
                         <button type="button" class="dropzone-preview-remove" onclick="removeBuktiFile()">
@@ -523,8 +534,8 @@ const fpSelesai = flatpickr('#tgl_selesai', {
 });
 
 function hitungDurasi() {
-    const m = document.getElementById('tgl_mulai').value;
-    const s = document.getElementById('tgl_selesai').value;
+    const m      = document.getElementById('tgl_mulai').value;
+    const s      = document.getElementById('tgl_selesai').value;
     const disp   = document.getElementById('durasi-display');
     const hidden = document.getElementById('durasi_hari');
     if (m && s) {
@@ -532,8 +543,14 @@ function hitungDurasi() {
         if (diff >= 0) {
             hidden.value   = diff;
             disp.innerHTML = `<i class="ri-calendar-check-line"></i> ${diff} hari`;
-        } else { hidden.value = ''; disp.innerHTML = ''; }
-    } else { hidden.value = ''; disp.innerHTML = ''; }
+        } else {
+            hidden.value   = '';
+            disp.innerHTML = '';
+        }
+    } else {
+        hidden.value   = '';
+        disp.innerHTML = '';
+    }
 }
 
 // ── HELPER NOTES ──
@@ -560,13 +577,14 @@ function updateMetodeInfo() {
 // ── SELECT2 TEMPLATE ──
 function templateInventory(item) {
     if (!item.id) return item.text || 'Cari nama alat...';
-    const badge = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' };
+    const badgeMap = { ok: 'stok-ok', low: 'stok-low', zero: 'stok-zero' };
+    const cls      = badgeMap[item.stok_status] || 'stok-ok';
     return $(`
         <div style="padding:3px 0">
             <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${item.text}</div>
             <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
-                <span style="font-size:11px;color:var(--text-muted)">${item.kategori||''}</span>
-                <span class="${badge[item.stok_status]||'stok-ok'}">${item.stok_label||''}</span>
+                <span style="font-size:11px;color:var(--text-muted)">${item.kategori || ''}</span>
+                <span class="${cls}">${item.stok_label || ''}</span>
             </div>
         </div>
     `);
@@ -582,11 +600,11 @@ function addRow(data = {}) {
     const tr    = document.createElement('tr');
     tr.id       = `row-${idx}`;
 
-    const satuanList = ['unit','pcs','set','buah','pasang'];
+    const satuanList = ['unit', 'pcs', 'set', 'buah', 'pasang'];
     if (data.satuan && !satuanList.includes(data.satuan)) satuanList.push(data.satuan);
-    const satuanOpts = satuanList.map(s =>
-        `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`
-    ).join('');
+    const satuanOpts = satuanList
+        .map(s => `<option value="${s}" ${(data.satuan || 'unit') === s ? 'selected' : ''}>${s}</option>`)
+        .join('');
 
     const detailIdVal    = (data.detail_id    && data.detail_id    !== 'null' && data.detail_id    !== '') ? data.detail_id    : null;
     const inventoryIdVal = (data.inventory_id && data.inventory_id !== 'null' && data.inventory_id !== '') ? data.inventory_id : null;
@@ -595,7 +613,7 @@ function addRow(data = {}) {
         ? `<input type="hidden" name="items[${idx}][detail_id]" value="${detailIdVal}">`
         : '';
 
-    const preSelectedOption = inventoryIdVal && data.nama_alat
+    const preSelectedOption = (inventoryIdVal && data.nama_alat)
         ? `<option value="${inventoryIdVal}" selected>${data.nama_alat}</option>`
         : '';
 
@@ -606,7 +624,7 @@ function addRow(data = {}) {
         <td style="min-width:200px">
             ${detailIdField}
             <input type="hidden" name="items[${idx}][nama_alat]" id="nama-alat-${idx}"
-                   value="${(data.nama_alat||'').replace(/"/g,'&quot;')}">
+                   value="${(data.nama_alat || '').replace(/"/g, '&quot;')}">
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
                     class="form-control">
@@ -614,16 +632,15 @@ function addRow(data = {}) {
             </select>
         </td>
         <td>
-            <select name="items[${idx}][kondisi]"
-                    id="kondisi-${idx}"
+            <select name="items[${idx}][kondisi]" id="kondisi-${idx}"
                     class="form-control" style="width:90px">
-                <option value="baru"  ${kondisiVal==='baru' ?'selected':''}>Baru</option>
-                <option value="bekas" ${kondisiVal==='bekas'?'selected':''}>Bekas</option>
+                <option value="baru"  ${kondisiVal === 'baru'  ? 'selected' : ''}>Baru</option>
+                <option value="bekas" ${kondisiVal === 'bekas' ? 'selected' : ''}>Bekas</option>
             </select>
         </td>
         <td>
             <input type="number" name="items[${idx}][qty]"
-                   id="qty-${idx}" value="${data.qty||1}" min="1"
+                   id="qty-${idx}" value="${data.qty || 1}" min="1"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -634,13 +651,13 @@ function addRow(data = {}) {
         </td>
         <td>
             <input type="number" name="items[${idx}][harga_satuan]"
-                   id="harga-${idx}" value="${data.harga_satuan||0}" min="0"
+                   id="harga-${idx}" value="${data.harga_satuan || 0}" min="0"
                    class="form-control" style="width:130px"
                    oninput="hitungSubtotal(${idx})">
         </td>
         <td>
             <input type="number" name="items[${idx}][diskon]"
-                   id="diskon-${idx}" value="${data.diskon||0}" min="0" max="100"
+                   id="diskon-${idx}" value="${data.diskon || 0}" min="0" max="100"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -653,9 +670,7 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    const $sel = $(`#inv-select-${idx}`);
-
-    $sel.select2({
+    $(`#inv-select-${idx}`).select2({
         dropdownParent:     $(`#row-${idx}`),
         placeholder:        'Cari nama alat...',
         minimumInputLength: 0,
@@ -669,27 +684,17 @@ function addRow(data = {}) {
             cache:    true,
         },
         templateResult:    templateInventory,
-        templateSelection: function(d) {
-            return d.text || data.nama_alat || 'Pilih alat...';
-        },
-    });
-
-    if (inventoryIdVal) {
-        $sel.trigger('change');
-    }
-
-    $sel.on('select2:select', function(e) {
+        templateSelection: function (d) { return d.text || data.nama_alat || 'Pilih alat...'; },
+    })
+    .on('select2:select', function (e) {
         const item = e.params.data;
         $(`#nama-alat-${idx}`).val(item.text);
         $(`#harga-${idx}`).val(item.harga_beli_terakhir || 0);
-        $(`#qty-${idx}`).attr('max', item.stok_tersedia);
+        $(`#qty-${idx}`).attr('max', item.stok_tersedia || 999);
 
         const kondisiSel = document.getElementById(`kondisi-${idx}`);
-        if (item.stok_baru > 0) {
-            kondisiSel.value = 'baru';
-        } else if (item.stok_bekas > 0) {
-            kondisiSel.value = 'bekas';
-        }
+        if (item.stok_baru > 0)       kondisiSel.value = 'baru';
+        else if (item.stok_bekas > 0) kondisiSel.value = 'bekas';
 
         const satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
         if (item.satuan) {
@@ -698,15 +703,14 @@ function addRow(data = {}) {
             satSel.val(item.satuan);
         }
         hitungSubtotal(idx);
-    }).on('select2:clear', function() {
+    })
+    .on('select2:clear', function () {
         $(`#nama-alat-${idx}`).val('');
         $(`#harga-${idx}`).val(0);
         hitungSubtotal(idx);
     });
 
-    if (data.harga_satuan) {
-        hitungSubtotal(idx);
-    }
+    if (data.harga_satuan) hitungSubtotal(idx);
 }
 
 function removeRow(idx) {
@@ -729,7 +733,7 @@ function hitungSubtotal(idx) {
 function hitungRingkasan() {
     let total = 0;
     document.querySelectorAll('[id^="subtotal-"]').forEach(c => {
-        total += parseInt(c.textContent.replace(/[^0-9]/g,'')) || 0;
+        total += parseInt(c.textContent.replace(/[^0-9]/g, '')) || 0;
     });
     const diskon = parseInt(document.getElementById('diskon_global')?.value) || 0;
     const ongkir = parseInt(document.getElementById('biaya_ongkir')?.value)  || 0;
@@ -740,28 +744,31 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ── DROPZONE GENERIC (untuk KTP - tanpa thumbnail) ──
-function initDropzone(inputId, previewId, zoneId) {
+// ── DROPZONE GENERIC (KTP) ──
+function initDropzone(inputId, previewId, zoneId, maxMB) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
     const zone    = document.getElementById(zoneId);
     if (!input) return;
-    input.addEventListener('change', () => showPreview(input, preview, zone));
+
+    input.addEventListener('change', () => {
+        if (input.files[0]) showPreviewGeneric(input.files[0], preview, zone);
+    });
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('drag-over');
         if (e.dataTransfer.files.length) {
-            input.files = e.dataTransfer.files;
-            showPreview(input, preview, zone);
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            showPreviewGeneric(e.dataTransfer.files[0], preview, zone);
         }
     });
 }
 
-function showPreview(input, preview, zone) {
-    const file = input.files[0];
-    if (!file) return;
+function showPreviewGeneric(file, preview, zone) {
     preview.querySelector('.dropzone-preview-name').textContent = file.name;
     preview.querySelector('.dropzone-preview-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
     preview.classList.add('show');
@@ -774,9 +781,9 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ── DROPZONE BUKTI PEMBAYARAN (jpg/png, maks 10 MB, dengan thumbnail) ──
-const BUKTI_MAX_MB   = 10;
-const BUKTI_ALLOWED  = ['image/jpeg', 'image/png'];
+// ── DROPZONE BUKTI PEMBAYARAN (jpg/png/pdf, maks 10 MB) ──
+const BUKTI_MAX_MB  = 10;
+const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
 
 function initDropzoneBukti() {
     const input   = document.getElementById('bukti_pembayaran');
@@ -784,14 +791,13 @@ function initDropzoneBukti() {
     const zone    = document.getElementById('dropzone-bukti');
     const errBox  = document.getElementById('bukti-error');
     const errText = document.getElementById('bukti-error-text');
-
     if (!input) return;
 
     function processFile(file) {
         errBox.style.display = 'none';
 
         if (!BUKTI_ALLOWED.includes(file.type)) {
-            errText.textContent  = 'Format file tidak didukung. Gunakan JPG atau PNG.';
+            errText.textContent  = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
             errBox.style.display = 'flex';
             input.value          = '';
             return;
@@ -803,21 +809,28 @@ function initDropzoneBukti() {
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('bukti-preview-thumb').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+        const thumb   = document.getElementById('bukti-preview-thumb');
+        const pdfIcon = document.getElementById('bukti-preview-pdf-icon');
+
+        if (file.type === 'application/pdf') {
+            thumb.style.display   = 'none';
+            pdfIcon.style.display = 'block';
+        } else {
+            pdfIcon.style.display = 'none';
+            thumb.style.display   = 'block';
+            const reader = new FileReader();
+            reader.onload = e => { thumb.src = e.target.result; };
+            reader.readAsDataURL(file);
+        }
 
         document.getElementById('bukti-preview-name').textContent = file.name;
-        document.getElementById('bukti-preview-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        document.getElementById('bukti-preview-size').textContent =
+            (file.size / 1024 / 1024).toFixed(2) + ' MB';
         preview.classList.add('show');
         zone.style.display = 'none';
     }
 
-    input.addEventListener('change', () => {
-        if (input.files[0]) processFile(input.files[0]);
-    });
+    input.addEventListener('change', () => { if (input.files[0]) processFile(input.files[0]); });
 
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
@@ -834,70 +847,66 @@ function initDropzoneBukti() {
 }
 
 function removeBuktiFile() {
-    document.getElementById('bukti_pembayaran').value = '';
+    document.getElementById('bukti_pembayaran').value            = '';
     document.getElementById('bukti-preview').classList.remove('show');
-    document.getElementById('dropzone-bukti').style.display = '';
-    document.getElementById('bukti-preview-thumb').src      = '';
-    document.getElementById('bukti-error').style.display    = 'none';
+    document.getElementById('dropzone-bukti').style.display      = '';
+    document.getElementById('bukti-preview-thumb').src           = '';
+    document.getElementById('bukti-preview-thumb').style.display = 'none';
+    document.getElementById('bukti-preview-pdf-icon').style.display = 'none';
+    document.getElementById('bukti-error').style.display         = 'none';
 }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', function () {
-    initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
+
+    initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp', 5);
     initDropzoneBukti();
 
     // Validasi client sebelum submit
-    document.getElementById('form-penyewaan').addEventListener('submit', function(e) {
+    document.getElementById('form-penyewaan').addEventListener('submit', function (e) {
         const input = document.getElementById('bukti_pembayaran');
         if (input.files[0]) {
             const file = input.files[0];
             if (!BUKTI_ALLOWED.includes(file.type)) {
                 e.preventDefault();
-                document.getElementById('bukti-error-text').textContent = 'Format file tidak didukung. Gunakan JPG atau PNG.';
-                document.getElementById('bukti-error').style.display    = 'flex';
+                document.getElementById('bukti-error-text').textContent =
+                    'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+                document.getElementById('bukti-error').style.display = 'flex';
                 return;
             }
             if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
                 e.preventDefault();
-                document.getElementById('bukti-error-text').textContent = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
-                document.getElementById('bukti-error').style.display    = 'flex';
+                document.getElementById('bukti-error-text').textContent =
+                    `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+                document.getElementById('bukti-error').style.display = 'flex';
                 return;
             }
         }
     });
 
-    @if(old('items'))
-        @foreach(old('items') as $i => $oldItem)
+    // Load existing items dari database
+    @if($penyewaan->details && $penyewaan->details->count())
+        @foreach($penyewaan->details as $detail)
             addRow({
-                detail_id:    '{{ $oldItem["detail_id"] ?? "" }}',
-                inventory_id: '{{ $oldItem["inventory_id"] ?? "" }}',
-                nama_alat:    '{{ addslashes($oldItem["nama_alat"] ?? "") }}',
-                kondisi:      '{{ $oldItem["kondisi"] ?? "baru" }}',
-                qty:          {{ (int)($oldItem['qty'] ?? 1) }},
-                satuan:       '{{ $oldItem["satuan"] ?? "unit" }}',
-                harga_satuan: {{ (int)($oldItem['harga_satuan'] ?? 0) }},
-                diskon:       {{ (int)($oldItem['diskon'] ?? 0) }},
+                detail_id:    '{{ $detail->id }}',
+                inventory_id: '{{ $detail->inventory_id }}',
+                nama_alat:    '{{ addslashes($detail->nama_alat ?? $detail->inventory?->nama_alat ?? "") }}',
+                kondisi:      '{{ $detail->kondisi ?? "baru" }}',
+                qty:          {{ $detail->qty ?? 1 }},
+                satuan:       '{{ $detail->satuan ?? "unit" }}',
+                harga_satuan: {{ $detail->harga_satuan ?? 0 }},
+                diskon:       {{ $detail->diskon ?? 0 }},
             });
         @endforeach
     @else
-        @forelse($penyewaan->details as $detail)
-            addRow({
-                detail_id:    {{ $detail->id }},
-                inventory_id: {{ $detail->inventory_id !== null ? $detail->inventory_id : 'null' }},
-                nama_alat:    '{{ addslashes($detail->nama_alat) }}',
-                kondisi:      '{{ $detail->kondisi ?? "baru" }}',
-                qty:          {{ (int)$detail->qty }},
-                satuan:       '{{ $detail->satuan }}',
-                harga_satuan: {{ (int)$detail->harga_satuan }},
-                diskon:       {{ (int)($detail->diskon ?? 0) }},
-            });
-        @empty
-            addRow();
-        @endforelse
+        addRow();
     @endif
 
-    updatePengirimanNote();
-    updateMetodeInfo();
+    // Re-init notes berdasarkan nilai existing
+    if ('{{ old("pengiriman", $penyewaan->pengiriman) }}') updatePengirimanNote();
+    if ('{{ old("metode_pembayaran", $penyewaan->metode_pembayaran) }}') updateMetodeInfo();
+
+    hitungRingkasan();
 });
 </script>
 @endpush

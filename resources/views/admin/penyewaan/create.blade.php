@@ -340,26 +340,28 @@
                     </span>
                 </div>
 
-                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP FILE ===== --}}
+                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP (jpg/png/pdf) ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">
                         Bukti Pembayaran
-                        <span class="hint">(jpg/png, maks 10 MB)</span>
+                        <span class="hint">(jpg/png/pdf, maks 10 MB)</span>
                     </label>
                     <div class="dropzone" id="dropzone-bukti" tabindex="0" role="button"
                          onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
                         <input type="file" id="bukti_pembayaran" name="bukti_pembayaran"
-                               accept=".jpg,.jpeg,.png">
+                               accept=".jpg,.jpeg,.png,.pdf">
                         <i class="ri-receipt-line dropzone-icon"></i>
                         <div class="dropzone-title">Klik atau seret file bukti pembayaran ke sini</div>
-                        <div class="dropzone-sub">JPG atau PNG &mdash; maks 10 MB</div>
+                        <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 10 MB</div>
                     </div>
                     <div class="dropzone-preview" id="bukti-preview">
-                        <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview">
+                        <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview"
+                             style="display:none;">
+                        <i id="bukti-preview-pdf-icon" class="ri-file-pdf-line"
+                           style="font-size:32px;color:#EF4444;flex-shrink:0;display:none;"></i>
                         <span class="dropzone-preview-name" id="bukti-preview-name"></span>
                         <span class="dropzone-preview-size" id="bukti-preview-size"></span>
-                        <button type="button" class="dropzone-preview-remove"
-                                onclick="removeFile('bukti_pembayaran','bukti-preview','dropzone-bukti')">
+                        <button type="button" class="dropzone-preview-remove" onclick="removeBuktiFile()">
                             <i class="ri-close-line"></i>
                         </button>
                     </div>
@@ -372,6 +374,7 @@
                     @enderror
                 </div>
 
+                {{-- ===== FOTO KTP / SIM ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Foto KTP / SIM <span class="hint">(jpg/png/pdf, maks 5MB)</span></label>
                     <div class="dropzone" id="dropzone-ktp" tabindex="0" role="button"
@@ -667,7 +670,7 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ── DROPZONE GENERIC (KTP - tanpa preview gambar) ──
+// ── DROPZONE GENERIC (KTP - support pdf, tanpa thumbnail) ──
 function initDropzone(inputId, previewId, zoneId, maxMB) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
@@ -679,7 +682,9 @@ function initDropzone(inputId, previewId, zoneId, maxMB) {
     zone.addEventListener('drop', e => {
         e.preventDefault(); zone.classList.remove('drag-over');
         if (e.dataTransfer.files.length) {
-            input.files = e.dataTransfer.files;
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
             showPreview(input, preview, zone, maxMB);
         }
     });
@@ -697,9 +702,9 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ── DROPZONE BUKTI PEMBAYARAN (jpg/png, maks 10 MB, dengan thumbnail) ──
-const BUKTI_MAX_MB = 10;
-const BUKTI_ALLOWED = ['image/jpeg', 'image/png'];
+// ── DROPZONE BUKTI PEMBAYARAN (jpg/png/pdf, maks 10 MB) ──
+const BUKTI_MAX_MB  = 10;
+const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
 
 function initDropzoneBukti() {
     const input   = document.getElementById('bukti_pembayaran');
@@ -714,7 +719,7 @@ function initDropzoneBukti() {
         errBox.style.display = 'none';
 
         if (!BUKTI_ALLOWED.includes(file.type)) {
-            errText.textContent = 'Format file tidak didukung. Gunakan JPG atau PNG.';
+            errText.textContent = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
             errBox.style.display = 'flex';
             input.value = '';
             return;
@@ -726,11 +731,21 @@ function initDropzoneBukti() {
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('bukti-preview-thumb').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+        const thumb   = document.getElementById('bukti-preview-thumb');
+        const pdfIcon = document.getElementById('bukti-preview-pdf-icon');
+
+        if (file.type === 'application/pdf') {
+            // PDF: tampilkan icon, sembunyikan thumbnail
+            thumb.style.display   = 'none';
+            pdfIcon.style.display = 'block';
+        } else {
+            // Image: tampilkan thumbnail, sembunyikan icon PDF
+            pdfIcon.style.display = 'none';
+            thumb.style.display   = 'block';
+            const reader = new FileReader();
+            reader.onload = e => { thumb.src = e.target.result; };
+            reader.readAsDataURL(file);
+        }
 
         document.getElementById('bukti-preview-name').textContent = file.name;
         document.getElementById('bukti-preview-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
@@ -748,7 +763,6 @@ function initDropzoneBukti() {
         e.preventDefault();
         zone.classList.remove('drag-over');
         if (e.dataTransfer.files.length) {
-            // Assign ke input via DataTransfer
             const dt = new DataTransfer();
             dt.items.add(e.dataTransfer.files[0]);
             input.files = dt.files;
@@ -757,12 +771,13 @@ function initDropzoneBukti() {
     });
 }
 
-// Override removeFile untuk bukti (reset thumb juga)
 function removeBuktiFile() {
     document.getElementById('bukti_pembayaran').value = '';
     document.getElementById('bukti-preview').classList.remove('show');
     document.getElementById('dropzone-bukti').style.display = '';
-    document.getElementById('bukti-preview-thumb').src = '';
+    document.getElementById('bukti-preview-thumb').src         = '';
+    document.getElementById('bukti-preview-thumb').style.display = 'none';
+    document.getElementById('bukti-preview-pdf-icon').style.display = 'none';
     document.getElementById('bukti-error').style.display = 'none';
 }
 
@@ -771,10 +786,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp', 5);
     initDropzoneBukti();
 
-    // Ganti tombol remove bukti agar pakai fungsi khusus
-    document.querySelector('#bukti-preview .dropzone-preview-remove')
-        .setAttribute('onclick', 'removeBuktiFile()');
-
     // Validasi client sebelum submit
     document.getElementById('form-penyewaan').addEventListener('submit', function(e) {
         const input = document.getElementById('bukti_pembayaran');
@@ -782,7 +793,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const file = input.files[0];
             if (!BUKTI_ALLOWED.includes(file.type)) {
                 e.preventDefault();
-                document.getElementById('bukti-error-text').textContent = 'Format file tidak didukung. Gunakan JPG atau PNG.';
+                document.getElementById('bukti-error-text').textContent = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
                 document.getElementById('bukti-error').style.display = 'flex';
                 return;
             }

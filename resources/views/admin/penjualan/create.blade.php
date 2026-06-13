@@ -76,19 +76,13 @@
     .input-prefix-wrap .form-control { padding-left:36px; }
 
     /* ── Pembayaran Awal Section ── */
-    .pay-divider { display:flex; align-items:center; gap:10px; margin:6px 0 18px; color:var(--text-muted); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-    .pay-divider::before,.pay-divider::after { content:''; flex:1; height:1px; background:var(--border); }
     .pay-info-box { display:flex; align-items:flex-start; gap:8px; padding:10px 14px; border-radius:8px; font-size:12.5px; font-weight:500; background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; margin-top:6px; }
     .pay-info-box i { font-size:15px; flex-shrink:0; margin-top:1px; }
     html.dark .pay-info-box { background:rgba(146,64,14,0.15); color:#FCD34D; border-color:rgba(146,64,14,0.3); }
 
     /* ── Pengiriman Preview Badge ── */
     .kirim-preview-wrap { margin-top:10px; display:none; }
-    .kirim-preview-badge {
-        display:inline-flex; align-items:center; gap:7px;
-        padding:6px 14px; border-radius:9px; font-size:12.5px; font-weight:600;
-        border:1px solid transparent;
-    }
+    .kirim-preview-badge { display:inline-flex; align-items:center; gap:7px; padding:6px 14px; border-radius:9px; font-size:12.5px; font-weight:600; border:1px solid transparent; }
     .kirim-preview-badge i { font-size:15px; }
     .kirim-p-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
     .kirim-p-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
@@ -96,6 +90,25 @@
     html.dark .kirim-p-ambil  { background:rgba(146,64,14,.2);  color:#FCD34D; border-color:rgba(146,64,14,.35); }
     html.dark .kirim-p-gosend { background:rgba(6,95,70,.2);    color:#6EE7B7; border-color:rgba(6,95,70,.35); }
     html.dark .kirim-p-rental { background:rgba(30,64,175,.2);  color:#93C5FD; border-color:rgba(30,64,175,.35); }
+
+    /* ── Dropzone ── */
+    .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
+    .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
+    html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
+    .dropzone input[type="file"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2; }
+    .dropzone-icon { font-size:28px; color:var(--brand-500); margin-bottom:8px; display:block; }
+    .dropzone-title { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:2px; }
+    .dropzone-sub { font-size:12px; color:var(--text-muted); }
+    .dropzone-preview { display:none; align-items:center; gap:10px; padding:10px 14px; background:var(--brand-50); border:1px solid var(--brand-100); border-radius:8px; margin-top:8px; }
+    html.dark .dropzone-preview { background:rgba(29,111,164,0.1); border-color:rgba(29,111,164,0.25); }
+    .dropzone-preview.show { display:flex; }
+    .dropzone-preview i.preview-icon { font-size:32px; color:var(--brand-500); flex-shrink:0; }
+    .dropzone-preview-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; flex-shrink:0; border:1px solid var(--border); }
+    .dropzone-preview-name { font-size:12.5px; color:var(--text-primary); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
+    .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
+    .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
+    .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
 
     /* ── Select2 Overrides ── */
     .select2-container { width:100% !important; }
@@ -168,9 +181,44 @@
                 @error('tanggal_penjualan')<div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>@enderror
             </div>
 
+            {{-- ── FOTO BUKTI TRANSAKSI — DROPZONE ── --}}
             <div class="form-group">
-                <label class="form-label">Foto Bukti Transaksi</label>
-                <input type="file" name="foto_bukti" class="form-control" accept="image/*">
+                <label class="form-label">
+                    Foto Bukti Transaksi
+                    <span style="font-weight:400;color:var(--text-muted);font-size:11.5px;margin-left:4px;">
+                        (jpg/png/pdf, maks 10 MB)
+                    </span>
+                </label>
+
+                <div class="dropzone" id="dropzone-bukti" tabindex="0" role="button"
+                     onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
+                    <input type="file" id="foto_bukti" name="foto_bukti"
+                           accept=".jpg,.jpeg,.png,.pdf">
+                    <i class="ri-receipt-line dropzone-icon"></i>
+                    <div class="dropzone-title">Klik atau seret file bukti transaksi ke sini</div>
+                    <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 10 MB</div>
+                </div>
+
+                <div class="dropzone-preview" id="bukti-preview">
+                    <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview"
+                         style="display:none;">
+                    <i id="bukti-preview-pdf-icon" class="ri-file-pdf-line preview-icon"
+                       style="color:#EF4444;display:none;"></i>
+                    <span class="dropzone-preview-name" id="bukti-preview-name"></span>
+                    <span class="dropzone-preview-size" id="bukti-preview-size"></span>
+                    <button type="button" class="dropzone-preview-remove" onclick="removeBuktiFoto()">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+
+                <div id="bukti-error" class="file-error" style="display:none;">
+                    <i class="ri-error-warning-line"></i>
+                    <span id="bukti-error-text"></span>
+                </div>
+
+                @error('foto_bukti')
+                    <div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group full">
@@ -193,7 +241,6 @@
     <div class="form-card-body">
         <div class="form-grid">
 
-            {{-- ── Dropdown Jasa Pengiriman ── --}}
             <div class="form-group full">
                 <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
                 <select name="jasa_pengiriman" id="jasa_pengiriman"
@@ -214,13 +261,11 @@
                 </select>
                 @error('jasa_pengiriman')<div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>@enderror
 
-                {{-- Preview badge setelah memilih --}}
                 <div class="kirim-preview-wrap" id="kirim-preview-wrap">
                     <span class="kirim-preview-badge" id="kirim-preview-badge"></span>
                 </div>
             </div>
 
-            {{-- ── Harga Ongkos Kirim ── --}}
             <div class="form-group" id="wrap-harga-pengiriman">
                 <label class="form-label">Ongkos Kirim</label>
                 <div class="input-prefix-wrap">
@@ -237,7 +282,6 @@
                 </span>
             </div>
 
-            {{-- ── Jasa Instalasi ── --}}
             <div class="form-group">
                 <label class="form-label">Jasa Instalasi</label>
                 <div class="input-prefix-wrap">
@@ -285,7 +329,6 @@
             <i class="ri-add-line"></i> Tambah Barang
         </button>
 
-        {{-- ── Total Preview ── --}}
         <div style="display:flex;justify-content:flex-end;margin-top:20px;">
             <div class="total-preview" style="min-width:300px;">
                 <div class="total-preview-row">
@@ -315,7 +358,6 @@
             </div>
         </div>
 
-        {{-- Diskon Global --}}
         <div style="display:flex;justify-content:flex-end;margin-top:12px;align-items:center;gap:10px;">
             <label class="form-label" style="margin:0;white-space:nowrap;">Diskon Global (Rp)</label>
             <div class="input-prefix-wrap" style="width:200px;">
@@ -413,37 +455,94 @@
 <script>
 let rowIndex = 0;
 
+/* ════ DROPZONE FOTO BUKTI ════ */
+const BUKTI_MAX_MB  = 10;
+const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
+
+function initDropzoneBukti() {
+    const input   = document.getElementById('foto_bukti');
+    const preview = document.getElementById('bukti-preview');
+    const zone    = document.getElementById('dropzone-bukti');
+    const errBox  = document.getElementById('bukti-error');
+    const errText = document.getElementById('bukti-error-text');
+
+    function processFile(file) {
+        errBox.style.display = 'none';
+
+        if (!BUKTI_ALLOWED.includes(file.type)) {
+            errText.textContent  = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+            errBox.style.display = 'flex';
+            input.value          = '';
+            return;
+        }
+        if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+            errText.textContent  = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            errBox.style.display = 'flex';
+            input.value          = '';
+            return;
+        }
+
+        const thumb   = document.getElementById('bukti-preview-thumb');
+        const pdfIcon = document.getElementById('bukti-preview-pdf-icon');
+
+        if (file.type === 'application/pdf') {
+            thumb.style.display   = 'none';
+            pdfIcon.style.display = 'block';
+        } else {
+            pdfIcon.style.display = 'none';
+            thumb.style.display   = 'block';
+            const reader = new FileReader();
+            reader.onload = e => { thumb.src = e.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('bukti-preview-name').textContent = file.name;
+        document.getElementById('bukti-preview-size').textContent =
+            (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        preview.classList.add('show');
+        zone.style.display = 'none';
+    }
+
+    input.addEventListener('change', () => { if (input.files[0]) processFile(input.files[0]); });
+
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+}
+
+function removeBuktiFoto() {
+    document.getElementById('foto_bukti').value                   = '';
+    document.getElementById('bukti-preview').classList.remove('show');
+    document.getElementById('dropzone-bukti').style.display       = '';
+    document.getElementById('bukti-preview-thumb').src            = '';
+    document.getElementById('bukti-preview-thumb').style.display  = 'none';
+    document.getElementById('bukti-preview-pdf-icon').style.display = 'none';
+    document.getElementById('bukti-error').style.display          = 'none';
+}
+
 /* ════ CONFIG PENGIRIMAN ════ */
 const KIRIM_CONFIG = {
-    ambil_sendiri: {
-        icon:      'ri-walk-line',
-        label:     'Ambil dan antar kembali oleh penyewa',
-        badgeClass:'kirim-p-ambil',
-        freeOngkir: true,
-    },
-    gosend_grab: {
-        icon:      'ri-motorbike-line',
-        label:     'Via GoSend / GrabExpress',
-        badgeClass:'kirim-p-gosend',
-        freeOngkir: false,
-    },
-    rental_mobil: {
-        icon:      'ri-car-line',
-        label:     'Via Rental Mobil Paralkes',
-        badgeClass:'kirim-p-rental',
-        freeOngkir: false,
-    },
+    ambil_sendiri: { icon:'ri-walk-line',      label:'Ambil dan antar kembali oleh penyewa', badgeClass:'kirim-p-ambil',  freeOngkir:true  },
+    gosend_grab:   { icon:'ri-motorbike-line', label:'Via GoSend / GrabExpress',             badgeClass:'kirim-p-gosend', freeOngkir:false },
+    rental_mobil:  { icon:'ri-car-line',       label:'Via Rental Mobil Paralkes',            badgeClass:'kirim-p-rental', freeOngkir:false },
 };
 
-/* ════ ON KIRIM CHANGE ════ */
 function onKirimChange(val) {
-    const cfg        = KIRIM_CONFIG[val] || KIRIM_CONFIG['ambil_sendiri'];
+    const cfg         = KIRIM_CONFIG[val] || KIRIM_CONFIG['ambil_sendiri'];
     const ongkirInput = document.getElementById('harga_pengiriman');
     const hintEl      = document.getElementById('hint-ongkir');
     const previewWrap = document.getElementById('kirim-preview-wrap');
     const previewBadge= document.getElementById('kirim-preview-badge');
 
-    // Auto-set ongkir = 0 jika ambil sendiri + disable input
     if (cfg.freeOngkir) {
         ongkirInput.value    = 0;
         ongkirInput.readOnly = true;
@@ -458,10 +557,8 @@ function onKirimChange(val) {
             '<i class="ri-information-line"></i> Masukkan nominal ongkos kirim';
     }
 
-    // Update preview badge
     previewBadge.className = 'kirim-preview-badge ' + cfg.badgeClass;
-    previewBadge.innerHTML =
-        '<i class="' + cfg.icon + '"></i> ' + cfg.label;
+    previewBadge.innerHTML = '<i class="' + cfg.icon + '"></i> ' + cfg.label;
     previewWrap.style.display = 'block';
 
     recalcTotal();
@@ -509,11 +606,11 @@ function recalcTotal() {
     const instalasi    = parseFloat(document.getElementById('jasa_instalasi')?.value   || 0);
     const total        = Math.max(0, subtotal - diskonGlobal + ongkir + instalasi);
 
-    document.getElementById('preview-subtotal').textContent = 'Rp ' + formatRp(subtotal);
-    document.getElementById('preview-diskon').textContent   = '- Rp ' + formatRp(diskonGlobal);
-    document.getElementById('preview-ongkir').textContent   = '+ Rp ' + formatRp(ongkir);
-    document.getElementById('preview-instalasi').textContent= '+ Rp ' + formatRp(instalasi);
-    document.getElementById('preview-total').textContent    = 'Rp ' + formatRp(total);
+    document.getElementById('preview-subtotal').textContent  = 'Rp ' + formatRp(subtotal);
+    document.getElementById('preview-diskon').textContent    = '- Rp ' + formatRp(diskonGlobal);
+    document.getElementById('preview-ongkir').textContent    = '+ Rp ' + formatRp(ongkir);
+    document.getElementById('preview-instalasi').textContent = '+ Rp ' + formatRp(instalasi);
+    document.getElementById('preview-total').textContent     = 'Rp ' + formatRp(total);
 
     document.getElementById('row-diskon-global').style.display = diskonGlobal > 0 ? 'flex' : 'none';
     document.getElementById('row-ongkir').style.display         = ongkir      > 0 ? 'flex' : 'none';
@@ -615,7 +712,6 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    /* ── Init Select2 ── */
     $(`#inv-select-${idx}`).select2({
         dropdownParent: $(`#row-${idx}`),
         placeholder:    'Pilih atau cari nama barang...',
@@ -704,7 +800,26 @@ function onMetodePembayaranChange(value) {
 }
 
 /* ════ SUBMIT ════ */
-document.getElementById('formPenjualan').addEventListener('submit', function () {
+document.getElementById('formPenjualan').addEventListener('submit', function (e) {
+    const input = document.getElementById('foto_bukti');
+    if (input.files[0]) {
+        const file = input.files[0];
+        if (!BUKTI_ALLOWED.includes(file.type)) {
+            e.preventDefault();
+            document.getElementById('bukti-error-text').textContent =
+                'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+            document.getElementById('bukti-error').style.display = 'flex';
+            return;
+        }
+        if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+            e.preventDefault();
+            document.getElementById('bukti-error-text').textContent =
+                `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            document.getElementById('bukti-error').style.display = 'flex';
+            return;
+        }
+    }
+
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
     btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite"></i> Menyimpan...';
@@ -712,13 +827,10 @@ document.getElementById('formPenjualan').addEventListener('submit', function () 
 
 /* ════ INIT ════ */
 document.addEventListener('DOMContentLoaded', function () {
-    // Init metode pembayaran
+    initDropzoneBukti();
     onMetodePembayaranChange(document.getElementById('metode_pembayaran').value);
-
-    // Init pengiriman — trigger preview badge
     onKirimChange(document.getElementById('jasa_pengiriman').value);
 
-    // Restore old items jika ada error validasi
     @if(old('items'))
         @foreach(old('items') as $i => $oldItem)
             addRow({

@@ -36,9 +36,6 @@
     .alert { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-radius:10px; font-size:13.5px; font-weight:500; margin-bottom:18px; border:1px solid transparent; }
     .alert-error { background:#FFF1F2; color:#BE123C; border-color:#FECDD3; }
     html.dark .alert-error { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
-    .current-foto { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; }
-    .current-foto img { width:44px; height:44px; border-radius:6px; object-fit:cover; }
-    .current-foto-info { font-size:12px; color:var(--text-muted); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
     .btn i { font-size:15px; }
     .btn-primary { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
@@ -73,11 +70,7 @@
 
     /* ── Pengiriman Preview Badge ── */
     .kirim-preview-wrap { margin-top:10px; }
-    .kirim-preview-badge {
-        display:inline-flex; align-items:center; gap:7px;
-        padding:6px 14px; border-radius:9px; font-size:12.5px; font-weight:600;
-        border:1px solid transparent;
-    }
+    .kirim-preview-badge { display:inline-flex; align-items:center; gap:7px; padding:6px 14px; border-radius:9px; font-size:12.5px; font-weight:600; border:1px solid transparent; }
     .kirim-preview-badge i { font-size:15px; }
     .kirim-p-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
     .kirim-p-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
@@ -86,20 +79,38 @@
     html.dark .kirim-p-gosend { background:rgba(6,95,70,.2);    color:#6EE7B7; border-color:rgba(6,95,70,.35); }
     html.dark .kirim-p-rental { background:rgba(30,64,175,.2);  color:#93C5FD; border-color:rgba(30,64,175,.35); }
 
+    /* ── Dropzone ── */
+    .dropzone { position:relative; border:2px dashed var(--border); border-radius:8px; padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg-primary); outline:none; }
+    .dropzone:hover,.dropzone.drag-over { border-color:var(--brand-500); background:var(--brand-50); }
+    html.dark .dropzone:hover,html.dark .dropzone.drag-over { background:rgba(29,111,164,0.08); }
+    .dropzone input[type="file"] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:2; }
+    .dropzone-icon { font-size:28px; color:var(--brand-500); margin-bottom:8px; display:block; }
+    .dropzone-title { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:2px; }
+    .dropzone-sub { font-size:12px; color:var(--text-muted); }
+    .dropzone-preview { display:none; align-items:center; gap:10px; padding:10px 14px; background:var(--brand-50); border:1px solid var(--brand-100); border-radius:8px; margin-top:8px; }
+    html.dark .dropzone-preview { background:rgba(29,111,164,0.1); border-color:rgba(29,111,164,0.25); }
+    .dropzone-preview.show { display:flex; }
+    .dropzone-preview i.preview-icon { font-size:32px; color:var(--brand-500); flex-shrink:0; }
+    .dropzone-preview-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; flex-shrink:0; border:1px solid var(--border); }
+    .dropzone-preview-name { font-size:12.5px; color:var(--text-primary); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
+    .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
+    .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
+    .existing-file-wrap { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; flex-wrap:wrap; }
+    .existing-file-thumb { width:48px; height:48px; border-radius:6px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0; }
+    .existing-file-link { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--brand-600); font-weight:500; text-decoration:none; }
+    html.dark .existing-file-link { color:var(--brand-400); }
+    .existing-file-link i { font-size:15px; }
+    .existing-file-info { font-size:12px; color:var(--text-muted); }
+    .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
+
     /* ── Select2 Overrides ── */
     .select2-container { width:100% !important; }
-    .select2-container--default .select2-selection--single {
-        height:36px; border:1px solid var(--border); border-radius:7px;
-        background:var(--bg-primary); display:flex; align-items:center; padding:0 10px;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color:var(--text-primary); font-size:13px; line-height:1; padding:0;
-    }
+    .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
     .select2-container--default .select2-selection--single .select2-selection__arrow { height:36px; right:8px; }
     .select2-container--default.select2-container--focus .select2-selection--single,
-    .select2-container--default.select2-container--open  .select2-selection--single {
-        border-color:var(--brand-500); outline:none; box-shadow:0 0 0 3px rgba(29,111,164,0.1);
-    }
+    .select2-container--default.select2-container--open  .select2-selection--single { border-color:var(--brand-500); outline:none; box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
     .select2-dropdown { border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.1); background:var(--bg-card); z-index:9999; }
     .select2-container--default .select2-results__option { font-size:13px; color:var(--text-primary); padding:8px 12px; }
     .select2-container--default .select2-results__option--highlighted[aria-selected] { background:var(--brand-500); color:#fff; }
@@ -171,17 +182,73 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Foto Bukti Pembayaran</label>
+            {{-- ── FOTO BUKTI PEMBAYARAN — DROPZONE ── --}}
+            <div class="form-group full">
+                <label class="form-label">
+                    Foto Bukti Pembayaran
+                    <span style="font-weight:400;color:var(--text-muted);font-size:11.5px;margin-left:4px;">
+                        (jpg/png/pdf, maks 10 MB &mdash; kosongkan jika tidak diganti)
+                    </span>
+                </label>
+
+                {{-- Tampilkan file yang sudah ada --}}
                 @if($penjualan->foto_bukti)
-                <div class="current-foto">
-                    <img src="{{ Storage::url($penjualan->foto_bukti) }}" alt="Bukti">
-                    <div class="current-foto-info">
-                        Foto tersimpan. Upload baru untuk mengganti.
+                    @php $isFotoPdf = str_ends_with(strtolower($penjualan->foto_bukti), '.pdf'); @endphp
+                    <div class="existing-file-wrap" id="existing-file-wrap">
+                        @if(!$isFotoPdf)
+                            <a href="{{ Storage::url($penjualan->foto_bukti) }}" target="_blank">
+                                <img src="{{ Storage::url($penjualan->foto_bukti) }}"
+                                     class="existing-file-thumb" alt="Bukti"
+                                     onerror="this.style.display='none'">
+                            </a>
+                        @endif
+                        <div>
+                            <a href="{{ Storage::url($penjualan->foto_bukti) }}"
+                               target="_blank" class="existing-file-link">
+                                <i class="{{ $isFotoPdf ? 'ri-file-pdf-line' : 'ri-image-line' }}"></i>
+                                {{ basename($penjualan->foto_bukti) }}
+                                <i class="ri-external-link-line" style="font-size:11px;"></i>
+                            </a>
+                            <div class="existing-file-info">
+                                Upload file baru untuk mengganti foto ini.
+                            </div>
+                        </div>
                     </div>
-                </div>
                 @endif
-                <input type="file" name="foto_bukti" class="form-control" accept="image/*">
+
+                <div class="dropzone" id="dropzone-bukti" tabindex="0" role="button"
+                     onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
+                    <input type="file" id="foto_bukti" name="foto_bukti"
+                           accept=".jpg,.jpeg,.png,.pdf">
+                    <i class="ri-receipt-line dropzone-icon"></i>
+                    <div class="dropzone-title">
+                        {{ $penjualan->foto_bukti
+                            ? 'Klik atau seret file baru untuk mengganti'
+                            : 'Klik atau seret file bukti pembayaran ke sini' }}
+                    </div>
+                    <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 10 MB</div>
+                </div>
+
+                <div class="dropzone-preview" id="bukti-preview">
+                    <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview"
+                         style="display:none;">
+                    <i id="bukti-preview-pdf-icon" class="ri-file-pdf-line preview-icon"
+                       style="color:#EF4444;display:none;"></i>
+                    <span class="dropzone-preview-name" id="bukti-preview-name"></span>
+                    <span class="dropzone-preview-size" id="bukti-preview-size"></span>
+                    <button type="button" class="dropzone-preview-remove" onclick="removeBuktiFoto()">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+
+                <div id="bukti-error" class="file-error" style="display:none;">
+                    <i class="ri-error-warning-line"></i>
+                    <span id="bukti-error-text"></span>
+                </div>
+
+                @error('foto_bukti')
+                    <div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group full">
@@ -203,7 +270,6 @@
     <div class="form-card-body">
         <div class="form-grid">
 
-            {{-- ── Dropdown Jasa Pengiriman ── --}}
             <div class="form-group full">
                 <label class="form-label">Jasa Pengiriman <span class="req">*</span></label>
                 <select name="jasa_pengiriman" id="jasa_pengiriman"
@@ -224,13 +290,11 @@
                 </select>
                 @error('jasa_pengiriman')<div class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</div>@enderror
 
-                {{-- Preview badge pilihan aktif --}}
                 <div class="kirim-preview-wrap" id="kirim-preview-wrap">
                     <span class="kirim-preview-badge" id="kirim-preview-badge"></span>
                 </div>
             </div>
 
-            {{-- ── Harga Ongkos Kirim ── --}}
             <div class="form-group" id="wrap-harga-pengiriman">
                 <label class="form-label">Ongkos Kirim</label>
                 <div class="input-prefix-wrap">
@@ -238,7 +302,8 @@
                     <input type="number" name="harga_pengiriman" id="harga_pengiriman"
                            class="form-control"
                            value="{{ old('harga_pengiriman', $penjualan->harga_pengiriman ?? 0) }}"
-                           min="0" placeholder="0">
+                           min="0" placeholder="0"
+                           oninput="recalcTotal()">
                 </div>
                 <span id="hint-ongkir" style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
                     <i class="ri-information-line"></i>
@@ -246,7 +311,6 @@
                 </span>
             </div>
 
-            {{-- ── Jasa Instalasi ── --}}
             <div class="form-group">
                 <label class="form-label">Jasa Instalasi</label>
                 <div class="input-prefix-wrap">
@@ -254,7 +318,8 @@
                     <input type="number" name="jasa_instalasi" id="jasa_instalasi"
                            class="form-control"
                            value="{{ old('jasa_instalasi', $penjualan->jasa_instalasi ?? 0) }}"
-                           min="0" placeholder="0 (tidak ada instalasi)">
+                           min="0" placeholder="0 (tidak ada instalasi)"
+                           oninput="recalcTotal()">
                 </div>
                 <span style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">
                     <i class="ri-tools-line"></i> Isi 0 jika tidak ada jasa instalasi
@@ -280,6 +345,9 @@
                         <th style="width:110px;">Kondisi <span style="color:#fde68a">*</span></th>
                         <th style="width:70px;">Qty</th>
                         <th style="width:90px;">Satuan</th>
+                        <th style="width:140px;">Harga Satuan</th>
+                        <th style="width:72px;">Diskon %</th>
+                        <th style="width:130px;text-align:right;">Subtotal</th>
                         <th style="width:36px;"></th>
                     </tr>
                 </thead>
@@ -289,6 +357,49 @@
         <button type="button" class="btn-add-row" onclick="addRow()">
             <i class="ri-add-line"></i> Tambah Barang
         </button>
+
+        {{-- ── Total Preview ── --}}
+        <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+            <div class="total-preview" style="min-width:300px;">
+                <div class="total-preview-row">
+                    <span>Subtotal Barang</span>
+                    <span id="preview-subtotal">Rp 0</span>
+                </div>
+                <div class="total-preview-row" id="row-diskon-global" style="color:#DC2626;display:none;">
+                    <span>Diskon Global</span>
+                    <span id="preview-diskon">- Rp 0</span>
+                </div>
+                <div class="total-preview-row" id="row-ongkir" style="display:none;">
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <i class="ri-truck-line" style="font-size:12px;"></i> Ongkos Kirim
+                    </span>
+                    <span id="preview-ongkir" style="color:var(--text-secondary);">+ Rp 0</span>
+                </div>
+                <div class="total-preview-row" id="row-instalasi" style="display:none;">
+                    <span style="display:flex;align-items:center;gap:5px;">
+                        <i class="ri-tools-line" style="font-size:12px;"></i> Jasa Instalasi
+                    </span>
+                    <span id="preview-instalasi" style="color:#7C3AED;">+ Rp 0</span>
+                </div>
+                <div class="total-preview-row grand">
+                    <span>Total Tagihan</span>
+                    <span id="preview-total">Rp 0</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;align-items:center;gap:10px;">
+            <label class="form-label" style="margin:0;white-space:nowrap;">Diskon Global (Rp)</label>
+            <div class="input-prefix-wrap" style="width:200px;">
+                <span class="input-prefix">Rp</span>
+                <input type="number" name="diskon_global" id="diskon_global"
+                       class="form-control"
+                       value="{{ old('diskon_global', $penjualan->diskon_global ?? 0) }}"
+                       min="0" placeholder="0"
+                       oninput="recalcTotal()">
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -312,29 +423,87 @@
 const existingItems = @json($existingItems);
 let rowIndex = 0;
 
+/* ════ DROPZONE FOTO BUKTI ════ */
+const BUKTI_MAX_MB  = 10;
+const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
+
+function initDropzoneBukti() {
+    const input   = document.getElementById('foto_bukti');
+    const preview = document.getElementById('bukti-preview');
+    const zone    = document.getElementById('dropzone-bukti');
+    const errBox  = document.getElementById('bukti-error');
+    const errText = document.getElementById('bukti-error-text');
+
+    function processFile(file) {
+        errBox.style.display = 'none';
+
+        if (!BUKTI_ALLOWED.includes(file.type)) {
+            errText.textContent  = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+            errBox.style.display = 'flex';
+            input.value          = '';
+            return;
+        }
+        if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+            errText.textContent  = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            errBox.style.display = 'flex';
+            input.value          = '';
+            return;
+        }
+
+        const thumb   = document.getElementById('bukti-preview-thumb');
+        const pdfIcon = document.getElementById('bukti-preview-pdf-icon');
+
+        if (file.type === 'application/pdf') {
+            thumb.style.display   = 'none';
+            pdfIcon.style.display = 'block';
+        } else {
+            pdfIcon.style.display = 'none';
+            thumb.style.display   = 'block';
+            const reader = new FileReader();
+            reader.onload = e => { thumb.src = e.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('bukti-preview-name').textContent = file.name;
+        document.getElementById('bukti-preview-size').textContent =
+            (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        preview.classList.add('show');
+        zone.style.display = 'none';
+    }
+
+    input.addEventListener('change', () => { if (input.files[0]) processFile(input.files[0]); });
+
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+}
+
+function removeBuktiFoto() {
+    document.getElementById('foto_bukti').value                      = '';
+    document.getElementById('bukti-preview').classList.remove('show');
+    document.getElementById('dropzone-bukti').style.display          = '';
+    document.getElementById('bukti-preview-thumb').src               = '';
+    document.getElementById('bukti-preview-thumb').style.display     = 'none';
+    document.getElementById('bukti-preview-pdf-icon').style.display  = 'none';
+    document.getElementById('bukti-error').style.display             = 'none';
+}
+
 /* ════ CONFIG PENGIRIMAN ════ */
 const KIRIM_CONFIG = {
-    ambil_sendiri: {
-        icon:       'ri-walk-line',
-        label:      'Ambil dan antar kembali oleh penyewa',
-        badgeClass: 'kirim-p-ambil',
-        freeOngkir:  true,
-    },
-    gosend_grab: {
-        icon:       'ri-motorbike-line',
-        label:      'Via GoSend / GrabExpress',
-        badgeClass: 'kirim-p-gosend',
-        freeOngkir:  false,
-    },
-    rental_mobil: {
-        icon:       'ri-car-line',
-        label:      'Via Rental Mobil Paralkes',
-        badgeClass: 'kirim-p-rental',
-        freeOngkir:  false,
-    },
+    ambil_sendiri: { icon:'ri-walk-line',      label:'Ambil dan antar kembali oleh penyewa', badgeClass:'kirim-p-ambil',  freeOngkir:true  },
+    gosend_grab:   { icon:'ri-motorbike-line', label:'Via GoSend / GrabExpress',             badgeClass:'kirim-p-gosend', freeOngkir:false },
+    rental_mobil:  { icon:'ri-car-line',       label:'Via Rental Mobil Paralkes',            badgeClass:'kirim-p-rental', freeOngkir:false },
 };
 
-/* ════ ON KIRIM CHANGE ════ */
 function onKirimChange(val) {
     const cfg         = KIRIM_CONFIG[val] || KIRIM_CONFIG['ambil_sendiri'];
     const ongkirInput = document.getElementById('harga_pengiriman');
@@ -357,6 +526,8 @@ function onKirimChange(val) {
 
     previewBadge.className = 'kirim-preview-badge ' + cfg.badgeClass;
     previewBadge.innerHTML = '<i class="' + cfg.icon + '"></i> ' + cfg.label;
+
+    recalcTotal();
 }
 
 /* ════ SELECT2 TEMPLATES ════ */
@@ -383,33 +554,66 @@ function templateBarangSelected(item) {
     );
 }
 
+/* ════ KALKULASI TOTAL ════ */
+function recalcTotal() {
+    let subtotal = 0;
+    document.querySelectorAll('#items-body tr').forEach(tr => {
+        const idx    = tr.id.replace('row-', '');
+        const harga  = parseFloat(document.getElementById('harga-'  + idx)?.value || 0);
+        const qty    = parseFloat(document.getElementById('qty-'    + idx)?.value || 0);
+        const diskon = parseFloat(document.getElementById('diskon-' + idx)?.value || 0);
+        const sub    = harga * qty * (1 - diskon / 100);
+        subtotal    += sub;
+
+        const subEl = document.getElementById('subtotal-display-' + idx);
+        if (subEl) subEl.textContent = 'Rp ' + formatRp(sub);
+    });
+
+    const diskonGlobal = parseFloat(document.getElementById('diskon_global')?.value    || 0);
+    const ongkir       = parseFloat(document.getElementById('harga_pengiriman')?.value || 0);
+    const instalasi    = parseFloat(document.getElementById('jasa_instalasi')?.value   || 0);
+    const total        = Math.max(0, subtotal - diskonGlobal + ongkir + instalasi);
+
+    document.getElementById('preview-subtotal').textContent  = 'Rp ' + formatRp(subtotal);
+    document.getElementById('preview-diskon').textContent    = '- Rp ' + formatRp(diskonGlobal);
+    document.getElementById('preview-ongkir').textContent    = '+ Rp ' + formatRp(ongkir);
+    document.getElementById('preview-instalasi').textContent = '+ Rp ' + formatRp(instalasi);
+    document.getElementById('preview-total').textContent     = 'Rp ' + formatRp(total);
+
+    document.getElementById('row-diskon-global').style.display = diskonGlobal > 0 ? 'flex' : 'none';
+    document.getElementById('row-ongkir').style.display         = ongkir      > 0 ? 'flex' : 'none';
+    document.getElementById('row-instalasi').style.display      = instalasi   > 0 ? 'flex' : 'none';
+}
+
+function formatRp(num) {
+    return Math.round(num).toLocaleString('id-ID');
+}
+
 /* ════ TAMBAH BARIS BARANG ════ */
 function addRow(data) {
     data = data || {};
     rowIndex++;
-    var idx   = rowIndex;
-    var tbody = document.getElementById('items-body');
-    var tr    = document.createElement('tr');
+    const idx   = rowIndex;
+    const tbody = document.getElementById('items-body');
+    const tr    = document.createElement('tr');
     tr.id = 'row-' + idx;
 
-    var satuanList = ['unit','pcs','set','buah','pasang'];
-    var satuanOpts = satuanList.map(function(s) {
-        return '<option value="' + s + '"' + ((data.satuan || 'unit') === s ? ' selected' : '') + '>' + s + '</option>';
-    }).join('');
+    const satuanList = ['unit','pcs','set','buah','pasang'];
+    const satuanOpts = satuanList.map(s =>
+        '<option value="' + s + '"' + ((data.satuan || 'unit') === s ? ' selected' : '') + '>' + s + '</option>'
+    ).join('');
 
-    var kondisiSelected = data.kondisi || 'baru';
-    var kondisiOpts =
+    const kondisiSelected = data.kondisi || 'baru';
+    const kondisiOpts =
         '<option value="baru"'  + (kondisiSelected === 'baru'  ? ' selected' : '') + '>Baru</option>' +
         '<option value="bekas"' + (kondisiSelected === 'bekas' ? ' selected' : '') + '>Bekas</option>';
 
-    var stokInfoHtml = '';
-    if (data.inventory_id && data.stok_baru !== undefined) {
-        stokInfoHtml =
-            '<span class="stok-baru-badge">Baru: '   + (data.stok_baru  || 0) + '</span>' +
-            '<span class="stok-bekas-badge">Bekas: ' + (data.stok_bekas || 0) + '</span>';
-    }
+    const stokInfoHtml = (data.inventory_id && data.stok_baru !== undefined)
+        ? '<span class="stok-baru-badge">Baru: '   + (data.stok_baru  || 0) + '</span>' +
+          '<span class="stok-bekas-badge">Bekas: ' + (data.stok_bekas || 0) + '</span>'
+        : '';
 
-    var initOption = data.inventory_id
+    const initOption = data.inventory_id
         ? '<option value="' + data.inventory_id + '" selected>' + (data.nama_barang || '') + '</option>'
         : '';
 
@@ -431,25 +635,45 @@ function addRow(data) {
                 kondisiOpts +
             '</select>' +
         '</td>' +
+
         '<td>' +
-            '<input type="number" name="items[' + idx + '][qty]" id="qty-' + idx + '" value="' + (data.qty || 1) + '" min="1" class="form-control" style="text-align:center;width:64px" required>' +
+            '<input type="number" name="items[' + idx + '][qty]" id="qty-' + idx + '" value="' + (data.qty || 1) + '" min="1" class="form-control" style="text-align:center;width:64px" required oninput="recalcTotal()">' +
         '</td>' +
+
         '<td>' +
             '<select name="items[' + idx + '][satuan]" class="form-control" style="width:80px">' + satuanOpts + '</select>' +
         '</td>' +
+
+        '<td>' +
+            '<div class="input-prefix-wrap" style="width:130px">' +
+                '<span class="input-prefix">Rp</span>' +
+                '<input type="number" name="items[' + idx + '][harga_satuan_display]" id="harga-display-' + idx + '" value="' + (data.harga_satuan || 0) + '" min="0" class="form-control" style="padding-left:34px" oninput="syncHarga(' + idx + ')">' +
+            '</div>' +
+        '</td>' +
+
+        '<td>' +
+            '<div style="display:flex;align-items:center;gap:2px;width:66px">' +
+                '<input type="number" name="items[' + idx + '][diskon_display]" id="diskon-display-' + idx + '" value="' + (data.diskon || 0) + '" min="0" max="100" class="form-control" style="width:50px;text-align:center;padding:7px 6px" oninput="syncDiskon(' + idx + ')">' +
+                '<span style="font-size:12px;color:var(--text-muted)">%</span>' +
+            '</div>' +
+        '</td>' +
+
+        '<td style="text-align:right;white-space:nowrap">' +
+            '<span id="subtotal-display-' + idx + '" style="font-size:13px;font-weight:600;color:var(--text-primary)">Rp 0</span>' +
+        '</td>' +
+
         '<td style="text-align:center">' +
             '<button type="button" class="btn-remove-row" onclick="removeRow(' + idx + ')"><i class="ri-delete-bin-line"></i></button>' +
         '</td>';
 
     tbody.appendChild(tr);
 
-    /* ── Init Select2 ── */
     $('#inv-select-' + idx).select2({
-        dropdownParent: $('#row-' + idx),
-        placeholder:    'Pilih atau cari nama barang...',
-        allowClear:     true,
+        dropdownParent:     $('#row-' + idx),
+        placeholder:        'Pilih atau cari nama barang...',
+        allowClear:         true,
         minimumInputLength: 0,
-        language: { inputTooShort: function() { return ''; } },
+        language:           { inputTooShort: function() { return ''; } },
         ajax: {
             url:      '{{ route("api.inventory.index") }}',
             dataType: 'json',
@@ -462,51 +686,64 @@ function addRow(data) {
         templateSelection: templateBarangSelected,
     })
     .on('select2:open', function() {
-        var sf = document.querySelector('.select2-container--open .select2-search__field');
+        const sf = document.querySelector('.select2-container--open .select2-search__field');
         if (sf) sf.dispatchEvent(new Event('input', { bubbles: true }));
     })
     .on('select2:select', function(e) {
-        var item = e.params.data;
-        document.getElementById('inv-id-' + idx).value  = item.id;
-        document.getElementById('nama-'   + idx).value  = item.text;
+        const item = e.params.data;
+        document.getElementById('inv-id-' + idx).value = item.id;
+        document.getElementById('nama-'   + idx).value = item.text;
 
-        var infoHtml =
+        let infoHtml =
             '<span class="stok-baru-badge">Baru: '   + (item.stok_baru  || 0) + '</span>' +
             '<span class="stok-bekas-badge">Bekas: ' + (item.stok_bekas || 0) + '</span>';
-        if (item.kategori) {
-            infoHtml += '<span style="font-size:11px;color:var(--text-muted)">| ' + item.kategori + '</span>';
-        }
+        if (item.kategori) infoHtml += '<span style="font-size:11px;color:var(--text-muted)">| ' + item.kategori + '</span>';
         document.getElementById('stok-info-' + idx).innerHTML = infoHtml;
 
-        var $sat = $('select[name="items[' + idx + '][satuan]"]');
+        const $sat = $('select[name="items[' + idx + '][satuan]"]');
         if (item.satuan) {
-            if ($sat.find('option[value="' + item.satuan + '"]').length) {
-                $sat.val(item.satuan);
-            } else {
-                $sat.append(new Option(item.satuan, item.satuan, true, true));
-            }
+            $sat.find('option[value="' + item.satuan + '"]').length
+                ? $sat.val(item.satuan)
+                : $sat.append(new Option(item.satuan, item.satuan, true, true));
         }
         updateHargaHidden(idx, item);
     })
     .on('select2:clear', function() {
-        document.getElementById('inv-id-' + idx).value  = '';
-        document.getElementById('nama-'   + idx).value  = '';
-        document.getElementById('harga-'  + idx).value  = 0;
+        document.getElementById('inv-id-' + idx).value    = '';
+        document.getElementById('nama-'   + idx).value    = '';
+        document.getElementById('harga-'  + idx).value    = 0;
         document.getElementById('stok-info-' + idx).innerHTML = '';
+        recalcTotal();
     });
+
+    if (data.harga_satuan) recalcTotal();
+}
+
+function syncHarga(idx) {
+    const val = document.getElementById('harga-display-' + idx)?.value || 0;
+    document.getElementById('harga-' + idx).value = val;
+    recalcTotal();
+}
+
+function syncDiskon(idx) {
+    const val = document.getElementById('diskon-display-' + idx)?.value || 0;
+    document.getElementById('diskon-' + idx).value = val;
+    recalcTotal();
 }
 
 function updateHargaHidden(idx, item) {
-    var kondisi = document.getElementById('kondisi-' + idx).value;
-    var harga   = kondisi === 'bekas'
+    const kondisi = document.getElementById('kondisi-' + idx).value;
+    const harga   = kondisi === 'bekas'
         ? (item.harga_jual_bekas || 0)
         : (item.harga_jual_baru  || 0);
-    document.getElementById('harga-' + idx).value = harga;
+    document.getElementById('harga-' + idx).value         = harga;
+    document.getElementById('harga-display-' + idx).value = harga;
+    recalcTotal();
 }
 
 function onKondisiChange(idx) {
-    var sel  = $('#inv-select-' + idx);
-    var data = sel.select2('data');
+    const sel  = $('#inv-select-' + idx);
+    const data = sel.select2('data');
     if (data && data[0] && data[0].id) {
         updateHargaHidden(idx, data[0]);
     }
@@ -518,12 +755,32 @@ function removeRow(idx) {
         return;
     }
     $('#inv-select-' + idx).select2('destroy');
-    var row = document.getElementById('row-' + idx);
+    const row = document.getElementById('row-' + idx);
     if (row) row.parentNode.removeChild(row);
+    recalcTotal();
 }
 
 /* ════ SUBMIT ════ */
-document.getElementById('formPenjualan').addEventListener('submit', function () {
+document.getElementById('formPenjualan').addEventListener('submit', function (e) {
+    const input = document.getElementById('foto_bukti');
+    if (input.files[0]) {
+        const file = input.files[0];
+        if (!BUKTI_ALLOWED.includes(file.type)) {
+            e.preventDefault();
+            document.getElementById('bukti-error-text').textContent =
+                'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+            document.getElementById('bukti-error').style.display = 'flex';
+            return;
+        }
+        if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+            e.preventDefault();
+            document.getElementById('bukti-error-text').textContent =
+                `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            document.getElementById('bukti-error').style.display = 'flex';
+            return;
+        }
+    }
+
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
     btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite"></i> Menyimpan...';
@@ -531,15 +788,17 @@ document.getElementById('formPenjualan').addEventListener('submit', function () 
 
 /* ════ INIT ════ */
 document.addEventListener('DOMContentLoaded', function() {
-    // Trigger preview badge pengiriman sesuai data tersimpan
+    initDropzoneBukti();
     onKirimChange(document.getElementById('jasa_pengiriman').value);
 
-    // Load existing items dari controller
     if (existingItems && existingItems.length > 0) {
         existingItems.forEach(function(item) { addRow(item); });
     } else {
         addRow();
     }
+
+    
+    recalcTotal();
 });
 </script>
 <style>
