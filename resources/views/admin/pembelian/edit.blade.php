@@ -118,7 +118,7 @@
                               color:var(--text-primary); margin-bottom:6px;">
                     Nama Barang <span style="color:#EF4444;">*</span>
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
-                        — ketik untuk saran dari inventory
+                        &mdash; ketik untuk saran dari inventory
                     </span>
                 </label>
                 <input type="text" name="nama_barang" id="inputNamaBarang"
@@ -214,7 +214,7 @@
                 </div>
                 <p style="font-size:12px; color:var(--text-muted); margin-top:6px;">
                     <i class="ri-information-line"></i>
-                    Perubahan kondisi tidak otomatis mengubah stok inventory — hanya data catatan yang diperbarui.
+                    Perubahan kondisi tidak otomatis mengubah stok inventory &mdash; hanya data catatan yang diperbarui.
                 </p>
             </div>
 
@@ -246,13 +246,13 @@
                           onblur="this.style.borderColor='var(--border)'">{{ old('keterangan', $pembelian->keterangan) }}</textarea>
             </div>
 
-            {{-- Bukti Transaksi --}}
+            {{-- Bukti Pembayaran --}}
             <div>
                 <label style="display:block; font-size:13px; font-weight:600;
                               color:var(--text-primary); margin-bottom:6px;">
-                    Bukti Transaksi
+                    Bukti Pembayaran
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
-                        — foto nota / kwitansi (opsional)
+                        &mdash; foto nota / kwitansi (opsional)
                     </span>
                 </label>
 
@@ -263,7 +263,7 @@
                             background:var(--bg-hover); border:1px solid var(--border);
                             border-radius:10px; margin-bottom:12px; transition:opacity 0.3s;">
                     <img src="{{ asset('storage/' . $pembelian->bukti_transaksi) }}"
-                         alt="Bukti Transaksi"
+                         alt="Bukti Pembayaran"
                          style="width:64px; height:64px; border-radius:8px; object-fit:cover;
                                 border:1px solid var(--border); cursor:pointer; flex-shrink:0;"
                          onclick="window.open('{{ asset('storage/' . $pembelian->bukti_transaksi) }}', '_blank')">
@@ -312,7 +312,7 @@
                             @endif
                         </p>
                         <p style="font-size:12px; color:var(--text-muted); margin:0;">
-                            JPG, PNG, WEBP &mdash; maks. 2 MB
+                            JPG, PNG &mdash; maks. 10 MB
                         </p>
                     </div>
 
@@ -335,7 +335,7 @@
                 </div>
 
                 <input type="file" id="inputBukti" name="bukti_transaksi"
-                       accept="image/jpeg,image/png,image/webp"
+                       accept="image/jpeg,image/png"
                        style="display:none;" onchange="previewGambar(this)">
 
                 @error('bukti_transaksi')
@@ -374,7 +374,7 @@
 <script>
 const inventoryData = @json($inventoryItems);
 
-// ── Hitung total ──
+// -- Hitung total --
 function hitungTotal() {
     const qty   = parseFloat(document.getElementById('inputJumlah').value) || 0;
     const harga = parseFloat(document.getElementById('inputHarga').value)  || 0;
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hitungTotal();
 });
 
-// ── Autocomplete ──
+// -- Autocomplete --
 function showSuggestions() { filterSuggestions(); }
 function hideSuggestions() { document.getElementById('suggestionBox').style.display = 'none'; }
 
@@ -431,19 +431,25 @@ function filterSuggestions() {
     box.style.display = filtered.length > 0 ? 'block' : 'none';
 }
 
-// ── Preview gambar ──
+// -- Preview gambar --
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    if (file.size > 2 * 1024 * 1024) {
-        alert('Ukuran file terlalu besar. Maksimal 2 MB.');
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Format file tidak didukung. Gunakan JPG atau PNG.');
+        input.value = '';
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Ukuran file terlalu besar. Maksimal 10 MB.');
         input.value = '';
         return;
     }
     const reader = new FileReader();
     reader.onload = e => {
         document.getElementById('previewImg').src                = e.target.result;
-        document.getElementById('previewFileName').textContent   = file.name;
+        document.getElementById('previewFileName').textContent   = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
         document.getElementById('dropPlaceholder').style.display = 'none';
         document.getElementById('previewWrap').style.display     = 'block';
         document.getElementById('dropZone').style.borderColor    = 'var(--brand-500)';
