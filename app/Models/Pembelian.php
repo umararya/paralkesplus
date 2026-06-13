@@ -9,6 +9,7 @@ class Pembelian extends Model
 {
     protected $fillable = [
         'tanggal_pembelian',
+        'no_invoice',         // ← TAMBAHAN
         'nama_barang',
         'jumlah',
         'harga_satuan',
@@ -21,7 +22,6 @@ class Pembelian extends Model
     ];
 
     // total adalah generated column di MySQL (jumlah * harga_satuan)
-    // jangan dimasukkan ke $appends atau diisi manual lewat booted()
     protected $appends = ['harga_formatted', 'total_formatted'];
 
     public function getHargaFormattedAttribute(): string
@@ -31,7 +31,6 @@ class Pembelian extends Model
 
     public function getTotalFormattedAttribute(): string
     {
-        // Baca langsung dari kolom DB yang sudah dihitung MySQL
         return 'Rp ' . number_format($this->attributes['total'] ?? 0, 0, ',', '.');
     }
 

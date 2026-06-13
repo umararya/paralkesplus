@@ -43,7 +43,6 @@
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
-    /* ── Filter Tanggal Bar ── */
     .date-filter-bar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .date-filter-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:flex; align-items:center; gap:5px; white-space:nowrap; }
     .date-filter-label i { font-size:13px; color:var(--brand-500); }
@@ -55,7 +54,6 @@
     html.dark .date-filter-active { background:rgba(29,111,164,0.1); }
     .date-filter-badge { display:inline-flex; align-items:center; gap:4px; background:var(--brand-500); color:#fff; border-radius:99px; padding:2px 9px; font-size:11px; font-weight:700; margin-left:4px; }
 
-    /* ── Filter Tabs ── */
     .filter-tabs { display:flex; align-items:center; gap:4px; padding:12px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); flex-wrap:wrap; }
     .tab-btn { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; height:32px; border-radius:8px; font-size:12.5px; font-weight:500; font-family:var(--font); cursor:pointer; text-decoration:none; transition:all 0.18s; border:1px solid transparent; color:var(--text-secondary); background:transparent; }
     .tab-btn:hover { background:var(--bg-hover); color:var(--text-primary); border-color:var(--border); }
@@ -162,6 +160,19 @@
     .lightbox-close { position:fixed; top:16px; right:20px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── Invoice Badge (BARU) ── */
+    .invoice-pill {
+        display:inline-flex; align-items:center; gap:4px;
+        font-family:monospace; font-size:11.5px; font-weight:700;
+        color:#1D4ED8; background:#EFF6FF;
+        padding:2px 9px; border-radius:99px;
+        border:1px solid #BFDBFE; white-space:nowrap;
+    }
+    html.dark .invoice-pill {
+        background:rgba(29,78,216,0.15); color:#93C5FD;
+        border-color:rgba(29,78,216,0.3);
+    }
 </style>
 @endpush
 
@@ -219,7 +230,7 @@
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
                     <input type="text" name="search" value="{{ $search }}"
-                           placeholder="Cari nama barang, pelanggan..."
+                           placeholder="Cari nama barang, no. invoice, pelanggan..."
                            autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-search">
@@ -245,7 +256,7 @@
         </div>
     </div>
 
-    {{-- ── FILTER TANGGAL BAR ── --}}
+    {{-- FILTER TANGGAL BAR --}}
     <div class="date-filter-bar">
         <span class="date-filter-label">
             <i class="ri-calendar-2-line"></i> Filter Tanggal:
@@ -258,20 +269,17 @@
             <div class="date-input-wrap">
                 <input type="date" name="date_from" id="dateFrom"
                        class="date-input {{ $dateFrom ? 'date-filter-active' : '' }}"
-                       value="{{ $dateFrom }}"
-                       title="Dari tanggal"
+                       value="{{ $dateFrom }}" title="Dari tanggal"
                        onchange="this.form.submit()">
                 <span class="date-separator">—</span>
                 <input type="date" name="date_to" id="dateTo"
                        class="date-input {{ $dateTo ? 'date-filter-active' : '' }}"
-                       value="{{ $dateTo }}"
-                       title="Sampai tanggal"
+                       value="{{ $dateTo }}" title="Sampai tanggal"
                        onchange="this.form.submit()">
             </div>
             @if($dateFrom || $dateTo)
             <span class="date-filter-badge">
-                <i class="ri-filter-fill" style="font-size:10px;"></i>
-                Filter aktif
+                <i class="ri-filter-fill" style="font-size:10px;"></i> Filter aktif
             </span>
             <a href="{{ route('pembelian.index', ['search' => $search, 'filter' => $filter, 'per_page' => $perPage]) }}"
                class="btn btn-ghost" style="height:30px;font-size:12px;padding:0 10px;">
@@ -279,18 +287,12 @@
             </a>
             @endif
         </form>
-
-        {{-- Shortcut tanggal cepat --}}
         <div style="display:flex;align-items:center;gap:5px;margin-left:4px;">
             <span style="font-size:11px;color:var(--text-muted);">Cepat:</span>
-            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;"
-                    onclick="setDateRange('today')">Hari ini</button>
-            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;"
-                    onclick="setDateRange('week')">7 hari</button>
-            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;"
-                    onclick="setDateRange('month')">Bulan ini</button>
-            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;"
-                    onclick="setDateRange('year')">Tahun ini</button>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;" onclick="setDateRange('today')">Hari ini</button>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;" onclick="setDateRange('week')">7 hari</button>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;" onclick="setDateRange('month')">Bulan ini</button>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:11.5px;padding:0 9px;" onclick="setDateRange('year')">Tahun ini</button>
         </div>
     </div>
 
@@ -320,8 +322,7 @@
             @if($dateFrom || $dateTo)
                 <i class="ri-calendar-line"></i>
                 @if($dateFrom && $dateTo)
-                    <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}</strong>
-                    s/d
+                    <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}</strong> s/d
                     <strong>{{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}</strong>
                 @elseif($dateFrom)
                     Dari <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}</strong>
@@ -351,6 +352,7 @@
                 <tr>
                     <th style="width:46px;">#</th>
                     <th>Tanggal</th>
+                    <th>No. Invoice</th>{{-- ← KOLOM BARU --}}
                     <th>Nama Barang</th>
                     <th class="center">Status</th>
                     <th class="center">Kondisi</th>
@@ -374,6 +376,24 @@
                             <i class="ri-calendar-line" style="font-size:12px;color:var(--text-muted);"></i>
                             {{ \Carbon\Carbon::parse($item->tanggal_pembelian)->format('d M Y') }}
                         </span>
+                    </td>
+
+                    {{-- ← CELL NO. INVOICE --}}
+                    <td>
+                        @if($item->no_invoice)
+                            <span class="invoice-pill">
+                                <i class="ri-price-tag-3-line" style="font-size:11px;"></i>
+                                @if($search)
+                                    {!! preg_replace('/(' . preg_quote($search, '/') . ')/i',
+                                        '<mark style="background:#FEF08A;border-radius:3px;padding:0 2px;">$1</mark>',
+                                        e($item->no_invoice)) !!}
+                                @else
+                                    {{ $item->no_invoice }}
+                                @endif
+                            </span>
+                        @else
+                            <span style="font-size:12px;color:var(--text-muted);">—</span>
+                        @endif
                     </td>
 
                     <td>
@@ -496,7 +516,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="11">
+                    <td colspan="12">
                         <div class="empty-state">
                             <i class="ri-shopping-cart-2-line"></i>
                             <h3>
@@ -526,7 +546,7 @@
             @if($pembelians->count() > 0)
             <tfoot>
                 <tr class="tfoot-total">
-                    <td colspan="7" class="right">
+                    <td colspan="8" class="right">
                         Total {{ ($dateFrom || $dateTo) ? 'periode ini' : ($search ? 'hasil filter' : 'keseluruhan') }}:
                     </td>
                     <td class="right total-value" style="font-size:14px;white-space:nowrap;">
@@ -598,7 +618,6 @@
 
 </div>{{-- /table-card --}}
 
-
 {{-- MODAL: KONFIRMASI HAPUS --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal" style="max-width:400px;">
@@ -630,7 +649,6 @@
         </div>
     </div>
 </div>
-
 
 {{-- LIGHTBOX --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
@@ -683,7 +701,6 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
-// ── Shortcut filter tanggal cepat ──
 function setDateRange(type) {
     const today = new Date();
     const fmt   = d => d.toISOString().split('T')[0];

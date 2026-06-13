@@ -27,6 +27,25 @@
     font-weight: 500;
     color: var(--text-primary);
 }
+.invoice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #1D4ED8;
+    margin-top: 6px;
+    font-family: monospace;
+}
+html.dark .invoice-badge {
+    background: rgba(29, 78, 216, 0.15);
+    border-color: rgba(29, 78, 216, 0.3);
+    color: #93C5FD;
+}
 </style>
 @endpush
 
@@ -49,6 +68,11 @@
         </h1>
         <p style="font-size:13px; color:var(--text-muted);">
             Mengedit data: <strong style="color:var(--text-primary);">{{ $pembelian->nama_barang }}</strong>
+            @if($pembelian->no_invoice)
+                &mdash; <span style="font-family:monospace; color:var(--brand-500); font-size:12px;">
+                    {{ $pembelian->no_invoice }}
+                </span>
+            @endif
         </p>
     </div>
 </div>
@@ -56,7 +80,7 @@
 {{-- Info stok ringkas --}}
 <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
     @foreach([
-        ['label' => 'Total Item',    'value' => Illuminate\Support\Facades\DB::table('inventories')->count(),          'color' => '#3B82F6'],
+        ['label' => 'Total Item',    'value' => Illuminate\Support\Facades\DB::table('inventories')->count(),           'color' => '#3B82F6'],
         ['label' => 'Stok Tersedia', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_tersedia'), 'color' => '#22C55E'],
         ['label' => 'Sedang Disewa', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_disewa'),   'color' => '#F97316'],
         ['label' => 'Stok Bekas',    'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_bekas'),    'color' => '#A855F7'],
@@ -112,6 +136,51 @@
                        onblur="this.style.borderColor='var(--border)'" required>
             </div>
 
+            {{-- ===== NO. INVOICE PEMBELIAN ===== --}}
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600;
+                              color:var(--text-primary); margin-bottom:6px;">
+                    No. Invoice / Faktur
+                    <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
+                        &mdash; nomor dari supplier (opsional)
+                    </span>
+                </label>
+                <div style="position:relative;">
+                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%);
+                                 color:var(--text-muted); font-size:15px; pointer-events:none;">
+                        <i class="ri-file-list-3-line"></i>
+                    </span>
+                    <input type="text" name="no_invoice" id="inputNoInvoice"
+                           value="{{ old('no_invoice', $pembelian->no_invoice) }}"
+                           placeholder="Contoh: INV-2025-001, FKT/2025/06/001"
+                           maxlength="100"
+                           style="width:100%; padding:10px 14px 10px 38px;
+                                  border:1px solid var(--border); border-radius:8px;
+                                  font-size:13.5px; background:var(--bg-primary);
+                                  color:var(--text-primary); outline:none;
+                                  transition:border-color 0.2s; font-family:monospace;
+                                  box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--brand-500)'"
+                           onblur="this.style.borderColor='var(--border)'"
+                           oninput="updateInvoiceBadge(this.value)">
+                </div>
+                <div id="invoiceBadgeWrap" style="display:none; margin-top:6px;">
+                    <span class="invoice-badge">
+                        <i class="ri-price-tag-3-line"></i>
+                        <span id="invoiceBadgeText"></span>
+                    </span>
+                </div>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">
+                    <i class="ri-information-line"></i>
+                    Nomor invoice akan ditampilkan di tabel daftar pembelian untuk kemudahan pelacakan.
+                </p>
+                @error('no_invoice')
+                <p style="font-size:12px; color:#E11D48; margin-top:6px;">
+                    <i class="ri-error-warning-line"></i> {{ $message }}
+                </p>
+                @enderror
+            </div>
+
             {{-- Nama Barang + Autocomplete --}}
             <div style="position:relative;">
                 <label style="display:block; font-size:13px; font-weight:600;
@@ -132,7 +201,6 @@
                        onblur="this.style.borderColor='var(--border)'; setTimeout(hideSuggestions, 200)"
                        oninput="filterSuggestions()" required>
 
-                {{-- Dropdown suggestions --}}
                 <div id="suggestionBox"
                      style="display:none; position:absolute; z-index:100; left:0; right:0;
                             top:100%; margin-top:4px; background:var(--bg-card);
@@ -141,7 +209,6 @@
                             max-height:200px; overflow-y:auto;">
                 </div>
 
-                {{-- Link ke inventory --}}
                 <div id="inventoryLink" style="display:none; margin-top:6px;">
                     <a id="inventoryLinkAnchor" href="#" target="_blank"
                        style="font-size:12px; color:var(--brand-500); text-decoration:none;
@@ -237,7 +304,7 @@
                     Keterangan
                 </label>
                 <textarea name="keterangan" rows="3"
-                          placeholder="Catatan tambahan, nama supplier, nomor faktur, dll. (opsional)"
+                          placeholder="Catatan tambahan, nama supplier, dll. (opsional)"
                           style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                  border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                  color:var(--text-primary); outline:none; resize:vertical;
@@ -256,7 +323,6 @@
                     </span>
                 </label>
 
-                {{-- Preview bukti existing --}}
                 @if($pembelian->bukti_transaksi)
                 <div id="existingBukti"
                      style="display:flex; align-items:center; gap:14px; padding:12px 14px;
@@ -286,7 +352,6 @@
                 </div>
                 @endif
 
-                {{-- Drop zone --}}
                 <div id="dropZone"
                      onclick="document.getElementById('inputBukti').click()"
                      style="border:2px dashed var(--border); border-radius:10px;
@@ -374,7 +439,6 @@
 <script>
 const inventoryData = @json($inventoryItems);
 
-// -- Hitung total --
 function hitungTotal() {
     const qty   = parseFloat(document.getElementById('inputJumlah').value) || 0;
     const harga = parseFloat(document.getElementById('inputHarga').value)  || 0;
@@ -382,11 +446,23 @@ function hitungTotal() {
         'Rp ' + (qty * harga).toLocaleString('id-ID');
 }
 
+function updateInvoiceBadge(val) {
+    const wrap = document.getElementById('invoiceBadgeWrap');
+    const text = document.getElementById('invoiceBadgeText');
+    if (val.trim()) {
+        text.textContent   = val.trim();
+        wrap.style.display = 'block';
+    } else {
+        wrap.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     hitungTotal();
+    const existingInvoice = document.getElementById('inputNoInvoice').value;
+    if (existingInvoice) updateInvoiceBadge(existingInvoice);
 });
 
-// -- Autocomplete --
 function showSuggestions() { filterSuggestions(); }
 function hideSuggestions() { document.getElementById('suggestionBox').style.display = 'none'; }
 
@@ -397,9 +473,9 @@ function filterSuggestions() {
 
     const exact = inventoryData.find(i => i.nama_produk.toLowerCase() === val);
     if (exact) {
-        document.getElementById('inventoryLinkAnchor').href       = '/inventory/' + exact.id;
-        document.getElementById('inventoryLinkText').textContent  = 'Lihat "' + exact.nama_produk + '" di Inventory';
-        document.getElementById('inventoryLink').style.display    = 'block';
+        document.getElementById('inventoryLinkAnchor').href      = '/inventory/' + exact.id;
+        document.getElementById('inventoryLinkText').textContent = 'Lihat "' + exact.nama_produk + '" di Inventory';
+        document.getElementById('inventoryLink').style.display   = 'block';
     } else {
         document.getElementById('inventoryLink').style.display = 'none';
     }
@@ -431,12 +507,10 @@ function filterSuggestions() {
     box.style.display = filtered.length > 0 ? 'block' : 'none';
 }
 
-// -- Preview gambar --
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    const allowedTypes = ['image/jpeg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
         alert('Format file tidak didukung. Gunakan JPG atau PNG.');
         input.value = '';
         return;

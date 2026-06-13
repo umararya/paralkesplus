@@ -18,17 +18,18 @@ class PembelianController extends Controller
 {
     public function index(Request $request)
     {
-        $search    = $request->input('search', '');
-        $filter    = $request->input('filter', 'semua');
-        $dateFrom  = $request->input('date_from', '');
-        $dateTo    = $request->input('date_to', '');
-        $perPage   = in_array($request->input('per_page'), [5, 10, 25, 50])
-                     ? (int) $request->input('per_page')
-                     : 10;
+        $search   = $request->input('search', '');
+        $filter   = $request->input('filter', 'semua');
+        $dateFrom = $request->input('date_from', '');
+        $dateTo   = $request->input('date_to', '');
+        $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
+                    ? (int) $request->input('per_page')
+                    : 10;
 
         $query = Pembelian::query()
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('no_invoice', 'like', "%{$search}%")   // ← cari berdasarkan invoice juga
                   ->orWhere('keterangan', 'like', "%{$search}%")
                   ->orWhere('nama_pelanggan', 'like', "%{$search}%")
                   ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
@@ -87,6 +88,7 @@ class PembelianController extends Controller
     {
         $validated = $request->validate([
             'tanggal_pembelian' => 'required|date',
+            'no_invoice'        => 'nullable|string|max:100',   // ← TAMBAHAN
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
@@ -154,11 +156,12 @@ class PembelianController extends Controller
                 action:   'create',
                 subject:  $namaBarang,
                 newValue: [
-                    'barang'  => $namaBarang,
-                    'jumlah'  => $jumlah,
-                    'kondisi' => $kondisi,
-                    'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                    'tanggal' => $pembelian->tanggal_pembelian,
+                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
+                    'barang'     => $namaBarang,
+                    'jumlah'     => $jumlah,
+                    'kondisi'    => $kondisi,
+                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'tanggal'    => $pembelian->tanggal_pembelian,
                 ],
                 pageUrl: 'pembelian'
             );
@@ -193,6 +196,7 @@ class PembelianController extends Controller
 
         $validated = $request->validate([
             'tanggal_pembelian' => 'required|date',
+            'no_invoice'        => 'nullable|string|max:100',   // ← TAMBAHAN
             'nama_barang'       => 'required|string|max:150',
             'jumlah'            => 'required|integer|min:1',
             'harga_satuan'      => 'required|numeric|min:0',
@@ -206,10 +210,11 @@ class PembelianController extends Controller
         $oldKondisi = $pembelian->kondisi_barang;
 
         $oldData = [
-            'barang'  => $oldNama,
-            'jumlah'  => $oldJumlah,
-            'kondisi' => $oldKondisi,
-            'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+            'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
+            'barang'     => $oldNama,
+            'jumlah'     => $oldJumlah,
+            'kondisi'    => $oldKondisi,
+            'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -347,10 +352,11 @@ class PembelianController extends Controller
                 subject:  $newNama,
                 oldValue: $oldData,
                 newValue: [
-                    'barang'  => $newNama,
-                    'jumlah'  => $newJumlah,
-                    'kondisi' => $newKondisi,
-                    'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
+                    'barang'     => $newNama,
+                    'jumlah'     => $newJumlah,
+                    'kondisi'    => $newKondisi,
+                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
                 ],
                 pageUrl: 'pembelian/' . $pembelian->id . '/edit'
             );
@@ -395,12 +401,13 @@ class PembelianController extends Controller
                 action:   'delete',
                 subject:  $pembelian->nama_barang,
                 oldValue: [
-                    'barang'  => $pembelian->nama_barang,
-                    'jumlah'  => $pembelian->jumlah,
-                    'kondisi' => $pembelian->kondisi_barang,
-                    'total'   => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
-                    'tanggal' => $pembelian->tanggal_pembelian,
-                    'status'  => $pembelian->status,
+                    'no_invoice' => $pembelian->no_invoice ?? '-',  // ← TAMBAHAN
+                    'barang'     => $pembelian->nama_barang,
+                    'jumlah'     => $pembelian->jumlah,
+                    'kondisi'    => $pembelian->kondisi_barang,
+                    'total'      => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
+                    'tanggal'    => $pembelian->tanggal_pembelian,
+                    'status'     => $pembelian->status,
                 ],
                 pageUrl: 'pembelian'
             );
@@ -419,11 +426,11 @@ class PembelianController extends Controller
     public function storeBuyBack(Request $request)
     {
         $request->validate([
-            'penjualan_id'      => 'required|exists:penjualans,id',
-            'keterangan'        => 'nullable|string|max:500',
-            'items'             => 'required|array|min:1',
-            'items.*.detail_id' => 'required|integer|exists:detail_penjualans,id',
-            'items.*.qty_buyback' => 'required|integer|min:1',
+            'penjualan_id'         => 'required|exists:penjualans,id',
+            'keterangan'           => 'nullable|string|max:500',
+            'items'                => 'required|array|min:1',
+            'items.*.detail_id'    => 'required|integer|exists:detail_penjualans,id',
+            'items.*.qty_buyback'  => 'required|integer|min:1',
         ]);
 
         $penjualanId = (int) $request->input('penjualan_id');
@@ -451,6 +458,7 @@ class PembelianController extends Controller
                 $pembelian = Pembelian::create([
                     'penjualan_id'      => $penjualanId,
                     'tanggal_pembelian' => now()->toDateString(),
+                    'no_invoice'        => null,  // buy back tidak pakai invoice supplier
                     'nama_barang'       => $namaBarang,
                     'jumlah'            => $qtyBuyback,
                     'harga_satuan'      => $hargaBuyback,

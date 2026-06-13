@@ -27,6 +27,25 @@
     font-weight: 500;
     color: var(--text-primary);
 }
+.invoice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #1D4ED8;
+    margin-top: 6px;
+    font-family: monospace;
+}
+html.dark .invoice-badge {
+    background: rgba(29, 78, 216, 0.15);
+    border-color: rgba(29, 78, 216, 0.3);
+    color: #93C5FD;
+}
 </style>
 @endpush
 
@@ -110,6 +129,51 @@
                        onblur="this.style.borderColor='var(--border)'" required>
             </div>
 
+            {{-- ===== NO. INVOICE PEMBELIAN ===== --}}
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600;
+                              color:var(--text-primary); margin-bottom:6px;">
+                    No. Invoice / Faktur
+                    <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
+                        &mdash; nomor dari supplier (opsional)
+                    </span>
+                </label>
+                <div style="position:relative;">
+                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%);
+                                 color:var(--text-muted); font-size:15px; pointer-events:none;">
+                        <i class="ri-file-list-3-line"></i>
+                    </span>
+                    <input type="text" name="no_invoice" id="inputNoInvoice"
+                           value="{{ old('no_invoice') }}"
+                           placeholder="Contoh: INV-2025-001, FKT/2025/06/001"
+                           maxlength="100"
+                           style="width:100%; padding:10px 14px 10px 38px;
+                                  border:1px solid var(--border); border-radius:8px;
+                                  font-size:13.5px; background:var(--bg-primary);
+                                  color:var(--text-primary); outline:none;
+                                  transition:border-color 0.2s; font-family:monospace;
+                                  box-sizing:border-box;"
+                           onfocus="this.style.borderColor='var(--brand-500)'"
+                           onblur="this.style.borderColor='var(--border)'"
+                           oninput="updateInvoiceBadge(this.value)">
+                </div>
+                <div id="invoiceBadgeWrap" style="display:none; margin-top:6px;">
+                    <span class="invoice-badge">
+                        <i class="ri-price-tag-3-line"></i>
+                        <span id="invoiceBadgeText"></span>
+                    </span>
+                </div>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:5px;">
+                    <i class="ri-information-line"></i>
+                    Nomor invoice akan ditampilkan di tabel daftar pembelian untuk kemudahan pelacakan.
+                </p>
+                @error('no_invoice')
+                <p style="font-size:12px; color:#E11D48; margin-top:6px;">
+                    <i class="ri-error-warning-line"></i> {{ $message }}
+                </p>
+                @enderror
+            </div>
+
             {{-- Nama Barang + Autocomplete --}}
             <div style="position:relative;">
                 <label style="display:block; font-size:13px; font-weight:600;
@@ -139,7 +203,7 @@
                             max-height:200px; overflow-y:auto;">
                 </div>
 
-                {{-- Link ke inventory jika produk ditemukan --}}
+                {{-- Link ke inventory --}}
                 <div id="inventoryLink" style="display:none; margin-top:6px;">
                     <a id="inventoryLinkAnchor" href="#" target="_blank"
                        style="font-size:12px; color:var(--brand-500); text-decoration:none;
@@ -236,7 +300,7 @@
                     Keterangan
                 </label>
                 <textarea name="keterangan" rows="3"
-                          placeholder="Catatan tambahan, nama supplier, nomor faktur, dll. (opsional)"
+                          placeholder="Catatan tambahan, nama supplier, dll. (opsional)"
                           style="width:100%; padding:10px 14px; border:1px solid var(--border);
                                  border-radius:8px; font-size:13.5px; background:var(--bg-primary);
                                  color:var(--text-primary); outline:none; resize:vertical;
@@ -345,8 +409,21 @@ function hitungTotal() {
         'Rp ' + (qty * harga).toLocaleString('id-ID');
 }
 
+function updateInvoiceBadge(val) {
+    const wrap = document.getElementById('invoiceBadgeWrap');
+    const text = document.getElementById('invoiceBadgeText');
+    if (val.trim()) {
+        text.textContent   = val.trim();
+        wrap.style.display = 'block';
+    } else {
+        wrap.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     hitungTotal();
+    const existingInvoice = document.getElementById('inputNoInvoice').value;
+    if (existingInvoice) updateInvoiceBadge(existingInvoice);
 });
 
 // -- Autocomplete --
@@ -360,9 +437,9 @@ function filterSuggestions() {
 
     const exact = inventoryData.find(i => i.nama_produk.toLowerCase() === val);
     if (exact) {
-        document.getElementById('inventoryLinkAnchor').href        = '/inventory/' + exact.id;
-        document.getElementById('inventoryLinkText').textContent   = 'Lihat "' + exact.nama_produk + '" di Inventory';
-        document.getElementById('inventoryLink').style.display     = 'block';
+        document.getElementById('inventoryLinkAnchor').href       = '/inventory/' + exact.id;
+        document.getElementById('inventoryLinkText').textContent  = 'Lihat "' + exact.nama_produk + '" di Inventory';
+        document.getElementById('inventoryLink').style.display    = 'block';
     } else {
         document.getElementById('inventoryLink').style.display = 'none';
     }
@@ -382,11 +459,11 @@ function filterSuggestions() {
         div.addEventListener('mouseenter', () => div.style.background = 'var(--bg-hover)');
         div.addEventListener('mouseleave', () => div.style.background = 'var(--bg-card)');
         div.addEventListener('mousedown', function () {
-            document.getElementById('inputNamaBarang').value          = item.nama_produk;
-            box.style.display                                          = 'none';
-            document.getElementById('inventoryLinkAnchor').href       = '/inventory/' + item.id;
-            document.getElementById('inventoryLinkText').textContent  = 'Lihat "' + item.nama_produk + '" di Inventory';
-            document.getElementById('inventoryLink').style.display    = 'block';
+            document.getElementById('inputNamaBarang').value         = item.nama_produk;
+            box.style.display                                         = 'none';
+            document.getElementById('inventoryLinkAnchor').href      = '/inventory/' + item.id;
+            document.getElementById('inventoryLinkText').textContent = 'Lihat "' + item.nama_produk + '" di Inventory';
+            document.getElementById('inventoryLink').style.display   = 'block';
         });
         box.appendChild(div);
     });
@@ -414,8 +491,7 @@ function filterSuggestions() {
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    const allowedTypes = ['image/jpeg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
         alert('Format file tidak didukung. Gunakan JPG atau PNG.');
         input.value = '';
         return;

@@ -48,6 +48,7 @@
     .dropzone-preview-size { font-size:11.5px; color:var(--text-muted); white-space:nowrap; }
     .dropzone-preview-remove { width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.1); color:#EF4444; display:inline-flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; flex-shrink:0; border:none; transition:background 0.2s; }
     .dropzone-preview-remove:hover { background:rgba(239,68,68,0.2); }
+    .dropzone-preview-thumb { width:40px; height:40px; object-fit:cover; border-radius:6px; flex-shrink:0; border:1px solid var(--border); }
     .items-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .items-table thead tr { background:var(--brand-500); color:#fff; }
     .items-table th { padding:9px 10px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; text-align:left; white-space:nowrap; }
@@ -91,6 +92,7 @@
     .stok-info-row span { font-size:12px; }
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
+    .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
 </style>
 @endpush
 
@@ -338,11 +340,33 @@
                     </span>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Bukti Pembayaran <span class="hint">(link / catatan)</span></label>
-                    <input type="text" name="bukti_pembayaran" value="{{ old('bukti_pembayaran') }}"
-                           placeholder="https://drive.google.com/... atau 'bayar di tempat'"
-                           class="form-control {{ $errors->has('bukti_pembayaran') ? 'is-invalid' : '' }}">
+                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP FILE ===== --}}
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label class="form-label">
+                        Bukti Pembayaran
+                        <span class="hint">(jpg/png, maks 10 MB)</span>
+                    </label>
+                    <div class="dropzone" id="dropzone-bukti" tabindex="0" role="button"
+                         onkeydown="if(event.key==='Enter'||event.key===' ')this.querySelector('input').click()">
+                        <input type="file" id="bukti_pembayaran" name="bukti_pembayaran"
+                               accept=".jpg,.jpeg,.png">
+                        <i class="ri-receipt-line dropzone-icon"></i>
+                        <div class="dropzone-title">Klik atau seret file bukti pembayaran ke sini</div>
+                        <div class="dropzone-sub">JPG atau PNG &mdash; maks 10 MB</div>
+                    </div>
+                    <div class="dropzone-preview" id="bukti-preview">
+                        <img id="bukti-preview-thumb" class="dropzone-preview-thumb" src="" alt="preview">
+                        <span class="dropzone-preview-name" id="bukti-preview-name"></span>
+                        <span class="dropzone-preview-size" id="bukti-preview-size"></span>
+                        <button type="button" class="dropzone-preview-remove"
+                                onclick="removeFile('bukti_pembayaran','bukti-preview','dropzone-bukti')">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </div>
+                    <div id="bukti-error" class="file-error" style="display:none;">
+                        <i class="ri-error-warning-line"></i>
+                        <span id="bukti-error-text"></span>
+                    </div>
                     @error('bukti_pembayaran')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
@@ -419,7 +443,6 @@ const fpSelesai = flatpickr('#tgl_selesai', {
     onChange: () => hitungDurasi()
 });
 
-// ── FIX: Parse sebagai local date agar tidak ada offset UTC +/-1 hari ──
 function hitungDurasi() {
     const m = document.getElementById('tgl_mulai').value;
     const s = document.getElementById('tgl_selesai').value;
@@ -644,25 +667,29 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ── DROPZONE ──
-function initDropzone(inputId, previewId, zoneId) {
+// ── DROPZONE GENERIC (KTP - tanpa preview gambar) ──
+function initDropzone(inputId, previewId, zoneId, maxMB) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
     const zone    = document.getElementById(zoneId);
     if (!input) return;
-    input.addEventListener('change', () => showPreview(input, preview, zone));
+    input.addEventListener('change', () => showPreview(input, preview, zone, maxMB));
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
     zone.addEventListener('drop', e => {
         e.preventDefault(); zone.classList.remove('drag-over');
-        if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; showPreview(input, preview, zone); }
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            showPreview(input, preview, zone, maxMB);
+        }
     });
 }
-function showPreview(input, preview, zone) {
+function showPreview(input, preview, zone, maxMB) {
     const file = input.files[0]; if (!file) return;
     preview.querySelector('.dropzone-preview-name').textContent = file.name;
-    preview.querySelector('.dropzone-preview-size').textContent = (file.size/1024).toFixed(1)+' KB';
-    preview.classList.add('show'); zone.style.display = 'none';
+    preview.querySelector('.dropzone-preview-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    preview.classList.add('show');
+    zone.style.display = 'none';
 }
 function removeFile(inputId, previewId, zoneId) {
     document.getElementById(inputId).value = '';
@@ -670,9 +697,103 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
+// ── DROPZONE BUKTI PEMBAYARAN (jpg/png, maks 10 MB, dengan thumbnail) ──
+const BUKTI_MAX_MB = 10;
+const BUKTI_ALLOWED = ['image/jpeg', 'image/png'];
+
+function initDropzoneBukti() {
+    const input   = document.getElementById('bukti_pembayaran');
+    const preview = document.getElementById('bukti-preview');
+    const zone    = document.getElementById('dropzone-bukti');
+    const errBox  = document.getElementById('bukti-error');
+    const errText = document.getElementById('bukti-error-text');
+
+    if (!input) return;
+
+    function processFile(file) {
+        errBox.style.display = 'none';
+
+        if (!BUKTI_ALLOWED.includes(file.type)) {
+            errText.textContent = 'Format file tidak didukung. Gunakan JPG atau PNG.';
+            errBox.style.display = 'flex';
+            input.value = '';
+            return;
+        }
+        if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+            errText.textContent = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            errBox.style.display = 'flex';
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('bukti-preview-thumb').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        document.getElementById('bukti-preview-name').textContent = file.name;
+        document.getElementById('bukti-preview-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        preview.classList.add('show');
+        zone.style.display = 'none';
+    }
+
+    input.addEventListener('change', () => {
+        if (input.files[0]) processFile(input.files[0]);
+    });
+
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            // Assign ke input via DataTransfer
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+}
+
+// Override removeFile untuk bukti (reset thumb juga)
+function removeBuktiFile() {
+    document.getElementById('bukti_pembayaran').value = '';
+    document.getElementById('bukti-preview').classList.remove('show');
+    document.getElementById('dropzone-bukti').style.display = '';
+    document.getElementById('bukti-preview-thumb').src = '';
+    document.getElementById('bukti-error').style.display = 'none';
+}
+
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', function () {
-    initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp');
+    initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp', 5);
+    initDropzoneBukti();
+
+    // Ganti tombol remove bukti agar pakai fungsi khusus
+    document.querySelector('#bukti-preview .dropzone-preview-remove')
+        .setAttribute('onclick', 'removeBuktiFile()');
+
+    // Validasi client sebelum submit
+    document.getElementById('form-penyewaan').addEventListener('submit', function(e) {
+        const input = document.getElementById('bukti_pembayaran');
+        if (input.files[0]) {
+            const file = input.files[0];
+            if (!BUKTI_ALLOWED.includes(file.type)) {
+                e.preventDefault();
+                document.getElementById('bukti-error-text').textContent = 'Format file tidak didukung. Gunakan JPG atau PNG.';
+                document.getElementById('bukti-error').style.display = 'flex';
+                return;
+            }
+            if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+                e.preventDefault();
+                document.getElementById('bukti-error-text').textContent = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+                document.getElementById('bukti-error').style.display = 'flex';
+                return;
+            }
+        }
+    });
 
     @if(old('items'))
         @foreach(old('items') as $i => $oldItem)
