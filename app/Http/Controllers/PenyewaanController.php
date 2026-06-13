@@ -25,9 +25,6 @@ class PenyewaanController extends Controller
         $sisaHari = $item->sisa_hari;
 
         if ($sisaHari <= 0) {
-            // FIX: Hanya update status, JANGAN update tgl_selesai.
-            // Mengubah tgl_selesai akan membuat durasi_hari (kolom DB) di-override
-            // saat extend, sehingga kolom durasi di tabel utama ikut berubah.
             $item->update(['status' => 'selesai']);
             $this->kembalikanStok($item);
             return;
@@ -108,9 +105,9 @@ class PenyewaanController extends Controller
                 /** @var Inventory $inv */
                 $inv = Inventory::find($inventoryId);
                 if ($inv) {
-                    $qtyLama      = $detailLama ? (int) $detailLama->qty : 0;
-                    $kondisiLama  = $detailLama ? ($detailLama->kondisi ?? 'baru') : $kondisi;
-                    $selisih      = $qtyBaru - $qtyLama;
+                    $qtyLama     = $detailLama ? (int) $detailLama->qty : 0;
+                    $kondisiLama = $detailLama ? ($detailLama->kondisi ?? 'baru') : $kondisi;
+                    $selisih     = $qtyBaru - $qtyLama;
 
                     if ($kondisiLama !== $kondisi && $detailLama) {
                         $inv->tambahStok($qtyLama, $kondisiLama, true);
@@ -153,7 +150,6 @@ class PenyewaanController extends Controller
 
     // =========================================================
     //  PRIVATE HELPER — hitung durasi dari tanggal (server-side)
-    //  Dipakai saat store() dan update() untuk menyimpan nilai awal.
     // =========================================================
 
     private function hitungDurasi(string $tglMulai, string $tglSelesai): int
@@ -164,7 +160,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  INDEX — dengan filter tanggal
+    //  INDEX
     // =========================================================
 
     public function index(Request $request)
@@ -254,9 +250,7 @@ class PenyewaanController extends Controller
                     'nomor_hp'        => $item->nomor_telepon,
                     'barang'          => $barang,
                     'alamat'          => $item->alamat_penyewa,
-                    // durasi_hari = nilai tetap dari kolom DB (tidak berubah seiring hari)
                     'durasi_hari'     => $item->durasi_hari,
-                    // sisa_hari = dinamis, untuk warna & logika selesaikan
                     'sisa_hari'       => $item->sisa_hari,
                     'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
                     'tgl_selesai_raw' => $item->tgl_selesai?->format('Y-m-d') ?? null,
@@ -298,9 +292,7 @@ class PenyewaanController extends Controller
                     'id'              => $item->id,
                     'nama'            => $item->nama_penyewa,
                     'barang'          => $barang,
-                    // durasi_hari = tetap (info konteks berapa lama sewa)
                     'durasi_hari'     => $item->durasi_hari,
-                    // sisa_hari = dinamis (countdown ke deadline)
                     'sisa_hari'       => $sisaHari,
                     'sisa_label'      => $sisaLabel,
                     'tgl_selesai'     => $item->tgl_selesai?->format('d M Y') ?? '-',
@@ -326,14 +318,7 @@ class PenyewaanController extends Controller
         if ($action === 'selesai_sekarang') {
             $oldStatus = $penyewaan->status;
 
-            // FIX: JANGAN update tgl_selesai ke Carbon::today().
-            // Mengubah tgl_selesai akan menyebabkan kolom durasi_hari di tabel utama
-            // ikut berubah (karena accessor sebelumnya menghitung dari tgl_mulai→tgl_selesai).
-            // Cukup update status saja — tgl_selesai tetap sesuai kontrak awal.
-            $penyewaan->update([
-                'status' => 'selesai',
-            ]);
-
+            $penyewaan->update(['status' => 'selesai']);
             $this->kembalikanStok($penyewaan);
 
             ActivityLog::record(
@@ -342,10 +327,10 @@ class PenyewaanController extends Controller
                 subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
                 oldValue: ['status' => $oldStatus],
                 newValue: [
-                    'status'      => 'selesai',
+                    'status'       => 'selesai',
                     'diselesaikan' => Carbon::today()->format('d M Y'),
                 ],
-                pageUrl:  'penyewaan/' . $penyewaan->id . '/selesaikan'
+                pageUrl: 'penyewaan/' . $penyewaan->id . '/selesaikan'
             );
 
             return response()->json([
@@ -378,15 +363,11 @@ class PenyewaanController extends Controller
             ],
         ]);
 
-        $tglLama    = $penyewaan->tgl_selesai->format('d M Y');
-        $tglBaru    = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
-        $tglMulai   = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
+        $tglLama  = $penyewaan->tgl_selesai->format('d M Y');
+        $tglBaru  = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
+        $tglMulai = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
 
-        // FIX: durasi_hari saat extend dihitung dari tgl_mulai → tgl_selesai BARU.
-        // Ini benar karena extend memang memperpanjang kontrak, bukan sekedar status.
-        // Nilai ini disimpan ke kolom DB sehingga tabel utama menampilkan durasi extend.
         $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
-
         $sisaBaru   = (int) Carbon::today()->startOfDay()->diffInDays($tglBaru, false);
         $newStatus  = $sisaBaru > 7 ? 'berjalan' : 'segera_konfirmasi';
 
@@ -437,7 +418,10 @@ class PenyewaanController extends Controller
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
             'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
-            'bukti_pembayaran'         => 'nullable|string|max:500',
+
+            // ✅ PERBAIKAN: bukti_pembayaran adalah file, bukan string
+            'bukti_pembayaran'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+
             'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'keterangan'               => 'nullable|string',
             'items'                    => 'required|array|min:1',
@@ -449,16 +433,29 @@ class PenyewaanController extends Controller
             'items.*.harga_satuan'     => 'required|integer|min:0',
             'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ], [
-            'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
-            'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
+            'nomor_ktp.size'           => 'Nomor KTP harus tepat 16 digit.',
+            'nomor_ktp.regex'          => 'Nomor KTP hanya boleh berisi angka.',
+            'bukti_pembayaran.file'    => 'Bukti pembayaran harus berupa file.',
+            'bukti_pembayaran.mimes'   => 'Bukti pembayaran harus berupa file JPG, PNG, atau PDF.',
+            'bukti_pembayaran.max'     => 'Ukuran file bukti pembayaran maksimal 10 MB.',
         ]);
 
-        // Hitung durasi server-side dan simpan ke kolom DB sebagai nilai tetap
+        // Hitung durasi server-side
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']
         );
 
+        // ✅ PERBAIKAN: simpan bukti_pembayaran sebagai file ke storage
+        if ($request->hasFile('bukti_pembayaran')) {
+            $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
+                ->store('penyewaan/bukti', 'public');
+        } else {
+            // Pastikan tidak ada nilai string yang tersimpan
+            unset($validated['bukti_pembayaran']);
+        }
+
+        // Simpan foto KTP/SIM jika ada
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
@@ -534,7 +531,10 @@ class PenyewaanController extends Controller
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
             'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
-            'bukti_pembayaran'         => 'nullable|string|max:500',
+
+            // ✅ PERBAIKAN: bukti_pembayaran adalah file, bukan string
+            'bukti_pembayaran'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+
             'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'status'                   => 'required|in:berjalan,segera_konfirmasi,selesai,dibatalkan',
             'keterangan'               => 'nullable|string',
@@ -548,16 +548,34 @@ class PenyewaanController extends Controller
             'items.*.harga_satuan'     => 'required|integer|min:0',
             'items.*.diskon'           => 'nullable|integer|min:0|max:100',
         ], [
-            'nomor_ktp.size'  => 'Nomor KTP harus tepat 16 digit.',
-            'nomor_ktp.regex' => 'Nomor KTP hanya boleh berisi angka.',
+            'nomor_ktp.size'           => 'Nomor KTP harus tepat 16 digit.',
+            'nomor_ktp.regex'          => 'Nomor KTP hanya boleh berisi angka.',
+            'bukti_pembayaran.file'    => 'Bukti pembayaran harus berupa file.',
+            'bukti_pembayaran.mimes'   => 'Bukti pembayaran harus berupa file JPG, PNG, atau PDF.',
+            'bukti_pembayaran.max'     => 'Ukuran file bukti pembayaran maksimal 10 MB.',
         ]);
 
-        // Hitung ulang durasi dari tanggal yang diinput user (bisa berubah saat edit)
+        // Hitung ulang durasi
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']
         );
 
+        // ✅ PERBAIKAN: simpan bukti_pembayaran baru & hapus yang lama
+        if ($request->hasFile('bukti_pembayaran')) {
+            // Hapus file lama jika ada
+            if ($penyewaan->bukti_pembayaran &&
+                \Storage::disk('public')->exists($penyewaan->bukti_pembayaran)) {
+                \Storage::disk('public')->delete($penyewaan->bukti_pembayaran);
+            }
+            $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
+                ->store('penyewaan/bukti', 'public');
+        } else {
+            // Tidak ada file baru — jangan overwrite nilai lama
+            unset($validated['bukti_pembayaran']);
+        }
+
+        // Simpan foto KTP/SIM baru jika ada
         if ($request->hasFile('foto_ktp_sim')) {
             if ($penyewaan->foto_ktp_sim &&
                 \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
@@ -565,6 +583,8 @@ class PenyewaanController extends Controller
             }
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
+        } else {
+            unset($validated['foto_ktp_sim']);
         }
 
         $validated['biaya_ongkir']  = $validated['biaya_ongkir']  ?? 0;
@@ -623,6 +643,13 @@ class PenyewaanController extends Controller
             pageUrl: 'penyewaan'
         );
 
+        // Hapus file bukti pembayaran jika ada
+        if ($penyewaan->bukti_pembayaran &&
+            \Storage::disk('public')->exists($penyewaan->bukti_pembayaran)) {
+            \Storage::disk('public')->delete($penyewaan->bukti_pembayaran);
+        }
+
+        // Hapus foto KTP/SIM jika ada
         if ($penyewaan->foto_ktp_sim &&
             \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);

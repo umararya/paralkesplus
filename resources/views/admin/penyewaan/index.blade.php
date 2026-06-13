@@ -137,6 +137,7 @@
     @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; animation:slideUp 0.2s ease; }
     .modal-sm { max-width:420px; }
+    .modal-md { max-width:600px; }
     .modal-lg { max-width:860px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
@@ -160,9 +161,26 @@
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
 
-    .link-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:12px; color:var(--text-secondary); text-decoration:none; transition:all 0.2s; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .link-badge:hover { color:var(--brand-500); border-color:var(--brand-200); }
+    /* ── File badge "Lihat" (dipakai oleh kolom bukti & KTP) ── */
+    .link-badge {
+        display:inline-flex; align-items:center; gap:5px;
+        background:var(--bg-hover); border:1px solid var(--border);
+        border-radius:6px; padding:4px 10px;
+        font-size:12px; font-weight:500; color:var(--text-secondary);
+        text-decoration:none; cursor:pointer; border:none;
+        transition:all 0.2s; white-space:nowrap; font-family:var(--font);
+    }
+    .link-badge:hover { color:var(--brand-500); background:var(--brand-50); border-color:var(--brand-200); }
+    .link-badge i { font-size:13px; }
+    .link-badge.bukti { border:1px solid var(--border); }
+    html.dark .link-badge:hover { background:rgba(29,111,164,0.1); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
     .no-file { color:var(--text-muted); font-style:italic; font-size:12.5px; }
+
+    /* ── Modal Preview File ── */
+    .file-preview-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .file-preview-img  { max-width:100%; max-height:70vh; border-radius:8px; border:1px solid var(--border); object-fit:contain; }
+    .file-preview-pdf  { width:100%; height:70vh; border:1px solid var(--border); border-radius:8px; }
+    .file-preview-info { font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
 
     .badge-mandiri { background:#F0FDF4; color:#16A34A; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
     .badge-gosend  { background:#FFF7ED; color:#C2410C; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
@@ -489,7 +507,7 @@
                         </a>
                     </td>
 
-                    {{-- ══ KOLOM PRODUK: nama alat × qty per baris ══ --}}
+                    {{-- ══ KOLOM PRODUK ══ --}}
                     <td>
                         @php $details = $item->details; @endphp
                         @if($details->isNotEmpty())
@@ -536,29 +554,51 @@
                             {{ $item->metode_pembayaran }}
                         </span>
                     </td>
+
+                    {{-- ══ KOLOM BUKTI PEMBAYARAN ══ --}}
                     <td class="center">
                         @if($item->bukti_pembayaran)
-                            @if(str_starts_with($item->bukti_pembayaran, 'http'))
-                                <a href="{{ $item->bukti_pembayaran }}" target="_blank" class="link-badge">
-                                    <i class="ri-external-link-line"></i> Lihat
-                                </a>
-                            @else
-                                <span style="font-size:12px; color:var(--text-secondary);">{{ $item->bukti_pembayaran }}</span>
-                            @endif
+                            @php
+                                $ext = strtolower(pathinfo($item->bukti_pembayaran, PATHINFO_EXTENSION));
+                                $isPdf = $ext === 'pdf';
+                            @endphp
+                            <button type="button"
+                                    class="link-badge bukti"
+                                    onclick="previewFile(
+                                        '{{ asset('storage/' . $item->bukti_pembayaran) }}',
+                                        '{{ $isPdf ? 'pdf' : 'image' }}',
+                                        'Bukti Pembayaran — {{ addslashes($item->nama_penyewa) }}'
+                                    )">
+                                <i class="{{ $isPdf ? 'ri-file-pdf-line' : 'ri-image-line' }}" style="{{ $isPdf ? 'color:#EF4444;' : '' }}"></i>
+                                Lihat
+                            </button>
                         @else
                             <span class="no-file">—</span>
                         @endif
                     </td>
+
+                    {{-- ══ KOLOM FOTO KTP/SIM ══ --}}
                     <td class="center">
                         @if($item->foto_ktp_sim)
-                            <a href="{{ asset('storage/' . $item->foto_ktp_sim) }}"
-                               target="_blank" class="link-badge">
-                                <i class="ri-id-card-line"></i> Lihat
-                            </a>
+                            @php
+                                $ktpExt = strtolower(pathinfo($item->foto_ktp_sim, PATHINFO_EXTENSION));
+                                $ktpIsPdf = $ktpExt === 'pdf';
+                            @endphp
+                            <button type="button"
+                                    class="link-badge"
+                                    onclick="previewFile(
+                                        '{{ asset('storage/' . $item->foto_ktp_sim) }}',
+                                        '{{ $ktpIsPdf ? 'pdf' : 'image' }}',
+                                        'Foto KTP/SIM — {{ addslashes($item->nama_penyewa) }}'
+                                    )">
+                                <i class="{{ $ktpIsPdf ? 'ri-file-pdf-line' : 'ri-id-card-line' }}" style="{{ $ktpIsPdf ? 'color:#EF4444;' : '' }}"></i>
+                                Lihat
+                            </button>
                         @else
                             <span class="no-file">—</span>
                         @endif
                     </td>
+
                     <td class="center">
                         <span class="status-badge {{ $item->status_class }}">
                             {{ $item->status_label }}
@@ -683,6 +723,31 @@
 
 </div>{{-- /table-card --}}
 
+
+{{-- ════ MODAL PREVIEW FILE ════ --}}
+<div class="modal-overlay" id="modalPreviewFile">
+    <div class="modal modal-md">
+        <div class="modal-header">
+            <span class="modal-title" id="previewModalTitle">
+                <i class="ri-file-line"></i> Preview File
+            </span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <a id="previewDownloadBtn" href="#" target="_blank" download
+                   class="btn btn-ghost" style="height:30px;padding:0 12px;font-size:12px;">
+                    <i class="ri-download-2-line"></i> Buka di Tab Baru
+                </a>
+                <button class="modal-close" onclick="closePreviewFile()">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body" style="padding:16px;">
+            <div class="file-preview-wrap" id="previewContent">
+                {{-- diisi JS --}}
+            </div>
+        </div>
+    </div>
+</div>
 
 {{-- ════ MODAL HAPUS ════ --}}
 <div class="modal-overlay" id="modalHapus">
@@ -936,6 +1001,48 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// ════ PREVIEW FILE MODAL ════
+function previewFile(url, type, title) {
+    document.getElementById('previewModalTitle').innerHTML =
+        `<i class="ri-${type === 'pdf' ? 'file-pdf-line' : 'image-line'}" style="${type === 'pdf' ? 'color:#EF4444;' : 'color:var(--brand-500);'}"></i> ${title}`;
+
+    const downloadBtn = document.getElementById('previewDownloadBtn');
+    downloadBtn.href = url;
+
+    const content = document.getElementById('previewContent');
+
+    if (type === 'pdf') {
+        content.innerHTML = `
+            <iframe src="${url}" class="file-preview-pdf" title="Preview PDF"></iframe>
+            <p class="file-preview-info">
+                <i class="ri-information-line"></i>
+                Jika PDF tidak tampil, klik tombol <strong>Buka di Tab Baru</strong>.
+            </p>`;
+    } else {
+        content.innerHTML = `
+            <img src="${url}" class="file-preview-img" alt="Preview"
+                 onerror="this.outerHTML='<div style=\'text-align:center;padding:32px;color:var(--text-muted);\'><i class=\'ri-image-2-line\' style=\'font-size:40px;display:block;margin-bottom:8px;\'></i>Gambar tidak dapat dimuat.</div>'">
+            <p class="file-preview-info">
+                <i class="ri-information-line"></i>
+                Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.
+            </p>`;
+    }
+
+    document.getElementById('modalPreviewFile').classList.add('open');
+}
+
+function closePreviewFile() {
+    document.getElementById('modalPreviewFile').classList.remove('open');
+    // Bersihkan iframe/img agar tidak terus loading di background
+    setTimeout(() => {
+        document.getElementById('previewContent').innerHTML = '';
+    }, 200);
+}
+
+document.getElementById('modalPreviewFile').addEventListener('click', function(e) {
+    if (e.target === this) closePreviewFile();
+});
+
 // ── Hapus ──
 function openDeleteModal(id, nama) {
     document.getElementById('modal-nama').textContent = nama;
@@ -984,7 +1091,6 @@ function loadMonitoringData() {
         }
 
         let rows = data.map(d => {
-            // ── PERUBAHAN: tampilkan sisa_hari (countdown) bukan durasi_hari (tetap) ──
             const sisaClass = d.sisa_hari <= 0
                 ? 'sisa-hari-danger'
                 : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
@@ -1112,6 +1218,7 @@ function doExtend() {
 // ── Escape Key ──
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+        closePreviewFile();
         closeDeleteModal();
         closeMonitoring();
         closeSelesaikanNormal();

@@ -40,14 +40,26 @@ Route::middleware('auth')->group(function () {
 
 
     // ── Penyewaan ──
-    Route::get('/penyewaan/notifikasi',       [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
-    Route::get('/penyewaan-monitoring',       [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
-    Route::get('/penyewaan/export',           [PenyewaanController::class, 'export'])->name('penyewaan.export');
+    // CATATAN: Route non-resource dengan segment tetap WAJIB dideklarasikan
+    // SEBELUM Route::resource agar tidak ditangkap wildcard {penyewaan}.
+    Route::get('/penyewaan/notifikasi',  [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
+    Route::get('/penyewaan-monitoring',  [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
+    Route::get('/penyewaan/export',      [PenyewaanController::class, 'export'])->name('penyewaan.export');
+
     Route::resource('penyewaan', PenyewaanController::class);
-    Route::post('/penyewaan/{id}/selesaikan', [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
-    Route::post('/penyewaan/{id}/extend',     [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
-    Route::get('/penyewaan/{id}/invoice',     [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
-    Route::get('/penyewaan/{id}/perjanjian',  [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
+
+    // ── Sub-route penyewaan (setelah resource) ──
+    Route::post('/penyewaan/{id}/selesaikan',     [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
+    Route::post('/penyewaan/{id}/extend',          [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
+    Route::post('/penyewaan/{id}/extend-store',    [PenyewaanController::class, 'extendStore'])->name('penyewaan.extendStore');
+    Route::get('/penyewaan/{id}/invoice',          [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
+    Route::get('/penyewaan/{id}/perjanjian',       [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
+
+    // ── Route cetak dokumen extend ──
+    // CATATAN: Pakai prefix 'extend' dengan parameter {extendId} agar
+    // tidak bentrok dengan wildcard {id} dari route penyewaan di atas.
+    Route::get('/penyewaan/extend/{extendId}/invoice',    [PenyewaanController::class, 'invoiceExtend'])->name('penyewaan.invoiceExtend');
+    Route::get('/penyewaan/extend/{extendId}/perjanjian', [PenyewaanController::class, 'perjanjianExtend'])->name('penyewaan.perjanjianExtend');
 
 
     // ── Pembelian ──
@@ -56,15 +68,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('pembelian', PembelianController::class);
     Route::get('pembelian/{id}/invoice', [PembelianController::class, 'invoice'])->name('pembelian.invoice');
 
+
     // ── Penjualan ──
     // CATATAN: Route non-resource WAJIB dideklarasikan SEBELUM Route::resource
     // agar tidak ditangkap sebagai wildcard {penjualan}
-
-    Route::get('/penjualan/export',        [PenjualanController::class, 'export'])->name('penjualan.export');
+    Route::get('/penjualan/export', [PenjualanController::class, 'export'])->name('penjualan.export');
     Route::resource('penjualan', PenjualanController::class);
 
     // ── Sub-route penjualan (setelah resource) ──
-    Route::get( '/penjualan/{id}/invoice',                         [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
+    Route::get('/penjualan/{id}/invoice',                          [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
     Route::post('/penjualan/{penjualan}/pembayaran',               [PenjualanController::class, 'tambahPembayaran'])->name('penjualan.tambahPembayaran');
     Route::delete('/penjualan/{penjualan}/pembayaran/{pembayaran}', [PenjualanController::class, 'hapusPembayaran'])->name('penjualan.hapusPembayaran');
     Route::post('/penjualan/{penjualan}/batalkan',                 [PenjualanController::class, 'batalkan'])->name('penjualan.batalkan');
