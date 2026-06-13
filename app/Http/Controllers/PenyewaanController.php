@@ -307,7 +307,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  SELESAIKAN & EXTEND
+    //  SELESAIKAN
     // =========================================================
 
     public function selesaikan(Request $request, string $id)
@@ -350,6 +350,10 @@ class PenyewaanController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Action tidak dikenali.'], 422);
     }
+
+    // =========================================================
+    //  EXTEND — method lama (tetap ada untuk backward compat)
+    // =========================================================
 
     public function extend(Request $request, string $id)
     {
@@ -396,6 +400,81 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
+    //  EXTEND STORE — method baru (dengan file upload + harga)
+    // =========================================================
+
+    public function extendStore(Request $request, string $id)
+    {
+        $penyewaan = Penyewaan::findOrFail($id);
+
+        $request->validate([
+            'tgl_selesai_baru' => [
+                'required',
+                'date',
+                'after:' . $penyewaan->tgl_selesai->format('Y-m-d'),
+            ],
+            'harga_extend'   => 'required|integer|min:0',
+            'metode_bayar'   => 'required|string|max:100',
+            'bukti_transfer' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'catatan'        => 'nullable|string|max:1000',
+        ], [
+            'tgl_selesai_baru.required' => 'Tanggal extend wajib diisi.',
+            'tgl_selesai_baru.after'    => 'Tanggal extend harus setelah deadline saat ini (' . $penyewaan->tgl_selesai->format('d M Y') . ').',
+            'harga_extend.required'     => 'Harga extend wajib diisi.',
+            'harga_extend.min'          => 'Harga extend tidak boleh negatif.',
+            'metode_bayar.required'     => 'Metode pembayaran wajib dipilih.',
+            'bukti_transfer.mimes'      => 'Bukti transfer harus berupa file JPG, PNG, atau PDF.',
+            'bukti_transfer.max'        => 'Ukuran file bukti transfer maksimal 5 MB.',
+        ]);
+
+        $tglLama  = $penyewaan->tgl_selesai->format('d M Y');
+        $tglBaru  = Carbon::parse($request->tgl_selesai_baru)->startOfDay();
+        $tglMulai = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
+
+        $durasiHari = (int) $tglMulai->diffInDays($tglBaru);
+        $sisaBaru   = (int) Carbon::today()->startOfDay()->diffInDays($tglBaru, false);
+        $newStatus  = $sisaBaru > 7 ? 'berjalan' : 'segera_konfirmasi';
+
+        // Simpan bukti transfer jika ada
+        $pathBukti = null;
+        if ($request->hasFile('bukti_transfer')) {
+            $pathBukti = $request->file('bukti_transfer')
+                ->store('penyewaan/extend', 'public');
+        }
+
+        // Update data penyewaan
+        $penyewaan->update([
+            'tgl_selesai' => $tglBaru->format('Y-m-d'),
+            'durasi_hari' => $durasiHari,
+            'status'      => $newStatus,
+        ]);
+
+        // Catat di activity log
+        ActivityLog::record(
+            module:   'Penyewaan',
+            action:   'update',
+            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            oldValue: ['tgl_selesai' => $tglLama],
+            newValue: [
+                'tgl_selesai'  => $tglBaru->format('d M Y'),
+                'durasi'       => $durasiHari . ' hari',
+                'harga_extend' => 'Rp ' . number_format($request->harga_extend, 0, ',', '.'),
+                'metode_bayar' => $request->metode_bayar,
+                'catatan'      => $request->catatan ?? '-',
+            ],
+            pageUrl: 'penyewaan/' . $penyewaan->id . '/extend-store'
+        );
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Deadline berhasil di-extend ke ' . $tglBaru->format('d M Y') . '.',
+            'tgl_baru'   => $tglBaru->format('d M Y'),
+            'durasi'     => $durasiHari,
+            'path_bukti' => $pathBukti,
+        ]);
+    }
+
+    // =========================================================
     //  CREATE & STORE
     // =========================================================
 
@@ -418,10 +497,7 @@ class PenyewaanController extends Controller
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
             'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
-
-            // ✅ PERBAIKAN: bukti_pembayaran adalah file, bukan string
             'bukti_pembayaran'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-
             'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'keterangan'               => 'nullable|string',
             'items'                    => 'required|array|min:1',
@@ -440,22 +516,18 @@ class PenyewaanController extends Controller
             'bukti_pembayaran.max'     => 'Ukuran file bukti pembayaran maksimal 10 MB.',
         ]);
 
-        // Hitung durasi server-side
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']
         );
 
-        // ✅ PERBAIKAN: simpan bukti_pembayaran sebagai file ke storage
         if ($request->hasFile('bukti_pembayaran')) {
             $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
                 ->store('penyewaan/bukti', 'public');
         } else {
-            // Pastikan tidak ada nilai string yang tersimpan
             unset($validated['bukti_pembayaran']);
         }
 
-        // Simpan foto KTP/SIM jika ada
         if ($request->hasFile('foto_ktp_sim')) {
             $validated['foto_ktp_sim'] = $request->file('foto_ktp_sim')
                 ->store('penyewaan/ktp', 'public');
@@ -531,10 +603,7 @@ class PenyewaanController extends Controller
             'biaya_ongkir'             => 'nullable|integer|min:0',
             'diskon_global'            => 'nullable|integer|min:0',
             'metode_pembayaran'        => 'required|in:tunai,transfer,qris',
-
-            // ✅ PERBAIKAN: bukti_pembayaran adalah file, bukan string
             'bukti_pembayaran'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-
             'foto_ktp_sim'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'status'                   => 'required|in:berjalan,segera_konfirmasi,selesai,dibatalkan',
             'keterangan'               => 'nullable|string',
@@ -555,15 +624,12 @@ class PenyewaanController extends Controller
             'bukti_pembayaran.max'     => 'Ukuran file bukti pembayaran maksimal 10 MB.',
         ]);
 
-        // Hitung ulang durasi
         $validated['durasi_hari'] = $this->hitungDurasi(
             $validated['tgl_mulai'],
             $validated['tgl_selesai']
         );
 
-        // ✅ PERBAIKAN: simpan bukti_pembayaran baru & hapus yang lama
         if ($request->hasFile('bukti_pembayaran')) {
-            // Hapus file lama jika ada
             if ($penyewaan->bukti_pembayaran &&
                 \Storage::disk('public')->exists($penyewaan->bukti_pembayaran)) {
                 \Storage::disk('public')->delete($penyewaan->bukti_pembayaran);
@@ -571,11 +637,9 @@ class PenyewaanController extends Controller
             $validated['bukti_pembayaran'] = $request->file('bukti_pembayaran')
                 ->store('penyewaan/bukti', 'public');
         } else {
-            // Tidak ada file baru — jangan overwrite nilai lama
             unset($validated['bukti_pembayaran']);
         }
 
-        // Simpan foto KTP/SIM baru jika ada
         if ($request->hasFile('foto_ktp_sim')) {
             if ($penyewaan->foto_ktp_sim &&
                 \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
@@ -643,13 +707,11 @@ class PenyewaanController extends Controller
             pageUrl: 'penyewaan'
         );
 
-        // Hapus file bukti pembayaran jika ada
         if ($penyewaan->bukti_pembayaran &&
             \Storage::disk('public')->exists($penyewaan->bukti_pembayaran)) {
             \Storage::disk('public')->delete($penyewaan->bukti_pembayaran);
         }
 
-        // Hapus foto KTP/SIM jika ada
         if ($penyewaan->foto_ktp_sim &&
             \Storage::disk('public')->exists($penyewaan->foto_ktp_sim)) {
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);

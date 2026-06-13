@@ -161,7 +161,7 @@
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
 
-    /* ── File badge "Lihat" (dipakai oleh kolom bukti & KTP) ── */
+    /* ── File badge "Lihat" ── */
     .link-badge {
         display:inline-flex; align-items:center; gap:5px;
         background:var(--bg-hover); border:1px solid var(--border);
@@ -235,11 +235,87 @@
     .monitoring-loading i { font-size:32px; display:block; margin-bottom:8px; animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
 
-    .extend-body { padding:18px 22px 10px; }
-    .extend-body label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px; font-weight:500; }
-    .extend-body input[type="date"] { width:100%; height:40px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:14px; padding:0 12px; outline:none; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
-    .extend-body input[type="date"]:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
-    .extend-note { font-size:12px; color:var(--text-muted); margin-top:6px; }
+    /* ===== EXTEND MODAL ===== */
+    .extend-form-group { margin-bottom:14px; }
+    .extend-form-group:last-child { margin-bottom:0; }
+    .extend-form-group label {
+        display:block; font-size:12.5px; font-weight:600;
+        color:var(--text-secondary); margin-bottom:5px;
+    }
+    .extend-form-group input,
+    .extend-form-group select {
+        width:100%; height:40px;
+        border:1px solid var(--border); border-radius:8px;
+        background:var(--bg-primary); color:var(--text-primary);
+        font-size:13.5px; padding:0 12px; outline:none;
+        font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s;
+        box-sizing:border-box;
+    }
+    .extend-form-group input:focus,
+    .extend-form-group select:focus {
+        border-color:var(--brand-500);
+        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
+    }
+    .extend-form-group textarea {
+        width:100%; height:76px;
+        border:1px solid var(--border); border-radius:8px;
+        background:var(--bg-primary); color:var(--text-primary);
+        font-size:13px; padding:10px 12px; outline:none; resize:none;
+        font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s;
+        box-sizing:border-box;
+    }
+    .extend-form-group textarea:focus {
+        border-color:var(--brand-500);
+        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
+    }
+    .extend-form-group .input-prefix-wrap {
+        display:flex; align-items:center;
+        border:1px solid var(--border); border-radius:8px;
+        overflow:hidden; background:var(--bg-primary);
+        transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .extend-form-group .input-prefix-wrap:focus-within {
+        border-color:var(--brand-500);
+        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
+    }
+    .extend-form-group .input-prefix-wrap span {
+        padding:0 10px; font-size:13px; font-weight:600;
+        color:var(--text-muted); background:var(--bg-hover);
+        border-right:1px solid var(--border); white-space:nowrap;
+        height:40px; display:flex; align-items:center;
+    }
+    .extend-form-group .input-prefix-wrap input {
+        border:none; box-shadow:none; border-radius:0; flex:1;
+        height:40px; width:auto;
+    }
+    .extend-form-group .input-prefix-wrap input:focus {
+        border:none; box-shadow:none;
+    }
+    .extend-upload-label {
+        display:flex; align-items:center; justify-content:center;
+        gap:6px; width:100%; height:40px;
+        border:1.5px dashed var(--border); border-radius:8px;
+        background:var(--bg-primary); color:var(--text-muted);
+        font-size:13px; font-weight:500; cursor:pointer;
+        transition:all 0.2s; font-family:var(--font);
+        box-sizing:border-box;
+    }
+    .extend-upload-label:hover {
+        border-color:var(--brand-500); color:var(--brand-500);
+        background:var(--brand-50);
+    }
+    .extend-upload-label i { font-size:16px; }
+    #extendBuktiName {
+        font-size:11.5px; color:var(--text-muted);
+        margin-top:4px; text-align:center;
+    }
+    .extend-info-bar {
+        background:var(--bg-hover); border:1px solid var(--border);
+        border-radius:8px; padding:9px 14px; margin-bottom:16px;
+        font-size:12.5px; color:var(--text-secondary);
+        display:flex; align-items:center; gap:7px;
+    }
+    .extend-info-bar i { color:#F59E0B; font-size:15px; flex-shrink:0; }
 </style>
 @endpush
 
@@ -902,7 +978,7 @@
 
 {{-- ════ MODAL EXTEND ════ --}}
 <div class="modal-overlay" id="modalExtend">
-    <div class="modal modal-sm">
+    <div class="modal modal-sm" style="max-width:500px;">
         <div class="modal-header">
             <span class="modal-title">
                 <i class="ri-calendar-2-line" style="color:#F59E0B;"></i> Extend Deadline
@@ -911,23 +987,64 @@
                 <i class="ri-close-line"></i>
             </button>
         </div>
-        <div class="modal-body">
-            <div class="confirm-box" style="padding-bottom:0;">
-                <p style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:14px;">
-                    Tambahkan deadline baru pada tanggal
-                </p>
+        <div class="modal-body" style="padding:18px 22px;">
+
+            {{-- Info deadline awal --}}
+            <div class="extend-info-bar" id="extendInfoBar">
+                <i class="ri-calendar-event-line"></i>
+                <span id="extendInfoText">Deadline awal: -</span>
             </div>
-            <div class="extend-body" style="padding:0 0 10px 0;">
-                <label>Pilih tanggal extend:</label>
+
+            {{-- Tanggal Extend --}}
+            <div class="extend-form-group">
+                <label><i class="ri-calendar-2-line"></i> Tanggal Extend Baru <span style="color:#EF4444;">*</span></label>
                 <input type="date" id="extendTanggal" min="">
-                <p class="extend-note" id="extendNote">Dihitung dari deadline awal.</p>
             </div>
+
+            {{-- Harga Extend --}}
+            <div class="extend-form-group">
+                <label><i class="ri-money-dollar-circle-line"></i> Harga Extend <span style="color:#EF4444;">*</span></label>
+                <div class="input-prefix-wrap">
+                    <span>Rp</span>
+                    <input type="number" id="extendHarga" placeholder="0" min="0" step="1000">
+                </div>
+            </div>
+
+            {{-- Metode Bayar --}}
+            <div class="extend-form-group">
+                <label><i class="ri-bank-card-line"></i> Metode Pembayaran <span style="color:#EF4444;">*</span></label>
+                <select id="extendMetodeBayar">
+                    <option value="">-- Pilih Metode --</option>
+                    <option value="Tunai">Tunai</option>
+                    <option value="Transfer Bank">Transfer Bank</option>
+                    <option value="QRIS">QRIS</option>
+                </select>
+            </div>
+
+            {{-- Bukti Transfer --}}
+            <div class="extend-form-group">
+                <label><i class="ri-image-line"></i> Bukti Transfer <span style="color:var(--text-muted); font-weight:400;">(opsional)</span></label>
+                <label class="extend-upload-label" for="extendBuktiInput">
+                    <i class="ri-upload-cloud-line"></i>
+                    <span>Pilih File (JPG/PNG/PDF, maks 5MB)</span>
+                </label>
+                <input type="file" id="extendBuktiInput" accept=".jpg,.jpeg,.png,.pdf"
+                       style="display:none;" onchange="onExtendFileChange(this)">
+                <div id="extendBuktiName"></div>
+            </div>
+
+            {{-- Catatan --}}
+            <div class="extend-form-group">
+                <label><i class="ri-sticky-note-line"></i> Catatan <span style="color:var(--text-muted); font-weight:400;">(opsional)</span></label>
+                <textarea id="extendCatatan" placeholder="Catatan tambahan..."></textarea>
+            </div>
+
         </div>
         <div class="modal-footer">
             <button class="btn btn-reset" onclick="closeExtend()">
                 <i class="ri-close-line"></i> Batal
             </button>
-            <button class="btn btn-warning" onclick="doExtend()">
+            <button class="btn btn-warning" id="btnDoExtend" onclick="doExtend()">
                 <i class="ri-calendar-2-line"></i> Simpan Extend
             </button>
         </div>
@@ -1021,7 +1138,7 @@ function previewFile(url, type, title) {
     } else {
         content.innerHTML = `
             <img src="${url}" class="file-preview-img" alt="Preview"
-                 onerror="this.outerHTML='<div style=\'text-align:center;padding:32px;color:var(--text-muted);\'><i class=\'ri-image-2-line\' style=\'font-size:40px;display:block;margin-bottom:8px;\'></i>Gambar tidak dapat dimuat.</div>'">
+                 onerror="this.outerHTML='<div style=\\'text-align:center;padding:32px;color:var(--text-muted);\\'><i class=\\'ri-image-2-line\\' style=\\'font-size:40px;display:block;margin-bottom:8px;\\'></i>Gambar tidak dapat dimuat.</div>'">
             <p class="file-preview-info">
                 <i class="ri-information-line"></i>
                 Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.
@@ -1033,7 +1150,6 @@ function previewFile(url, type, title) {
 
 function closePreviewFile() {
     document.getElementById('modalPreviewFile').classList.remove('open');
-    // Bersihkan iframe/img agar tidak terus loading di background
     setTimeout(() => {
         document.getElementById('previewContent').innerHTML = '';
     }, 200);
@@ -1178,7 +1294,7 @@ function doSelesaikan(action) {
     });
 }
 
-// ── Extend ──
+// ════ EXTEND ════
 function openExtend() {
     closePilihAction();
     if (currentTglSelesai) {
@@ -1186,32 +1302,100 @@ function openExtend() {
         d.setDate(d.getDate() + 1);
         const pad     = n => String(n).padStart(2, '0');
         const minDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
         document.getElementById('extendTanggal').min   = minDate;
         document.getElementById('extendTanggal').value = minDate;
+
+        // Reset semua field form
+        document.getElementById('extendHarga').value           = '';
+        document.getElementById('extendMetodeBayar').value     = '';
+        document.getElementById('extendBuktiInput').value      = '';
+        document.getElementById('extendBuktiName').textContent = '';
+        document.getElementById('extendCatatan').value         = '';
+
         const tglAwal  = new Date(currentTglSelesai + 'T00:00:00');
         const tglLabel = tglAwal.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        document.getElementById('extendNote').textContent = `Deadline awal: ${tglLabel}. Extend dihitung mulai dari tanggal tersebut.`;
+        document.getElementById('extendInfoText').textContent =
+            `Deadline awal: ${tglLabel}. Extend dihitung mulai tanggal tersebut.`;
     }
     document.getElementById('modalExtend').classList.add('open');
 }
-function closeExtend() { document.getElementById('modalExtend').classList.remove('open'); }
+
+function closeExtend() {
+    document.getElementById('modalExtend').classList.remove('open');
+}
+
+function onExtendFileChange(input) {
+    const nameEl = document.getElementById('extendBuktiName');
+    if (input.files && input.files[0]) {
+        nameEl.textContent = '✓ ' + input.files[0].name;
+        nameEl.style.color = 'var(--brand-500)';
+    } else {
+        nameEl.textContent = '';
+    }
+}
 
 function doExtend() {
-    const tglBaru = document.getElementById('extendTanggal').value;
-    if (!tglBaru || !currentPenyewaanId) return;
-    const token = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    fetch(`/penyewaan/${currentPenyewaanId}/extend`, {
+    const tglBaru     = document.getElementById('extendTanggal').value;
+    const harga       = document.getElementById('extendHarga').value;
+    const metodeBayar = document.getElementById('extendMetodeBayar').value;
+    const catatan     = document.getElementById('extendCatatan').value;
+    const fileInput   = document.getElementById('extendBuktiInput');
+
+    if (!tglBaru) {
+        alert('Tanggal extend wajib diisi.');
+        return;
+    }
+    if (harga === '' || Number(harga) < 0) {
+        alert('Harga extend wajib diisi.');
+        return;
+    }
+    if (!metodeBayar) {
+        alert('Metode pembayaran wajib dipilih.');
+        return;
+    }
+    if (!currentPenyewaanId) return;
+
+    const token    = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+    const formData = new FormData();
+    formData.append('_token',           token);
+    formData.append('tgl_selesai_baru', tglBaru);
+    formData.append('harga_extend',     harga);
+    formData.append('metode_bayar',     metodeBayar);
+    formData.append('catatan',          catatan);
+    if (fileInput.files[0]) {
+        formData.append('bukti_transfer', fileInput.files[0]);
+    }
+
+    const btn = document.getElementById('btnDoExtend');
+    btn.disabled    = true;
+    btn.innerHTML   = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Menyimpan...';
+
+    fetch(`/penyewaan/${currentPenyewaanId}/extend-store`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
-        body: JSON.stringify({ tgl_selesai_baru: tglBaru })
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: formData
     })
     .then(r => r.json())
     .then(res => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-calendar-2-line"></i> Simpan Extend';
+
         if (res.success) {
             closeExtend();
             loadMonitoringData();
             setTimeout(() => location.reload(), 500);
+        } else {
+            alert(res.message || 'Gagal menyimpan extend.');
         }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-calendar-2-line"></i> Simpan Extend';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
     });
 }
 
