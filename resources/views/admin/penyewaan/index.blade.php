@@ -739,7 +739,7 @@
     </div>
 </div>
 
-{{-- ════ MODAL SELESAIKAN — Kondisi 1 (durasi > 3) ════ --}}
+{{-- ════ MODAL SELESAIKAN — Kondisi 1 (durasi > 7) ════ --}}
 <div class="modal-overlay" id="modalSelesaikanNormal">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -770,7 +770,7 @@
     </div>
 </div>
 
-{{-- ════ MODAL SELESAIKAN — Kondisi 2 (durasi <= 3) ════ --}}
+{{-- ════ MODAL SELESAIKAN — Kondisi 2 (durasi <= 7) ════ --}}
 <div class="modal-overlay" id="modalKonfirmasiDulu">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -982,20 +982,27 @@ function loadMonitoringData() {
                 </div>`;
             return;
         }
+
         let rows = data.map(d => {
-            // DIUBAH: threshold warning dari <= 3 menjadi <= 7
-            const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
-            const sisaText  = d.sisa_hari <= 0 ? 'Lewat deadline' : d.sisa_hari + ' hari';
-return      `<tr>
+            // ── PERUBAHAN: tampilkan sisa_hari (countdown) bukan durasi_hari (tetap) ──
+            const sisaClass = d.sisa_hari <= 0
+                ? 'sisa-hari-danger'
+                : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
+
+            const sisaText = d.sisa_hari <= 0
+                ? 'Lewat deadline'
+                : (d.sisa_hari === 1 ? 'Besok deadline!' : d.sisa_hari + ' hari lagi');
+
+            return `<tr>
                 <td style="font-weight:600;">${d.nama}</td>
                 <td>${d.nomor_hp}</td>
                 <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.barang}">${d.barang}</td>
                 <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.alamat}">${d.alamat}</td>
-                <td class="center"><span class="${sisaClass}">${d.durasi_hari} hari</span></td>
+                <td class="center"><span class="${sisaClass}">${sisaText}</span></td>
                 <td class="center"><span class="status-badge ${d.status_class}">${d.status_label}</span></td>
                 <td class="center">
                     <button class="btn btn-sm" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
-                            onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai_raw}')"
+                            onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai_raw}')">
                         <i class="ri-check-double-line"></i> Selesaikan
                     </button>
                 </td>
@@ -1011,7 +1018,7 @@ return      `<tr>
                             <th>Nomor HP</th>
                             <th>Barang</th>
                             <th>Alamat</th>
-                            <th class="center">Durasi</th>
+                            <th class="center">Sisa Hari</th>
                             <th class="center">Status</th>
                             <th class="center">Aksi</th>
                         </tr>
@@ -1030,7 +1037,6 @@ function openSelesaikan(id, sisaHari, tglSelesai) {
     currentPenyewaanId = id;
     currentSisaHari    = sisaHari;
     currentTglSelesai  = tglSelesai;
-    // DIUBAH: threshold dari > 3 menjadi > 7
     if (sisaHari > 7) {
         document.getElementById('sisaHariNormal').textContent = sisaHari;
         document.getElementById('modalSelesaikanNormal').classList.add('open');
@@ -1070,7 +1076,6 @@ function doSelesaikan(action) {
 function openExtend() {
     closePilihAction();
     if (currentTglSelesai) {
-        // FIX: tambah T00:00:00 agar browser tidak geser ke hari sebelumnya
         const d = new Date(currentTglSelesai + 'T00:00:00');
         d.setDate(d.getDate() + 1);
         const pad     = n => String(n).padStart(2, '0');
