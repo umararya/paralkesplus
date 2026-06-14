@@ -11,6 +11,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Api\InventoryApiController;
 
 
+
 // ── Auth (Guest only) ──
 Route::middleware('guest')->group(function () {
     Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
@@ -18,10 +19,12 @@ Route::middleware('guest')->group(function () {
 });
 
 
+
 // ── Logout ──
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
+
 
 
 // ── Theme Toggle ──
@@ -31,59 +34,97 @@ Route::post('/theme', function (\Illuminate\Http\Request $request) {
 })->middleware('auth');
 
 
+
 // ── Protected Routes ──
 Route::middleware('auth')->group(function () {
+
 
 
     // ── Dashboard ──
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
-    // ── Penyewaan ──
-    // CATATAN: Route non-resource dengan segment tetap WAJIB dideklarasikan
-    // SEBELUM Route::resource agar tidak ditangkap wildcard {penyewaan}.
-    Route::get('/penyewaan/notifikasi',  [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
-    Route::get('/penyewaan-monitoring',  [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
-    Route::get('/penyewaan/export',      [PenyewaanController::class, 'export'])->name('penyewaan.export');
 
+    // ════════════════════════════════════════════════════════
+    //  PENYEWAAN
+    //  ATURAN URUTAN:
+    //  1. Route statis / fixed segment (tanpa wildcard) → PALING ATAS
+    //  2. Route::resource
+    //  3. Sub-route dengan {id} wildcard
+    // ════════════════════════════════════════════════════════
+
+    // ── 1a. Fixed routes SEBELUM resource (tidak ada {wildcard}) ──
+    Route::get('/penyewaan/notifikasi', [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
+    Route::get('/penyewaan/export',     [PenyewaanController::class, 'export'])->name('penyewaan.export');
+    Route::get('/penyewaan-monitoring', [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
+
+    // ── 1b. Route extend/{extendId} WAJIB sebelum resource ──
+    //        karena jika sesudah resource, '/penyewaan/extend' dibaca
+    //        sebagai penyewaan.show({ penyewaan: 'extend' }) — BENTROK!
+    Route::get('/penyewaan/extend/{extendId}/invoice',
+        [PenyewaanController::class, 'invoiceExtend'])
+        ->name('penyewaan.invoiceExtend');
+
+    Route::get('/penyewaan/extend/{extendId}/perjanjian',
+        [PenyewaanController::class, 'perjanjianExtend'])
+        ->name('penyewaan.perjanjianExtend');
+
+    // ── 2. Resource (otomatis daftarkan index/create/store/show/edit/update/destroy) ──
     Route::resource('penyewaan', PenyewaanController::class);
 
-    // ── Sub-route penyewaan (setelah resource) ──
-    Route::post('/penyewaan/{id}/selesaikan',     [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
-    Route::post('/penyewaan/{id}/extend',          [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
-    Route::post('/penyewaan/{id}/extend-store',    [PenyewaanController::class, 'extendStore'])->name('penyewaan.extendStore');
-    Route::get('/penyewaan/{id}/invoice',          [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
-    Route::get('/penyewaan/{id}/perjanjian',       [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
+    // ── 3. Sub-route dengan {id} wildcard (sesudah resource, aman) ──
+    Route::post('/penyewaan/{id}/selesaikan',
+        [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
 
-    // ── Route cetak dokumen extend ──
-    // CATATAN: Pakai prefix 'extend' dengan parameter {extendId} agar
-    // tidak bentrok dengan wildcard {id} dari route penyewaan di atas.
-    Route::get('/penyewaan/extend/{extendId}/invoice',    [PenyewaanController::class, 'invoiceExtend'])->name('penyewaan.invoiceExtend');
-    Route::get('/penyewaan/extend/{extendId}/perjanjian', [PenyewaanController::class, 'perjanjianExtend'])->name('penyewaan.perjanjianExtend');
+    Route::post('/penyewaan/{id}/extend',
+        [PenyewaanController::class, 'extend'])->name('penyewaan.extend');
+
+    Route::post('/penyewaan/{id}/extend-store',
+        [PenyewaanController::class, 'extendStore'])->name('penyewaan.extendStore');
+
+    Route::get('/penyewaan/{id}/invoice',
+        [PenyewaanController::class, 'invoice'])->name('penyewaan.invoice');
+
+    Route::get('/penyewaan/{id}/perjanjian',
+        [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
 
 
-    // ── Pembelian ──
+
+    // ════════════════════════════════════════════════════════
+    //  PEMBELIAN
+    // ════════════════════════════════════════════════════════
+
     Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])->name('pembelian.buyback.store');
     Route::resource('pembelian', PembelianController::class);
-    Route::get('pembelian/{id}/invoice', [PembelianController::class, 'invoice'])->name('pembelian.invoice');
+    Route::get('/pembelian/{id}/invoice', [PembelianController::class, 'invoice'])->name('pembelian.invoice');
 
 
-    // ── Penjualan ──
-    // CATATAN: Route non-resource WAJIB dideklarasikan SEBELUM Route::resource
-    // agar tidak ditangkap sebagai wildcard {penjualan}
+
+    // ════════════════════════════════════════════════════════
+    //  PENJUALAN
+    // ════════════════════════════════════════════════════════
+
     Route::get('/penjualan/export', [PenjualanController::class, 'export'])->name('penjualan.export');
     Route::resource('penjualan', PenjualanController::class);
 
-    // ── Sub-route penjualan (setelah resource) ──
-    Route::get('/penjualan/{id}/invoice',                          [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
-    Route::post('/penjualan/{penjualan}/pembayaran',               [PenjualanController::class, 'tambahPembayaran'])->name('penjualan.tambahPembayaran');
-    Route::delete('/penjualan/{penjualan}/pembayaran/{pembayaran}', [PenjualanController::class, 'hapusPembayaran'])->name('penjualan.hapusPembayaran');
-    Route::post('/penjualan/{penjualan}/batalkan',                 [PenjualanController::class, 'batalkan'])->name('penjualan.batalkan');
+    Route::get('/penjualan/{id}/invoice',
+        [PenjualanController::class, 'invoice'])->name('penjualan.invoice');
+    Route::post('/penjualan/{penjualan}/pembayaran',
+        [PenjualanController::class, 'tambahPembayaran'])->name('penjualan.tambahPembayaran');
+    Route::delete('/penjualan/{penjualan}/pembayaran/{pembayaran}',
+        [PenjualanController::class, 'hapusPembayaran'])->name('penjualan.hapusPembayaran');
+    Route::post('/penjualan/{penjualan}/batalkan',
+        [PenjualanController::class, 'batalkan'])->name('penjualan.batalkan');
 
 
-    // ── Inventory ──
+
+    // ════════════════════════════════════════════════════════
+    //  INVENTORY
+    // ════════════════════════════════════════════════════════
+
     Route::resource('inventory', InventoryController::class);
+
 
 
     // ── Inventory API ──
@@ -93,7 +134,11 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    // ── Owner Routes ──
+
+    // ════════════════════════════════════════════════════════
+    //  OWNER ROUTES
+    // ════════════════════════════════════════════════════════
+
     Route::middleware('owner.only')->prefix('owner')->name('owner.')->group(function () {
         Route::get('/user-login',           [OwnerController::class, 'userLogin'])->name('user-login');
         Route::post('/user-login',          [OwnerController::class, 'userLoginStore'])->name('user-login.store');
@@ -105,7 +150,9 @@ Route::middleware('auth')->group(function () {
     });
 
 
+
 });
+
 
 
 // ── Root redirect ──

@@ -41,14 +41,23 @@ class Penyewaan extends Model
         'total_harga_sewa' => 'integer',
     ];
 
-    /* ── Relasi ── */
+    /* ─────────────────────────────────────────────
+     |  RELASI
+     ───────────────────────────────────────────── */
 
     public function details(): HasMany
     {
         return $this->hasMany(DetailPenyewaan::class);
     }
 
-    /* ── Accessors ── */
+    public function extends(): HasMany
+    {
+        return $this->hasMany(PenyewaanExtend::class, 'penyewaan_id')->latest();
+    }
+
+    /* ─────────────────────────────────────────────
+     |  ACCESSORS
+     ───────────────────────────────────────────── */
 
     /**
      * Durasi hari — SELALU ambil dari kolom DB (nilai tetap saat input).
@@ -62,13 +71,11 @@ class Penyewaan extends Model
      */
     public function getDurasiHariAttribute(): int
     {
-        // Prioritas 1: pakai nilai raw dari kolom DB
         $raw = $this->attributes['durasi_hari'] ?? null;
         if (!is_null($raw) && (int) $raw > 0) {
             return (int) $raw;
         }
 
-        // Prioritas 2: fallback hitung dari tanggal (data lama / migrasi)
         if ($this->tgl_mulai && $this->tgl_selesai) {
             $start = Carbon::parse($this->tgl_mulai->format('Y-m-d'))->startOfDay();
             $end   = Carbon::parse($this->tgl_selesai->format('Y-m-d'))->startOfDay();
@@ -82,9 +89,6 @@ class Penyewaan extends Model
      * Sisa hari sampai tgl_selesai (negatif = sudah lewat).
      * Ini BOLEH dinamis — memang tugasnya menghitung mundur tiap hari.
      * Dipakai HANYA di: monitoring modal, notifikasi, logika syncStatus().
-     *
-     * FIX: parse dari string Y-m-d agar tidak kena offset UTC,
-     * lalu bandingkan dengan today() tanpa komponen waktu.
      */
     public function getSisaHariAttribute(): int
     {

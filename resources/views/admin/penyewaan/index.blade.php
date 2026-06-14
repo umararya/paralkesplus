@@ -106,10 +106,11 @@
     .dropdown-item { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:7px; font-size:13px; font-weight:500; color:var(--text-primary); text-decoration:none; cursor:pointer; border:none; background:none; width:100%; font-family:var(--font); transition:background 0.15s; }
     .dropdown-item:hover { background:var(--bg-hover); }
     .dropdown-item i { font-size:16px; width:18px; text-align:center; }
-    .dropdown-item.item-edit i   { color:var(--brand-500); }
-    .dropdown-item.item-invoice i { color:#16A34A; }
-    .dropdown-item.item-perjanjian i { color:#7C3AED; }
-    .dropdown-item.item-delete i { color:#EF4444; }
+    .dropdown-item.item-edit i      { color:var(--brand-500); }
+    .dropdown-item.item-invoice i   { color:#16A34A; }
+    .dropdown-item.item-perjanjian i{ color:#7C3AED; }
+    .dropdown-item.item-show i      { color:#F59E0B; }
+    .dropdown-item.item-delete i    { color:#EF4444; }
     .dropdown-item.item-delete:hover { background:#FFF1F2; color:#DC2626; }
     html.dark .dropdown-item.item-delete:hover { background:rgba(225,29,72,0.1); color:#FB7185; }
     .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
@@ -316,6 +317,51 @@
         display:flex; align-items:center; gap:7px;
     }
     .extend-info-bar i { color:#F59E0B; font-size:15px; flex-shrink:0; }
+
+    /* ===== MODAL SUKSES EXTEND ===== */
+    .extend-sukses-box { text-align:center; padding:8px 0 4px; }
+    .extend-sukses-box .sukses-icon {
+        width:60px; height:60px; border-radius:50%;
+        background:#F0FDF4; border:2px solid #BBF7D0;
+        display:inline-flex; align-items:center; justify-content:center;
+        margin-bottom:12px;
+    }
+    .extend-sukses-box .sukses-icon i { font-size:30px; color:#16A34A; }
+    .extend-sukses-box h3 { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+    .extend-sukses-box p { font-size:13px; color:var(--text-muted); line-height:1.6; }
+    .extend-sukses-info {
+        display:flex; flex-direction:column; gap:6px;
+        background:var(--bg-hover); border:1px solid var(--border);
+        border-radius:10px; padding:12px 16px; margin:14px 0;
+        text-align:left;
+    }
+    .extend-sukses-info-row {
+        display:flex; justify-content:space-between; align-items:center;
+        font-size:13px;
+    }
+    .extend-sukses-info-row .label { color:var(--text-muted); }
+    .extend-sukses-info-row .value { font-weight:700; color:var(--text-primary); }
+    .extend-sukses-info-row .value.highlight { color:#F59E0B; }
+    .extend-cetak-row {
+        display:flex; gap:8px; margin-top:4px;
+    }
+    .extend-cetak-row a {
+        flex:1; display:inline-flex; align-items:center; justify-content:center;
+        gap:6px; height:40px; border-radius:8px; font-size:13px; font-weight:600;
+        text-decoration:none; transition:all 0.2s;
+    }
+    .btn-cetak-invoice {
+        background:#F0FDF4; color:#16A34A;
+        border:1.5px solid #BBF7D0;
+    }
+    .btn-cetak-invoice:hover { background:#DCFCE7; border-color:#86EFAC; }
+    .btn-cetak-perjanjian {
+        background:#F5F3FF; color:#7C3AED;
+        border:1.5px solid #DDD6FE;
+    }
+    .btn-cetak-perjanjian:hover { background:#EDE9FE; border-color:#C4B5FD; }
+    html.dark .btn-cetak-invoice { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
+    html.dark .btn-cetak-perjanjian { background:rgba(124,58,237,0.12); color:#A78BFA; border-color:rgba(124,58,237,0.25); }
 </style>
 @endpush
 
@@ -635,7 +681,7 @@
                     <td class="center">
                         @if($item->bukti_pembayaran)
                             @php
-                                $ext = strtolower(pathinfo($item->bukti_pembayaran, PATHINFO_EXTENSION));
+                                $ext   = strtolower(pathinfo($item->bukti_pembayaran, PATHINFO_EXTENSION));
                                 $isPdf = $ext === 'pdf';
                             @endphp
                             <button type="button"
@@ -657,7 +703,7 @@
                     <td class="center">
                         @if($item->foto_ktp_sim)
                             @php
-                                $ktpExt = strtolower(pathinfo($item->foto_ktp_sim, PATHINFO_EXTENSION));
+                                $ktpExt   = strtolower(pathinfo($item->foto_ktp_sim, PATHINFO_EXTENSION));
                                 $ktpIsPdf = $ktpExt === 'pdf';
                             @endphp
                             <button type="button"
@@ -695,6 +741,10 @@
                                 <i class="ri-more-2-fill"></i>
                             </button>
                             <div class="dropdown-menu-aksi">
+                                <a href="{{ route('penyewaan.show', $item->id) }}"
+                                   class="dropdown-item item-show">
+                                    <i class="ri-eye-line"></i> Detail & Extend
+                                </a>
                                 <a href="{{ route('penyewaan.edit', $item->id) }}"
                                    class="dropdown-item item-edit">
                                     <i class="ri-edit-line"></i> Edit Data
@@ -1051,6 +1101,62 @@
     </div>
 </div>
 
+{{-- ════ MODAL SUKSES EXTEND ════ --}}
+<div class="modal-overlay" id="modalSuksesExtend">
+    <div class="modal modal-sm" style="max-width:460px;">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-checkbox-circle-line" style="color:#16A34A;"></i> Extend Berhasil
+            </span>
+            <button class="modal-close" onclick="closeSuksesExtend()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="padding:20px 22px;">
+            <div class="extend-sukses-box">
+                <div class="sukses-icon">
+                    <i class="ri-checkbox-circle-fill"></i>
+                </div>
+                <h3>Perpanjangan Berhasil Disimpan!</h3>
+                <p>Data perpanjangan telah tersimpan dan deadline penyewaan telah diperbarui.</p>
+            </div>
+
+            {{-- Info ringkasan --}}
+            <div class="extend-sukses-info">
+                <div class="extend-sukses-info-row">
+                    <span class="label">Deadline Baru</span>
+                    <span class="value highlight" id="suksesExtendTglBaru">—</span>
+                </div>
+                <div class="extend-sukses-info-row">
+                    <span class="label">Tambah Durasi</span>
+                    <span class="value" id="suksesExtendTambahHari">—</span>
+                </div>
+            </div>
+
+            {{-- Tombol Cetak --}}
+            <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:8px;">
+                Cetak dokumen perpanjangan:
+            </p>
+            <div class="extend-cetak-row">
+                <a id="linkCetakInvoiceExtend" href="#" target="_blank" class="btn-cetak-invoice">
+                    <i class="ri-receipt-line"></i> Invoice Extend
+                </a>
+                <a id="linkCetakPerjanjianExtend" href="#" target="_blank" class="btn-cetak-perjanjian">
+                    <i class="ri-file-text-line"></i> Perjanjian Extend
+                </a>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+            <button class="btn btn-ghost" onclick="closeSuksesExtend()">
+                <i class="ri-close-line"></i> Tutup
+            </button>
+            <button class="btn btn-primary" onclick="closeSuksesExtend(); location.reload();">
+                <i class="ri-refresh-line"></i> Refresh Halaman
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -1335,6 +1441,26 @@ function onExtendFileChange(input) {
     }
 }
 
+// ════ SUKSES EXTEND ════
+function openSuksesExtend(extendId, tglBaru, tambahHari) {
+    const baseUrl = '{{ url("penyewaan/extend") }}';
+
+    document.getElementById('suksesExtendTglBaru').textContent    = tglBaru;
+    document.getElementById('suksesExtendTambahHari').textContent = tambahHari + ' hari';
+    document.getElementById('linkCetakInvoiceExtend').href        = `${baseUrl}/${extendId}/invoice`;
+    document.getElementById('linkCetakPerjanjianExtend').href     = `${baseUrl}/${extendId}/perjanjian`;
+
+    document.getElementById('modalSuksesExtend').classList.add('open');
+}
+
+function closeSuksesExtend() {
+    document.getElementById('modalSuksesExtend').classList.remove('open');
+}
+
+document.getElementById('modalSuksesExtend').addEventListener('click', function(e) {
+    if (e.target === this) closeSuksesExtend();
+});
+
 function doExtend() {
     const tglBaru     = document.getElementById('extendTanggal').value;
     const harga       = document.getElementById('extendHarga').value;
@@ -1368,8 +1494,8 @@ function doExtend() {
     }
 
     const btn = document.getElementById('btnDoExtend');
-    btn.disabled    = true;
-    btn.innerHTML   = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Menyimpan...';
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Menyimpan...';
 
     fetch(`/penyewaan/${currentPenyewaanId}/extend-store`, {
         method: 'POST',
@@ -1387,7 +1513,8 @@ function doExtend() {
         if (res.success) {
             closeExtend();
             loadMonitoringData();
-            setTimeout(() => location.reload(), 500);
+            // Buka modal sukses dengan tombol cetak
+            openSuksesExtend(res.extend_id, res.tgl_baru, res.tambah_hari);
         } else {
             alert(res.message || 'Gagal menyimpan extend.');
         }
@@ -1409,6 +1536,7 @@ document.addEventListener('keydown', function(e) {
         closeKonfirmasiDulu();
         closePilihAction();
         closeExtend();
+        closeSuksesExtend();
         closeAllDropdowns();
     }
 });
