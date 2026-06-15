@@ -88,6 +88,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewaan/{id}/perjanjian',
         [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
 
+    // ── Batalkan & Restore (baru) ──
+    Route::post('/penyewaan/{id}/batalkan',
+        [PenyewaanController::class, 'batalkan'])->name('penyewaan.batalkan');
+
+    Route::post('/penyewaan/{id}/restore',
+        [PenyewaanController::class, 'restore'])->name('penyewaan.restore');
+
 
 
     // ════════════════════════════════════════════════════════

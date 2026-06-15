@@ -21,7 +21,8 @@ class PenyewaanController extends Controller
 
     private function syncStatus(Penyewaan $item): void
     {
-        if ($item->status === 'selesai' || $item->status === 'dibatalkan') return;
+        // Skip jika sudah final
+        if (in_array($item->status, ['selesai', 'dibatalkan'])) return;
 
         $sisaHari = $item->sisa_hari;
 
@@ -56,6 +57,26 @@ class PenyewaanController extends Controller
                 $inv = Inventory::find($detail->inventory_id);
                 if ($inv) {
                     $inv->tambahStok($detail->qty, 'bekas', true);
+                }
+            }
+        }
+    }
+
+    // =========================================================
+    //  PRIVATE HELPER — kurangi stok (saat restore)
+    // =========================================================
+
+    private function kurangiStokPenyewaan(Penyewaan $penyewaan): void
+    {
+        if (! $penyewaan->relationLoaded('details')) {
+            $penyewaan->load('details');
+        }
+
+        foreach ($penyewaan->details as $detail) {
+            if ($detail->inventory_id) {
+                $inv = Inventory::find($detail->inventory_id);
+                if ($inv) {
+                    $inv->kurangiStok($detail->qty, $detail->kondisi ?? 'baru', true);
                 }
             }
         }
@@ -161,35 +182,27 @@ class PenyewaanController extends Controller
 
     // =========================================================
     //  PRIVATE HELPER — validasi stok sebelum store/update
-    //  Return: array of error messages, kosong = OK
     // =========================================================
 
     private function validateStok(array $items, ?int $excludePenyewaanId = null): array
     {
-        $errors = [];
-
-        // Hitung total qty yang diminta per inventory_id dalam request ini
-        // (handle kasus item yang sama muncul dua kali di form)
+        $errors    = [];
         $requested = [];
+
         foreach ($items as $item) {
             $invId   = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
             $kondisi = in_array($item['kondisi'] ?? '', ['baru', 'bekas']) ? $item['kondisi'] : 'baru';
             $qty     = max(1, (int) ($item['qty'] ?? 1));
-
             if (!$invId) continue;
-
             $key = $invId . '_' . $kondisi;
             $requested[$key] = ($requested[$key] ?? 0) + $qty;
         }
 
         foreach ($requested as $key => $totalQtyDiminta) {
             [$invId, $kondisi] = explode('_', $key, 2);
-
             $inv = Inventory::find((int) $invId);
             if (!$inv) continue;
 
-            // Hitung qty yang sudah dipakai penyewaan lain (aktif)
-            // Jika update, kecualikan penyewaan yang sedang diedit
             $qtyDipakai = 0;
             if ($excludePenyewaanId) {
                 $qtyDipakai = DetailPenyewaan::where('inventory_id', $invId)
@@ -208,10 +221,9 @@ class PenyewaanController extends Controller
                     ->sum('qty');
             }
 
-            // Stok yang benar-benar tersedia
-            $stokField    = $kondisi === 'baru' ? 'stok_baru' : 'stok_bekas';
-            $stokTotal    = (int) ($inv->$stokField ?? 0);
-            $stokAktual   = max(0, $stokTotal - $qtyDipakai);
+            $stokField  = $kondisi === 'baru' ? 'stok_baru' : 'stok_bekas';
+            $stokTotal  = (int) ($inv->$stokField ?? 0);
+            $stokAktual = max(0, $stokTotal - $qtyDipakai);
 
             if ($totalQtyDiminta > $stokAktual) {
                 $errors[] = "Stok {$kondisi} \"{$inv->nama_produk}\" tidak cukup. "
@@ -231,11 +243,12 @@ class PenyewaanController extends Controller
         $search   = $request->input('search', '');
         $dateFrom = $request->input('date_from', '');
         $dateTo   = $request->input('date_to', '');
-        $status   = $request->input('status', '');   // ← tambahan filter status (No.5)
+        $status   = $request->input('status', '');
         $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
                     ? (int) $request->input('per_page')
                     : 10;
 
+        // Sync status aktif (skip dibatalkan otomatis di syncStatus)
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
         foreach ($aktif as $item) {
             $this->syncStatus($item);
@@ -260,14 +273,13 @@ class PenyewaanController extends Controller
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('tgl_mulai', '<=', $dateTo);
             })
-            ->when($status, function ($q) use ($status) {    // ← filter status (No.5)
+            ->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
-        // Hitung badge count tiap status untuk chip filter (No.5)
         $statusCounts = [
             'semua'             => Penyewaan::count(),
             'berjalan'          => Penyewaan::where('status', 'berjalan')->count(),
@@ -330,12 +342,9 @@ class PenyewaanController extends Controller
             'items.*.harga_satuan'=> 'required|integer|min:0',
         ]);
 
-        // ── Validasi stok (No. 3) ──────────────────────────────
         $stokErrors = $this->validateStok($request->items);
         if (!empty($stokErrors)) {
-            return back()
-                ->withInput()
-                ->withErrors(['stok' => $stokErrors]);
+            return back()->withInput()->withErrors(['stok' => $stokErrors]);
         }
 
         $tglMulai   = Carbon::parse($request->tgl_mulai)->startOfDay();
@@ -344,12 +353,12 @@ class PenyewaanController extends Controller
         $sisaHari   = (int) Carbon::today()->startOfDay()->diffInDays($tglSelesai, false);
         $status     = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
 
-        $buktiPath  = $request->hasFile('bukti_pembayaran')
-                      ? $request->file('bukti_pembayaran')->store('penyewaan/bukti', 'public')
-                      : null;
-        $ktpPath    = $request->hasFile('foto_ktp_sim')
-                      ? $request->file('foto_ktp_sim')->store('penyewaan/ktp', 'public')
-                      : null;
+        $buktiPath = $request->hasFile('bukti_pembayaran')
+                     ? $request->file('bukti_pembayaran')->store('penyewaan/bukti', 'public')
+                     : null;
+        $ktpPath   = $request->hasFile('foto_ktp_sim')
+                     ? $request->file('foto_ktp_sim')->store('penyewaan/ktp', 'public')
+                     : null;
 
         $penyewaan = Penyewaan::create([
             'nama_penyewa'         => $request->nama_penyewa,
@@ -429,12 +438,9 @@ class PenyewaanController extends Controller
             'items.*.harga_satuan'=> 'required|integer|min:0',
         ]);
 
-        // ── Validasi stok (No. 3) — kecualikan penyewaan yang sedang diedit ──
         $stokErrors = $this->validateStok($request->items, (int) $id);
         if (!empty($stokErrors)) {
-            return back()
-                ->withInput()
-                ->withErrors(['stok' => $stokErrors]);
+            return back()->withInput()->withErrors(['stok' => $stokErrors]);
         }
 
         $tglMulai   = Carbon::parse($request->tgl_mulai)->startOfDay();
@@ -442,7 +448,7 @@ class PenyewaanController extends Controller
         $durasiHari = (int) $tglMulai->diffInDays($tglSelesai);
         $sisaHari   = (int) Carbon::today()->startOfDay()->diffInDays($tglSelesai, false);
 
-        if ($penyewaan->status !== 'selesai' && $penyewaan->status !== 'dibatalkan') {
+        if (! in_array($penyewaan->status, ['selesai', 'dibatalkan'])) {
             $status = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
         } else {
             $status = $penyewaan->status;
@@ -521,10 +527,14 @@ class PenyewaanController extends Controller
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }
 
-        foreach ($penyewaan->details as $detail) {
-            if ($detail->inventory_id && in_array($penyewaan->status, ['berjalan', 'segera_konfirmasi'])) {
-                $inv = Inventory::find($detail->inventory_id);
-                if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
+        // Stok hanya dikembalikan jika status AKTIF
+        // (jika dibatalkan, stok sudah dikembalikan saat batalkan)
+        if (in_array($penyewaan->status, ['berjalan', 'segera_konfirmasi'])) {
+            foreach ($penyewaan->details as $detail) {
+                if ($detail->inventory_id) {
+                    $inv = Inventory::find($detail->inventory_id);
+                    if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
+                }
             }
         }
 
@@ -541,6 +551,103 @@ class PenyewaanController extends Controller
 
         return redirect()->route('penyewaan.index')
                          ->with('success', 'Data penyewaan berhasil dihapus.');
+    }
+
+    // =========================================================
+    //  BATALKAN
+    // =========================================================
+
+    public function batalkan(Request $request, string $id)
+    {
+        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+
+        if ($penyewaan->status === 'dibatalkan') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Penyewaan ini sudah berstatus dibatalkan.',
+            ], 422);
+        }
+
+        $request->validate([
+            'alasan_batal' => 'required|string|max:1000',
+        ]);
+
+        $statusLama = $penyewaan->status;
+
+        $penyewaan->update([
+            'status'        => 'dibatalkan',
+            'alasan_batal'  => $request->alasan_batal,
+            'dibatalkan_at' => now(),
+        ]);
+
+        // Kembalikan stok jika sebelumnya aktif
+        if (in_array($statusLama, ['berjalan', 'segera_konfirmasi'])) {
+            $this->kembalikanStok($penyewaan);
+        }
+
+        ActivityLog::record(
+            module:   'Penyewaan',
+            action:   'update',
+            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            oldValue: ['status' => $statusLama],
+            newValue: [
+                'status'       => 'dibatalkan',
+                'alasan_batal' => $request->alasan_batal,
+                'dibatalkan_at'=> now()->format('d M Y H:i'),
+            ],
+            pageUrl: 'penyewaan/' . $penyewaan->id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Penyewaan berhasil dibatalkan.',
+        ]);
+    }
+
+    // =========================================================
+    //  RESTORE (PULIHKAN)
+    // =========================================================
+
+    public function restore(Request $request, string $id)
+    {
+        $penyewaan = Penyewaan::with('details')->findOrFail($id);
+
+        if ($penyewaan->status !== 'dibatalkan') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Penyewaan ini tidak berstatus dibatalkan.',
+            ], 422);
+        }
+
+        // Tentukan status yang tepat berdasarkan sisa hari
+        $sisaHari  = $penyewaan->sisa_hari;
+        $newStatus = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
+
+        $penyewaan->update([
+            'status'        => $newStatus,
+            'alasan_batal'  => null,
+            'dibatalkan_at' => null,
+        ]);
+
+        // Kurangi stok kembali karena penyewaan aktif lagi
+        $this->kurangiStokPenyewaan($penyewaan);
+
+        ActivityLog::record(
+            module:   'Penyewaan',
+            action:   'update',
+            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            oldValue: ['status' => 'dibatalkan'],
+            newValue: [
+                'status'    => $newStatus,
+                'dipulihkan'=> now()->format('d M Y H:i'),
+            ],
+            pageUrl: 'penyewaan/' . $penyewaan->id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Penyewaan berhasil dipulihkan dengan status ' . $newStatus . '.',
+        ]);
     }
 
     // =========================================================
@@ -738,7 +845,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  EXTEND STORE — simpan ke tabel penyewaan_extends
+    //  EXTEND STORE
     // =========================================================
 
     public function extendStore(Request $request, string $id)
@@ -828,42 +935,28 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  INVOICE EXTEND — cetak invoice perpanjangan
+    //  CETAK DOKUMEN
     // =========================================================
 
     public function invoiceExtend(string $extendId)
     {
         $extend    = PenyewaanExtend::with('penyewaan.details')->findOrFail($extendId);
         $penyewaan = $extend->penyewaan;
-
         return view('admin.penyewaan.cetak.invoice_extend', compact('extend', 'penyewaan'));
     }
-
-    // =========================================================
-    //  PERJANJIAN EXTEND — cetak perjanjian perpanjangan
-    // =========================================================
 
     public function perjanjianExtend(string $extendId)
     {
         $extend    = PenyewaanExtend::with('penyewaan.details')->findOrFail($extendId);
         $penyewaan = $extend->penyewaan;
-
         return view('admin.penyewaan.cetak.perjanjian_extend', compact('extend', 'penyewaan'));
     }
-
-    // =========================================================
-    //  INVOICE — cetak invoice awal
-    // =========================================================
 
     public function invoice(string $id)
     {
         $penyewaan = Penyewaan::with('details.inventory')->findOrFail($id);
         return view('admin.penyewaan.cetak.invoice', compact('penyewaan'));
     }
-
-    // =========================================================
-    //  PERJANJIAN — cetak perjanjian awal
-    // =========================================================
 
     public function perjanjian(string $id)
     {

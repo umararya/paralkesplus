@@ -6,169 +6,89 @@
 
 @push('styles')
 <style>
-    /* ── PAGE LAYOUT ── */
     .detail-page { display:flex; flex-direction:column; gap:20px; }
-    .page-header-bar {
-        display:flex; align-items:center; justify-content:space-between;
-        flex-wrap:wrap; gap:12px; margin-bottom:4px;
-    }
-    .page-back-btn {
-        display:inline-flex; align-items:center; gap:6px;
-        height:36px; padding:0 14px; border-radius:8px;
-        font-size:13px; font-weight:500; color:var(--text-secondary);
-        border:1px solid var(--border); background:var(--bg-card);
-        text-decoration:none; transition:all 0.2s;
-    }
+    .page-header-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:4px; }
+    .page-back-btn { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:8px; font-size:13px; font-weight:500; color:var(--text-secondary); border:1px solid var(--border); background:var(--bg-card); text-decoration:none; transition:all 0.2s; }
     .page-back-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .page-title-row { display:flex; align-items:center; gap:10px; }
+    .page-title-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .page-title-row h1 { font-size:20px; font-weight:700; color:var(--text-primary); }
     .page-title-row i  { font-size:22px; color:var(--brand-500); }
     .page-action-row   { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-
-    /* ── CARD ── */
-    .detail-card {
-        background:var(--bg-card); border:1px solid var(--border);
-        border-radius:14px; box-shadow:var(--shadow); overflow:hidden;
-    }
-    .detail-card-header {
-        padding:14px 20px; border-bottom:1px solid var(--border);
-        display:flex; align-items:center; justify-content:space-between;
-        background:var(--bg-primary);
-    }
-    .detail-card-title {
-        font-size:13px; font-weight:700; text-transform:uppercase;
-        letter-spacing:0.7px; color:var(--text-muted);
-        display:flex; align-items:center; gap:7px;
-    }
+    .detail-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); overflow:hidden; }
+    .detail-card-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--bg-primary); }
+    .detail-card-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-muted); display:flex; align-items:center; gap:7px; }
     .detail-card-title i { font-size:16px; color:var(--brand-500); }
     .detail-card-body { padding:18px 20px; }
-
-    /* ── INFO GRID ── */
-    .info-grid {
-        display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-        gap:14px;
-    }
+    .info-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
     .info-item {}
-    .info-label {
-        font-size:11px; font-weight:700; text-transform:uppercase;
-        letter-spacing:0.6px; color:var(--text-muted); margin-bottom:4px;
-    }
-    .info-value {
-        font-size:13.5px; font-weight:600; color:var(--text-primary);
-        line-height:1.5;
-    }
+    .info-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); margin-bottom:4px; }
+    .info-value { font-size:13.5px; font-weight:600; color:var(--text-primary); line-height:1.5; }
     .info-value.muted { font-weight:400; color:var(--text-secondary); }
 
-    /* ── STATUS BADGE ── */
-    .status-badge {
-        display:inline-flex; align-items:center; gap:4px;
-        padding:4px 12px; border-radius:99px; font-size:12.5px; font-weight:700;
-    }
+    /* ── Status badge ── */
+    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:99px; font-size:12.5px; font-weight:700; }
     .status-berjalan   { background:#F0FDF4; color:#16A34A; }
     .status-konfirmasi { background:#FFFBEB; color:#B45309; }
     .status-selesai    { background:#F0F9FF; color:#0369A1; }
+    .status-dibatalkan { background:#FFF1F2; color:#BE123C; border:1px solid #FECDD3; }
     html.dark .status-berjalan   { background:rgba(22,163,74,0.12); color:#4ADE80; }
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
+    html.dark .status-dibatalkan { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
 
-    /* ── DETAIL TABLE (items alkes) ── */
+    /* ── Dibatalkan banner ── */
+    .batal-banner { display:flex; align-items:flex-start; gap:12px; background:#FFF1F2; border:1px solid #FECDD3; border-radius:10px; padding:14px 18px; }
+    html.dark .batal-banner { background:rgba(190,18,60,0.08); border-color:rgba(190,18,60,0.2); }
+    .batal-banner i { font-size:22px; color:#BE123C; flex-shrink:0; margin-top:1px; }
+    html.dark .batal-banner i { color:#FB7185; }
+    .batal-banner-title { font-size:13.5px; font-weight:700; color:#BE123C; margin-bottom:3px; }
+    html.dark .batal-banner-title { color:#FB7185; }
+    .batal-banner-alasan { font-size:13px; color:#9F1239; line-height:1.5; }
+    html.dark .batal-banner-alasan { color:#FDA4AF; }
+
+    /* ── Items table ── */
     .items-table { width:100%; border-collapse:collapse; }
     .items-table thead tr { background:var(--bg-primary); border-bottom:2px solid var(--border); }
-    .items-table th {
-        padding:9px 14px; font-size:10.5px; font-weight:700;
-        text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted);
-        white-space:nowrap; text-align:left;
-    }
+    .items-table th { padding:9px 14px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); white-space:nowrap; text-align:left; }
     .items-table th.right, .items-table td.right { text-align:right; }
     .items-table th.center, .items-table td.center { text-align:center; }
-    .items-table td {
-        padding:10px 14px; font-size:13px; color:var(--text-primary);
-        border-bottom:1px solid var(--border); vertical-align:middle;
-    }
+    .items-table td { padding:10px 14px; font-size:13px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
     .items-table tbody tr:last-child td { border-bottom:none; }
     .items-table tbody tr:hover td { background:var(--bg-hover); }
-    .items-table tfoot td {
-        padding:10px 14px; font-size:13px; font-weight:700;
-        border-top:2px solid var(--border);
-    }
+    .items-table tfoot td { padding:10px 14px; font-size:13px; font-weight:700; border-top:2px solid var(--border); }
     .kondisi-badge-baru  { background:#F0FDF4; color:#16A34A; border-radius:5px; padding:2px 8px; font-size:11.5px; font-weight:600; }
     .kondisi-badge-bekas { background:#FFF7ED; color:#C2410C; border-radius:5px; padding:2px 8px; font-size:11.5px; font-weight:600; }
 
-    /* ── FILE PREVIEW ── */
     .file-thumb-wrap { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .file-thumb-btn {
-        display:inline-flex; align-items:center; gap:5px;
-        height:34px; padding:0 12px; border-radius:7px;
-        font-size:12.5px; font-weight:500;
-        background:var(--bg-hover); color:var(--text-secondary);
-        border:1px solid var(--border); cursor:pointer;
-        text-decoration:none; transition:all 0.2s; font-family:var(--font);
-    }
+    .file-thumb-btn { display:inline-flex; align-items:center; gap:5px; height:34px; padding:0 12px; border-radius:7px; font-size:12.5px; font-weight:500; background:var(--bg-hover); color:var(--text-secondary); border:1px solid var(--border); cursor:pointer; text-decoration:none; transition:all 0.2s; font-family:var(--font); }
     .file-thumb-btn:hover { background:var(--brand-50); color:var(--brand-500); border-color:var(--brand-200); }
     .file-thumb-btn i { font-size:14px; }
 
-    /* ── RINGKASAN BIAYA ── */
-    .biaya-summary {
-        display:flex; flex-direction:column; gap:0;
-        border:1px solid var(--border); border-radius:10px; overflow:hidden;
-        max-width:340px; margin-left:auto;
-    }
-    .biaya-row {
-        display:flex; justify-content:space-between; align-items:center;
-        padding:9px 14px; font-size:13px; border-bottom:1px solid var(--border);
-    }
+    .biaya-summary { display:flex; flex-direction:column; gap:0; border:1px solid var(--border); border-radius:10px; overflow:hidden; max-width:340px; margin-left:auto; }
+    .biaya-row { display:flex; justify-content:space-between; align-items:center; padding:9px 14px; font-size:13px; border-bottom:1px solid var(--border); }
     .biaya-row:last-child { border-bottom:none; }
     .biaya-row .bl { color:var(--text-muted); }
     .biaya-row .bv { font-weight:600; color:var(--text-primary); }
     .biaya-row.total { background:var(--brand-500); }
-    .biaya-row.total .bl,
-    .biaya-row.total .bv { color:#fff; font-weight:700; font-size:13.5px; }
+    .biaya-row.total .bl, .biaya-row.total .bv { color:#fff; font-weight:700; font-size:13.5px; }
 
-    /* ══════════════════════════════════════
-       RIWAYAT EXTEND TABLE
-    ══════════════════════════════════════ */
+    /* ── Extend table ── */
     .extend-table { width:100%; border-collapse:collapse; font-size:13px; }
     .extend-table thead tr { background:var(--bg-primary); border-bottom:2px solid var(--border); }
-    .extend-table th {
-        padding:9px 14px; font-size:10.5px; font-weight:700;
-        text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted);
-        white-space:nowrap; text-align:left;
-    }
+    .extend-table th { padding:9px 14px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); white-space:nowrap; text-align:left; }
     .extend-table th.center, .extend-table td.center { text-align:center; }
-    .extend-table td {
-        padding:10px 14px; color:var(--text-primary);
-        border-bottom:1px solid var(--border); vertical-align:middle;
-    }
+    .extend-table td { padding:10px 14px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
     .extend-table tbody tr:last-child td { border-bottom:none; }
     .extend-table tbody tr:hover td { background:var(--bg-hover); }
-
-    .extend-no-badge {
-        display:inline-flex; align-items:center; gap:4px;
-        background:var(--brand-50); color:var(--brand-500);
-        border:1px solid var(--brand-100); border-radius:6px;
-        padding:2px 9px; font-size:11.5px; font-weight:700;
-    }
-    html.dark .extend-no-badge {
-        background:rgba(29,111,164,0.12); color:#60A5FA;
-        border-color:rgba(29,111,164,0.25);
-    }
+    .extend-no-badge { display:inline-flex; align-items:center; gap:4px; background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); border-radius:6px; padding:2px 9px; font-size:11.5px; font-weight:700; }
+    html.dark .extend-no-badge { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
     .extend-tgl-lama { color:var(--text-muted); text-decoration:line-through; font-size:12px; }
     .extend-tgl-baru { font-weight:700; color:#F59E0B; }
-    .extend-tambah-hari {
-        display:inline-flex; align-items:center;
-        background:#FEF3C7; color:#92400E;
-        border-radius:6px; padding:2px 8px;
-        font-size:12px; font-weight:700;
-    }
+    .extend-tambah-hari { display:inline-flex; align-items:center; background:#FEF3C7; color:#92400E; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:700; }
     html.dark .extend-tambah-hari { background:rgba(146,64,14,0.18); color:#FCD34D; }
     .extend-harga { font-weight:700; color:var(--text-primary); }
     .extend-cetak-wrap { display:flex; gap:5px; justify-content:center; }
-    .btn-cetak-sm {
-        display:inline-flex; align-items:center; gap:4px;
-        height:30px; padding:0 10px; border-radius:6px;
-        font-size:11.5px; font-weight:600; text-decoration:none;
-        transition:all 0.2s; white-space:nowrap;
-    }
+    .btn-cetak-sm { display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 10px; border-radius:6px; font-size:11.5px; font-weight:600; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
     .btn-cetak-sm i { font-size:13px; }
     .btn-inv  { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }
     .btn-inv:hover  { background:#DCFCE7; }
@@ -176,31 +96,41 @@
     .btn-perj:hover { background:#EDE9FE; }
     html.dark .btn-inv  { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
     html.dark .btn-perj { background:rgba(124,58,237,0.12); color:#A78BFA; border-color:rgba(124,58,237,0.25); }
-
-    .extend-empty {
-        text-align:center; padding:36px 24px; color:var(--text-muted);
-    }
+    .extend-empty { text-align:center; padding:36px 24px; color:var(--text-muted); }
     .extend-empty i { font-size:36px; display:block; margin-bottom:8px; color:var(--border); }
     .extend-empty p { font-size:13px; }
 
-    /* ── MODAL BASE (Preview File) ── */
+    /* ── Modal base ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; animation:slideUp 0.2s ease; }
+    .modal-sm { max-width:420px; }
     .modal-md { max-width:600px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
     .modal-header { padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:14px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:7px; }
     .modal-close { width:28px; height:28px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
     .modal-close:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .modal-body { padding:16px; }
+    .modal-body { padding:18px 22px; }
+    .modal-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:flex-end; gap:8px; }
     .file-preview-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
     .file-preview-img  { max-width:100%; max-height:70vh; border-radius:8px; border:1px solid var(--border); object-fit:contain; }
     .file-preview-pdf  { width:100%; height:70vh; border:1px solid var(--border); border-radius:8px; }
     .file-preview-info { font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
 
-    /* Btn util */
+    /* ── Modal Batalkan/Restore ── */
+    .batal-icon-wrap   { width:48px; height:48px; border-radius:50%; background:#FFF1F2; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .restore-icon-wrap { width:48px; height:48px; border-radius:50%; background:#FFFBEB; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .form-group-modal  { display:flex; flex-direction:column; gap:6px; margin-top:14px; }
+    .form-label-modal  { font-size:13px; font-weight:600; color:var(--text-primary); }
+    .form-label-modal .req { color:#EF4444; margin-left:2px; }
+    .textarea-modal { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); outline:none; resize:vertical; min-height:80px; font-family:var(--font); box-sizing:border-box; transition:border-color 0.2s, box-shadow 0.2s; }
+    .textarea-modal:focus { border-color:#BE123C; box-shadow:0 0 0 3px rgba(190,18,60,0.08); }
+    .field-error { font-size:12px; color:#EF4444; display:none; align-items:center; gap:4px; margin-top:3px; }
+    .field-error.show { display:flex; }
+
+    /* ── Btn util ── */
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 14px; height:36px; border-radius:8px; font-size:13px; font-weight:500; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
     .btn i { font-size:15px; }
     .btn-ghost   { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
@@ -213,6 +143,10 @@
     .btn-success:hover { background:#15803D; }
     .btn-purple  { background:#7C3AED; color:#fff; border:1px solid #7C3AED; }
     .btn-purple:hover  { background:#6D28D9; }
+    .btn-danger  { background:#EF4444; color:#fff; border:1px solid #EF4444; }
+    .btn-danger:hover  { background:#DC2626; }
+    .btn-reset   { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+    .btn-reset:hover   { background:var(--bg-hover); color:var(--text-primary); }
 </style>
 @endpush
 
@@ -229,9 +163,15 @@
             <div class="page-title-row">
                 <i class="ri-store-2-line"></i>
                 <h1>Detail Penyewaan</h1>
-                <span class="status-badge {{ $penyewaan->status_class }}">
-                    {{ $penyewaan->status_label }}
-                </span>
+                @if($penyewaan->status === 'dibatalkan')
+                    <span class="status-badge status-dibatalkan">
+                        <i class="ri-close-circle-line"></i> Dibatalkan
+                    </span>
+                @else
+                    <span class="status-badge {{ $penyewaan->status_class }}">
+                        {{ $penyewaan->status_label }}
+                    </span>
+                @endif
             </div>
         </div>
         <div class="page-action-row">
@@ -247,8 +187,41 @@
                class="btn btn-primary">
                 <i class="ri-edit-line"></i> Edit
             </a>
+
+            {{-- Batalkan / Pulihkan --}}
+            @if($penyewaan->status !== 'dibatalkan')
+                <button type="button" class="btn btn-danger"
+                        onclick="openBatalModal()">
+                    <i class="ri-forbid-line"></i> Batalkan
+                </button>
+            @else
+                <button type="button" class="btn btn-warning"
+                        onclick="openRestoreModal()">
+                    <i class="ri-refresh-line"></i> Pulihkan
+                </button>
+            @endif
         </div>
     </div>
+
+    {{-- ══ BANNER DIBATALKAN ══ --}}
+    @if($penyewaan->status === 'dibatalkan')
+    <div class="batal-banner">
+        <i class="ri-forbid-line"></i>
+        <div>
+            <div class="batal-banner-title">
+                Penyewaan ini telah dibatalkan
+                @if($penyewaan->dibatalkan_at)
+                    pada {{ \Carbon\Carbon::parse($penyewaan->dibatalkan_at)->translatedFormat('d F Y, H:i') }} WIB
+                @endif
+            </div>
+            @if($penyewaan->alasan_batal)
+                <div class="batal-banner-alasan">
+                    <strong>Alasan:</strong> {{ $penyewaan->alasan_batal }}
+                </div>
+            @endif
+        </div>
+    </div>
+    @endif
 
     {{-- ══ CARD: DATA PENYEWA ══ --}}
     <div class="detail-card">
@@ -290,7 +263,6 @@
                 </div>
             </div>
 
-            {{-- Foto KTP/SIM --}}
             @if($penyewaan->foto_ktp_sim)
             <div style="margin-top:14px;">
                 <div class="info-label" style="margin-bottom:6px;">Foto KTP / SIM</div>
@@ -340,13 +312,17 @@
                 <div class="info-item">
                     <div class="info-label">Sisa Hari</div>
                     <div class="info-value">
-                        @php $sisaHari = $penyewaan->sisa_hari; @endphp
-                        @if($sisaHari <= 0)
-                            <span style="color:#DC2626; font-weight:700;">Lewat deadline</span>
-                        @elseif($sisaHari <= 7)
-                            <span style="color:#B45309; font-weight:700;">{{ $sisaHari }} hari lagi</span>
+                        @if($penyewaan->status === 'dibatalkan')
+                            <span style="color:var(--text-muted); font-style:italic;">—</span>
                         @else
-                            <span style="color:#16A34A; font-weight:700;">{{ $sisaHari }} hari lagi</span>
+                            @php $sisaHari = $penyewaan->sisa_hari; @endphp
+                            @if($sisaHari <= 0)
+                                <span style="color:#DC2626; font-weight:700;">Lewat deadline</span>
+                            @elseif($sisaHari <= 7)
+                                <span style="color:#B45309; font-weight:700;">{{ $sisaHari }} hari lagi</span>
+                            @else
+                                <span style="color:#16A34A; font-weight:700;">{{ $sisaHari }} hari lagi</span>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -365,9 +341,15 @@
                 <div class="info-item">
                     <div class="info-label">Status</div>
                     <div class="info-value">
-                        <span class="status-badge {{ $penyewaan->status_class }}">
-                            {{ $penyewaan->status_label }}
-                        </span>
+                        @if($penyewaan->status === 'dibatalkan')
+                            <span class="status-badge status-dibatalkan">
+                                <i class="ri-close-circle-line"></i> Dibatalkan
+                            </span>
+                        @else
+                            <span class="status-badge {{ $penyewaan->status_class }}">
+                                {{ $penyewaan->status_label }}
+                            </span>
+                        @endif
                     </div>
                 </div>
                 @if($penyewaan->keterangan)
@@ -378,7 +360,6 @@
                 @endif
             </div>
 
-            {{-- Bukti Pembayaran --}}
             @if($penyewaan->bukti_pembayaran)
             <div style="margin-top:14px;">
                 <div class="info-label" style="margin-bottom:6px;">Bukti Pembayaran</div>
@@ -398,7 +379,7 @@
         </div>
     </div>
 
-    {{-- ══ CARD: DETAIL ALAT KESEHATAN ══ --}}
+    {{-- ══ CARD: ALAT KESEHATAN ══ --}}
     <div class="detail-card">
         <div class="detail-card-header">
             <span class="detail-card-title">
@@ -458,7 +439,6 @@
                 </tfoot>
             </table>
 
-            {{-- Ringkasan Biaya --}}
             <div style="padding:14px 20px;">
                 <div class="biaya-summary">
                     <div class="biaya-row">
@@ -487,7 +467,6 @@
             </div>
 
             @else
-            {{-- Legacy --}}
             <div style="padding:20px;">
                 <div class="info-label" style="margin-bottom:4px;">Produk (Legacy)</div>
                 <div class="info-value">{{ $penyewaan->produk_alkes ?? '—' }}</div>
@@ -528,12 +507,8 @@
                 <tbody>
                     @foreach($penyewaan->extends as $i => $ext)
                     <tr>
-                        <td class="center" style="color:var(--text-muted); font-size:12px;">
-                            {{ $i + 1 }}
-                        </td>
-                        <td>
-                            <span class="extend-no-badge">{{ $ext->nomor_extend }}</span>
-                        </td>
+                        <td class="center" style="color:var(--text-muted); font-size:12px;">{{ $i + 1 }}</td>
+                        <td><span class="extend-no-badge">{{ $ext->nomor_extend }}</span></td>
                         <td style="white-space:nowrap; font-size:12.5px;">
                             {{ $ext->created_at->translatedFormat('d M Y') }}
                         </td>
@@ -557,7 +532,8 @@
                         <td>
                             @if($ext->bukti_transfer)
                                 @php $extFile = strtolower(pathinfo($ext->bukti_transfer, PATHINFO_EXTENSION)); @endphp
-                                <button type="button" class="file-thumb-btn" style="height:28px; padding:0 10px; font-size:12px;"
+                                <button type="button" class="file-thumb-btn"
+                                        style="height:28px; padding:0 10px; font-size:12px;"
                                         onclick="previewFile(
                                             '{{ asset('storage/' . $ext->bukti_transfer) }}',
                                             '{{ $extFile === 'pdf' ? 'pdf' : 'image' }}',
@@ -579,13 +555,13 @@
                         <td class="center">
                             <div class="extend-cetak-wrap">
                                 <a href="{{ route('penyewaan.invoiceExtend', $ext->id) }}"
-                        target="_blank" class="btn-cetak-sm btn-inv">
-                            <i class="ri-receipt-line"></i> Inv
-                        </a>
-                        <a href="{{ route('penyewaan.perjanjianExtend', $ext->id) }}"
-                        target="_blank" class="btn-cetak-sm btn-perj">
-                            <i class="ri-file-text-line"></i> Perj
-                        </a>
+                                   target="_blank" class="btn-cetak-sm btn-inv">
+                                    <i class="ri-receipt-line"></i> Inv
+                                </a>
+                                <a href="{{ route('penyewaan.perjanjianExtend', $ext->id) }}"
+                                   target="_blank" class="btn-cetak-sm btn-perj">
+                                    <i class="ri-file-text-line"></i> Perj
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -602,6 +578,7 @@
     </div>
 
 </div>{{-- /detail-page --}}
+
 
 {{-- ════ MODAL PREVIEW FILE ════ --}}
 <div class="modal-overlay" id="modalPreviewFile">
@@ -626,48 +603,220 @@
     </div>
 </div>
 
+{{-- ════ MODAL BATALKAN ════ --}}
+<div class="modal-overlay" id="modalBatalkan">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-forbid-line" style="color:#BE123C;"></i> Batalkan Penyewaan
+            </span>
+            <button class="modal-close" onclick="closeBatalModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:4px;">
+                <div class="batal-icon-wrap">
+                    <i class="ri-forbid-line" style="font-size:22px;color:#BE123C;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">
+                        Batalkan penyewaan ini?
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);">
+                        a.n. <strong style="color:var(--text-primary);">{{ $penyewaan->nama_penyewa }}</strong>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:10px 0 0;">
+                Status akan berubah ke <strong style="color:#BE123C;">Dibatalkan</strong>.
+                Stok alat akan dikembalikan otomatis. Data <strong>tidak dihapus</strong> dan masih bisa dipulihkan kapan saja.
+            </p>
+            <div class="form-group-modal">
+                <label class="form-label-modal">Alasan Pembatalan <span class="req">*</span></label>
+                <textarea id="inputAlasanBatal"
+                          class="textarea-modal"
+                          placeholder="Contoh: Penyewa membatalkan permintaan karena kebutuhan sudah tidak ada..."></textarea>
+                <div class="field-error" id="alasanBatalError">
+                    <i class="ri-error-warning-line"></i> Alasan pembatalan wajib diisi.
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-reset" onclick="closeBatalModal()">
+                <i class="ri-close-line"></i> Tidak, Kembali
+            </button>
+            <button type="button" class="btn btn-danger" id="btnSubmitBatal" onclick="submitBatal()">
+                <i class="ri-forbid-line"></i> Ya, Batalkan
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ════ MODAL PULIHKAN ════ --}}
+<div class="modal-overlay" id="modalRestore">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-refresh-line" style="color:#B45309;"></i> Pulihkan Penyewaan
+            </span>
+            <button class="modal-close" onclick="closeRestoreModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:4px;">
+                <div class="restore-icon-wrap">
+                    <i class="ri-refresh-line" style="font-size:22px;color:#B45309;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">
+                        Pulihkan penyewaan ini?
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);">
+                        a.n. <strong style="color:var(--text-primary);">{{ $penyewaan->nama_penyewa }}</strong>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:10px 0 0;">
+                Status akan dikembalikan ke <strong style="color:#16A34A;">Berjalan</strong>
+                dan stok alat akan dikurangi kembali. Pastikan stok masih mencukupi sebelum memulihkan.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-reset" onclick="closeRestoreModal()">
+                <i class="ri-close-line"></i> Tidak, Kembali
+            </button>
+            <button type="button" class="btn btn-warning" id="btnSubmitRestore" onclick="submitRestore()">
+                <i class="ri-refresh-line"></i> Ya, Pulihkan
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
+// ── Preview File ──
 function previewFile(url, type, title) {
     document.getElementById('previewModalTitle').innerHTML =
         `<i class="ri-${type === 'pdf' ? 'file-pdf-line' : 'image-line'}"
              style="${type === 'pdf' ? 'color:#EF4444;' : 'color:var(--brand-500);'}"></i> ${title}`;
-
     document.getElementById('previewDownloadBtn').href = url;
-
     const content = document.getElementById('previewContent');
     if (type === 'pdf') {
         content.innerHTML = `
             <iframe src="${url}" class="file-preview-pdf" title="Preview PDF"></iframe>
-            <p class="file-preview-info">
-                <i class="ri-information-line"></i>
-                Jika PDF tidak tampil, klik tombol <strong>Buka di Tab Baru</strong>.
-            </p>`;
+            <p class="file-preview-info"><i class="ri-information-line"></i> Jika PDF tidak tampil, klik tombol <strong>Buka di Tab Baru</strong>.</p>`;
     } else {
         content.innerHTML = `
             <img src="${url}" class="file-preview-img" alt="Preview"
                  onerror="this.outerHTML='<div style=\\'text-align:center;padding:32px;color:var(--text-muted);\\'><i class=\\'ri-image-2-line\\' style=\\'font-size:40px;display:block;margin-bottom:8px;\\'></i>Gambar tidak dapat dimuat.</div>'">
-            <p class="file-preview-info">
-                <i class="ri-information-line"></i>
-                Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.
-            </p>`;
+            <p class="file-preview-info"><i class="ri-information-line"></i> Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.</p>`;
     }
     document.getElementById('modalPreviewFile').classList.add('open');
 }
-
 function closePreviewFile() {
     document.getElementById('modalPreviewFile').classList.remove('open');
     setTimeout(() => { document.getElementById('previewContent').innerHTML = ''; }, 200);
 }
-
 document.getElementById('modalPreviewFile').addEventListener('click', function(e) {
     if (e.target === this) closePreviewFile();
 });
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closePreviewFile();
+// ── Batalkan ──
+function openBatalModal() {
+    document.getElementById('inputAlasanBatal').value = '';
+    document.getElementById('alasanBatalError').classList.remove('show');
+    document.getElementById('modalBatalkan').classList.add('open');
+}
+function closeBatalModal() { document.getElementById('modalBatalkan').classList.remove('open'); }
+function submitBatal() {
+    const alasan = document.getElementById('inputAlasanBatal').value.trim();
+    const errEl  = document.getElementById('alasanBatalError');
+    if (!alasan) { errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+
+    const btn = document.getElementById('btnSubmitBatal');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Memproses...';
+
+    fetch(`/penyewaan/{{ $penyewaan->id }}/batalkan`, {
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept'       : 'application/json',
+        },
+        body: JSON.stringify({ alasan_batal: alasan }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan';
+        closeBatalModal();
+        if (data.success) {
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert(data.message || 'Gagal membatalkan penyewaan.');
+        }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
+    });
+}
+document.getElementById('modalBatalkan').addEventListener('click', function(e) {
+    if (e.target === this) closeBatalModal();
 });
+
+// ── Pulihkan ──
+function openRestoreModal() { document.getElementById('modalRestore').classList.add('open'); }
+function closeRestoreModal() { document.getElementById('modalRestore').classList.remove('open'); }
+function submitRestore() {
+    const btn = document.getElementById('btnSubmitRestore');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Memproses...';
+
+    fetch(`/penyewaan/{{ $penyewaan->id }}/restore`, {
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept'       : 'application/json',
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-refresh-line"></i> Ya, Pulihkan';
+        closeRestoreModal();
+        if (data.success) {
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert(data.message || 'Gagal memulihkan penyewaan.');
+        }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-refresh-line"></i> Ya, Pulihkan';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
+    });
+}
+document.getElementById('modalRestore').addEventListener('click', function(e) {
+    if (e.target === this) closeRestoreModal();
+});
+
+// ── Escape key ──
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    closePreviewFile();
+    closeBatalModal();
+    closeRestoreModal();
+});
+
+@keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
 </script>
 @endpush

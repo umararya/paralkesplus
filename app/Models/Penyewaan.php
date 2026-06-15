@@ -30,11 +30,14 @@ class Penyewaan extends Model
         'foto_ktp_sim',
         'status',
         'keterangan',
+        'alasan_batal',    // ← baru
+        'dibatalkan_at',   // ← baru
     ];
 
     protected $casts = [
         'tgl_mulai'        => 'date',
         'tgl_selesai'      => 'date',
+        'dibatalkan_at'    => 'datetime',  // ← baru
         'durasi_hari'      => 'integer',
         'biaya_ongkir'     => 'integer',
         'diskon_global'    => 'integer',
@@ -164,7 +167,7 @@ class Penyewaan extends Model
             'berjalan'          => 'status-berjalan',
             'segera_konfirmasi' => 'status-konfirmasi',
             'selesai'           => 'status-selesai',
-            'dibatalkan'        => 'status-selesai',
+            'dibatalkan'        => 'status-dibatalkan',   // ← fix: sebelumnya 'status-selesai'
             default             => 'status-berjalan',
         };
     }

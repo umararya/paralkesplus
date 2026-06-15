@@ -50,7 +50,7 @@
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
-    /* ── Status Filter Chips (No.5) ── */
+    /* ── Status Filter Chips ── */
     .status-filter-bar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .status-filter-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px; }
     .status-filter-label i { font-size:13px; color:var(--brand-500); }
@@ -123,6 +123,10 @@
     .data-table tbody tr:hover td { background:var(--bg-hover); }
     .data-table th.center, .data-table td.center { text-align:center; }
 
+    /* ── Row dibatalkan: visual redup ── */
+    .data-table tbody tr.row-dibatalkan td { opacity:0.65; }
+    .data-table tbody tr.row-dibatalkan:hover td { opacity:1; background:var(--bg-hover); }
+
     /* ── DROPDOWN AKSI ── */
     .action-wrap { position:relative; display:inline-block; }
     .btn-aksi-toggle { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
@@ -133,13 +137,19 @@
     .dropdown-item { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:7px; font-size:13px; font-weight:500; color:var(--text-primary); text-decoration:none; cursor:pointer; border:none; background:none; width:100%; font-family:var(--font); transition:background 0.15s; }
     .dropdown-item:hover { background:var(--bg-hover); }
     .dropdown-item i { font-size:16px; width:18px; text-align:center; }
-    .dropdown-item.item-edit i      { color:var(--brand-500); }
-    .dropdown-item.item-invoice i   { color:#16A34A; }
-    .dropdown-item.item-perjanjian i{ color:#7C3AED; }
-    .dropdown-item.item-show i      { color:#F59E0B; }
-    .dropdown-item.item-delete i    { color:#EF4444; }
+    .dropdown-item.item-edit i       { color:var(--brand-500); }
+    .dropdown-item.item-invoice i    { color:#16A34A; }
+    .dropdown-item.item-perjanjian i { color:#7C3AED; }
+    .dropdown-item.item-show i       { color:#F59E0B; }
+    .dropdown-item.item-delete i     { color:#EF4444; }
     .dropdown-item.item-delete:hover { background:#FFF1F2; color:#DC2626; }
     html.dark .dropdown-item.item-delete:hover { background:rgba(225,29,72,0.1); color:#FB7185; }
+    .dropdown-item.item-batal i      { color:#BE123C; }
+    .dropdown-item.item-batal:hover  { background:#FFF1F2; color:#BE123C; }
+    html.dark .dropdown-item.item-batal:hover { background:rgba(190,18,60,0.1); color:#FB7185; }
+    .dropdown-item.item-restore i    { color:#B45309; }
+    .dropdown-item.item-restore:hover { background:#FFFBEB; color:#B45309; }
+    html.dark .dropdown-item.item-restore:hover { background:rgba(180,83,9,0.1); color:#FCD34D; }
     .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
@@ -159,7 +169,7 @@
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
 
-    /* ===== MODAL BASE ===== */
+    /* ═══ MODAL BASE ═══ */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0}to{opacity:1} }
@@ -180,14 +190,16 @@
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
-    /* Status badge */
+    /* ── Status badge ── */
     .status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:600; white-space:nowrap; }
-    .status-berjalan   { background:#F0FDF4; color:#16A34A; }
-    .status-konfirmasi { background:#FFFBEB; color:#B45309; }
-    .status-selesai    { background:#F0F9FF; color:#0369A1; }
+    .status-berjalan    { background:#F0FDF4; color:#16A34A; }
+    .status-konfirmasi  { background:#FFFBEB; color:#B45309; }
+    .status-selesai     { background:#F0F9FF; color:#0369A1; }
+    .status-dibatalkan  { background:#FFF1F2; color:#BE123C; border:1px solid #FECDD3; }
     html.dark .status-berjalan   { background:rgba(22,163,74,0.12); color:#4ADE80; }
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
+    html.dark .status-dibatalkan { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
 
     /* ── File badge ── */
     .link-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:500; color:var(--text-secondary); text-decoration:none; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:var(--font); }
@@ -216,7 +228,7 @@
     html.dark .produk-list-item .qty-badge { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
     .produk-list-fallback { font-size:13px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
 
-    /* ===== MONITORING MODAL ===== */
+    /* ═══ MONITORING MODAL ═══ */
     .monitoring-table { width:100%; border-collapse:collapse; font-size:13px; }
     .monitoring-table th { padding:9px 12px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); background:var(--bg-primary); border-bottom:2px solid var(--border); white-space:nowrap; }
     .monitoring-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
@@ -226,7 +238,7 @@
     .sisa-hari-warning { font-weight:700; color:#B45309; }
     .sisa-hari-danger  { font-weight:700; color:#DC2626; }
 
-    /* ===== SELESAIKAN MODAL ===== */
+    /* ═══ SELESAIKAN MODAL ═══ */
     .confirm-box { text-align:center; padding:10px 0 6px; }
     .confirm-box i { font-size:44px; color:#7C3AED; display:block; margin-bottom:10px; }
     .confirm-box h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
@@ -245,7 +257,7 @@
     .monitoring-loading i { font-size:32px; display:block; margin-bottom:8px; animation:spin 1s linear infinite; }
     @keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
 
-    /* ===== EXTEND MODAL ===== */
+    /* ═══ EXTEND MODAL ═══ */
     .extend-form-group { margin-bottom:14px; }
     .extend-form-group:last-child { margin-bottom:0; }
     .extend-form-group label { display:block; font-size:12.5px; font-weight:600; color:var(--text-secondary); margin-bottom:5px; }
@@ -265,7 +277,7 @@
     .extend-info-bar { background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; padding:9px 14px; margin-bottom:16px; font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:7px; }
     .extend-info-bar i { color:#F59E0B; font-size:15px; flex-shrink:0; }
 
-    /* ===== MODAL SUKSES EXTEND ===== */
+    /* ═══ MODAL SUKSES EXTEND ═══ */
     .extend-sukses-box { text-align:center; padding:8px 0 4px; }
     .extend-sukses-box .sukses-icon { width:60px; height:60px; border-radius:50%; background:#F0FDF4; border:2px solid #BBF7D0; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; }
     .extend-sukses-box .sukses-icon i { font-size:30px; color:#16A34A; }
@@ -284,6 +296,17 @@
     .btn-cetak-perjanjian:hover { background:#EDE9FE; border-color:#C4B5FD; }
     html.dark .btn-cetak-invoice { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
     html.dark .btn-cetak-perjanjian { background:rgba(124,58,237,0.12); color:#A78BFA; border-color:rgba(124,58,237,0.25); }
+
+    /* ── Modal Batalkan/Restore ── */
+    .batal-icon-wrap { width:48px; height:48px; border-radius:50%; background:#FFF1F2; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .restore-icon-wrap { width:48px; height:48px; border-radius:50%; background:#FFFBEB; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .form-group-modal { display:flex; flex-direction:column; gap:6px; margin-top:14px; }
+    .form-label-modal { font-size:13px; font-weight:600; color:var(--text-primary); }
+    .form-label-modal .req { color:#EF4444; margin-left:2px; }
+    .textarea-modal { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg-primary); color:var(--text-primary); outline:none; resize:vertical; min-height:80px; font-family:var(--font); box-sizing:border-box; transition:border-color 0.2s, box-shadow 0.2s; }
+    .textarea-modal:focus { border-color:#BE123C; box-shadow:0 0 0 3px rgba(190,18,60,0.08); }
+    .field-error { font-size:12px; color:#EF4444; display:none; align-items:center; gap:4px; margin-top:3px; }
+    .field-error.show { display:flex; }
 </style>
 @endpush
 
@@ -373,7 +396,7 @@
         </div>
     </div>
 
-    {{-- ══ STATUS FILTER CHIPS (No.5) ══ --}}
+    {{-- ══ STATUS FILTER CHIPS ══ --}}
     <div class="status-filter-bar">
         <span class="status-filter-label">
             <i class="ri-filter-3-line"></i> Status
@@ -434,13 +457,11 @@
                 <input type="date" name="date_from" id="inputDateFrom"
                        class="date-input {{ $dateFrom ? 'active' : '' }}"
                        value="{{ $dateFrom }}"
-                       title="Dari tanggal"
                        onchange="document.getElementById('dateFilterForm').submit()">
                 <span class="date-sep">—</span>
                 <input type="date" name="date_to" id="inputDateTo"
                        class="date-input {{ $dateTo ? 'active' : '' }}"
                        value="{{ $dateTo }}"
-                       title="Sampai tanggal"
                        onchange="document.getElementById('dateFilterForm').submit()">
             </div>
 
@@ -456,7 +477,6 @@
             @endif
         </form>
 
-        {{-- Shortcut Cepat --}}
         <div class="date-shortcuts">
             <span>Cepat:</span>
             <button type="button" class="shortcut-btn" onclick="setDateRange('today')">Hari ini</button>
@@ -479,15 +499,13 @@
                 <div class="export-filter-group">
                     <label class="export-filter-label">Dari Tanggal</label>
                     <input type="date" name="date_from" class="export-filter-input"
-                           value="{{ $dateFrom }}"
-                           style="width:150px;">
+                           value="{{ $dateFrom }}" style="width:150px;">
                 </div>
 
                 <div class="export-filter-group">
                     <label class="export-filter-label">Sampai Tanggal</label>
                     <input type="date" name="date_to" class="export-filter-input"
-                           value="{{ $dateTo }}"
-                           style="width:150px;">
+                           value="{{ $dateTo }}" style="width:150px;">
                 </div>
 
                 <div class="export-filter-group">
@@ -583,7 +601,7 @@
             </thead>
             <tbody>
                 @forelse($penyewaans as $item)
-                <tr>
+                <tr class="{{ $item->status === 'dibatalkan' ? 'row-dibatalkan' : '' }}">
                     <td style="color:var(--text-muted);font-size:12px;font-weight:500;">
                         {{ $penyewaans->firstItem() + $loop->index }}
                     </td>
@@ -604,7 +622,7 @@
                         </a>
                     </td>
 
-                    {{-- ══ KOLOM PRODUK ══ --}}
+                    {{-- ══ PRODUK ══ --}}
                     <td>
                         @php $details = $item->details; @endphp
                         @if($details->isNotEmpty())
@@ -652,15 +670,14 @@
                         </span>
                     </td>
 
-                    {{-- ══ KOLOM BUKTI PEMBAYARAN ══ --}}
+                    {{-- ══ BUKTI PEMBAYARAN ══ --}}
                     <td class="center">
                         @if($item->bukti_pembayaran)
                             @php
                                 $ext   = strtolower(pathinfo($item->bukti_pembayaran, PATHINFO_EXTENSION));
                                 $isPdf = $ext === 'pdf';
                             @endphp
-                            <button type="button"
-                                    class="link-badge bukti"
+                            <button type="button" class="link-badge"
                                     onclick="previewFile(
                                         '{{ asset('storage/' . $item->bukti_pembayaran) }}',
                                         '{{ $isPdf ? 'pdf' : 'image' }}',
@@ -674,15 +691,14 @@
                         @endif
                     </td>
 
-                    {{-- ══ KOLOM FOTO KTP/SIM ══ --}}
+                    {{-- ══ FOTO KTP/SIM ══ --}}
                     <td class="center">
                         @if($item->foto_ktp_sim)
                             @php
                                 $ktpExt   = strtolower(pathinfo($item->foto_ktp_sim, PATHINFO_EXTENSION));
                                 $ktpIsPdf = $ktpExt === 'pdf';
                             @endphp
-                            <button type="button"
-                                    class="link-badge"
+                            <button type="button" class="link-badge"
                                     onclick="previewFile(
                                         '{{ asset('storage/' . $item->foto_ktp_sim) }}',
                                         '{{ $ktpIsPdf ? 'pdf' : 'image' }}',
@@ -696,18 +712,26 @@
                         @endif
                     </td>
 
+                    {{-- ══ STATUS ══ --}}
                     <td class="center">
-                        <span class="status-badge {{ $item->status_class }}">
-                            {{ $item->status_label }}
-                        </span>
+                        @if($item->status === 'dibatalkan')
+                            <span class="status-badge status-dibatalkan">
+                                <i class="ri-close-circle-line"></i> Dibatalkan
+                            </span>
+                        @else
+                            <span class="status-badge {{ $item->status_class }}">
+                                {{ $item->status_label }}
+                            </span>
+                        @endif
                     </td>
+
                     <td style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
                                color:var(--text-muted); font-size:12.5px;"
                         title="{{ $item->keterangan }}">
                         {{ $item->keterangan ?: '—' }}
                     </td>
 
-                    {{-- ── KOLOM AKSI: DROPDOWN ── --}}
+                    {{-- ══ AKSI DROPDOWN ══ --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button class="btn-aksi-toggle"
@@ -736,6 +760,22 @@
                                     <i class="ri-file-text-line"></i> Cetak Perjanjian
                                 </a>
                                 <div class="dropdown-divider"></div>
+
+                                {{-- ── Batalkan / Pulihkan ── --}}
+                                @if($item->status !== 'dibatalkan')
+                                    <button type="button"
+                                            class="dropdown-item item-batal"
+                                            onclick="closeAllDropdowns(); openBatalModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
+                                        <i class="ri-forbid-line"></i> Batalkan
+                                    </button>
+                                @else
+                                    <button type="button"
+                                            class="dropdown-item item-restore"
+                                            onclick="closeAllDropdowns(); openRestoreModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
+                                        <i class="ri-refresh-line"></i> Pulihkan
+                                    </button>
+                                @endif
+
                                 <button type="button"
                                         class="dropdown-item item-delete"
                                         onclick="closeAllDropdowns(); openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_penyewa) }}')">
@@ -881,6 +921,98 @@
     </div>
 </div>
 
+{{-- ════ MODAL BATALKAN ════ --}}
+<div class="modal-overlay" id="modalBatalkan">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-forbid-line" style="color:#BE123C;"></i> Batalkan Penyewaan
+            </span>
+            <button class="modal-close" onclick="closeBatalModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:4px;">
+                <div class="batal-icon-wrap">
+                    <i class="ri-forbid-line" style="font-size:22px;color:#BE123C;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">
+                        Batalkan penyewaan ini?
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);">
+                        a.n. <span id="batal-nama" style="font-weight:600;color:var(--text-primary);"></span>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:10px 0 0;">
+                Status akan berubah ke <strong style="color:#BE123C;">Dibatalkan</strong>.
+                Stok alat akan dikembalikan otomatis. Data <strong>tidak dihapus</strong> dan masih bisa dipulihkan kapan saja.
+            </p>
+            <div class="form-group-modal">
+                <label class="form-label-modal">Alasan Pembatalan <span class="req">*</span></label>
+                <textarea id="inputAlasanBatal"
+                          class="textarea-modal"
+                          placeholder="Contoh: Penyewa membatalkan permintaan karena kebutuhan sudah tidak ada..."></textarea>
+                <div class="field-error" id="alasanBatalError">
+                    <i class="ri-error-warning-line"></i> Alasan pembatalan wajib diisi.
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-reset" onclick="closeBatalModal()">
+                <i class="ri-close-line"></i> Tidak, Kembali
+            </button>
+            <button type="button" class="btn btn-danger" id="btnSubmitBatal" onclick="submitBatal()">
+                <i class="ri-forbid-line"></i> Ya, Batalkan
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ════ MODAL PULIHKAN ════ --}}
+<div class="modal-overlay" id="modalRestore">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-refresh-line" style="color:#B45309;"></i> Pulihkan Penyewaan
+            </span>
+            <button class="modal-close" onclick="closeRestoreModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:4px;">
+                <div class="restore-icon-wrap">
+                    <i class="ri-refresh-line" style="font-size:22px;color:#B45309;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;">
+                        Pulihkan penyewaan ini?
+                    </div>
+                    <div style="font-size:13px;color:var(--text-muted);">
+                        a.n. <span id="restore-nama" style="font-weight:600;color:var(--text-primary);"></span>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:10px 0 0;">
+                Status akan dikembalikan ke <strong style="color:#16A34A;">Berjalan</strong>
+                dan stok alat akan dikurangi kembali sesuai jumlah penyewaan.
+                Pastikan stok alat masih mencukupi sebelum memulihkan.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-reset" onclick="closeRestoreModal()">
+                <i class="ri-close-line"></i> Tidak, Kembali
+            </button>
+            <button type="button" class="btn btn-warning" id="btnSubmitRestore" onclick="submitRestore()">
+                <i class="ri-refresh-line"></i> Ya, Pulihkan
+            </button>
+        </div>
+    </div>
+</div>
+
 {{-- ════ MODAL MONITORING ════ --}}
 <div class="modal-overlay" id="modalMonitoring">
     <div class="modal modal-lg">
@@ -903,7 +1035,7 @@
     </div>
 </div>
 
-{{-- ════ MODAL SELESAIKAN — Kondisi 1 (durasi > 7) ════ --}}
+{{-- ════ MODAL SELESAIKAN — Kondisi 1 ════ --}}
 <div class="modal-overlay" id="modalSelesaikanNormal">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -927,14 +1059,14 @@
             <button class="btn btn-reset" onclick="closeSelesaikanNormal()">
                 <i class="ri-close-line"></i> Batal
             </button>
-            <button class="btn btn-success" id="btnSelesaikanNormal" onclick="doSelesaikan('selesai_sekarang')">
+            <button class="btn btn-success" onclick="doSelesaikan('selesai_sekarang')">
                 <i class="ri-checkbox-circle-line"></i> Selesaikan Penyewaan
             </button>
         </div>
     </div>
 </div>
 
-{{-- ════ MODAL SELESAIKAN — Kondisi 2 (durasi <= 7) ════ --}}
+{{-- ════ MODAL SELESAIKAN — Kondisi 2 ════ --}}
 <div class="modal-overlay" id="modalKonfirmasiDulu">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -1146,7 +1278,6 @@ function toggleExportPanel() {
     panel.classList.toggle('open');
     arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
 }
-
 function resetExportFilter() {
     const form = document.getElementById('formExport');
     form.querySelector('[name="date_from"]').value = '';
@@ -1175,7 +1306,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// ════ PREVIEW FILE MODAL ════
+// ════ PREVIEW FILE ════
 function previewFile(url, type, title) {
     document.getElementById('previewModalTitle').innerHTML =
         `<i class="ri-${type === 'pdf' ? 'file-pdf-line' : 'image-line'}" style="${type === 'pdf' ? 'color:#EF4444;' : 'color:var(--brand-500);'}"></i> ${title}`;
@@ -1212,6 +1343,111 @@ document.getElementById('modalHapus').addEventListener('click', function(e) {
     if (e.target === this) closeDeleteModal();
 });
 
+// ════ BATALKAN ════
+let batalTargetId = null;
+
+function openBatalModal(id, nama) {
+    batalTargetId = id;
+    document.getElementById('batal-nama').textContent      = nama;
+    document.getElementById('inputAlasanBatal').value      = '';
+    document.getElementById('alasanBatalError').classList.remove('show');
+    document.getElementById('modalBatalkan').classList.add('open');
+}
+function closeBatalModal() {
+    document.getElementById('modalBatalkan').classList.remove('open');
+    batalTargetId = null;
+}
+function submitBatal() {
+    const alasan = document.getElementById('inputAlasanBatal').value.trim();
+    const errEl  = document.getElementById('alasanBatalError');
+    if (!alasan) { errEl.classList.add('show'); return; }
+    errEl.classList.remove('show');
+    if (!batalTargetId) return;
+
+    const btn = document.getElementById('btnSubmitBatal');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Memproses...';
+
+    fetch(`/penyewaan/${batalTargetId}/batalkan`, {
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept'       : 'application/json',
+        },
+        body: JSON.stringify({ alasan_batal: alasan }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan';
+        closeBatalModal();
+        if (data.success) {
+            showToast?.('Penyewaan berhasil dibatalkan.', 'success');
+            setTimeout(() => location.reload(), 700);
+        } else {
+            alert(data.message || 'Gagal membatalkan penyewaan.');
+        }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
+    });
+}
+document.getElementById('modalBatalkan').addEventListener('click', function(e) {
+    if (e.target === this) closeBatalModal();
+});
+
+// ════ PULIHKAN ════
+let restoreTargetId = null;
+
+function openRestoreModal(id, nama) {
+    restoreTargetId = id;
+    document.getElementById('restore-nama').textContent = nama;
+    document.getElementById('modalRestore').classList.add('open');
+}
+function closeRestoreModal() {
+    document.getElementById('modalRestore').classList.remove('open');
+    restoreTargetId = null;
+}
+function submitRestore() {
+    if (!restoreTargetId) return;
+
+    const btn = document.getElementById('btnSubmitRestore');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Memproses...';
+
+    fetch(`/penyewaan/${restoreTargetId}/restore`, {
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept'       : 'application/json',
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-refresh-line"></i> Ya, Pulihkan';
+        closeRestoreModal();
+        if (data.success) {
+            showToast?.('Penyewaan berhasil dipulihkan.', 'success');
+            setTimeout(() => location.reload(), 700);
+        } else {
+            alert(data.message || 'Gagal memulihkan penyewaan.');
+        }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-refresh-line"></i> Ya, Pulihkan';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
+    });
+}
+document.getElementById('modalRestore').addEventListener('click', function(e) {
+    if (e.target === this) closeRestoreModal();
+});
+
 // ── Monitoring ──
 let currentPenyewaanId = null;
 let currentSisaHari    = 0;
@@ -1229,14 +1465,13 @@ document.getElementById('modalMonitoring').addEventListener('click', function(e)
 function loadMonitoringData() {
     const el = document.getElementById('monitoringContent');
     el.innerHTML = `<div class="monitoring-loading"><i class="ri-loader-4-line"></i>Memuat data...</div>`;
-
     fetch('{{ route("penyewaan.monitoring") }}', {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
     .then(r => r.json())
     .then(data => {
         if (!data.length) {
-            el.innerHTML = `<div class="monitoring-loading" style="color:var(--text-muted);"><i class="ri-inbox-2-line" style="animation:none; font-size:40px;"></i>Tidak ada penyewaan aktif saat ini.</div>`;
+            el.innerHTML = `<div class="monitoring-loading" style="color:var(--text-muted);"><i class="ri-inbox-2-line" style="animation:none;font-size:40px;"></i>Tidak ada penyewaan aktif saat ini.</div>`;
             return;
         }
         let rows = data.map(d => {
@@ -1245,12 +1480,12 @@ function loadMonitoringData() {
             return `<tr>
                 <td style="font-weight:600;">${d.nama}</td>
                 <td>${d.nomor_hp}</td>
-                <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.barang}">${d.barang}</td>
-                <td style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${d.alamat}">${d.alamat}</td>
+                <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${d.barang}">${d.barang}</td>
+                <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${d.alamat}">${d.alamat}</td>
                 <td class="center"><span class="${sisaClass}">${sisaText}</span></td>
                 <td class="center"><span class="status-badge ${d.status_class}">${d.status_label}</span></td>
                 <td class="center">
-                    <button class="btn" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
+                    <button class="btn" style="height:30px;padding:0 12px;font-size:12px;background:#7C3AED;color:#fff;border:none;border-radius:7px;cursor:pointer;"
                             onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai_raw}')">
                         <i class="ri-check-double-line"></i> Selesaikan
                     </button>
@@ -1298,9 +1533,9 @@ function doSelesaikan(action) {
     if (!currentPenyewaanId) return;
     const token = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
     fetch(`/penyewaan/${currentPenyewaanId}/selesaikan`, {
-        method: 'POST',
+        method : 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
-        body: JSON.stringify({ action })
+        body   : JSON.stringify({ action })
     })
     .then(r => r.json())
     .then(res => {
@@ -1346,7 +1581,7 @@ function onExtendFileChange(input) {
 function openSuksesExtend(extendId, tglBaru, tambahHari) {
     const baseUrl = '{{ url("penyewaan/extend") }}';
     document.getElementById('suksesExtendTglBaru').textContent    = tglBaru;
-    document.getElementById('suksesExtendTambahHari').textContent = tambahHari + ' hari';
+                document.getElementById('suksesExtendTambahHari').textContent = tambahHari + ' hari';
     document.getElementById('linkCetakInvoiceExtend').href        = `${baseUrl}/${extendId}/invoice`;
     document.getElementById('linkCetakPerjanjianExtend').href     = `${baseUrl}/${extendId}/perjanjian`;
     document.getElementById('modalSuksesExtend').classList.add('open');
@@ -1362,9 +1597,9 @@ function doExtend() {
     const metodeBayar = document.getElementById('extendMetodeBayar').value;
     const catatan     = document.getElementById('extendCatatan').value;
     const fileInput   = document.getElementById('extendBuktiInput');
-    if (!tglBaru)                        { alert('Tanggal extend wajib diisi.'); return; }
+    if (!tglBaru)                         { alert('Tanggal extend wajib diisi.'); return; }
     if (harga === '' || Number(harga) < 0) { alert('Harga extend wajib diisi.'); return; }
-    if (!metodeBayar)                    { alert('Metode pembayaran wajib dipilih.'); return; }
+    if (!metodeBayar)                     { alert('Metode pembayaran wajib dipilih.'); return; }
     if (!currentPenyewaanId) return;
 
     const token    = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
@@ -1381,9 +1616,9 @@ function doExtend() {
     btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Menyimpan...';
 
     fetch(`/penyewaan/${currentPenyewaanId}/extend-store`, {
-        method: 'POST',
+        method : 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-        body: formData
+        body   : formData
     })
     .then(r => r.json())
     .then(res => {
@@ -1401,16 +1636,24 @@ function doExtend() {
     });
 }
 
-// ── Escape Key ──
+// ── Escape Key & Backdrop semua modal ──
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closePreviewFile(); closeDeleteModal(); closeMonitoring();
-        closeSelesaikanNormal(); closeKonfirmasiDulu(); closePilihAction();
-        closeExtend(); closeSuksesExtend(); closeAllDropdowns();
-    }
+    if (e.key !== 'Escape') return;
+    closePreviewFile();
+    closeDeleteModal();
+    closeBatalModal();
+    closeRestoreModal();
+    closeMonitoring();
+    closeSelesaikanNormal();
+    closeKonfirmasiDulu();
+    closePilihAction();
+    closeExtend();
+    closeSuksesExtend();
+    closeAllDropdowns();
 });
+
 ['modalSelesaikanNormal','modalKonfirmasiDulu','modalPilihAction','modalExtend'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
+    document.getElementById(id)?.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('open');
     });
 });
