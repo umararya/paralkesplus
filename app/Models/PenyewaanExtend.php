@@ -19,18 +19,30 @@ class PenyewaanExtend extends Model
         'metode_bayar',
         'bukti_transfer',
         'catatan',
+        'status_extend',           // ← baru
+        'alasan_batal_extend',     // ← baru
+        'dibatalkan_extend_at',    // ← baru
     ];
 
     protected $casts = [
-        'tgl_selesai_lama' => 'date',
-        'tgl_selesai_baru' => 'date',
-        'harga_extend'     => 'integer',
+        'tgl_selesai_lama'      => 'date',
+        'tgl_selesai_baru'      => 'date',
+        'harga_extend'          => 'integer',
+        'dibatalkan_extend_at'  => 'datetime',  // ← baru
     ];
+
+    /* ─────────────────────────────────────────────
+     |  RELASI
+     ───────────────────────────────────────────── */
 
     public function penyewaan(): BelongsTo
     {
         return $this->belongsTo(Penyewaan::class, 'penyewaan_id');
     }
+
+    /* ─────────────────────────────────────────────
+     |  ACCESSORS
+     ───────────────────────────────────────────── */
 
     public function getHargaExtendFormattedAttribute(): string
     {
@@ -41,5 +53,17 @@ class PenyewaanExtend extends Model
     {
         return 'EXT-' . str_pad($this->penyewaan_id, 5, '0', STR_PAD_LEFT)
              . '-' . str_pad($this->id, 3, '0', STR_PAD_LEFT);
+    }
+
+    /** Apakah extend ini masih aktif */
+    public function getIsAktifAttribute(): bool
+    {
+        return $this->status_extend === 'aktif';
+    }
+
+    /** Apakah extend ini sudah dibatalkan */
+    public function getIsBatalAttribute(): bool
+    {
+        return $this->status_extend === 'dibatalkan';
     }
 }

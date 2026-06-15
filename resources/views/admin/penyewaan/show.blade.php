@@ -80,22 +80,27 @@
     .extend-table td { padding:10px 14px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
     .extend-table tbody tr:last-child td { border-bottom:none; }
     .extend-table tbody tr:hover td { background:var(--bg-hover); }
+    .extend-table tbody tr.row-dibatalkan td { opacity:0.55; }
     .extend-no-badge { display:inline-flex; align-items:center; gap:4px; background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); border-radius:6px; padding:2px 9px; font-size:11.5px; font-weight:700; }
     html.dark .extend-no-badge { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
     .extend-tgl-lama { color:var(--text-muted); text-decoration:line-through; font-size:12px; }
     .extend-tgl-baru { font-weight:700; color:#F59E0B; }
+    .extend-tgl-baru.dibatalkan { text-decoration:line-through; color:var(--text-muted); font-weight:400; }
     .extend-tambah-hari { display:inline-flex; align-items:center; background:#FEF3C7; color:#92400E; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:700; }
     html.dark .extend-tambah-hari { background:rgba(146,64,14,0.18); color:#FCD34D; }
     .extend-harga { font-weight:700; color:var(--text-primary); }
-    .extend-cetak-wrap { display:flex; gap:5px; justify-content:center; }
-    .btn-cetak-sm { display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 10px; border-radius:6px; font-size:11.5px; font-weight:600; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+    .extend-cetak-wrap { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; }
+    .btn-cetak-sm { display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 10px; border-radius:6px; font-size:11.5px; font-weight:600; text-decoration:none; transition:all 0.2s; white-space:nowrap; border:1px solid transparent; cursor:pointer; font-family:var(--font); }
     .btn-cetak-sm i { font-size:13px; }
-    .btn-inv  { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }
+    .btn-inv  { background:#F0FDF4; color:#16A34A; border-color:#BBF7D0; }
     .btn-inv:hover  { background:#DCFCE7; }
-    .btn-perj { background:#F5F3FF; color:#7C3AED; border:1px solid #DDD6FE; }
+    .btn-perj { background:#F5F3FF; color:#7C3AED; border-color:#DDD6FE; }
     .btn-perj:hover { background:#EDE9FE; }
+    .btn-batal-ext { background:#FFF1F2; color:#BE123C; border-color:#FECDD3; }
+    .btn-batal-ext:hover { background:#FFE4E6; }
     html.dark .btn-inv  { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
     html.dark .btn-perj { background:rgba(124,58,237,0.12); color:#A78BFA; border-color:rgba(124,58,237,0.25); }
+    html.dark .btn-batal-ext { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
     .extend-empty { text-align:center; padding:36px 24px; color:var(--text-muted); }
     .extend-empty i { font-size:36px; display:block; margin-bottom:8px; color:var(--border); }
     .extend-empty p { font-size:13px; }
@@ -129,6 +134,11 @@
     .textarea-modal:focus { border-color:#BE123C; box-shadow:0 0 0 3px rgba(190,18,60,0.08); }
     .field-error { font-size:12px; color:#EF4444; display:none; align-items:center; gap:4px; margin-top:3px; }
     .field-error.show { display:flex; }
+
+    /* ── Info box rollback ── */
+    .rollback-info-box { background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin:12px 0; font-size:13px; line-height:1.6; }
+    .rollback-info-row { display:flex; justify-content:space-between; align-items:center; }
+    .rollback-info-row + .rollback-info-row { margin-top:4px; }
 
     /* ── Btn util ── */
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 14px; height:36px; border-radius:8px; font-size:13px; font-weight:500; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
@@ -189,12 +199,12 @@
             </a>
 
             {{-- Batalkan / Pulihkan --}}
-            @if($penyewaan->status !== 'dibatalkan')
+            @if($penyewaan->status !== 'dibatalkan' && $penyewaan->status !== 'selesai')
                 <button type="button" class="btn btn-danger"
                         onclick="openBatalModal()">
                     <i class="ri-forbid-line"></i> Batalkan
                 </button>
-            @else
+            @elseif($penyewaan->status === 'dibatalkan')
                 <button type="button" class="btn btn-warning"
                         onclick="openRestoreModal()">
                     <i class="ri-refresh-line"></i> Pulihkan
@@ -483,6 +493,10 @@
             </span>
             <span style="font-size:12px; color:var(--text-muted);">
                 {{ $penyewaan->extends->count() }} kali extend
+                @php $aktifCount = $penyewaan->extends->where('status_extend','aktif')->count(); @endphp
+                @if($aktifCount > 0)
+                    <span style="color:#16A34A; font-weight:600;">({{ $aktifCount }} aktif)</span>
+                @endif
             </span>
         </div>
 
@@ -501,12 +515,14 @@
                         <th>Metode Bayar</th>
                         <th>Bukti</th>
                         <th>Catatan</th>
-                        <th class="center">Cetak</th>
+                        <th class="center">Status</th>
+                        <th class="center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($penyewaan->extends as $i => $ext)
-                    <tr>
+                    <tr id="extend-row-{{ $ext->id }}"
+                        class="{{ $ext->is_batal ? 'row-dibatalkan' : '' }}">
                         <td class="center" style="color:var(--text-muted); font-size:12px;">{{ $i + 1 }}</td>
                         <td><span class="extend-no-badge">{{ $ext->nomor_extend }}</span></td>
                         <td style="white-space:nowrap; font-size:12.5px;">
@@ -518,7 +534,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class="extend-tgl-baru">
+                            <span class="extend-tgl-baru {{ $ext->is_batal ? 'dibatalkan' : '' }}">
                                 {{ $ext->tgl_selesai_baru->translatedFormat('d M Y') }}
                             </span>
                         </td>
@@ -547,21 +563,68 @@
                                 <span style="color:var(--text-muted); font-size:12px; font-style:italic;">—</span>
                             @endif
                         </td>
-                        <td style="max-width:160px; font-size:12px; color:var(--text-muted);
+                        <td style="max-width:140px; font-size:12px; color:var(--text-muted);
                                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                             title="{{ $ext->catatan }}">
                             {{ $ext->catatan ?: '—' }}
                         </td>
+
+                        {{-- Kolom Status --}}
+                        <td class="center">
+                            @if($ext->is_batal)
+                                <span class="status-badge status-dibatalkan"
+                                      style="font-size:11px; padding:2px 8px; cursor:default;"
+                                      title="{{ $ext->alasan_batal_extend ? 'Alasan: ' . $ext->alasan_batal_extend : 'Tidak ada alasan' }}">
+                                    <i class="ri-close-circle-line"></i> Batal
+                                </span>
+                            @else
+                                <span class="status-badge status-berjalan"
+                                      style="font-size:11px; padding:2px 8px;">
+                                    <i class="ri-checkbox-circle-line"></i> Aktif
+                                </span>
+                            @endif
+                        </td>
+
+                        {{-- Kolom Aksi --}}
                         <td class="center">
                             <div class="extend-cetak-wrap">
-                                <a href="{{ route('penyewaan.invoiceExtend', $ext->id) }}"
-                                   target="_blank" class="btn-cetak-sm btn-inv">
-                                    <i class="ri-receipt-line"></i> Inv
-                                </a>
-                                <a href="{{ route('penyewaan.perjanjianExtend', $ext->id) }}"
-                                   target="_blank" class="btn-cetak-sm btn-perj">
-                                    <i class="ri-file-text-line"></i> Perj
-                                </a>
+                                @if(!$ext->is_batal)
+                                    <a href="{{ route('penyewaan.invoiceExtend', $ext->id) }}"
+                                       target="_blank" class="btn-cetak-sm btn-inv">
+                                        <i class="ri-receipt-line"></i> Inv
+                                    </a>
+                                    <a href="{{ route('penyewaan.perjanjianExtend', $ext->id) }}"
+                                       target="_blank" class="btn-cetak-sm btn-perj">
+                                        <i class="ri-file-text-line"></i> Perj
+                                    </a>
+
+                                    {{-- Tombol Batalkan Extend:
+                                         Hanya tampil jika ini extend TERBARU yang aktif
+                                         DAN penyewaan belum selesai/dibatalkan --}}
+                                    @if($ext->id === $latestActiveExtendId
+                                        && !in_array($penyewaan->status, ['selesai','dibatalkan']))
+                                        <button type="button"
+                                                class="btn-cetak-sm btn-batal-ext"
+                                                onclick="openBatalExtendModal(
+                                                    {{ $ext->id }},
+                                                    '{{ $ext->nomor_extend }}',
+                                                    '{{ $ext->tgl_selesai_baru->translatedFormat('d M Y') }}',
+                                                    '{{ $ext->tgl_selesai_lama->translatedFormat('d M Y') }}'
+                                                )">
+                                            <i class="ri-forbid-line"></i> Batal
+                                        </button>
+                                    @endif
+                                @else
+                                    {{-- Extend dibatalkan: tampilkan keterangan --}}
+                                    @if($ext->alasan_batal_extend)
+                                        <span style="font-size:11px; color:var(--text-muted); font-style:italic; cursor:default;"
+                                              title="Alasan: {{ $ext->alasan_batal_extend }}">
+                                            <i class="ri-information-line"></i> Lihat alasan
+                                        </span>
+                                    @else
+                                        <span style="font-size:11px; color:var(--text-muted);">—</span>
+                                    @endif
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -569,6 +632,16 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Hint: urutan pembatalan --}}
+        @if($penyewaan->extends->where('status_extend','aktif')->count() > 1)
+        <div style="padding:10px 20px 14px; font-size:12px; color:var(--text-muted);
+                    display:flex; align-items:center; gap:6px;">
+            <i class="ri-information-line" style="font-size:14px; color:#F59E0B;"></i>
+            Untuk membatalkan extend yang lebih lama, batalkan extend terbaru terlebih dahulu secara berurutan.
+        </div>
+        @endif
+
         @else
         <div class="extend-empty">
             <i class="ri-calendar-2-line"></i>
@@ -603,7 +676,7 @@
     </div>
 </div>
 
-{{-- ════ MODAL BATALKAN ════ --}}
+{{-- ════ MODAL BATALKAN PENYEWAAN ════ --}}
 <div class="modal-overlay" id="modalBatalkan">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -653,7 +726,7 @@
     </div>
 </div>
 
-{{-- ════ MODAL PULIHKAN ════ --}}
+{{-- ════ MODAL PULIHKAN PENYEWAAN ════ --}}
 <div class="modal-overlay" id="modalRestore">
     <div class="modal modal-sm">
         <div class="modal-header">
@@ -694,11 +767,75 @@
     </div>
 </div>
 
+{{-- ════ MODAL BATALKAN EXTEND ════ --}}
+<div class="modal-overlay" id="modalBatalExtend">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="ri-forbid-line" style="color:#BE123C;"></i> Batalkan Extend
+            </span>
+            <button class="modal-close" onclick="closeBatalExtendModal()">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:4px;">
+                <div class="batal-icon-wrap">
+                    <i class="ri-forbid-line" style="font-size:22px; color:#BE123C;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:3px;">
+                        Batalkan extend ini?
+                    </div>
+                    <div style="font-size:13px; color:var(--text-muted);" id="batalExtendSubtitle">—</div>
+                </div>
+            </div>
+
+            <div class="rollback-info-box">
+                <div class="rollback-info-row">
+                    <span style="color:var(--text-muted);">Deadline saat ini</span>
+                    <strong id="batalExtendTglBaru" style="color:#F59E0B;">—</strong>
+                </div>
+                <div class="rollback-info-row">
+                    <span style="color:var(--text-muted);">Akan dikembalikan ke</span>
+                    <strong id="batalExtendTglLama" style="color:#16A34A;">—</strong>
+                </div>
+            </div>
+
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin:0 0 4px;">
+                Deadline penyewaan akan dikembalikan ke tanggal sebelum extend ini.
+                Data extend <strong>tidak dihapus</strong> dan tetap tersimpan sebagai riwayat.
+            </p>
+
+            <div class="form-group-modal">
+                <label class="form-label-modal">
+                    Alasan Pembatalan
+                    <span style="color:var(--text-muted); font-weight:400;">(opsional)</span>
+                </label>
+                <textarea id="inputAlasanBatalExtend"
+                          class="textarea-modal"
+                          placeholder="Contoh: Customer membatalkan perpanjangan karena kondisi sudah membaik..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-reset" onclick="closeBatalExtendModal()">
+                <i class="ri-close-line"></i> Tidak, Kembali
+            </button>
+            <button type="button" class="btn btn-danger" id="btnSubmitBatalExtend"
+                    onclick="submitBatalExtend()">
+                <i class="ri-forbid-line"></i> Ya, Batalkan Extend
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-// ── Preview File ──
+// ─────────────────────────────────────────────────────────
+//  Preview File
+// ─────────────────────────────────────────────────────────
 function previewFile(url, type, title) {
     document.getElementById('previewModalTitle').innerHTML =
         `<i class="ri-${type === 'pdf' ? 'file-pdf-line' : 'image-line'}"
@@ -725,7 +862,9 @@ document.getElementById('modalPreviewFile').addEventListener('click', function(e
     if (e.target === this) closePreviewFile();
 });
 
-// ── Batalkan ──
+// ─────────────────────────────────────────────────────────
+//  Batalkan Penyewaan
+// ─────────────────────────────────────────────────────────
 function openBatalModal() {
     document.getElementById('inputAlasanBatal').value = '';
     document.getElementById('alasanBatalError').classList.remove('show');
@@ -772,7 +911,9 @@ document.getElementById('modalBatalkan').addEventListener('click', function(e) {
     if (e.target === this) closeBatalModal();
 });
 
-// ── Pulihkan ──
+// ─────────────────────────────────────────────────────────
+//  Pulihkan Penyewaan
+// ─────────────────────────────────────────────────────────
 function openRestoreModal() { document.getElementById('modalRestore').classList.add('open'); }
 function closeRestoreModal() { document.getElementById('modalRestore').classList.remove('open'); }
 function submitRestore() {
@@ -809,14 +950,74 @@ document.getElementById('modalRestore').addEventListener('click', function(e) {
     if (e.target === this) closeRestoreModal();
 });
 
-// ── Escape key ──
+// ─────────────────────────────────────────────────────────
+//  Batalkan Extend ← BARU
+// ─────────────────────────────────────────────────────────
+let currentBatalExtendId = null;
+
+function openBatalExtendModal(extendId, nomorExtend, tglBaru, tglLama) {
+    currentBatalExtendId = extendId;
+    document.getElementById('batalExtendSubtitle').textContent = nomorExtend;
+    document.getElementById('batalExtendTglBaru').textContent  = tglBaru;
+    document.getElementById('batalExtendTglLama').textContent  = tglLama;
+    document.getElementById('inputAlasanBatalExtend').value    = '';
+    document.getElementById('modalBatalExtend').classList.add('open');
+}
+function closeBatalExtendModal() {
+    document.getElementById('modalBatalExtend').classList.remove('open');
+    currentBatalExtendId = null;
+}
+function submitBatalExtend() {
+    if (!currentBatalExtendId) return;
+
+    const btn    = document.getElementById('btnSubmitBatalExtend');
+    const alasan = document.getElementById('inputAlasanBatalExtend').value.trim();
+
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;display:inline-block;"></i> Memproses...';
+
+    fetch(`/penyewaan/extend/${currentBatalExtendId}/batalkan`, {
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept'       : 'application/json',
+        },
+        body: JSON.stringify({ alasan_batal_extend: alasan }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan Extend';
+        closeBatalExtendModal();
+        if (data.success) {
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert(data.message || 'Gagal membatalkan extend.');
+        }
+    })
+    .catch(() => {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="ri-forbid-line"></i> Ya, Batalkan Extend';
+        alert('Terjadi kesalahan jaringan. Coba lagi.');
+    });
+}
+document.getElementById('modalBatalExtend').addEventListener('click', function(e) {
+    if (e.target === this) closeBatalExtendModal();
+});
+
+// ─────────────────────────────────────────────────────────
+//  Escape key — tutup semua modal
+// ─────────────────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
     if (e.key !== 'Escape') return;
     closePreviewFile();
     closeBatalModal();
     closeRestoreModal();
+    closeBatalExtendModal();
 });
-
-@keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
 </script>
+<style>
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
 @endpush

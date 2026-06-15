@@ -21,7 +21,6 @@ class PenyewaanController extends Controller
 
     private function syncStatus(Penyewaan $item): void
     {
-        // Skip jika sudah final
         if (in_array($item->status, ['selesai', 'dibatalkan'])) return;
 
         $sisaHari = $item->sisa_hari;
@@ -248,7 +247,6 @@ class PenyewaanController extends Controller
                     ? (int) $request->input('per_page')
                     : 10;
 
-        // Sync status aktif (skip dibatalkan otomatis di syncStatus)
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
         foreach ($aktif as $item) {
             $this->syncStatus($item);
@@ -306,7 +304,13 @@ class PenyewaanController extends Controller
 
         $this->syncStatus($penyewaan);
 
-        return view('admin.penyewaan.show', compact('penyewaan'));
+        // Cari ID extend terbaru yang masih aktif (untuk keperluan UI)
+        $latestActiveExtendId = $penyewaan->extends
+            ->where('status_extend', 'aktif')
+            ->sortByDesc('id')
+            ->first()?->id;
+
+        return view('admin.penyewaan.show', compact('penyewaan', 'latestActiveExtendId'));
     }
 
     // =========================================================
@@ -527,8 +531,6 @@ class PenyewaanController extends Controller
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }
 
-        // Stok hanya dikembalikan jika status AKTIF
-        // (jika dibatalkan, stok sudah dikembalikan saat batalkan)
         if (in_array($penyewaan->status, ['berjalan', 'segera_konfirmasi'])) {
             foreach ($penyewaan->details as $detail) {
                 if ($detail->inventory_id) {
@@ -554,7 +556,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  BATALKAN
+    //  BATALKAN PENYEWAAN
     // =========================================================
 
     public function batalkan(Request $request, string $id)
@@ -580,7 +582,6 @@ class PenyewaanController extends Controller
             'dibatalkan_at' => now(),
         ]);
 
-        // Kembalikan stok jika sebelumnya aktif
         if (in_array($statusLama, ['berjalan', 'segera_konfirmasi'])) {
             $this->kembalikanStok($penyewaan);
         }
@@ -591,9 +592,9 @@ class PenyewaanController extends Controller
             subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['status' => $statusLama],
             newValue: [
-                'status'       => 'dibatalkan',
-                'alasan_batal' => $request->alasan_batal,
-                'dibatalkan_at'=> now()->format('d M Y H:i'),
+                'status'        => 'dibatalkan',
+                'alasan_batal'  => $request->alasan_batal,
+                'dibatalkan_at' => now()->format('d M Y H:i'),
             ],
             pageUrl: 'penyewaan/' . $penyewaan->id
         );
@@ -605,7 +606,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  RESTORE (PULIHKAN)
+    //  RESTORE (PULIHKAN) PENYEWAAN
     // =========================================================
 
     public function restore(Request $request, string $id)
@@ -619,7 +620,6 @@ class PenyewaanController extends Controller
             ], 422);
         }
 
-        // Tentukan status yang tepat berdasarkan sisa hari
         $sisaHari  = $penyewaan->sisa_hari;
         $newStatus = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
 
@@ -629,7 +629,6 @@ class PenyewaanController extends Controller
             'dibatalkan_at' => null,
         ]);
 
-        // Kurangi stok kembali karena penyewaan aktif lagi
         $this->kurangiStokPenyewaan($penyewaan);
 
         ActivityLog::record(
@@ -638,8 +637,8 @@ class PenyewaanController extends Controller
             subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['status' => 'dibatalkan'],
             newValue: [
-                'status'    => $newStatus,
-                'dipulihkan'=> now()->format('d M Y H:i'),
+                'status'     => $newStatus,
+                'dipulihkan' => now()->format('d M Y H:i'),
             ],
             pageUrl: 'penyewaan/' . $penyewaan->id
         );
@@ -856,8 +855,7 @@ class PenyewaanController extends Controller
 
         $request->validate([
             'tgl_selesai_baru' => [
-                'required',
-                'date',
+                'required', 'date',
                 'after:' . $tglSelesaiSekarang,
             ],
             'harga_extend'   => 'required|integer|min:0',
@@ -906,6 +904,7 @@ class PenyewaanController extends Controller
             'metode_bayar'     => $request->metode_bayar,
             'bukti_transfer'   => $pathBukti,
             'catatan'          => $request->catatan ?? null,
+            'status_extend'    => 'aktif',   // ← eksplisit default
         ]);
 
         ActivityLog::record(
@@ -931,6 +930,97 @@ class PenyewaanController extends Controller
             'tambah_hari' => $tambahHari,
             'durasi'      => $durasiHari,
             'path_bukti'  => $pathBukti,
+        ]);
+    }
+
+    // =========================================================
+    //  BATALKAN EXTEND ← BARU
+    // =========================================================
+
+    public function batalkanExtend(Request $request, string $extendId)
+    {
+        $extend    = PenyewaanExtend::with('penyewaan')->findOrFail($extendId);
+        $penyewaan = $extend->penyewaan;
+
+        // ── Guard 1: extend sudah dibatalkan ──
+        if ($extend->status_extend === 'dibatalkan') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Extend ini sudah dibatalkan sebelumnya.',
+            ], 422);
+        }
+
+        // ── Guard 2: penyewaan sudah selesai/dibatalkan ──
+        if (in_array($penyewaan->status, ['selesai', 'dibatalkan'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat membatalkan extend karena penyewaan sudah ' . $penyewaan->status . '.',
+            ], 422);
+        }
+
+        // ── Guard 3: hanya extend TERBARU yang aktif yang bisa dibatalkan ──
+        $latestActiveExtend = PenyewaanExtend::where('penyewaan_id', $penyewaan->id)
+            ->where('status_extend', 'aktif')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$latestActiveExtend || $latestActiveExtend->id !== $extend->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya extend terbaru yang aktif yang dapat dibatalkan. '
+                           . 'Batalkan extend yang lebih baru terlebih dahulu.',
+            ], 422);
+        }
+
+        $request->validate([
+            'alasan_batal_extend' => 'nullable|string|max:1000',
+        ]);
+
+        // ── Rollback tgl_selesai penyewaan ke tgl_selesai_lama extend ini ──
+        $tglRollback = Carbon::parse($extend->tgl_selesai_lama->format('Y-m-d'))->startOfDay();
+        $tglMulai    = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
+        $durasiHari  = (int) $tglMulai->diffInDays($tglRollback);
+        $sisaHari    = (int) Carbon::today()->startOfDay()->diffInDays($tglRollback, false);
+        $newStatus   = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
+
+        // ── Update extend: tandai dibatalkan ──
+        $extend->update([
+            'status_extend'        => 'dibatalkan',
+            'alasan_batal_extend'  => $request->alasan_batal_extend ?: null,
+            'dibatalkan_extend_at' => now(),
+        ]);
+
+        // ── Update penyewaan: rollback tgl_selesai & durasi ──
+        $penyewaan->update([
+            'tgl_selesai' => $tglRollback->format('Y-m-d'),
+            'durasi_hari' => $durasiHari,
+            'status'      => $newStatus,
+        ]);
+
+        ActivityLog::record(
+            module:   'Penyewaan',
+            action:   'update',
+            subject:  'Batalkan Extend #' . $extend->id . ' — ' . $penyewaan->nama_penyewa,
+            oldValue: [
+                'tgl_selesai'    => $extend->tgl_selesai_baru->format('d M Y'),
+                'status_extend'  => 'aktif',
+            ],
+            newValue: [
+                'tgl_selesai'         => $tglRollback->format('d M Y'),
+                'status_extend'       => 'dibatalkan',
+                'alasan_batal_extend' => $request->alasan_batal_extend ?: '-',
+                'dibatalkan_at'       => now()->format('d M Y H:i'),
+            ],
+            pageUrl: 'penyewaan/' . $penyewaan->id
+        );
+
+        return response()->json([
+            'success'           => true,
+            'message'           => 'Extend berhasil dibatalkan. Deadline dikembalikan ke '
+                                 . $tglRollback->format('d M Y') . '.',
+            'tgl_selesai_baru'  => $tglRollback->format('d M Y'),
+            'durasi_hari'       => $durasiHari,
+            'status'            => $newStatus,
         ]);
     }
 

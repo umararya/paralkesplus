@@ -53,14 +53,12 @@ Route::middleware('auth')->group(function () {
     //  3. Sub-route dengan {id} wildcard
     // ════════════════════════════════════════════════════════
 
-    // ── 1a. Fixed routes SEBELUM resource (tidak ada {wildcard}) ──
+    // ── 1a. Fixed routes SEBELUM resource ──
     Route::get('/penyewaan/notifikasi', [PenyewaanController::class, 'notifikasi'])->name('penyewaan.notifikasi');
     Route::get('/penyewaan/export',     [PenyewaanController::class, 'export'])->name('penyewaan.export');
     Route::get('/penyewaan-monitoring', [PenyewaanController::class, 'monitoring'])->name('penyewaan.monitoring');
 
     // ── 1b. Route extend/{extendId} WAJIB sebelum resource ──
-    //        karena jika sesudah resource, '/penyewaan/extend' dibaca
-    //        sebagai penyewaan.show({ penyewaan: 'extend' }) — BENTROK!
     Route::get('/penyewaan/extend/{extendId}/invoice',
         [PenyewaanController::class, 'invoiceExtend'])
         ->name('penyewaan.invoiceExtend');
@@ -69,10 +67,15 @@ Route::middleware('auth')->group(function () {
         [PenyewaanController::class, 'perjanjianExtend'])
         ->name('penyewaan.perjanjianExtend');
 
-    // ── 2. Resource (otomatis daftarkan index/create/store/show/edit/update/destroy) ──
+    // ── BATALKAN EXTEND — wajib sebelum resource ──
+    Route::post('/penyewaan/extend/{extendId}/batalkan',
+        [PenyewaanController::class, 'batalkanExtend'])
+        ->name('penyewaan.batalkanExtend');
+
+    // ── 2. Resource ──
     Route::resource('penyewaan', PenyewaanController::class);
 
-    // ── 3. Sub-route dengan {id} wildcard (sesudah resource, aman) ──
+    // ── 3. Sub-route dengan {id} wildcard (sesudah resource) ──
     Route::post('/penyewaan/{id}/selesaikan',
         [PenyewaanController::class, 'selesaikan'])->name('penyewaan.selesaikan');
 
@@ -88,7 +91,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewaan/{id}/perjanjian',
         [PenyewaanController::class, 'perjanjian'])->name('penyewaan.perjanjian');
 
-    // ── Batalkan & Restore (baru) ──
     Route::post('/penyewaan/{id}/batalkan',
         [PenyewaanController::class, 'batalkan'])->name('penyewaan.batalkan');
 

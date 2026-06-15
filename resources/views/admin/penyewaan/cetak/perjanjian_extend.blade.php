@@ -229,12 +229,12 @@
         </div>
 
         {{-- JUDUL --}}
-        <div class="doc-title"><h1>Adendum Perjanjian Sewa Alat Kesehatan</h1></div>
+        <div class="doc-title"><h1>Addendum Perjanjian Sewa Alat Kesehatan</h1></div>
         <div class="doc-nomor">Nomor: {{ $nomorPerjanjian }}</div>
         <div class="doc-subtitle">(Perpanjangan Masa Sewa)</div>
 
         <div class="pembuka">
-            <strong>ADENDUM PERJANJIAN SEWA ALAT KESEHATAN Nomor: {{ $nomorPerjanjian }}</strong>
+            <strong>ADDENDUM PERJANJIAN SEWA ALAT KESEHATAN Nomor: {{ $nomorPerjanjian }}</strong>
             ini merupakan bagian tidak terpisahkan dari Perjanjian Sewa Alat Kesehatan asal
             Nomor: <strong>{{ str_pad($penyewaan->id, 3, '0', STR_PAD_LEFT) }}/PAR/SR/{{ \Carbon\Carbon::parse($penyewaan->tgl_mulai ?? now())->format('Y') }}</strong>.
             Dibuat dan ditandatangani di Semarang pada hari
@@ -274,15 +274,15 @@
         </div>
 
         <div class="pembuka">
-            Para Pihak dengan ini sepakat untuk mengubah ketentuan Perjanjian asal
+            Para Pihak dengan ini sepakat untuk mengubah ketentuan Perjanjian Awal
             khususnya mengenai Masa Sewa dengan syarat-syarat sebagai berikut:
         </div>
 
-        {{-- PASAL 1 ADENDUM --}}
+        {{-- PASAL 1 addendum --}}
         <div class="pasal no-break">
             <div class="pasal-heading">Pasal 1</div>
             <div class="pasal-subheading">Objek Perpanjangan</div>
-            <p class="pasal-body">Alat Kesehatan yang diperpanjang masa sewanya sebagaimana dimaksud dalam Adendum ini adalah:</p>
+            <p class="pasal-body">Alat Kesehatan yang diperpanjang masa sewanya sebagaimana dimaksud dalam addendum ini adalah:</p>
             <table class="data-pasal-table">
                 <tr>
                     <td>(1). Jenis Alat Kesehatan</td><td>:</td>
@@ -305,10 +305,10 @@
             </table>
         </div>
 
-        {{-- PASAL 2 ADENDUM --}}
+        {{-- PASAL 2 addendum --}}
         <div class="pasal no-break">
             <div class="pasal-heading">Pasal 2</div>
-            <div class="pasal-subheading">Perubahan Masa Sewa</div>
+            <div class="pasal-subheading">Perubahan / Perpanjangan Masa Sewa</div>
 
             <div class="ayat-item">
                 <span class="ayat-nomor">(1)</span>
@@ -362,27 +362,27 @@
                 <span class="ayat-isi">
                     Pihak Kedua wajib melunasi biaya perpanjangan sebesar
                     <strong>Rp {{ number_format($extend->harga_extend, 0, ',', '.') }}</strong>
-                    kepada Pihak Pertama selambat-lambatnya pada saat Adendum ini ditandatangani.
+                    kepada Pihak Pertama selambat-lambatnya pada saat addendum ini ditandatangani.
                     Bukti pembayaran wajib diserahkan kepada Pihak Pertama.
                 </span>
             </div>
         </div>
 
-        {{-- PASAL 3 ADENDUM --}}
+        {{-- PASAL 3 addendum --}}
         <div class="pasal no-break">
             <div class="pasal-heading">Pasal 3</div>
             <div class="pasal-subheading">Ketentuan Lain</div>
             <p class="pasal-body">
-                Selain perubahan sebagaimana diatur dalam Adendum ini, seluruh ketentuan dan syarat
-                yang tertuang dalam Perjanjian asal tetap berlaku dan mengikat Para Pihak.
-                Adendum ini merupakan satu kesatuan dan bagian yang tidak terpisahkan dari
-                Perjanjian asal.
+                Selain perubahan sebagaimana diatur dalam addendum ini, seluruh ketentuan dan syarat
+                yang tertuang dalam Perjanjian Awal tetap berlaku dan mengikat Para Pihak.
+                addendum ini merupakan satu kesatuan dan bagian yang tidak terpisahkan dari
+                Perjanjian Awal.
             </p>
         </div>
 
         {{-- PENUTUP --}}
         <div class="pembuka" style="margin-top:10px;">
-            Demikian Adendum ini dibuat dan ditandatangani di tempat dan waktu sebagaimana
+            Demikian addendum ini dibuat dan ditandatangani di tempat dan waktu sebagaimana
             disebutkan di bagian awal, dalam rangkap 2 (dua) dan bermeterai cukup, masing-masing
             Pihak memperoleh 1 (satu) rangkap asli yang kesemuanya memiliki kekuatan hukum yang sama.
         </div>
@@ -412,7 +412,7 @@
     </div>{{-- end .page-content --}}
 
     <div class="page-footer">
-        Adendum Perjanjian No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes &nbsp;·&nbsp;
+        Addendum Perjanjian No. {{ $nomorPerjanjian }} &nbsp;·&nbsp; Paralkes &nbsp;·&nbsp;
         Digenerate otomatis pada {{ $now->translatedFormat('d F Y, H:i') }} WIB
     </div>
 </div>
