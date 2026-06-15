@@ -227,7 +227,7 @@ class PenyewaanController extends Controller
 
     public function create()
     {
-        $inventories = Inventory::orderBy('nama_alat')->get();
+        $inventories = Inventory::orderBy('nama_produk')->get();
         return view('admin.penyewaan.create', compact('inventories'));
     }
 
@@ -294,7 +294,7 @@ class PenyewaanController extends Controller
             module:   'Penyewaan',
             action:   'create',
             subject:  $penyewaan->nama_penyewa,
-            oldValue: null,
+            oldValue:  [],
             newValue: [
                 'id'          => $penyewaan->id,
                 'tgl_mulai'   => $tglMulai->format('d M Y'),
@@ -316,7 +316,7 @@ class PenyewaanController extends Controller
     public function edit(string $id)
     {
         $penyewaan   = Penyewaan::with('details.inventory')->findOrFail($id);
-        $inventories = Inventory::orderBy('nama_alat')->get();
+        $inventories = Inventory::orderBy('nama_produk')->get();
         return view('admin.penyewaan.edit', compact('penyewaan', 'inventories'));
     }
 
