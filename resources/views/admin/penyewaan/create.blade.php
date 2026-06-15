@@ -93,6 +93,9 @@
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
+    /* ── Status badge (create = always berjalan) ── */
+    .status-badge-create { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12.5px; font-weight:600; background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; margin-top:4px; }
+    html.dark .status-badge-create { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
 </style>
 @endpush
 
@@ -266,9 +269,9 @@
                                 class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled {{ old('pengiriman') ? '' : 'selected' }}>-- Pilih metode pengiriman --</option>
-                            <option value="mandiri" {{ old('pengiriman')=='mandiri'?'selected':'' }}>Ambil dan Antar kembali sendiri oleh Penyewa</option>
-                            <option value="Gosend / GrabExpress" {{ old('pengiriman')=='Gosend / GrabExpress'?'selected':'' }}>via Gosend / GrabExpress</option>
-                            <option value="Rental Mobil Paralkes" {{ old('pengiriman')=='Rental Mobil Paralkes'?'selected':'' }}>via Rental Mobil Paralkes</option>
+                            <option value="mandiri"               {{ old('pengiriman') == 'mandiri'               ? 'selected' : '' }}>Ambil dan Antar kembali sendiri oleh Penyewa</option>
+                            <option value="Gosend / GrabExpress"  {{ old('pengiriman') == 'Gosend / GrabExpress'  ? 'selected' : '' }}>via Gosend / GrabExpress</option>
+                            <option value="Rental Mobil Paralkes" {{ old('pengiriman') == 'Rental Mobil Paralkes' ? 'selected' : '' }}>via Rental Mobil Paralkes</option>
                         </select>
                         <div class="pengiriman-note" id="pengiriman-note">
                             <i class="ri-information-line"></i>
@@ -305,9 +308,9 @@
                             class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled {{ old('metode_pembayaran') ? '' : 'selected' }}>-- Pilih metode --</option>
-                        <option value="tunai"    {{ old('metode_pembayaran')=='tunai'   ?'selected':'' }}>Tunai / Cash</option>
-                        <option value="transfer" {{ old('metode_pembayaran')=='transfer'?'selected':'' }}>Transfer via Bank BCA</option>
-                        <option value="qris"     {{ old('metode_pembayaran')=='qris'   ?'selected':'' }}>QRIS</option>
+                        <option value="tunai"    {{ old('metode_pembayaran') == 'tunai'    ? 'selected' : '' }}>Tunai / Cash</option>
+                        <option value="transfer" {{ old('metode_pembayaran') == 'transfer' ? 'selected' : '' }}>Transfer via Bank BCA</option>
+                        <option value="qris"     {{ old('metode_pembayaran') == 'qris'     ? 'selected' : '' }}>QRIS</option>
                     </select>
                     <div class="metode-info" id="metode-info">
                         <i class="ri-information-line"></i>
@@ -329,14 +332,15 @@
                     @enderror
                 </div>
 
+                {{-- ── Status (read-only saat create, selalu berjalan) ── --}}
                 <div class="form-group">
                     <label class="form-label">Status</label>
-                    <select class="form-control" disabled>
-                        <option>Berjalan</option>
-                    </select>
                     <input type="hidden" name="status" value="berjalan">
-                    <span style="font-size:12px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:4px;">
-                        <i class="ri-information-line"></i> Status hanya dapat diubah saat edit
+                    <div class="status-badge-create">
+                        <i class="ri-play-circle-line"></i> Berjalan
+                    </div>
+                    <span style="font-size:12px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">
+                        <i class="ri-information-line"></i> Status hanya dapat diubah saat edit penyewaan
                     </span>
                 </div>
 
@@ -438,48 +442,53 @@
 <script>
 // ── FLATPICKR ──
 const fpMulai = flatpickr('#tgl_mulai', {
-    locale:'id', dateFormat:'Y-m-d', allowInput:false,
+    locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
+    defaultDate: '{{ old("tgl_mulai") }}',
     onChange: (sel, str) => { fpSelesai.set('minDate', str); hitungDurasi(); }
 });
 const fpSelesai = flatpickr('#tgl_selesai', {
-    locale:'id', dateFormat:'Y-m-d', allowInput:false,
+    locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
+    defaultDate: '{{ old("tgl_selesai") }}',
     onChange: () => hitungDurasi()
 });
 
 function hitungDurasi() {
-    const m = document.getElementById('tgl_mulai').value;
-    const s = document.getElementById('tgl_selesai').value;
+    const m      = document.getElementById('tgl_mulai').value;
+    const s      = document.getElementById('tgl_selesai').value;
     const disp   = document.getElementById('durasi-display');
     const hidden = document.getElementById('durasi_hari');
     if (m && s) {
-        const [sy, sm, sd] = m.split('-').map(Number);
-        const [ey, em, ed] = s.split('-').map(Number);
-        const start = new Date(sy, sm - 1, sd);
-        const end   = new Date(ey, em - 1, ed);
-        const diff  = Math.round((end - start) / 86400000);
+        const diff = Math.round((new Date(s) - new Date(m)) / 86400000);
         if (diff >= 0) {
             hidden.value   = diff;
             disp.innerHTML = `<i class="ri-calendar-check-line"></i> ${diff} hari`;
-        } else { hidden.value = ''; disp.innerHTML = ''; }
-    } else { hidden.value = ''; disp.innerHTML = ''; }
+        } else {
+            hidden.value   = '';
+            disp.innerHTML = '';
+        }
+    } else {
+        hidden.value   = '';
+        disp.innerHTML = '';
+    }
 }
 
 // ── HELPER NOTES ──
 function updatePengirimanNote() {
     const v = document.getElementById('pengiriman').value;
     const n = {
-        mandiri:'Penyewa mengambil dan mengembalikan sendiri.',
-        'Gosend / GrabExpress':'Pengiriman via ojek online, biaya ditanggung penyewa.',
-        'Rental Mobil Paralkes':'Pengiriman menggunakan Rental Mobil Paralkes.'
+        'mandiri':               'Penyewa mengambil dan mengembalikan sendiri.',
+        'Gosend / GrabExpress':  'Pengiriman via ojek online, biaya ditanggung penyewa.',
+        'Rental Mobil Paralkes': 'Pengiriman menggunakan Rental Mobil Paralkes.',
     };
     document.getElementById('pengiriman-note-text').textContent = n[v] || 'Pilih metode pengiriman di atas';
 }
+
 function updateMetodeInfo() {
     const v = document.getElementById('metode_pembayaran').value;
     const i = {
-        tunai:'Pembayaran dilakukan secara tunai saat penyerahan alat.',
-        transfer:'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA.',
-        qris:'Scan QRIS yang tersedia.'
+        'tunai':    'Pembayaran dilakukan secara tunai saat penyerahan alat.',
+        'transfer': 'Transfer ke BCA 8030910754 a.n. SURYA DAYYANA.',
+        'qris':     'Scan QRIS yang tersedia.',
     };
     document.getElementById('metode-info-text').textContent = i[v] || 'Pilih metode pembayaran';
 }
@@ -487,20 +496,21 @@ function updateMetodeInfo() {
 // ── SELECT2 TEMPLATE ──
 function templateInventory(item) {
     if (!item.id) return item.text || 'Cari nama alat...';
-    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+    const badgeClass = { ok: 'stok-ok', low: 'stok-low', zero: 'stok-zero' }[item.stok_status] || 'stok-ok';
     return $(`
         <div style="padding:3px 0">
             <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${item.text}</div>
             <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
-                <span style="font-size:11px;color:var(--text-muted)">${item.kategori||''}</span>
-                <span class="${badgeClass}">${item.stok_label||''}</span>
+                <span style="font-size:11px;color:var(--text-muted)">${item.kategori || ''}</span>
+                <span class="${badgeClass}">${item.stok_label || ''}</span>
             </div>
         </div>
     `);
 }
+
 function templateInventorySelection(item) {
     if (!item.id) return item.text || 'Pilih alat...';
-    const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+    const badgeClass = { ok: 'stok-ok', low: 'stok-low', zero: 'stok-zero' }[item.stok_status] || 'stok-ok';
     const stokLabel  = item.stok_label || '';
     if (!stokLabel) return item.text;
     return $(`<span>${item.text}&nbsp;<span class="${badgeClass}" style="font-size:11px">${stokLabel}</span></span>`);
@@ -516,8 +526,10 @@ function addRow(data = {}) {
     const tr    = document.createElement('tr');
     tr.id       = `row-${idx}`;
 
-    const satuanOpts = ['unit','pcs','set','buah','pasang']
-        .map(s => `<option value="${s}" ${(data.satuan||'unit')===s?'selected':''}>${s}</option>`)
+    const satuanList = ['unit', 'pcs', 'set', 'buah', 'pasang'];
+    if (data.satuan && !satuanList.includes(data.satuan)) satuanList.push(data.satuan);
+    const satuanOpts = satuanList
+        .map(s => `<option value="${s}" ${(data.satuan || 'unit') === s ? 'selected' : ''}>${s}</option>`)
         .join('');
 
     const kondisiVal = data.kondisi || 'baru';
@@ -528,12 +540,12 @@ function addRow(data = {}) {
             <input type="hidden"
                    name="items[${idx}][nama_alat]"
                    id="nama-alat-${idx}"
-                   value="${data.nama_alat || ''}">
+                   value="${(data.nama_alat || '').replace(/"/g, '&quot;')}">
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
                     class="form-control" required>
                 ${data.inventory_id
-                    ? `<option value="${data.inventory_id}" selected>${data.nama_alat||''}</option>`
+                    ? `<option value="${data.inventory_id}" selected>${data.nama_alat || ''}</option>`
                     : ''}
             </select>
             <div class="stok-info-row" id="stok-info-${idx}"></div>
@@ -542,28 +554,30 @@ function addRow(data = {}) {
             <select name="items[${idx}][kondisi]"
                     id="kondisi-${idx}"
                     class="form-control" style="width:90px">
-                <option value="baru"  ${kondisiVal==='baru' ?'selected':''}>Baru</option>
-                <option value="bekas" ${kondisiVal==='bekas'?'selected':''}>Bekas</option>
+                <option value="baru"  ${kondisiVal === 'baru'  ? 'selected' : ''}>Baru</option>
+                <option value="bekas" ${kondisiVal === 'bekas' ? 'selected' : ''}>Bekas</option>
             </select>
         </td>
         <td>
             <input type="number" name="items[${idx}][qty]"
-                   id="qty-${idx}" value="${data.qty||1}" min="1"
+                   id="qty-${idx}" value="${data.qty || 1}" min="1"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
         <td>
-            <select name="items[${idx}][satuan]" class="form-control" style="width:80px">${satuanOpts}</select>
+            <select name="items[${idx}][satuan]" class="form-control" style="width:80px">
+                ${satuanOpts}
+            </select>
         </td>
         <td>
             <input type="number" name="items[${idx}][harga_satuan]"
-                   id="harga-${idx}" value="${data.harga_satuan||0}" min="0"
+                   id="harga-${idx}" value="${data.harga_satuan || 0}" min="0"
                    class="form-control" style="width:130px"
                    oninput="hitungSubtotal(${idx})">
         </td>
         <td>
             <input type="number" name="items[${idx}][diskon]"
-                   id="diskon-${idx}" value="${data.diskon||0}" min="0" max="100"
+                   id="diskon-${idx}" value="${data.diskon || 0}" min="0" max="100"
                    class="form-control" style="text-align:center;width:64px"
                    oninput="hitungSubtotal(${idx})">
         </td>
@@ -576,19 +590,18 @@ function addRow(data = {}) {
     `;
     tbody.appendChild(tr);
 
-    const $sel = $(`#inv-select-${idx}`);
-    $sel.select2({
-        dropdownParent: $(`#row-${idx}`),
-        placeholder: 'Pilih atau cari nama alat...',
-        allowClear: true,
+    $(`#inv-select-${idx}`).select2({
+        dropdownParent:     $(`#row-${idx}`),
+        placeholder:        'Pilih atau cari nama alat...',
+        allowClear:         true,
         minimumInputLength: 0,
         ajax: {
-            url: '{{ route("api.inventory.index") }}',
+            url:      '{{ route("api.inventory.index") }}',
             dataType: 'json',
-            delay: 250,
-            data: params => ({ q: params.term ?? '', mode: 'sewa' }),
+            delay:    250,
+            data:     params => ({ q: params.term ?? '', mode: 'sewa' }),
             processResults: data => ({ results: data.results }),
-            cache: true,
+            cache:    true,
         },
         templateResult:    templateInventory,
         templateSelection: templateInventorySelection,
@@ -605,26 +618,21 @@ function addRow(data = {}) {
         $(`#qty-${idx}`).attr('max', item.stok_tersedia || 999);
 
         const kondisiSel = document.getElementById(`kondisi-${idx}`);
-        if (item.stok_baru > 0) {
-            kondisiSel.value = 'baru';
-        } else if (item.stok_bekas > 0) {
-            kondisiSel.value = 'bekas';
-        }
+        if (item.stok_baru > 0)       kondisiSel.value = 'baru';
+        else if (item.stok_bekas > 0) kondisiSel.value = 'bekas';
 
         const $satSel = $(`#row-${idx} select[name="items[${idx}][satuan]"]`);
         if (item.satuan) {
-            if ($satSel.find(`option[value="${item.satuan}"]`).length) {
-                $satSel.val(item.satuan);
-            } else {
-                $satSel.append(new Option(item.satuan, item.satuan, true, true));
-            }
+            if (!$satSel.find(`option[value="${item.satuan}"]`).length)
+                $satSel.append(new Option(item.satuan, item.satuan));
+            $satSel.val(item.satuan);
         }
 
-        const badgeClass = { ok:'stok-ok', low:'stok-low', zero:'stok-zero' }[item.stok_status] || 'stok-ok';
+        const badgeClass = { ok: 'stok-ok', low: 'stok-low', zero: 'stok-zero' }[item.stok_status] || 'stok-ok';
         $(`#stok-info-${idx}`).html(
             `<i class="ri-stack-line" style="font-size:12px;color:var(--text-muted)"></i>
-             <span class="${badgeClass}">${item.stok_label}</span>
-             <span style="color:var(--text-muted);font-size:11px">| Kategori: ${item.kategori||'-'}</span>`
+             <span class="${badgeClass}">${item.stok_label || ''}</span>
+             <span style="color:var(--text-muted);font-size:11px">| Kategori: ${item.kategori || '-'}</span>`
         );
         hitungSubtotal(idx);
     })
@@ -636,7 +644,7 @@ function addRow(data = {}) {
         hitungSubtotal(idx);
     });
 
-    hitungSubtotal(idx);
+    if (data.harga_satuan) hitungSubtotal(idx);
 }
 
 function removeRow(idx) {
@@ -659,7 +667,7 @@ function hitungSubtotal(idx) {
 function hitungRingkasan() {
     let total = 0;
     document.querySelectorAll('[id^="subtotal-"]').forEach(c => {
-        total += parseInt(c.textContent.replace(/[^0-9]/g,'')) || 0;
+        total += parseInt(c.textContent.replace(/[^0-9]/g, '')) || 0;
     });
     const diskon = parseInt(document.getElementById('diskon_global')?.value) || 0;
     const ongkir = parseInt(document.getElementById('biaya_ongkir')?.value)  || 0;
@@ -670,32 +678,37 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ── DROPZONE GENERIC (KTP - support pdf, tanpa thumbnail) ──
+// ── DROPZONE GENERIC (KTP) ──
 function initDropzone(inputId, previewId, zoneId, maxMB) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
     const zone    = document.getElementById(zoneId);
     if (!input) return;
-    input.addEventListener('change', () => showPreview(input, preview, zone, maxMB));
+
+    input.addEventListener('change', () => {
+        if (input.files[0]) showPreviewGeneric(input.files[0], preview, zone);
+    });
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
     zone.addEventListener('drop', e => {
-        e.preventDefault(); zone.classList.remove('drag-over');
+        e.preventDefault();
+        zone.classList.remove('drag-over');
         if (e.dataTransfer.files.length) {
             const dt = new DataTransfer();
             dt.items.add(e.dataTransfer.files[0]);
             input.files = dt.files;
-            showPreview(input, preview, zone, maxMB);
+            showPreviewGeneric(e.dataTransfer.files[0], preview, zone);
         }
     });
 }
-function showPreview(input, preview, zone, maxMB) {
-    const file = input.files[0]; if (!file) return;
+
+function showPreviewGeneric(file, preview, zone) {
     preview.querySelector('.dropzone-preview-name').textContent = file.name;
     preview.querySelector('.dropzone-preview-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
     preview.classList.add('show');
     zone.style.display = 'none';
 }
+
 function removeFile(inputId, previewId, zoneId) {
     document.getElementById(inputId).value = '';
     document.getElementById(previewId).classList.remove('show');
@@ -712,22 +725,21 @@ function initDropzoneBukti() {
     const zone    = document.getElementById('dropzone-bukti');
     const errBox  = document.getElementById('bukti-error');
     const errText = document.getElementById('bukti-error-text');
-
     if (!input) return;
 
     function processFile(file) {
         errBox.style.display = 'none';
 
         if (!BUKTI_ALLOWED.includes(file.type)) {
-            errText.textContent = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+            errText.textContent  = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
             errBox.style.display = 'flex';
-            input.value = '';
+            input.value          = '';
             return;
         }
         if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
-            errText.textContent = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+            errText.textContent  = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
             errBox.style.display = 'flex';
-            input.value = '';
+            input.value          = '';
             return;
         }
 
@@ -735,11 +747,9 @@ function initDropzoneBukti() {
         const pdfIcon = document.getElementById('bukti-preview-pdf-icon');
 
         if (file.type === 'application/pdf') {
-            // PDF: tampilkan icon, sembunyikan thumbnail
             thumb.style.display   = 'none';
             pdfIcon.style.display = 'block';
         } else {
-            // Image: tampilkan thumbnail, sembunyikan icon PDF
             pdfIcon.style.display = 'none';
             thumb.style.display   = 'block';
             const reader = new FileReader();
@@ -748,14 +758,13 @@ function initDropzoneBukti() {
         }
 
         document.getElementById('bukti-preview-name').textContent = file.name;
-        document.getElementById('bukti-preview-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        document.getElementById('bukti-preview-size').textContent =
+            (file.size / 1024 / 1024).toFixed(2) + ' MB';
         preview.classList.add('show');
         zone.style.display = 'none';
     }
 
-    input.addEventListener('change', () => {
-        if (input.files[0]) processFile(input.files[0]);
-    });
+    input.addEventListener('change', () => { if (input.files[0]) processFile(input.files[0]); });
 
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
@@ -772,13 +781,13 @@ function initDropzoneBukti() {
 }
 
 function removeBuktiFile() {
-    document.getElementById('bukti_pembayaran').value = '';
+    document.getElementById('bukti_pembayaran').value               = '';
     document.getElementById('bukti-preview').classList.remove('show');
-    document.getElementById('dropzone-bukti').style.display = '';
-    document.getElementById('bukti-preview-thumb').src         = '';
-    document.getElementById('bukti-preview-thumb').style.display = 'none';
+    document.getElementById('dropzone-bukti').style.display         = '';
+    document.getElementById('bukti-preview-thumb').src              = '';
+    document.getElementById('bukti-preview-thumb').style.display    = 'none';
     document.getElementById('bukti-preview-pdf-icon').style.display = 'none';
-    document.getElementById('bukti-error').style.display = 'none';
+    document.getElementById('bukti-error').style.display            = 'none';
 }
 
 // ── INIT ──
@@ -787,25 +796,28 @@ document.addEventListener('DOMContentLoaded', function () {
     initDropzoneBukti();
 
     // Validasi client sebelum submit
-    document.getElementById('form-penyewaan').addEventListener('submit', function(e) {
+    document.getElementById('form-penyewaan').addEventListener('submit', function (e) {
         const input = document.getElementById('bukti_pembayaran');
         if (input.files[0]) {
             const file = input.files[0];
             if (!BUKTI_ALLOWED.includes(file.type)) {
                 e.preventDefault();
-                document.getElementById('bukti-error-text').textContent = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+                document.getElementById('bukti-error-text').textContent =
+                    'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
                 document.getElementById('bukti-error').style.display = 'flex';
                 return;
             }
             if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
                 e.preventDefault();
-                document.getElementById('bukti-error-text').textContent = `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+                document.getElementById('bukti-error-text').textContent =
+                    `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
                 document.getElementById('bukti-error').style.display = 'flex';
                 return;
             }
         }
     });
 
+    // Restore old items jika validasi gagal
     @if(old('items'))
         @foreach(old('items') as $i => $oldItem)
             addRow({

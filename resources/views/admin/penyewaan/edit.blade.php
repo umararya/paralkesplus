@@ -76,8 +76,7 @@
     .ringkasan-row .r-label { color:var(--text-muted); }
     .ringkasan-row .r-value { font-weight:700; color:var(--text-primary); }
     .ringkasan-row.total { background:var(--brand-500); }
-    .ringkasan-row.total .r-label,
-    .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
+    .ringkasan-row.total .r-label, .ringkasan-row.total .r-value { color:#fff; font-size:13.5px; }
     .form-footer { padding:16px 24px; display:flex; gap:12px; justify-content:flex-end; background:var(--bg-primary); border-top:1px solid var(--border); }
     .btn { display:inline-flex; align-items:center; gap:6px; padding:0 18px; height:40px; border-radius:8px; font-size:13.5px; font-weight:600; font-family:var(--font); cursor:pointer; border:none; transition:all 0.2s; text-decoration:none; }
     .btn-cancel { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
@@ -97,6 +96,17 @@
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
+
+    /* ── Status badge inline helper ── */
+    .status-preview { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:99px; font-size:12px; font-weight:600; margin-top:5px; }
+    .sp-berjalan          { background:#F0FDF4; color:#16A34A; }
+    .sp-segera_konfirmasi { background:#FFFBEB; color:#B45309; }
+    .sp-selesai           { background:#F0F9FF; color:#0369A1; }
+    .sp-dibatalkan        { background:#FFF1F2; color:#BE123C; }
+    html.dark .sp-berjalan          { background:rgba(22,163,74,0.12);  color:#4ADE80; }
+    html.dark .sp-segera_konfirmasi { background:rgba(180,83,9,0.12);   color:#FCD34D; }
+    html.dark .sp-selesai           { background:rgba(3,105,161,0.12);  color:#38BDF8; }
+    html.dark .sp-dibatalkan        { background:rgba(190,18,60,0.12);  color:#FB7185; }
 </style>
 @endpush
 
@@ -292,9 +302,11 @@
                                 class="form-control {{ $errors->has('pengiriman') ? 'is-invalid' : '' }}"
                                 onchange="updatePengirimanNote()" required>
                             <option value="" disabled>-- Pilih metode pengiriman --</option>
-                            @foreach(['mandiri' => 'Ambil dan Antar kembali sendiri oleh Penyewa',
-                                      'Gosend / GrabExpress' => 'via Gosend / GrabExpress',
-                                      'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes'] as $val => $label)
+                            @foreach([
+                                'mandiri'               => 'Ambil dan Antar kembali sendiri oleh Penyewa',
+                                'Gosend / GrabExpress'  => 'via Gosend / GrabExpress',
+                                'Rental Mobil Paralkes' => 'via Rental Mobil Paralkes'
+                            ] as $val => $label)
                                 <option value="{{ $val }}"
                                     {{ old('pengiriman', $penyewaan->pengiriman) == $val ? 'selected' : '' }}>
                                     {{ $label }}
@@ -337,9 +349,11 @@
                             class="form-control {{ $errors->has('metode_pembayaran') ? 'is-invalid' : '' }}"
                             onchange="updateMetodeInfo()" required>
                         <option value="" disabled>-- Pilih metode --</option>
-                        @foreach(['tunai' => 'Tunai / Cash',
-                                  'transfer' => 'Transfer via Bank BCA',
-                                  'qris' => 'QRIS'] as $val => $label)
+                        @foreach([
+                            'tunai'    => 'Tunai / Cash',
+                            'transfer' => 'Transfer via Bank BCA',
+                            'qris'     => 'QRIS'
+                        ] as $val => $label)
                             <option value="{{ $val }}"
                                 {{ old('metode_pembayaran', $penyewaan->metode_pembayaran) == $val ? 'selected' : '' }}>
                                 {{ $label }}
@@ -367,30 +381,35 @@
                     @enderror
                 </div>
 
+                {{-- ── STATUS dengan preview badge ── --}}
                 <div class="form-group">
                     <label class="form-label">Status <span class="required">*</span></label>
-                    <select name="status"
-                            class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}" required>
-                        @foreach(['berjalan' => 'Berjalan',
-                                  'segera_konfirmasi' => 'Segera Konfirmasi',
-                                  'selesai' => 'Selesai',
-                                  'dibatalkan' => 'Dibatalkan'] as $val => $label)
+                    <select name="status" id="status-select"
+                            class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}"
+                            onchange="updateStatusPreview()" required>
+                        @foreach([
+                            'berjalan'          => 'Berjalan',
+                            'segera_konfirmasi' => 'Segera Konfirmasi',
+                            'selesai'           => 'Selesai',
+                            'dibatalkan'        => 'Dibatalkan',
+                        ] as $val => $label)
                             <option value="{{ $val }}"
                                 {{ old('status', $penyewaan->status) == $val ? 'selected' : '' }}>
                                 {{ $label }}
                             </option>
                         @endforeach
                     </select>
+                    <div id="status-preview-wrap"></div>
                     @error('status')
                         <span class="invalid-feedback"><i class="ri-error-warning-line"></i> {{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP (jpg/png/pdf) ===== --}}
+                {{-- ===== BUKTI PEMBAYARAN ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">
                         Bukti Pembayaran
-                        <span class="hint">(jpg/png/pdf, maks 10 MB &mdash; kosongkan jika tidak diganti)</span>
+                        <span class="hint">(jpg/png/pdf, maks 10 MB — kosongkan jika tidak diganti)</span>
                     </label>
 
                     @if($penyewaan->bukti_pembayaran)
@@ -422,7 +441,7 @@
                                 ? 'Klik atau seret file baru untuk mengganti'
                                 : 'Klik atau seret file bukti pembayaran ke sini' }}
                         </div>
-                        <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 10 MB</div>
+                        <div class="dropzone-sub">JPG, PNG, atau PDF — maks 10 MB</div>
                     </div>
 
                     <div class="dropzone-preview" id="bukti-preview">
@@ -451,7 +470,7 @@
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">
                         Foto KTP / SIM
-                        <span class="hint">(jpg/png/pdf, maks 5MB &mdash; kosongkan jika tidak diganti)</span>
+                        <span class="hint">(jpg/png/pdf, maks 5MB — kosongkan jika tidak diganti)</span>
                     </label>
                     @if($penyewaan->foto_ktp_sim)
                         <a href="{{ asset('storage/' . $penyewaan->foto_ktp_sim) }}"
@@ -467,7 +486,7 @@
                                accept=".jpg,.jpeg,.png,.pdf">
                         <i class="ri-id-card-line dropzone-icon"></i>
                         <div class="dropzone-title">Klik atau seret file baru ke sini</div>
-                        <div class="dropzone-sub">JPG, PNG, atau PDF &mdash; maks 5 MB</div>
+                        <div class="dropzone-sub">JPG, PNG, atau PDF — maks 5 MB</div>
                     </div>
                     <div class="dropzone-preview" id="ktp-preview">
                         <i class="ri-file-check-line"></i>
@@ -572,6 +591,23 @@ function updateMetodeInfo() {
         'qris':     'Scan QRIS yang tersedia.',
     };
     document.getElementById('metode-info-text').textContent = i[v] || 'Pilih metode pembayaran';
+}
+
+// ── STATUS PREVIEW BADGE ──
+function updateStatusPreview() {
+    const v   = document.getElementById('status-select').value;
+    const map = {
+        'berjalan':          { cls: 'sp-berjalan',          icon: 'ri-play-circle-line',      label: 'Berjalan' },
+        'segera_konfirmasi': { cls: 'sp-segera_konfirmasi', icon: 'ri-alarm-warning-line',    label: 'Segera Konfirmasi' },
+        'selesai':           { cls: 'sp-selesai',           icon: 'ri-checkbox-circle-line',  label: 'Selesai' },
+        'dibatalkan':        { cls: 'sp-dibatalkan',        icon: 'ri-close-circle-line',     label: 'Dibatalkan' },
+    };
+    const wrap = document.getElementById('status-preview-wrap');
+    if (map[v]) {
+        wrap.innerHTML = `<span class="status-preview ${map[v].cls}"><i class="${map[v].icon}"></i> ${map[v].label}</span>`;
+    } else {
+        wrap.innerHTML = '';
+    }
 }
 
 // ── SELECT2 TEMPLATE ──
@@ -781,7 +817,7 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ── DROPZONE BUKTI PEMBAYARAN (jpg/png/pdf, maks 10 MB) ──
+// ── DROPZONE BUKTI PEMBAYARAN ──
 const BUKTI_MAX_MB  = 10;
 const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
 
@@ -795,7 +831,6 @@ function initDropzoneBukti() {
 
     function processFile(file) {
         errBox.style.display = 'none';
-
         if (!BUKTI_ALLOWED.includes(file.type)) {
             errText.textContent  = 'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
             errBox.style.display = 'flex';
@@ -831,7 +866,6 @@ function initDropzoneBukti() {
     }
 
     input.addEventListener('change', () => { if (input.files[0]) processFile(input.files[0]); });
-
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
     zone.addEventListener('drop', e => {
@@ -847,13 +881,13 @@ function initDropzoneBukti() {
 }
 
 function removeBuktiFile() {
-    document.getElementById('bukti_pembayaran').value            = '';
+    document.getElementById('bukti_pembayaran').value               = '';
     document.getElementById('bukti-preview').classList.remove('show');
-    document.getElementById('dropzone-bukti').style.display      = '';
-    document.getElementById('bukti-preview-thumb').src           = '';
-    document.getElementById('bukti-preview-thumb').style.display = 'none';
+    document.getElementById('dropzone-bukti').style.display         = '';
+    document.getElementById('bukti-preview-thumb').src              = '';
+    document.getElementById('bukti-preview-thumb').style.display    = 'none';
     document.getElementById('bukti-preview-pdf-icon').style.display = 'none';
-    document.getElementById('bukti-error').style.display         = 'none';
+    document.getElementById('bukti-error').style.display            = 'none';
 }
 
 // ── INIT ──
@@ -902,9 +936,10 @@ document.addEventListener('DOMContentLoaded', function () {
         addRow();
     @endif
 
-    // Re-init notes berdasarkan nilai existing
+    // Init notes & preview berdasarkan nilai existing
     if ('{{ old("pengiriman", $penyewaan->pengiriman) }}') updatePengirimanNote();
     if ('{{ old("metode_pembayaran", $penyewaan->metode_pembayaran) }}') updateMetodeInfo();
+    updateStatusPreview();
 
     hitungRingkasan();
 });

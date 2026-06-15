@@ -160,6 +160,69 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
+    //  PRIVATE HELPER — validasi stok sebelum store/update
+    //  Return: array of error messages, kosong = OK
+    // =========================================================
+
+    private function validateStok(array $items, ?int $excludePenyewaanId = null): array
+    {
+        $errors = [];
+
+        // Hitung total qty yang diminta per inventory_id dalam request ini
+        // (handle kasus item yang sama muncul dua kali di form)
+        $requested = [];
+        foreach ($items as $item) {
+            $invId   = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
+            $kondisi = in_array($item['kondisi'] ?? '', ['baru', 'bekas']) ? $item['kondisi'] : 'baru';
+            $qty     = max(1, (int) ($item['qty'] ?? 1));
+
+            if (!$invId) continue;
+
+            $key = $invId . '_' . $kondisi;
+            $requested[$key] = ($requested[$key] ?? 0) + $qty;
+        }
+
+        foreach ($requested as $key => $totalQtyDiminta) {
+            [$invId, $kondisi] = explode('_', $key, 2);
+
+            $inv = Inventory::find((int) $invId);
+            if (!$inv) continue;
+
+            // Hitung qty yang sudah dipakai penyewaan lain (aktif)
+            // Jika update, kecualikan penyewaan yang sedang diedit
+            $qtyDipakai = 0;
+            if ($excludePenyewaanId) {
+                $qtyDipakai = DetailPenyewaan::where('inventory_id', $invId)
+                    ->where('kondisi', $kondisi)
+                    ->whereHas('penyewaan', function ($q) use ($excludePenyewaanId) {
+                        $q->whereIn('status', ['berjalan', 'segera_konfirmasi'])
+                          ->where('id', '!=', $excludePenyewaanId);
+                    })
+                    ->sum('qty');
+            } else {
+                $qtyDipakai = DetailPenyewaan::where('inventory_id', $invId)
+                    ->where('kondisi', $kondisi)
+                    ->whereHas('penyewaan', function ($q) {
+                        $q->whereIn('status', ['berjalan', 'segera_konfirmasi']);
+                    })
+                    ->sum('qty');
+            }
+
+            // Stok yang benar-benar tersedia
+            $stokField    = $kondisi === 'baru' ? 'stok_baru' : 'stok_bekas';
+            $stokTotal    = (int) ($inv->$stokField ?? 0);
+            $stokAktual   = max(0, $stokTotal - $qtyDipakai);
+
+            if ($totalQtyDiminta > $stokAktual) {
+                $errors[] = "Stok {$kondisi} \"{$inv->nama_produk}\" tidak cukup. "
+                          . "Diminta: {$totalQtyDiminta}, tersedia: {$stokAktual}.";
+            }
+        }
+
+        return $errors;
+    }
+
+    // =========================================================
     //  INDEX
     // =========================================================
 
@@ -168,6 +231,7 @@ class PenyewaanController extends Controller
         $search   = $request->input('search', '');
         $dateFrom = $request->input('date_from', '');
         $dateTo   = $request->input('date_to', '');
+        $status   = $request->input('status', '');   // ← tambahan filter status (No.5)
         $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
                     ? (int) $request->input('per_page')
                     : 10;
@@ -196,12 +260,24 @@ class PenyewaanController extends Controller
             ->when($dateTo, function ($q) use ($dateTo) {
                 $q->whereDate('tgl_mulai', '<=', $dateTo);
             })
+            ->when($status, function ($q) use ($status) {    // ← filter status (No.5)
+                $q->where('status', $status);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
+        // Hitung badge count tiap status untuk chip filter (No.5)
+        $statusCounts = [
+            'semua'             => Penyewaan::count(),
+            'berjalan'          => Penyewaan::where('status', 'berjalan')->count(),
+            'segera_konfirmasi' => Penyewaan::where('status', 'segera_konfirmasi')->count(),
+            'selesai'           => Penyewaan::where('status', 'selesai')->count(),
+            'dibatalkan'        => Penyewaan::where('status', 'dibatalkan')->count(),
+        ];
+
         return view('admin.penyewaan.index', compact(
-            'penyewaans', 'search', 'perPage', 'dateFrom', 'dateTo'
+            'penyewaans', 'search', 'perPage', 'dateFrom', 'dateTo', 'status', 'statusCounts'
         ));
     }
 
@@ -213,7 +289,7 @@ class PenyewaanController extends Controller
     {
         $penyewaan = Penyewaan::with([
             'details.inventory',
-            'extends',          // <-- eager load riwayat extend
+            'extends',
         ])->findOrFail($id);
 
         $this->syncStatus($penyewaan);
@@ -253,6 +329,14 @@ class PenyewaanController extends Controller
             'items.*.qty'         => 'required|integer|min:1',
             'items.*.harga_satuan'=> 'required|integer|min:0',
         ]);
+
+        // ── Validasi stok (No. 3) ──────────────────────────────
+        $stokErrors = $this->validateStok($request->items);
+        if (!empty($stokErrors)) {
+            return back()
+                ->withInput()
+                ->withErrors(['stok' => $stokErrors]);
+        }
 
         $tglMulai   = Carbon::parse($request->tgl_mulai)->startOfDay();
         $tglSelesai = Carbon::parse($request->tgl_selesai)->startOfDay();
@@ -344,6 +428,14 @@ class PenyewaanController extends Controller
             'items.*.qty'         => 'required|integer|min:1',
             'items.*.harga_satuan'=> 'required|integer|min:0',
         ]);
+
+        // ── Validasi stok (No. 3) — kecualikan penyewaan yang sedang diedit ──
+        $stokErrors = $this->validateStok($request->items, (int) $id);
+        if (!empty($stokErrors)) {
+            return back()
+                ->withInput()
+                ->withErrors(['stok' => $stokErrors]);
+        }
 
         $tglMulai   = Carbon::parse($request->tgl_mulai)->startOfDay();
         $tglSelesai = Carbon::parse($request->tgl_selesai)->startOfDay();
@@ -441,7 +533,7 @@ class PenyewaanController extends Controller
             action:   'delete',
             subject:  $penyewaan->nama_penyewa,
             oldValue: ['status' => $penyewaan->status],
-            newValue: null,
+            newValue: [],
             pageUrl:  'penyewaan'
         );
 
@@ -741,7 +833,7 @@ class PenyewaanController extends Controller
 
     public function invoiceExtend(string $extendId)
     {
-        $extend = PenyewaanExtend::with('penyewaan.details')->findOrFail($extendId);
+        $extend    = PenyewaanExtend::with('penyewaan.details')->findOrFail($extendId);
         $penyewaan = $extend->penyewaan;
 
         return view('admin.penyewaan.cetak.invoice_extend', compact('extend', 'penyewaan'));

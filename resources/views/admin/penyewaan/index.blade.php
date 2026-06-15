@@ -50,6 +50,33 @@
     .btn-export:hover { background:#059669; border-color:#059669; }
     html.dark .btn-export { background:rgba(16,185,129,0.2); color:#34D399; border-color:rgba(16,185,129,0.3); }
 
+    /* ── Status Filter Chips (No.5) ── */
+    .status-filter-bar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .status-filter-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px; }
+    .status-filter-label i { font-size:13px; color:var(--brand-500); }
+    .status-chips { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .chip { display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 12px; border-radius:99px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--bg-card); color:var(--text-secondary); text-decoration:none; transition:all 0.18s; white-space:nowrap; font-family:var(--font); }
+    .chip:hover { background:var(--bg-hover); color:var(--text-primary); }
+    .chip .chip-count { background:var(--bg-hover); border-radius:99px; padding:0 6px; font-size:11px; font-weight:700; min-width:18px; text-align:center; transition:background 0.18s; }
+    .chip.active-semua { background:var(--brand-500); color:#fff; border-color:var(--brand-500); }
+    .chip.active-semua .chip-count { background:rgba(255,255,255,0.25); color:#fff; }
+    .chip.active-berjalan { background:#F0FDF4; color:#16A34A; border-color:#86EFAC; }
+    .chip.active-berjalan .chip-count { background:#DCFCE7; color:#16A34A; }
+    html.dark .chip.active-berjalan { background:rgba(22,163,74,0.15); color:#4ADE80; border-color:rgba(22,163,74,0.35); }
+    html.dark .chip.active-berjalan .chip-count { background:rgba(22,163,74,0.25); color:#4ADE80; }
+    .chip.active-segera_konfirmasi { background:#FFFBEB; color:#B45309; border-color:#FCD34D; }
+    .chip.active-segera_konfirmasi .chip-count { background:#FEF3C7; color:#B45309; }
+    html.dark .chip.active-segera_konfirmasi { background:rgba(180,83,9,0.15); color:#FCD34D; border-color:rgba(180,83,9,0.35); }
+    html.dark .chip.active-segera_konfirmasi .chip-count { background:rgba(180,83,9,0.25); color:#FCD34D; }
+    .chip.active-selesai { background:#F0F9FF; color:#0369A1; border-color:#7DD3FC; }
+    .chip.active-selesai .chip-count { background:#E0F2FE; color:#0369A1; }
+    html.dark .chip.active-selesai { background:rgba(3,105,161,0.15); color:#38BDF8; border-color:rgba(3,105,161,0.35); }
+    html.dark .chip.active-selesai .chip-count { background:rgba(3,105,161,0.25); color:#38BDF8; }
+    .chip.active-dibatalkan { background:#FFF1F2; color:#BE123C; border-color:#FDA4AF; }
+    .chip.active-dibatalkan .chip-count { background:#FFE4E6; color:#BE123C; }
+    html.dark .chip.active-dibatalkan { background:rgba(190,18,60,0.15); color:#FB7185; border-color:rgba(190,18,60,0.35); }
+    html.dark .chip.active-dibatalkan .chip-count { background:rgba(190,18,60,0.25); color:#FB7185; }
+
     /* ── Date Filter Bar ── */
     .date-filter-bar { padding:10px 18px; border-bottom:1px solid var(--border); background:var(--bg-primary); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .date-filter-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:flex; align-items:center; gap:5px; white-space:nowrap; flex-shrink:0; }
@@ -162,18 +189,10 @@
     html.dark .status-konfirmasi { background:rgba(180,83,9,0.12); color:#FCD34D; }
     html.dark .status-selesai    { background:rgba(3,105,161,0.12); color:#38BDF8; }
 
-    /* ── File badge "Lihat" ── */
-    .link-badge {
-        display:inline-flex; align-items:center; gap:5px;
-        background:var(--bg-hover); border:1px solid var(--border);
-        border-radius:6px; padding:4px 10px;
-        font-size:12px; font-weight:500; color:var(--text-secondary);
-        text-decoration:none; cursor:pointer; border:none;
-        transition:all 0.2s; white-space:nowrap; font-family:var(--font);
-    }
+    /* ── File badge ── */
+    .link-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:500; color:var(--text-secondary); text-decoration:none; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:var(--font); }
     .link-badge:hover { color:var(--brand-500); background:var(--brand-50); border-color:var(--brand-200); }
     .link-badge i { font-size:13px; }
-    .link-badge.bukti { border:1px solid var(--border); }
     html.dark .link-badge:hover { background:rgba(29,111,164,0.1); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
     .no-file { color:var(--text-muted); font-style:italic; font-size:12.5px; }
 
@@ -193,18 +212,8 @@
     /* ── Produk item list ── */
     .produk-list { display:flex; flex-direction:column; gap:3px; min-width:160px; }
     .produk-list-item { font-size:12.5px; color:var(--text-primary); white-space:nowrap; display:flex; align-items:center; gap:5px; }
-    .produk-list-item .qty-badge {
-        display:inline-flex; align-items:center;
-        background:var(--brand-50); color:var(--brand-500);
-        border:1px solid var(--brand-100);
-        border-radius:5px; padding:0px 6px;
-        font-size:11.5px; font-weight:700;
-        white-space:nowrap; flex-shrink:0;
-    }
-    html.dark .produk-list-item .qty-badge {
-        background:rgba(29,111,164,0.12); color:#60A5FA;
-        border-color:rgba(29,111,164,0.25);
-    }
+    .produk-list-item .qty-badge { display:inline-flex; align-items:center; background:var(--brand-50); color:var(--brand-500); border:1px solid var(--brand-100); border-radius:5px; padding:0px 6px; font-size:11.5px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+    html.dark .produk-list-item .qty-badge { background:rgba(29,111,164,0.12); color:#60A5FA; border-color:rgba(29,111,164,0.25); }
     .produk-list-fallback { font-size:13px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
 
     /* ===== MONITORING MODAL ===== */
@@ -239,126 +248,39 @@
     /* ===== EXTEND MODAL ===== */
     .extend-form-group { margin-bottom:14px; }
     .extend-form-group:last-child { margin-bottom:0; }
-    .extend-form-group label {
-        display:block; font-size:12.5px; font-weight:600;
-        color:var(--text-secondary); margin-bottom:5px;
-    }
-    .extend-form-group input,
-    .extend-form-group select {
-        width:100%; height:40px;
-        border:1px solid var(--border); border-radius:8px;
-        background:var(--bg-primary); color:var(--text-primary);
-        font-size:13.5px; padding:0 12px; outline:none;
-        font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s;
-        box-sizing:border-box;
-    }
-    .extend-form-group input:focus,
-    .extend-form-group select:focus {
-        border-color:var(--brand-500);
-        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
-    }
-    .extend-form-group textarea {
-        width:100%; height:76px;
-        border:1px solid var(--border); border-radius:8px;
-        background:var(--bg-primary); color:var(--text-primary);
-        font-size:13px; padding:10px 12px; outline:none; resize:none;
-        font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s;
-        box-sizing:border-box;
-    }
-    .extend-form-group textarea:focus {
-        border-color:var(--brand-500);
-        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
-    }
-    .extend-form-group .input-prefix-wrap {
-        display:flex; align-items:center;
-        border:1px solid var(--border); border-radius:8px;
-        overflow:hidden; background:var(--bg-primary);
-        transition:border-color 0.2s, box-shadow 0.2s;
-    }
-    .extend-form-group .input-prefix-wrap:focus-within {
-        border-color:var(--brand-500);
-        box-shadow:0 0 0 3px rgba(29,111,164,0.12);
-    }
-    .extend-form-group .input-prefix-wrap span {
-        padding:0 10px; font-size:13px; font-weight:600;
-        color:var(--text-muted); background:var(--bg-hover);
-        border-right:1px solid var(--border); white-space:nowrap;
-        height:40px; display:flex; align-items:center;
-    }
-    .extend-form-group .input-prefix-wrap input {
-        border:none; box-shadow:none; border-radius:0; flex:1;
-        height:40px; width:auto;
-    }
-    .extend-form-group .input-prefix-wrap input:focus {
-        border:none; box-shadow:none;
-    }
-    .extend-upload-label {
-        display:flex; align-items:center; justify-content:center;
-        gap:6px; width:100%; height:40px;
-        border:1.5px dashed var(--border); border-radius:8px;
-        background:var(--bg-primary); color:var(--text-muted);
-        font-size:13px; font-weight:500; cursor:pointer;
-        transition:all 0.2s; font-family:var(--font);
-        box-sizing:border-box;
-    }
-    .extend-upload-label:hover {
-        border-color:var(--brand-500); color:var(--brand-500);
-        background:var(--brand-50);
-    }
+    .extend-form-group label { display:block; font-size:12.5px; font-weight:600; color:var(--text-secondary); margin-bottom:5px; }
+    .extend-form-group input, .extend-form-group select { width:100%; height:40px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13.5px; padding:0 12px; outline:none; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; box-sizing:border-box; }
+    .extend-form-group input:focus, .extend-form-group select:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
+    .extend-form-group textarea { width:100%; height:76px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; padding:10px 12px; outline:none; resize:none; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; box-sizing:border-box; }
+    .extend-form-group textarea:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
+    .extend-form-group .input-prefix-wrap { display:flex; align-items:center; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--bg-primary); transition:border-color 0.2s, box-shadow 0.2s; }
+    .extend-form-group .input-prefix-wrap:focus-within { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.12); }
+    .extend-form-group .input-prefix-wrap span { padding:0 10px; font-size:13px; font-weight:600; color:var(--text-muted); background:var(--bg-hover); border-right:1px solid var(--border); white-space:nowrap; height:40px; display:flex; align-items:center; }
+    .extend-form-group .input-prefix-wrap input { border:none; box-shadow:none; border-radius:0; flex:1; height:40px; width:auto; }
+    .extend-form-group .input-prefix-wrap input:focus { border:none; box-shadow:none; }
+    .extend-upload-label { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:40px; border:1.5px dashed var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-muted); font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; font-family:var(--font); box-sizing:border-box; }
+    .extend-upload-label:hover { border-color:var(--brand-500); color:var(--brand-500); background:var(--brand-50); }
     .extend-upload-label i { font-size:16px; }
-    #extendBuktiName {
-        font-size:11.5px; color:var(--text-muted);
-        margin-top:4px; text-align:center;
-    }
-    .extend-info-bar {
-        background:var(--bg-hover); border:1px solid var(--border);
-        border-radius:8px; padding:9px 14px; margin-bottom:16px;
-        font-size:12.5px; color:var(--text-secondary);
-        display:flex; align-items:center; gap:7px;
-    }
+    #extendBuktiName { font-size:11.5px; color:var(--text-muted); margin-top:4px; text-align:center; }
+    .extend-info-bar { background:var(--bg-hover); border:1px solid var(--border); border-radius:8px; padding:9px 14px; margin-bottom:16px; font-size:12.5px; color:var(--text-secondary); display:flex; align-items:center; gap:7px; }
     .extend-info-bar i { color:#F59E0B; font-size:15px; flex-shrink:0; }
 
     /* ===== MODAL SUKSES EXTEND ===== */
     .extend-sukses-box { text-align:center; padding:8px 0 4px; }
-    .extend-sukses-box .sukses-icon {
-        width:60px; height:60px; border-radius:50%;
-        background:#F0FDF4; border:2px solid #BBF7D0;
-        display:inline-flex; align-items:center; justify-content:center;
-        margin-bottom:12px;
-    }
+    .extend-sukses-box .sukses-icon { width:60px; height:60px; border-radius:50%; background:#F0FDF4; border:2px solid #BBF7D0; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px; }
     .extend-sukses-box .sukses-icon i { font-size:30px; color:#16A34A; }
     .extend-sukses-box h3 { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
     .extend-sukses-box p { font-size:13px; color:var(--text-muted); line-height:1.6; }
-    .extend-sukses-info {
-        display:flex; flex-direction:column; gap:6px;
-        background:var(--bg-hover); border:1px solid var(--border);
-        border-radius:10px; padding:12px 16px; margin:14px 0;
-        text-align:left;
-    }
-    .extend-sukses-info-row {
-        display:flex; justify-content:space-between; align-items:center;
-        font-size:13px;
-    }
+    .extend-sukses-info { display:flex; flex-direction:column; gap:6px; background:var(--bg-hover); border:1px solid var(--border); border-radius:10px; padding:12px 16px; margin:14px 0; text-align:left; }
+    .extend-sukses-info-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; }
     .extend-sukses-info-row .label { color:var(--text-muted); }
     .extend-sukses-info-row .value { font-weight:700; color:var(--text-primary); }
     .extend-sukses-info-row .value.highlight { color:#F59E0B; }
-    .extend-cetak-row {
-        display:flex; gap:8px; margin-top:4px;
-    }
-    .extend-cetak-row a {
-        flex:1; display:inline-flex; align-items:center; justify-content:center;
-        gap:6px; height:40px; border-radius:8px; font-size:13px; font-weight:600;
-        text-decoration:none; transition:all 0.2s;
-    }
-    .btn-cetak-invoice {
-        background:#F0FDF4; color:#16A34A;
-        border:1.5px solid #BBF7D0;
-    }
+    .extend-cetak-row { display:flex; gap:8px; margin-top:4px; }
+    .extend-cetak-row a { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; transition:all 0.2s; }
+    .btn-cetak-invoice { background:#F0FDF4; color:#16A34A; border:1.5px solid #BBF7D0; }
     .btn-cetak-invoice:hover { background:#DCFCE7; border-color:#86EFAC; }
-    .btn-cetak-perjanjian {
-        background:#F5F3FF; color:#7C3AED;
-        border:1.5px solid #DDD6FE;
-    }
+    .btn-cetak-perjanjian { background:#F5F3FF; color:#7C3AED; border:1.5px solid #DDD6FE; }
     .btn-cetak-perjanjian:hover { background:#EDE9FE; border-color:#C4B5FD; }
     html.dark .btn-cetak-invoice { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
     html.dark .btn-cetak-perjanjian { background:rgba(124,58,237,0.12); color:#A78BFA; border-color:rgba(124,58,237,0.25); }
@@ -395,6 +317,7 @@
                 <input type="hidden" name="search"    value="{{ $search }}">
                 <input type="hidden" name="date_from" value="{{ $dateFrom }}">
                 <input type="hidden" name="date_to"   value="{{ $dateTo }}">
+                <input type="hidden" name="status"    value="{{ $status }}">
                 <div class="per-page-wrap">
                     <span>Tampilkan</span>
                     <select name="per_page" class="per-page-select"
@@ -414,6 +337,7 @@
                 <input type="hidden" name="per_page"  value="{{ $perPage }}">
                 <input type="hidden" name="date_from" value="{{ $dateFrom }}">
                 <input type="hidden" name="date_to"   value="{{ $dateTo }}">
+                <input type="hidden" name="status"    value="{{ $status }}">
                 <div class="search-input-wrap">
                     <i class="ri-search-line"></i>
                     <input type="text" name="search"
@@ -425,7 +349,7 @@
                     <i class="ri-search-2-line"></i> Cari
                 </button>
                 @if($search)
-                <a href="{{ route('penyewaan.index', ['per_page' => $perPage, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                <a href="{{ route('penyewaan.index', ['per_page' => $perPage, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'status' => $status]) }}"
                    class="btn btn-reset">
                     <i class="ri-close-line"></i> Reset
                 </a>
@@ -449,6 +373,51 @@
         </div>
     </div>
 
+    {{-- ══ STATUS FILTER CHIPS (No.5) ══ --}}
+    <div class="status-filter-bar">
+        <span class="status-filter-label">
+            <i class="ri-filter-3-line"></i> Status
+        </span>
+        <div class="status-chips">
+
+            <a href="{{ route('penyewaan.index', array_merge(request()->except(['status','page']), ['status' => ''])) }}"
+               class="chip {{ $status === '' ? 'active-semua' : '' }}">
+                <i class="ri-list-unordered"></i>
+                Semua
+                <span class="chip-count">{{ $statusCounts['semua'] }}</span>
+            </a>
+
+            <a href="{{ route('penyewaan.index', array_merge(request()->except(['status','page']), ['status' => 'berjalan'])) }}"
+               class="chip {{ $status === 'berjalan' ? 'active-berjalan' : '' }}">
+                <i class="ri-play-circle-line"></i>
+                Berjalan
+                <span class="chip-count">{{ $statusCounts['berjalan'] }}</span>
+            </a>
+
+            <a href="{{ route('penyewaan.index', array_merge(request()->except(['status','page']), ['status' => 'segera_konfirmasi'])) }}"
+               class="chip {{ $status === 'segera_konfirmasi' ? 'active-segera_konfirmasi' : '' }}">
+                <i class="ri-alarm-warning-line"></i>
+                Segera Konfirmasi
+                <span class="chip-count">{{ $statusCounts['segera_konfirmasi'] }}</span>
+            </a>
+
+            <a href="{{ route('penyewaan.index', array_merge(request()->except(['status','page']), ['status' => 'selesai'])) }}"
+               class="chip {{ $status === 'selesai' ? 'active-selesai' : '' }}">
+                <i class="ri-checkbox-circle-line"></i>
+                Selesai
+                <span class="chip-count">{{ $statusCounts['selesai'] }}</span>
+            </a>
+
+            <a href="{{ route('penyewaan.index', array_merge(request()->except(['status','page']), ['status' => 'dibatalkan'])) }}"
+               class="chip {{ $status === 'dibatalkan' ? 'active-dibatalkan' : '' }}">
+                <i class="ri-close-circle-line"></i>
+                Dibatalkan
+                <span class="chip-count">{{ $statusCounts['dibatalkan'] }}</span>
+            </a>
+
+        </div>
+    </div>
+
     {{-- ══ DATE FILTER BAR ══ --}}
     <div class="date-filter-bar">
         <span class="date-filter-label">
@@ -459,6 +428,7 @@
               style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <input type="hidden" name="search"   value="{{ $search }}">
             <input type="hidden" name="per_page" value="{{ $perPage }}">
+            <input type="hidden" name="status"   value="{{ $status }}">
 
             <div class="date-inputs-wrap">
                 <input type="date" name="date_from" id="inputDateFrom"
@@ -479,7 +449,7 @@
                 <i class="ri-filter-fill" style="font-size:10px;"></i>
                 Aktif{{ $dateFrom && $dateTo ? ': ' . \Carbon\Carbon::parse($dateFrom)->format('d M') . ' – ' . \Carbon\Carbon::parse($dateTo)->format('d M Y') : '' }}
             </span>
-            <a href="{{ route('penyewaan.index', ['search' => $search, 'per_page' => $perPage]) }}"
+            <a href="{{ route('penyewaan.index', ['search' => $search, 'per_page' => $perPage, 'status' => $status]) }}"
                class="btn btn-ghost" style="height:28px;font-size:12px;padding:0 10px;">
                 <i class="ri-close-line"></i> Hapus Filter
             </a>
@@ -522,11 +492,12 @@
 
                 <div class="export-filter-group">
                     <label class="export-filter-label">Status</label>
-                    <select name="status" class="export-filter-input" style="width:160px;">
+                    <select name="status" class="export-filter-input" style="width:180px;">
                         <option value="semua">Semua Status</option>
-                        <option value="berjalan"   {{ request('status') === 'berjalan'   ? 'selected' : '' }}>Berjalan</option>
-                        <option value="konfirmasi" {{ request('status') === 'konfirmasi' ? 'selected' : '' }}>Perlu Konfirmasi</option>
-                        <option value="selesai"    {{ request('status') === 'selesai'    ? 'selected' : '' }}>Selesai</option>
+                        <option value="berjalan"          {{ $status === 'berjalan'          ? 'selected' : '' }}>Berjalan</option>
+                        <option value="segera_konfirmasi" {{ $status === 'segera_konfirmasi' ? 'selected' : '' }}>Segera Konfirmasi</option>
+                        <option value="selesai"           {{ $status === 'selesai'           ? 'selected' : '' }}>Selesai</option>
+                        <option value="dibatalkan"        {{ $status === 'dibatalkan'        ? 'selected' : '' }}>Dibatalkan</option>
                     </select>
                 </div>
 
@@ -556,13 +527,17 @@
     {{-- ══ INFO BAR ══ --}}
     <div class="info-bar">
         <div class="info-bar-text">
-            @if($search || $dateFrom || $dateTo)
+            @if($search || $dateFrom || $dateTo || $status)
                 <i class="ri-filter-3-line"></i>
                 @if($search)
                     Pencarian: <strong>"{{ $search }}"</strong>
                 @endif
-                @if($dateFrom || $dateTo)
+                @if($status)
                     @if($search) &nbsp;·&nbsp; @endif
+                    Status: <strong>{{ ['berjalan'=>'Berjalan','segera_konfirmasi'=>'Segera Konfirmasi','selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'][$status] ?? $status }}</strong>
+                @endif
+                @if($dateFrom || $dateTo)
+                    @if($search || $status) &nbsp;·&nbsp; @endif
                     <i class="ri-calendar-line" style="font-size:12px;"></i>
                     @if($dateFrom && $dateTo)
                         {{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }} — {{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}
@@ -776,15 +751,15 @@
                         <div class="empty-state">
                             <i class="ri-store-2-line"></i>
                             <h3>
-                                @if($search || $dateFrom || $dateTo)
+                                @if($search || $dateFrom || $dateTo || $status)
                                     Tidak ada data yang cocok
                                 @else
                                     Belum ada data penyewaan
                                 @endif
                             </h3>
                             <p>
-                                @if($search || $dateFrom || $dateTo)
-                                    Coba ubah kata kunci atau filter tanggal.
+                                @if($search || $dateFrom || $dateTo || $status)
+                                    Coba ubah kata kunci, filter tanggal, atau filter status.
                                 @else
                                     Klik "Input Data" untuk mencatat penyewaan baru.
                                 @endif
@@ -868,9 +843,7 @@
             </div>
         </div>
         <div class="modal-body" style="padding:16px;">
-            <div class="file-preview-wrap" id="previewContent">
-                {{-- diisi JS --}}
-            </div>
+            <div class="file-preview-wrap" id="previewContent"></div>
         </div>
     </div>
 </div>
@@ -1038,20 +1011,14 @@
             </button>
         </div>
         <div class="modal-body" style="padding:18px 22px;">
-
-            {{-- Info deadline awal --}}
             <div class="extend-info-bar" id="extendInfoBar">
                 <i class="ri-calendar-event-line"></i>
                 <span id="extendInfoText">Deadline awal: -</span>
             </div>
-
-            {{-- Tanggal Extend --}}
             <div class="extend-form-group">
                 <label><i class="ri-calendar-2-line"></i> Tanggal Extend Baru <span style="color:#EF4444;">*</span></label>
                 <input type="date" id="extendTanggal" min="">
             </div>
-
-            {{-- Harga Extend --}}
             <div class="extend-form-group">
                 <label><i class="ri-money-dollar-circle-line"></i> Harga Extend <span style="color:#EF4444;">*</span></label>
                 <div class="input-prefix-wrap">
@@ -1059,8 +1026,6 @@
                     <input type="number" id="extendHarga" placeholder="0" min="0" step="1000">
                 </div>
             </div>
-
-            {{-- Metode Bayar --}}
             <div class="extend-form-group">
                 <label><i class="ri-bank-card-line"></i> Metode Pembayaran <span style="color:#EF4444;">*</span></label>
                 <select id="extendMetodeBayar">
@@ -1070,8 +1035,6 @@
                     <option value="QRIS">QRIS</option>
                 </select>
             </div>
-
-            {{-- Bukti Transfer --}}
             <div class="extend-form-group">
                 <label><i class="ri-image-line"></i> Bukti Transfer <span style="color:var(--text-muted); font-weight:400;">(opsional)</span></label>
                 <label class="extend-upload-label" for="extendBuktiInput">
@@ -1082,13 +1045,10 @@
                        style="display:none;" onchange="onExtendFileChange(this)">
                 <div id="extendBuktiName"></div>
             </div>
-
-            {{-- Catatan --}}
             <div class="extend-form-group">
                 <label><i class="ri-sticky-note-line"></i> Catatan <span style="color:var(--text-muted); font-weight:400;">(opsional)</span></label>
                 <textarea id="extendCatatan" placeholder="Catatan tambahan..."></textarea>
             </div>
-
         </div>
         <div class="modal-footer">
             <button class="btn btn-reset" onclick="closeExtend()">
@@ -1120,8 +1080,6 @@
                 <h3>Perpanjangan Berhasil Disimpan!</h3>
                 <p>Data perpanjangan telah tersimpan dan deadline penyewaan telah diperbarui.</p>
             </div>
-
-            {{-- Info ringkasan --}}
             <div class="extend-sukses-info">
                 <div class="extend-sukses-info-row">
                     <span class="label">Deadline Baru</span>
@@ -1132,8 +1090,6 @@
                     <span class="value" id="suksesExtendTambahHari">—</span>
                 </div>
             </div>
-
-            {{-- Tombol Cetak --}}
             <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:8px;">
                 Cetak dokumen perpanjangan:
             </p>
@@ -1166,22 +1122,17 @@ function setDateRange(range) {
     const today = new Date();
     const pad   = n => String(n).padStart(2, '0');
     const ymd   = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
     let from, to;
     to = ymd(today);
-
     if (range === 'today') {
         from = to;
     } else if (range === 'week') {
-        const w = new Date(today);
-        w.setDate(today.getDate() - 6);
-        from = ymd(w);
+        const w = new Date(today); w.setDate(today.getDate() - 6); from = ymd(w);
     } else if (range === 'month') {
         from = `${today.getFullYear()}-${pad(today.getMonth()+1)}-01`;
     } else if (range === 'year') {
         from = `${today.getFullYear()}-01-01`;
     }
-
     document.getElementById('inputDateFrom').value = from;
     document.getElementById('inputDateTo').value   = to;
     document.getElementById('dateFilterForm').submit();
@@ -1228,39 +1179,24 @@ document.addEventListener('click', function(e) {
 function previewFile(url, type, title) {
     document.getElementById('previewModalTitle').innerHTML =
         `<i class="ri-${type === 'pdf' ? 'file-pdf-line' : 'image-line'}" style="${type === 'pdf' ? 'color:#EF4444;' : 'color:var(--brand-500);'}"></i> ${title}`;
-
-    const downloadBtn = document.getElementById('previewDownloadBtn');
-    downloadBtn.href = url;
-
+    document.getElementById('previewDownloadBtn').href = url;
     const content = document.getElementById('previewContent');
-
     if (type === 'pdf') {
         content.innerHTML = `
             <iframe src="${url}" class="file-preview-pdf" title="Preview PDF"></iframe>
-            <p class="file-preview-info">
-                <i class="ri-information-line"></i>
-                Jika PDF tidak tampil, klik tombol <strong>Buka di Tab Baru</strong>.
-            </p>`;
+            <p class="file-preview-info"><i class="ri-information-line"></i> Jika PDF tidak tampil, klik tombol <strong>Buka di Tab Baru</strong>.</p>`;
     } else {
         content.innerHTML = `
             <img src="${url}" class="file-preview-img" alt="Preview"
                  onerror="this.outerHTML='<div style=\\'text-align:center;padding:32px;color:var(--text-muted);\\'><i class=\\'ri-image-2-line\\' style=\\'font-size:40px;display:block;margin-bottom:8px;\\'></i>Gambar tidak dapat dimuat.</div>'">
-            <p class="file-preview-info">
-                <i class="ri-information-line"></i>
-                Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.
-            </p>`;
+            <p class="file-preview-info"><i class="ri-information-line"></i> Klik <strong>Buka di Tab Baru</strong> untuk zoom atau download.</p>`;
     }
-
     document.getElementById('modalPreviewFile').classList.add('open');
 }
-
 function closePreviewFile() {
     document.getElementById('modalPreviewFile').classList.remove('open');
-    setTimeout(() => {
-        document.getElementById('previewContent').innerHTML = '';
-    }, 200);
+    setTimeout(() => { document.getElementById('previewContent').innerHTML = ''; }, 200);
 }
-
 document.getElementById('modalPreviewFile').addEventListener('click', function(e) {
     if (e.target === this) closePreviewFile();
 });
@@ -1271,9 +1207,7 @@ function openDeleteModal(id, nama) {
     document.getElementById('deleteForm').action = '/penyewaan/' + id;
     document.getElementById('modalHapus').classList.add('open');
 }
-function closeDeleteModal() {
-    document.getElementById('modalHapus').classList.remove('open');
-}
+function closeDeleteModal() { document.getElementById('modalHapus').classList.remove('open'); }
 document.getElementById('modalHapus').addEventListener('click', function(e) {
     if (e.target === this) closeDeleteModal();
 });
@@ -1287,9 +1221,7 @@ function openMonitoring() {
     document.getElementById('modalMonitoring').classList.add('open');
     loadMonitoringData();
 }
-function closeMonitoring() {
-    document.getElementById('modalMonitoring').classList.remove('open');
-}
+function closeMonitoring() { document.getElementById('modalMonitoring').classList.remove('open'); }
 document.getElementById('modalMonitoring').addEventListener('click', function(e) {
     if (e.target === this) closeMonitoring();
 });
@@ -1304,23 +1236,12 @@ function loadMonitoringData() {
     .then(r => r.json())
     .then(data => {
         if (!data.length) {
-            el.innerHTML = `
-                <div class="monitoring-loading" style="color:var(--text-muted);">
-                    <i class="ri-inbox-2-line" style="animation:none; font-size:40px;"></i>
-                    Tidak ada penyewaan aktif saat ini.
-                </div>`;
+            el.innerHTML = `<div class="monitoring-loading" style="color:var(--text-muted);"><i class="ri-inbox-2-line" style="animation:none; font-size:40px;"></i>Tidak ada penyewaan aktif saat ini.</div>`;
             return;
         }
-
         let rows = data.map(d => {
-            const sisaClass = d.sisa_hari <= 0
-                ? 'sisa-hari-danger'
-                : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
-
-            const sisaText = d.sisa_hari <= 0
-                ? 'Lewat deadline'
-                : (d.sisa_hari === 1 ? 'Besok deadline!' : d.sisa_hari + ' hari lagi');
-
+            const sisaClass = d.sisa_hari <= 0 ? 'sisa-hari-danger' : (d.sisa_hari <= 7 ? 'sisa-hari-warning' : 'sisa-hari-normal');
+            const sisaText  = d.sisa_hari <= 0 ? 'Lewat deadline' : (d.sisa_hari === 1 ? 'Besok deadline!' : d.sisa_hari + ' hari lagi');
             return `<tr>
                 <td style="font-weight:600;">${d.nama}</td>
                 <td>${d.nomor_hp}</td>
@@ -1329,26 +1250,20 @@ function loadMonitoringData() {
                 <td class="center"><span class="${sisaClass}">${sisaText}</span></td>
                 <td class="center"><span class="status-badge ${d.status_class}">${d.status_label}</span></td>
                 <td class="center">
-                    <button class="btn btn-sm" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
+                    <button class="btn" style="height:30px; padding:0 12px; font-size:12px; background:#7C3AED; color:#fff; border:none; border-radius:7px; cursor:pointer;"
                             onclick="openSelesaikan(${d.id}, ${d.sisa_hari}, '${d.tgl_selesai_raw}')">
                         <i class="ri-check-double-line"></i> Selesaikan
                     </button>
                 </td>
             </tr>`;
         }).join('');
-
         el.innerHTML = `
             <div style="overflow-x:auto;">
                 <table class="monitoring-table">
                     <thead>
                         <tr>
-                            <th>Nama</th>
-                            <th>Nomor HP</th>
-                            <th>Barang</th>
-                            <th>Alamat</th>
-                            <th class="center">Sisa Hari</th>
-                            <th class="center">Status</th>
-                            <th class="center">Aksi</th>
+                            <th>Nama</th><th>Nomor HP</th><th>Barang</th><th>Alamat</th>
+                            <th class="center">Sisa Hari</th><th class="center">Status</th><th class="center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>${rows}</tbody>
@@ -1362,9 +1277,7 @@ function loadMonitoringData() {
 
 // ── Selesaikan ──
 function openSelesaikan(id, sisaHari, tglSelesai) {
-    currentPenyewaanId = id;
-    currentSisaHari    = sisaHari;
-    currentTglSelesai  = tglSelesai;
+    currentPenyewaanId = id; currentSisaHari = sisaHari; currentTglSelesai = tglSelesai;
     if (sisaHari > 7) {
         document.getElementById('sisaHariNormal').textContent = sisaHari;
         document.getElementById('modalSelesaikanNormal').classList.add('open');
@@ -1392,8 +1305,7 @@ function doSelesaikan(action) {
     .then(r => r.json())
     .then(res => {
         if (res.success) {
-            closeSelesaikanNormal();
-            closePilihAction();
+            closeSelesaikanNormal(); closePilihAction();
             loadMonitoringData();
             setTimeout(() => location.reload(), 500);
         }
@@ -1408,55 +1320,38 @@ function openExtend() {
         d.setDate(d.getDate() + 1);
         const pad     = n => String(n).padStart(2, '0');
         const minDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
         document.getElementById('extendTanggal').min   = minDate;
         document.getElementById('extendTanggal').value = minDate;
-
-        // Reset semua field form
         document.getElementById('extendHarga').value           = '';
         document.getElementById('extendMetodeBayar').value     = '';
         document.getElementById('extendBuktiInput').value      = '';
         document.getElementById('extendBuktiName').textContent = '';
         document.getElementById('extendCatatan').value         = '';
-
         const tglAwal  = new Date(currentTglSelesai + 'T00:00:00');
         const tglLabel = tglAwal.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        document.getElementById('extendInfoText').textContent =
-            `Deadline awal: ${tglLabel}. Extend dihitung mulai tanggal tersebut.`;
+        document.getElementById('extendInfoText').textContent = `Deadline awal: ${tglLabel}. Extend dihitung mulai tanggal tersebut.`;
     }
     document.getElementById('modalExtend').classList.add('open');
 }
-
-function closeExtend() {
-    document.getElementById('modalExtend').classList.remove('open');
-}
-
+function closeExtend() { document.getElementById('modalExtend').classList.remove('open'); }
 function onExtendFileChange(input) {
     const nameEl = document.getElementById('extendBuktiName');
     if (input.files && input.files[0]) {
         nameEl.textContent = '✓ ' + input.files[0].name;
         nameEl.style.color = 'var(--brand-500)';
-    } else {
-        nameEl.textContent = '';
-    }
+    } else { nameEl.textContent = ''; }
 }
 
 // ════ SUKSES EXTEND ════
 function openSuksesExtend(extendId, tglBaru, tambahHari) {
     const baseUrl = '{{ url("penyewaan/extend") }}';
-
     document.getElementById('suksesExtendTglBaru').textContent    = tglBaru;
     document.getElementById('suksesExtendTambahHari').textContent = tambahHari + ' hari';
     document.getElementById('linkCetakInvoiceExtend').href        = `${baseUrl}/${extendId}/invoice`;
     document.getElementById('linkCetakPerjanjianExtend').href     = `${baseUrl}/${extendId}/perjanjian`;
-
     document.getElementById('modalSuksesExtend').classList.add('open');
 }
-
-function closeSuksesExtend() {
-    document.getElementById('modalSuksesExtend').classList.remove('open');
-}
-
+function closeSuksesExtend() { document.getElementById('modalSuksesExtend').classList.remove('open'); }
 document.getElementById('modalSuksesExtend').addEventListener('click', function(e) {
     if (e.target === this) closeSuksesExtend();
 });
@@ -1467,31 +1362,19 @@ function doExtend() {
     const metodeBayar = document.getElementById('extendMetodeBayar').value;
     const catatan     = document.getElementById('extendCatatan').value;
     const fileInput   = document.getElementById('extendBuktiInput');
-
-    if (!tglBaru) {
-        alert('Tanggal extend wajib diisi.');
-        return;
-    }
-    if (harga === '' || Number(harga) < 0) {
-        alert('Harga extend wajib diisi.');
-        return;
-    }
-    if (!metodeBayar) {
-        alert('Metode pembayaran wajib dipilih.');
-        return;
-    }
+    if (!tglBaru)                        { alert('Tanggal extend wajib diisi.'); return; }
+    if (harga === '' || Number(harga) < 0) { alert('Harga extend wajib diisi.'); return; }
+    if (!metodeBayar)                    { alert('Metode pembayaran wajib dipilih.'); return; }
     if (!currentPenyewaanId) return;
 
     const token    = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
     const formData = new FormData();
-    formData.append('_token',           token);
+    formData.append('_token', token);
     formData.append('tgl_selesai_baru', tglBaru);
-    formData.append('harga_extend',     harga);
-    formData.append('metode_bayar',     metodeBayar);
-    formData.append('catatan',          catatan);
-    if (fileInput.files[0]) {
-        formData.append('bukti_transfer', fileInput.files[0]);
-    }
+    formData.append('harga_extend', harga);
+    formData.append('metode_bayar', metodeBayar);
+    formData.append('catatan', catatan);
+    if (fileInput.files[0]) formData.append('bukti_transfer', fileInput.files[0]);
 
     const btn = document.getElementById('btnDoExtend');
     btn.disabled  = true;
@@ -1499,25 +1382,17 @@ function doExtend() {
 
     fetch(`/penyewaan/${currentPenyewaanId}/extend-store`, {
         method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
         body: formData
     })
     .then(r => r.json())
     .then(res => {
         btn.disabled  = false;
         btn.innerHTML = '<i class="ri-calendar-2-line"></i> Simpan Extend';
-
         if (res.success) {
-            closeExtend();
-            loadMonitoringData();
-            // Buka modal sukses dengan tombol cetak
+            closeExtend(); loadMonitoringData();
             openSuksesExtend(res.extend_id, res.tgl_baru, res.tambah_hari);
-        } else {
-            alert(res.message || 'Gagal menyimpan extend.');
-        }
+        } else { alert(res.message || 'Gagal menyimpan extend.'); }
     })
     .catch(() => {
         btn.disabled  = false;
@@ -1529,29 +1404,19 @@ function doExtend() {
 // ── Escape Key ──
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closePreviewFile();
-        closeDeleteModal();
-        closeMonitoring();
-        closeSelesaikanNormal();
-        closeKonfirmasiDulu();
-        closePilihAction();
-        closeExtend();
-        closeSuksesExtend();
-        closeAllDropdowns();
+        closePreviewFile(); closeDeleteModal(); closeMonitoring();
+        closeSelesaikanNormal(); closeKonfirmasiDulu(); closePilihAction();
+        closeExtend(); closeSuksesExtend(); closeAllDropdowns();
     }
 });
-
 ['modalSelesaikanNormal','modalKonfirmasiDulu','modalPilihAction','modalExtend'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('open');
     });
 });
 
-// ── Auto-open monitoring dari hash ──
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.hash === '#monitoring') {
-        setTimeout(openMonitoring, 200);
-    }
+    if (window.location.hash === '#monitoring') setTimeout(openMonitoring, 200);
 });
 </script>
 @endpush
