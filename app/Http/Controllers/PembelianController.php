@@ -28,14 +28,16 @@ class PembelianController extends Controller
 
         $query = Pembelian::query()
             ->when($search, function ($q) use ($search) {
-                $q->where('nama_barang', 'like', "%{$search}%")
-                  ->orWhere('no_invoice', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%")
-                  ->orWhere('nama_pelanggan', 'like', "%{$search}%")
-                  ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
-                  ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('CAST(harga_satuan AS CHAR) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('nama_barang', 'like', "%{$search}%")
+                        ->orWhere('no_invoice', 'like', "%{$search}%")
+                        ->orWhere('keterangan', 'like', "%{$search}%")
+                        ->orWhere('nama_pelanggan', 'like', "%{$search}%")
+                        ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
+                        ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('CAST(harga_satuan AS CHAR) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
+                });
             })
             ->when($filter !== 'semua', function ($q) use ($filter) {
                 $q->where('status', $filter);
@@ -65,9 +67,11 @@ class PembelianController extends Controller
     {
         $search   = $request->input('search', '');
         $filter   = $request->input('filter', 'semua');
+        $dateFrom = $request->input('date_from', '');
+        $dateTo   = $request->input('date_to', '');
         $filename = 'pembelian_' . now()->format('Ymd_His') . '.xlsx';
 
-        return Excel::download(new PembelianExport($search, $filter), $filename);
+        return Excel::download(new PembelianExport($search, $filter, $dateFrom, $dateTo), $filename);
     }
 
     public function create()
@@ -94,20 +98,17 @@ class PembelianController extends Controller
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            // ← REVISI: bukti_transaksi sekarang bisa PDF juga
             'bukti_transaksi'   => 'nullable|file|mimes:jpeg,png,webp,pdf|max:10240',
             'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
 
         $validated['status'] = 'normal';
 
-        // Upload bukti pembayaran (JPG/PNG/PDF)
         if ($request->hasFile('bukti_transaksi')) {
             $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
                 ->store('pembelian/bukti', 'public');
         }
 
-        // Upload file invoice / faktur supplier
         if ($request->hasFile('file_invoice')) {
             $validated['file_invoice'] = $request->file('file_invoice')
                 ->store('pembelian/invoice', 'public');
@@ -212,7 +213,6 @@ class PembelianController extends Controller
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            // ← REVISI: bukti_transaksi sekarang bisa PDF juga
             'bukti_transaksi'   => 'nullable|file|mimes:jpeg,png,webp,pdf|max:10240',
             'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
@@ -230,7 +230,6 @@ class PembelianController extends Controller
             'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
-        // ── Handling bukti pembayaran ──
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
@@ -246,7 +245,6 @@ class PembelianController extends Controller
             unset($validated['bukti_transaksi']);
         }
 
-        // ── Handling file invoice ──
         if ($request->hasFile('file_invoice')) {
             if ($pembelian->file_invoice) {
                 Storage::disk('public')->delete($pembelian->file_invoice);
@@ -284,7 +282,7 @@ class PembelianController extends Controller
 
                 if ($inventory) {
                     $diffJumlah = $newJumlah - $oldJumlah;
-                    $inventory->stok_tersedia      = max(0, $inventory->stok_tersedia + $diffJumlah);
+                    $inventory->stok_tersedia       = max(0, $inventory->stok_tersedia + $diffJumlah);
                     $inventory->harga_beli_terakhir = $newHarga;
 
                     if ($oldKondisi === $newKondisi) {
@@ -323,8 +321,10 @@ class PembelianController extends Controller
                     $sisaStok = $invLama->stok_tersedia - $oldJumlah;
 
                     if ($sisaStok <= 0) {
-                        InventoryLog::where('inventory_id', $invLama->id)->delete();
-                        $invLama->delete();
+                        $invLama->stok_tersedia = 0;
+                        $invLama->stok_baru     = 0;
+                        $invLama->stok_bekas    = 0;
+                        $invLama->save();
                     } else {
                         $invLama->stok_tersedia = $sisaStok;
 
@@ -412,8 +412,10 @@ class PembelianController extends Controller
                 $sisaStok = $inventory->stok_tersedia - $jumlah;
 
                 if ($sisaStok <= 0) {
-                    InventoryLog::where('inventory_id', $inventory->id)->delete();
-                    $inventory->delete();
+                    $inventory->stok_tersedia = 0;
+                    $inventory->stok_baru     = 0;
+                    $inventory->stok_bekas    = 0;
+                    $inventory->save();
                 } else {
                     $inventory->stok_tersedia = $sisaStok;
 
@@ -461,11 +463,13 @@ class PembelianController extends Controller
     public function storeBuyBack(Request $request)
     {
         $request->validate([
-            'penjualan_id'         => 'required|exists:penjualans,id',
-            'keterangan'           => 'nullable|string|max:500',
-            'items'                => 'required|array|min:1',
-            'items.*.detail_id'    => 'required|integer|exists:detail_penjualans,id',
-            'items.*.qty_buyback'  => 'required|integer|min:1',
+            'penjualan_id'          => 'required|exists:penjualans,id',
+            'keterangan'            => 'nullable|string|max:500',
+            'items'                 => 'required|array|min:1',
+            'items.*.detail_id'     => 'required|integer|exists:detail_penjualans,id',
+            'items.*.qty_buyback'   => 'required|integer|min:1',
+            // nullable: fallback ke 50% kalau tidak dikirim dari form
+            'items.*.harga_buyback' => 'nullable|numeric|min:0',
         ]);
 
         $penjualanId = (int) $request->input('penjualan_id');
@@ -477,17 +481,31 @@ class PembelianController extends Controller
         DB::transaction(function () use ($penjualan, $items, $keterangan, $penjualanId) {
 
             foreach ($items as $item) {
-                $detailId   = (int) $item['detail_id'];
-                $qtyBuyback = (int) $item['qty_buyback'];
+                $detailId = (int) $item['detail_id'];
+                $detail   = DetailPenjualan::findOrFail($detailId);
 
-                $detail     = DetailPenjualan::findOrFail($detailId);
-                $qtyBuyback = min($qtyBuyback, $detail->qty);
+                // BUG 5 FIX: cek sudah berapa qty di-buyback sebelumnya
+                $sudahBuyback = Pembelian::where('status', 'buy_back')
+                    ->where('penjualan_id', $penjualanId)
+                    ->where('nama_barang', $detail->nama_barang)
+                    ->sum('jumlah');
+
+                $maxBuyback = $detail->qty - $sudahBuyback;
+
+                if ($maxBuyback < 1) continue;
+
+                $qtyBuyback = min((int) $item['qty_buyback'], $maxBuyback);
 
                 if ($qtyBuyback < 1) continue;
 
-                $namaBarang   = $detail->nama_barang;
-                $hargaAsli    = (float) $detail->harga_satuan;
-                $hargaBuyback = isset($item['harga_buyback']) ? (float) $item['harga_buyback'] : round($hargaAsli * 0.5);
+                $namaBarang  = $detail->nama_barang;
+                $hargaAsli   = (float) $detail->harga_satuan;
+
+                // BUG 6 FIX: pakai nilai dari form kalau ada, fallback 50% kalau tidak
+                $hargaBuyback = (isset($item['harga_buyback']) && $item['harga_buyback'] !== '')
+                    ? (float) $item['harga_buyback']
+                    : round($hargaAsli * 0.5);
+
                 $totalBuyback = $hargaBuyback * $qtyBuyback;
 
                 $pembelian = Pembelian::create([

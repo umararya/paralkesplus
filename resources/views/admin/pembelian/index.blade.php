@@ -259,8 +259,12 @@
         </div>
 
         <div class="toolbar-right">
-            <a href="{{ route('pembelian.export', ['search' => $search, 'filter' => $filter]) }}"
-               class="btn btn-export" title="Export ke Excel">
+            <a href="{{ route('pembelian.export', [
+                'search'    => $search,
+                'filter'    => $filter,
+                'date_from' => $dateFrom,
+                'date_to'   => $dateTo,
+            ]) }}" class="btn btn-export" title="Export ke Excel">
                 <i class="ri-file-excel-2-line"></i> Export XLSX
             </a>
             <a href="{{ route('pembelian.create') }}" class="btn btn-primary">
