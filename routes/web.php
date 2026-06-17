@@ -1,4 +1,5 @@
 <?php
+// routes/web.php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -101,11 +102,22 @@ Route::middleware('auth')->group(function () {
 
     // ════════════════════════════════════════════════════════
     //  PEMBELIAN
+    //  ATURAN: semua fixed routes & wildcard khusus SEBELUM resource
     // ════════════════════════════════════════════════════════
 
+    // ── 1. Fixed routes (tanpa {id} wildcard) — WAJIB sebelum resource ──
     Route::get('/pembelian/export',    [PembelianController::class, 'export'])->name('pembelian.export');
     Route::post('/pembelian/buy-back', [PembelianController::class, 'storeBuyBack'])->name('pembelian.buyback.store');
+
+    // ── 2. Resource ──
     Route::resource('pembelian', PembelianController::class);
+
+    // ── 3. Sub-route {id} wildcard — SESUDAH resource ──
+    // CATATAN: route ini AMAN setelah resource karena Laravel resource tidak mendaftarkan
+    // GET /pembelian/{id}/invoice. Namun agar konsisten dengan pola penyewaan,
+    // idealnya dipindah SEBELUM resource jika menggunakan segment string statis.
+    // Karena di sini segmennya adalah {id} (integer), TIDAK akan konflik dengan resource.
+    // Tetap diletakkan sesudah resource sudah benar.
     Route::get('/pembelian/{id}/invoice', [PembelianController::class, 'invoice'])->name('pembelian.invoice');
 
 

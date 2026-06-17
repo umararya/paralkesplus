@@ -36,9 +36,9 @@ class PembelianExport implements
     {
         return Pembelian::when($this->search, function ($q) {
                 $s = $this->search;
-                $q->where('nama_barang',     'like', "%{$s}%")
-                  ->orWhere('nama_pelanggan', 'like', "%{$s}%")
-                  ->orWhere('keterangan',     'like', "%{$s}%");
+                $q->where('nama_barang',  'like', "%{$s}%")
+                  ->orWhere('no_invoice', 'like', "%{$s}%")
+                  ->orWhere('keterangan', 'like', "%{$s}%");
             })
             ->when($this->filter && $this->filter !== 'semua', function ($q) {
                 $q->where('status', $this->filter);
@@ -50,52 +50,65 @@ class PembelianExport implements
     public function headings(): array
     {
         return [
-            '#',
-            'Tanggal',
+            'No',
+            'Tanggal Pembelian',
+            'No. Invoice / Faktur',      // kolom 3
             'Nama Barang',
-            'Status',
-            'Kondisi',
-            'Qty',
+            'Jumlah',
             'Harga Satuan (Rp)',
             'Total (Rp)',
-            'Nama Pelanggan (Buy Back)',
+            'Kondisi',
+            'Status',
             'Keterangan',
-            'Bukti Transaksi (URL)',
+            'Bukti Pembayaran',          // kolom 11
+            'File Invoice / Faktur Supplier', // ← REVISI: kolom baru (12)
         ];
     }
 
-    public function map($row): array
+    /**
+     * Nomor urut baris
+     */
+    private int $rowNumber = 0;
+
+    public function map($pembelian): array
     {
-        static $no = 0;
-        $no++;
+        $this->rowNumber++;
 
-        // Harga satuan — coba field harga, harga_satuan, fallback 0
-        $hargaSatuan = $row->harga ?? $row->harga_satuan ?? 0;
+        // ── Bukti Pembayaran ──
+        $buktiUrl = '';
+        if ($pembelian->bukti_transaksi) {
+            $buktiUrl = url('storage/' . $pembelian->bukti_transaksi);
+        }
 
-        $bukti = $row->bukti_transaksi
-            ? asset('storage/' . $row->bukti_transaksi)
-            : '-';
+        // ── File Invoice / Faktur Supplier ── (REVISI: tambah)
+        $invoiceUrl = '';
+        if ($pembelian->file_invoice) {
+            $invoiceUrl = url('storage/' . $pembelian->file_invoice);
+        }
 
         return [
-            $no,
-            Carbon::parse($row->tanggal_pembelian)->format('d/m/Y'),
-            $row->nama_barang,
-            $row->status === 'buy_back' ? 'Buy Back' : 'Normal',
-            ucfirst($row->kondisi_barang ?? '-'),
-            $row->jumlah,
-            $hargaSatuan,
-            $row->total ?? 0,
-            $row->nama_pelanggan ?? '-',
-            $row->keterangan     ?? '-',
-            $bukti,
+            $this->rowNumber,
+            Carbon::parse($pembelian->tanggal_pembelian)->format('d/m/Y'),
+            $pembelian->no_invoice ?? '-',
+            $pembelian->nama_barang,
+            $pembelian->jumlah,
+            $pembelian->harga_satuan,
+            $pembelian->total ?? ($pembelian->jumlah * $pembelian->harga_satuan),
+            ucfirst($pembelian->kondisi_barang ?? '-'),
+            $pembelian->status === 'buy_back' ? 'Buy Back' : 'Normal',
+            $pembelian->keterangan ?? '-',
+            $buktiUrl ?: 'Tidak ada',           // kolom 11
+            $invoiceUrl ?: 'Tidak ada',          // kolom 12 ← REVISI
         ];
     }
 
     public function styles(Worksheet $sheet): array
     {
-        $lastRow = $sheet->getHighestRow();
+        // Hitung baris terakhir data
+        $lastRow = $this->rowNumber + 1; // +1 karena heading di baris 1
 
-        $headerStyle = [
+        // ── Header row styling ──
+        $sheet->getStyle('A1:L1')->applyFromArray([  // ← REVISI: A1:L1 (was K1)
             'font' => [
                 'bold'  => true,
                 'color' => ['argb' => 'FFFFFFFF'],
@@ -103,36 +116,92 @@ class PembelianExport implements
             ],
             'fill' => [
                 'fillType'   => Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FF1D6FA4'],
+                'startColor' => ['argb' => 'FF1E40AF'],  // biru gelap
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical'   => Alignment::VERTICAL_CENTER,
                 'wrapText'   => true,
             ],
-        ];
-
-        // Styling kolom URL bukti transaksi (kolom K = 11)
-        $sheet->getStyle('K2:K' . $lastRow)->applyFromArray([
-            'font' => ['color' => ['argb' => 'FF1D6FA4'], 'underline' => true],
         ]);
 
-        // Warna zebra untuk baris data
-        for ($i = 2; $i <= $lastRow; $i++) {
-            if ($i % 2 === 0) {
-                $sheet->getStyle('A' . $i . ':K' . $i)->applyFromArray([
-                    'fill' => [
-                        'fillType'   => Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FFF0F7FF'],
+        // ── Freeze pane header ──
+        $sheet->freezePane('A2');
+
+        // ── Tinggi header ──
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        // ── Styling baris data (zebra stripe) ──
+        for ($row = 2; $row <= $lastRow; $row++) {
+            $bgColor = ($row % 2 === 0) ? 'FFF1F5F9' : 'FFFFFFFF';
+            $sheet->getStyle("A{$row}:L{$row}")->applyFromArray([  // ← REVISI: L
+                'fill' => [
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => $bgColor],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+        }
+
+        // ── Border seluruh tabel ──
+        if ($lastRow >= 2) {
+            $sheet->getStyle("A1:L{$lastRow}")->applyFromArray([  // ← REVISI: L
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color'       => ['argb' => 'FFD1D5DB'],
+                    ],
+                ],
+            ]);
+        }
+
+        // ── Alignment kolom angka ──
+        $sheet->getStyle("E2:G{$lastRow}")->getAlignment()
+              ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+        // ── Alignment kolom No ──
+        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()
+              ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // ── Format Rupiah untuk kolom Harga Satuan & Total ──
+        $sheet->getStyle("F2:G{$lastRow}")
+              ->getNumberFormat()
+              ->setFormatCode('#,##0');
+
+        // ── Lebar kolom URL agar tidak terlalu lebar ──
+        $sheet->getColumnDimension('K')->setWidth(45); // Bukti Pembayaran
+        $sheet->getColumnDimension('L')->setWidth(45); // File Invoice ← REVISI
+
+        // ── Baris data: hyperlink untuk kolom Bukti & Invoice ──
+        for ($row = 2; $row <= $lastRow; $row++) {
+            // Kolom K: Bukti Pembayaran
+            $cellBukti = $sheet->getCell("K{$row}")->getValue();
+            if ($cellBukti && $cellBukti !== 'Tidak ada') {
+                $sheet->getCell("K{$row}")->getHyperlink()->setUrl($cellBukti);
+                $sheet->getStyle("K{$row}")->applyFromArray([
+                    'font' => [
+                        'color'     => ['argb' => 'FF2563EB'],
+                        'underline' => \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_SINGLE,
+                    ],
+                ]);
+            }
+
+            // Kolom L: File Invoice ← REVISI
+            $cellInvoice = $sheet->getCell("L{$row}")->getValue();
+            if ($cellInvoice && $cellInvoice !== 'Tidak ada') {
+                $sheet->getCell("L{$row}")->getHyperlink()->setUrl($cellInvoice);
+                $sheet->getStyle("L{$row}")->applyFromArray([
+                    'font' => [
+                        'color'     => ['argb' => 'FF2563EB'],
+                        'underline' => \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_SINGLE,
                     ],
                 ]);
             }
         }
 
-        // Set row height header
-        $sheet->getRowDimension(1)->setRowHeight(28);
-
-        return [1 => $headerStyle];
+        return [];
     }
 
     public function title(): string

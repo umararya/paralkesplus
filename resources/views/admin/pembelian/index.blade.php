@@ -109,6 +109,7 @@
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
     html.dark .alert-error   { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
 
+    /* ── Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
@@ -126,18 +127,17 @@
     .delete-warning p  { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
+    /* ── Badge / Pill ── */
     .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
     html.dark .qty-badge { background:rgba(29,78,216,0.15); color:#60A5FA; }
     .total-value { font-weight:700; color:#059669; }
     html.dark .total-value { color:#34D399; }
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
-
     .status-badge    { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; white-space:nowrap; }
     .status-normal   { background:#EFF6FF; color:#1D4ED8; }
     .status-buy-back { background:#FFFBEB; color:#D97706; }
     html.dark .status-normal   { background:rgba(29,78,216,0.12); color:#60A5FA; }
     html.dark .status-buy-back { background:rgba(217,119,6,0.12);  color:#FBBF24; }
-
     .kondisi-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600; white-space:nowrap; }
     .kondisi-baru  { background:#EFF6FF; color:#1D6FA4; border:1px solid #BFDBFE; }
     .kondisi-bekas { background:#F5F3FF; color:#7C3AED; border:1px solid #DDD6FE; }
@@ -147,13 +147,31 @@
     html.dark .kondisi-bekas { background:rgba(124,58,237,0.12);  color:#A78BFA;  border-color:rgba(124,58,237,0.25); }
     html.dark .kondisi-baik  { background:rgba(21,128,61,0.12);   color:#4ADE80;  border-color:rgba(21,128,61,0.25); }
     html.dark .kondisi-rusak { background:rgba(190,18,60,0.12);   color:#FB7185;  border-color:rgba(190,18,60,0.25); }
+    .invoice-pill { display:inline-flex; align-items:center; gap:4px; font-family:monospace; font-size:11.5px; font-weight:700; color:#1D4ED8; background:#EFF6FF; padding:2px 9px; border-radius:99px; border:1px solid #BFDBFE; white-space:nowrap; }
+    html.dark .invoice-pill { background:rgba(29,78,216,0.15); color:#93C5FD; border-color:rgba(29,78,216,0.3); }
 
     .tfoot-total td { padding:12px 16px; font-size:13px; font-weight:700; color:var(--text-primary); background:var(--bg-hover); border-top:2px solid var(--border); }
 
+    /* ── Bukti / File thumb ── */
     .bukti-thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border); transition:transform 0.15s,box-shadow 0.15s; display:block; margin:0 auto; }
     .bukti-thumb:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
     .bukti-empty { width:44px; height:44px; border-radius:8px; background:var(--bg-primary); border:1px dashed var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; }
 
+    /* ── REVISI: File button (untuk PDF atau file non-gambar) ── */
+    .file-btn {
+        display:inline-flex; align-items:center; justify-content:center;
+        width:44px; height:44px; border-radius:8px; cursor:pointer;
+        border:1px solid #FECACA; background:#FEF2F2;
+        color:#EF4444; font-size:22px; margin:0 auto;
+        transition:transform 0.15s, box-shadow 0.15s;
+    }
+    .file-btn:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+    .file-btn.invoice-file {
+        border-color:#BFDBFE; background:#EFF6FF; color:#2563EB;
+    }
+    .file-btn.invoice-file:hover { box-shadow:0 4px 12px rgba(37,99,235,0.2); }
+
+    /* ── Lightbox (image) ── */
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.5); cursor:default; }
@@ -161,18 +179,13 @@
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 
-    /* ── Invoice Badge (BARU) ── */
-    .invoice-pill {
-        display:inline-flex; align-items:center; gap:4px;
-        font-family:monospace; font-size:11.5px; font-weight:700;
-        color:#1D4ED8; background:#EFF6FF;
-        padding:2px 9px; border-radius:99px;
-        border:1px solid #BFDBFE; white-space:nowrap;
-    }
-    html.dark .invoice-pill {
-        background:rgba(29,78,216,0.15); color:#93C5FD;
-        border-color:rgba(29,78,216,0.3);
-    }
+    /* ── REVISI: File Viewer Modal (untuk PDF) ── */
+    .file-modal { max-width:860px; width:100%; }
+    .file-modal .modal-body { padding:0; }
+    .pdf-frame { width:100%; height:72vh; border:none; border-radius:0 0 16px 16px; display:block; }
+    .pdf-fallback { padding:28px 24px; text-align:center; }
+    .pdf-fallback i { font-size:52px; color:#EF4444; display:block; margin-bottom:12px; }
+    .pdf-fallback p { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
 </style>
 @endpush
 
@@ -256,7 +269,7 @@
         </div>
     </div>
 
-    {{-- FILTER TANGGAL BAR --}}
+    {{-- FILTER TANGGAL --}}
     <div class="date-filter-bar">
         <span class="date-filter-label">
             <i class="ri-calendar-2-line"></i> Filter Tanggal:
@@ -352,7 +365,7 @@
                 <tr>
                     <th style="width:46px;">#</th>
                     <th>Tanggal</th>
-                    <th>No. Invoice</th>{{-- ← KOLOM BARU --}}
+                    <th>No. Invoice</th>
                     <th>Nama Barang</th>
                     <th class="center">Status</th>
                     <th class="center">Kondisi</th>
@@ -360,7 +373,9 @@
                     <th class="right">Harga Satuan</th>
                     <th class="right">Total</th>
                     <th>Keterangan</th>
-                    <th class="center" style="width:70px;">Bukti</th>
+                    {{-- ← REVISI: 2 kolom file --}}
+                    <th class="center" style="width:70px;">Bukti Bayar</th>
+                    <th class="center" style="width:80px;">File Invoice</th>
                     <th class="center" style="width:90px;">Aksi</th>
                 </tr>
             </thead>
@@ -378,7 +393,6 @@
                         </span>
                     </td>
 
-                    {{-- ← CELL NO. INVOICE --}}
                     <td>
                         @if($item->no_invoice)
                             <span class="invoice-pill">
@@ -469,18 +483,70 @@
                         @endif
                     </td>
 
+                    {{-- ← REVISI: Kolom Bukti Pembayaran (support gambar & PDF) --}}
                     <td class="center">
                         @if($item->bukti_transaksi)
-                            <img src="{{ asset('storage/' . $item->bukti_transaksi) }}"
-                                 alt="Bukti {{ $item->nama_barang }}"
-                                 class="bukti-thumb"
-                                 onclick="openLightbox(
-                                     '{{ asset('storage/' . $item->bukti_transaksi) }}',
-                                     'Bukti — {{ addslashes($item->nama_barang) }}'
-                                 )">
+                            @php $extBukti = strtolower(pathinfo($item->bukti_transaksi, PATHINFO_EXTENSION)); @endphp
+                            @if($extBukti === 'pdf')
+                                {{-- PDF → tombol icon klik buka modal viewer --}}
+                                <button type="button"
+                                        class="file-btn"
+                                        title="Lihat Bukti Pembayaran (PDF)"
+                                        onclick="openFileModal(
+                                            '{{ asset('storage/' . $item->bukti_transaksi) }}',
+                                            'Bukti Pembayaran — {{ addslashes($item->nama_barang) }}',
+                                            'pdf'
+                                        )">
+                                    <i class="ri-file-pdf-2-line"></i>
+                                </button>
+                            @else
+                                {{-- Gambar → thumbnail klik buka lightbox --}}
+                                <img src="{{ asset('storage/' . $item->bukti_transaksi) }}"
+                                     alt="Bukti {{ $item->nama_barang }}"
+                                     class="bukti-thumb"
+                                     onclick="openLightbox(
+                                         '{{ asset('storage/' . $item->bukti_transaksi) }}',
+                                         'Bukti Pembayaran — {{ addslashes($item->nama_barang) }}'
+                                     )">
+                            @endif
                         @else
                             <span class="bukti-empty" title="Tidak ada bukti">
                                 <i class="ri-image-line"></i>
+                            </span>
+                        @endif
+                    </td>
+
+                    {{-- ← REVISI: Kolom File Invoice / Faktur Supplier --}}
+                    <td class="center">
+                        @if($item->file_invoice)
+                            @php $extInv = strtolower(pathinfo($item->file_invoice, PATHINFO_EXTENSION)); @endphp
+                            @if($extInv === 'pdf')
+                                {{-- PDF → modal viewer --}}
+                                <button type="button"
+                                        class="file-btn invoice-file"
+                                        title="Lihat File Invoice (PDF)"
+                                        onclick="openFileModal(
+                                            '{{ asset('storage/' . $item->file_invoice) }}',
+                                            'File Invoice — {{ addslashes($item->nama_barang) }}',
+                                            'pdf'
+                                        )">
+                                    <i class="ri-file-pdf-2-line"></i>
+                                </button>
+                            @else
+                                {{-- Gambar → lightbox --}}
+                                <img src="{{ asset('storage/' . $item->file_invoice) }}"
+                                     alt="Invoice {{ $item->nama_barang }}"
+                                     class="bukti-thumb"
+                                     style="border-color:#BFDBFE;"
+                                     onclick="openLightbox(
+                                         '{{ asset('storage/' . $item->file_invoice) }}',
+                                         'File Invoice — {{ addslashes($item->nama_barang) }}'
+                                     )">
+                            @endif
+                        @else
+                            <span class="bukti-empty" title="Tidak ada file invoice"
+                                  style="border-color:#BFDBFE;">
+                                <i class="ri-file-text-line" style="color:#93C5FD;"></i>
                             </span>
                         @endif
                     </td>
@@ -516,7 +582,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="12">
+                    <td colspan="13">{{-- REVISI: colspan 13 --}}
                         <div class="empty-state">
                             <i class="ri-shopping-cart-2-line"></i>
                             <h3>
@@ -552,7 +618,7 @@
                     <td class="right total-value" style="font-size:14px;white-space:nowrap;">
                         Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}
                     </td>
-                    <td colspan="3"></td>
+                    <td colspan="4"></td>{{-- REVISI: colspan 4 --}}
                 </tr>
             </tfoot>
             @endif
@@ -618,7 +684,9 @@
 
 </div>{{-- /table-card --}}
 
-{{-- MODAL: KONFIRMASI HAPUS --}}
+{{-- ═══════════════════════════════════════════
+     MODAL: KONFIRMASI HAPUS
+════════════════════════════════════════════ --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal" style="max-width:400px;">
         <div class="modal-header">
@@ -650,19 +718,61 @@
     </div>
 </div>
 
-{{-- LIGHTBOX --}}
+{{-- ═══════════════════════════════════════════
+     LIGHTBOX: untuk file GAMBAR (JPG/PNG)
+════════════════════════════════════════════ --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
         <i class="ri-close-line"></i>
     </button>
-    <img id="lightboxImg" src="" alt="Bukti Transaksi" onclick="event.stopPropagation()">
+    <img id="lightboxImg" src="" alt="Preview File" onclick="event.stopPropagation()">
     <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+{{-- ═══════════════════════════════════════════
+     MODAL FILE VIEWER: untuk PDF
+     (+ fallback tombol buka di tab baru)
+════════════════════════════════════════════ --}}
+<div class="modal-overlay" id="modalFileViewer">
+    <div class="modal file-modal">
+        <div class="modal-header">
+            <span class="modal-title" id="fileViewerTitle">
+                <i class="ri-file-line"></i> <span id="fileViewerTitleText">Lihat File</span>
+            </span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                {{-- Tombol buka di tab baru --}}
+                <a id="fileViewerOpenLink" href="#" target="_blank"
+                   class="btn btn-ghost" style="height:30px;font-size:12px;padding:0 10px;"
+                   title="Buka di tab baru">
+                    <i class="ri-external-link-line"></i> Tab baru
+                </a>
+                <button class="modal-close" onclick="closeFileModal()">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            {{-- PDF iframe --}}
+            <div id="pdfViewerWrap">
+                <iframe id="pdfFrame" class="pdf-frame" src="" title="PDF Viewer"></iframe>
+            </div>
+            {{-- Fallback jika browser tidak bisa render PDF --}}
+            <div id="pdfFallback" class="pdf-fallback" style="display:none;">
+                <i class="ri-file-pdf-2-line"></i>
+                <p>Browser kamu tidak dapat menampilkan PDF secara langsung.</p>
+                <a id="pdfFallbackLink" href="#" target="_blank" class="btn btn-primary">
+                    <i class="ri-download-line"></i> Buka / Download File
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
 
 @push('scripts')
 <script>
+/* ─── Modal helpers ─── */
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -673,22 +783,28 @@ function closeModal(id) {
 }
 document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', function(e) {
-        if (e.target === this) closeModal(this.id);
+        if (e.target === this) {
+            if (this.id === 'modalFileViewer') closeFileModal();
+            else closeModal(this.id);
+        }
     });
 });
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         closeLightbox();
+        closeFileModal();
         document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     }
 });
 
+/* ─── Hapus ─── */
 function openDeleteModal(id, namaBarang) {
     document.getElementById('deleteNamaBarang').textContent = namaBarang;
     document.getElementById('formDeleteSubmit').action = '/pembelian/' + id;
     openModal('modalHapus');
 }
 
+/* ─── Lightbox (gambar) ─── */
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;
@@ -701,6 +817,42 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
+/* ─── File Viewer Modal (PDF) ─── */
+function openFileModal(url, title, type) {
+    document.getElementById('fileViewerTitleText').textContent = title;
+    document.getElementById('fileViewerOpenLink').href         = url;
+    document.getElementById('pdfFallbackLink').href            = url;
+
+    const frame    = document.getElementById('pdfFrame');
+    const wrap     = document.getElementById('pdfViewerWrap');
+    const fallback = document.getElementById('pdfFallback');
+
+    if (type === 'pdf') {
+        // Coba embed PDF — jika browser support (Chrome/Edge/Firefox modern)
+        frame.src          = url;
+        wrap.style.display = 'block';
+        fallback.style.display = 'none';
+
+        // Deteksi jika iframe gagal load (mobile/Safari kadang tidak support)
+        frame.onerror = function() {
+            wrap.style.display     = 'none';
+            fallback.style.display = 'block';
+        };
+    }
+
+    openModal('modalFileViewer');
+}
+function closeFileModal() {
+    closeModal('modalFileViewer');
+    // Reset iframe src agar stop loading
+    setTimeout(() => {
+        document.getElementById('pdfFrame').src          = '';
+        document.getElementById('pdfViewerWrap').style.display = 'block';
+        document.getElementById('pdfFallback').style.display   = 'none';
+    }, 200);
+}
+
+/* ─── Filter tanggal cepat ─── */
 function setDateRange(type) {
     const today = new Date();
     const fmt   = d => d.toISOString().split('T')[0];

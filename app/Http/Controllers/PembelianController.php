@@ -94,13 +94,14 @@ class PembelianController extends Controller
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:10240',
+            // ← REVISI: bukti_transaksi sekarang bisa PDF juga
+            'bukti_transaksi'   => 'nullable|file|mimes:jpeg,png,webp,pdf|max:10240',
             'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
 
         $validated['status'] = 'normal';
 
-        // Upload bukti pembayaran
+        // Upload bukti pembayaran (JPG/PNG/PDF)
         if ($request->hasFile('bukti_transaksi')) {
             $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
                 ->store('pembelian/bukti', 'public');
@@ -211,7 +212,8 @@ class PembelianController extends Controller
             'harga_satuan'      => 'required|numeric|min:0',
             'kondisi_barang'    => 'required|in:baru,bekas',
             'keterangan'        => 'nullable|string',
-            'bukti_transaksi'   => 'nullable|image|mimes:jpeg,png,webp|max:10240',
+            // ← REVISI: bukti_transaksi sekarang bisa PDF juga
+            'bukti_transaksi'   => 'nullable|file|mimes:jpeg,png,webp,pdf|max:10240',
             'file_invoice'      => 'nullable|file|mimes:jpeg,png,pdf|max:10240',
         ]);
 
@@ -442,7 +444,6 @@ class PembelianController extends Controller
                 pageUrl: 'pembelian'
             );
 
-            // Hapus file fisik dari storage
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
             }

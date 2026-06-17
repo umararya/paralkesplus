@@ -405,12 +405,12 @@ html.dark .invoice-badge {
                 @enderror
             </div>
 
-            {{-- ===== BUKTI PEMBAYARAN ===== --}}
+            {{-- ===== BUKTI PEMBAYARAN (REVISI: + support PDF) ===== --}}
             <div>
                 <label class="upload-section-label">
                     Bukti Pembayaran
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
-                        &mdash; foto nota / kwitansi (opsional)
+                        &mdash; foto nota / kwitansi / PDF (opsional)
                     </span>
                 </label>
 
@@ -424,27 +424,36 @@ html.dark .invoice-badge {
                      ondrop="handleDrop(event)">
 
                     <div id="dropPlaceholder" class="drop-zone-placeholder">
-                        <i class="ri-image-add-line icon"></i>
-                        <p class="title">Klik atau seret gambar ke sini</p>
-                        <p class="subtitle">JPG, PNG &mdash; maks. 10 MB</p>
+                        {{-- ← REVISI: icon & teks placeholder --}}
+                        <i class="ri-file-upload-line icon"></i>
+                        <p class="title">Klik atau seret file ke sini</p>
+                        <p class="subtitle">JPG, PNG, PDF &mdash; maks. 10 MB</p>
                     </div>
 
                     <div id="previewWrap" style="display:none;">
-                        <img id="previewImg" src="" alt="Preview bukti"
-                             style="max-height:200px; max-width:100%; border-radius:8px;
-                                    object-fit:contain; display:block; margin:0 auto 10px;">
+                        {{-- ← REVISI: pisah wrap image & wrap PDF --}}
+                        <div id="previewImgWrap" style="display:none; margin-bottom:10px;">
+                            <img id="previewImg" src="" alt="Preview bukti"
+                                 style="max-height:200px; max-width:100%; border-radius:8px;
+                                        object-fit:contain; display:block; margin:0 auto;">
+                        </div>
+                        <div id="previewPdfWrap" style="display:none; margin-bottom:10px;">
+                            <i class="ri-file-pdf-2-line"
+                               style="font-size:48px; color:#EF4444;"></i>
+                        </div>
                         <p id="previewFileName"
                            style="font-size:12px; color:var(--text-muted); margin:0;"></p>
                         <button type="button"
                                 onclick="event.stopPropagation(); hapusGambar()"
                                 class="btn-hapus-file">
-                            <i class="ri-delete-bin-line"></i> Hapus Gambar
+                            <i class="ri-delete-bin-line"></i> Hapus File
                         </button>
                     </div>
                 </div>
 
+                {{-- ← REVISI: accept tambah PDF --}}
                 <input type="file" id="inputBukti" name="bukti_transaksi"
-                       accept="image/jpeg,image/png"
+                       accept="image/jpeg,image/png,application/pdf"
                        style="display:none;" onchange="previewGambar(this)">
 
                 @error('bukti_transaksi')
@@ -568,12 +577,13 @@ function filterSuggestions() {
     box.style.display = 'block';
 }
 
-// -- Preview Bukti Pembayaran --
+// ── REVISI: Preview Bukti Pembayaran (support JPG/PNG/PDF) ──
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        alert('Format file tidak didukung. Gunakan JPG atau PNG.');
+    const file    = input.files[0];
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+        alert('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.');
         input.value = '';
         return;
     }
@@ -582,16 +592,26 @@ function previewGambar(input) {
         input.value = '';
         return;
     }
-    const reader = new FileReader();
-    reader.onload = e => {
-        document.getElementById('previewImg').src                = e.target.result;
-        document.getElementById('previewFileName').textContent   = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-        document.getElementById('dropPlaceholder').style.display = 'none';
-        document.getElementById('previewWrap').style.display     = 'block';
-        document.getElementById('dropZone').style.borderColor    = 'var(--brand-500)';
-        document.getElementById('dropZone').style.background     = 'var(--bg-hover)';
-    };
-    reader.readAsDataURL(file);
+
+    document.getElementById('dropPlaceholder').style.display = 'none';
+    document.getElementById('previewWrap').style.display     = 'block';
+    document.getElementById('dropZone').style.borderColor    = 'var(--brand-500)';
+    document.getElementById('dropZone').style.background     = 'var(--bg-hover)';
+    document.getElementById('previewFileName').textContent   =
+        file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+
+    if (file.type === 'application/pdf') {
+        document.getElementById('previewImgWrap').style.display = 'none';
+        document.getElementById('previewPdfWrap').style.display = 'block';
+    } else {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('previewImg').src               = e.target.result;
+            document.getElementById('previewPdfWrap').style.display = 'none';
+            document.getElementById('previewImgWrap').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 function hapusGambar() {
@@ -599,6 +619,8 @@ function hapusGambar() {
     document.getElementById('previewImg').src                = '';
     document.getElementById('previewFileName').textContent   = '';
     document.getElementById('previewWrap').style.display     = 'none';
+    document.getElementById('previewImgWrap').style.display  = 'none';
+    document.getElementById('previewPdfWrap').style.display  = 'none';
     document.getElementById('dropPlaceholder').style.display = 'block';
     document.getElementById('dropZone').style.borderColor    = 'var(--border)';
     document.getElementById('dropZone').style.background     = 'var(--bg-primary)';

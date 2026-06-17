@@ -143,7 +143,7 @@ html.dark .invoice-badge {
 {{-- Info stok ringkas --}}
 <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
     @foreach([
-        ['label' => 'Total Item',    'value' => Illuminate\Support\Facades\DB::table('inventories')->count(),           'color' => '#3B82F6'],
+        ['label' => 'Total Item',    'value' => Illuminate\Support\Facades\DB::table('inventories')->count(),            'color' => '#3B82F6'],
         ['label' => 'Stok Tersedia', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_tersedia'), 'color' => '#22C55E'],
         ['label' => 'Sedang Disewa', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_disewa'),   'color' => '#F97316'],
         ['label' => 'Stok Bekas',    'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_bekas'),    'color' => '#A855F7'],
@@ -379,10 +379,8 @@ html.dark .invoice-badge {
                 {{-- Tampilkan file invoice yang sudah ada --}}
                 @if($pembelian->file_invoice)
                 <div id="existingInvoice" class="existing-file-card">
-                    @php
-                        $ext = strtolower(pathinfo($pembelian->file_invoice, PATHINFO_EXTENSION));
-                    @endphp
-                    @if(in_array($ext, ['jpg', 'jpeg', 'png']))
+                    @php $extInv = strtolower(pathinfo($pembelian->file_invoice, PATHINFO_EXTENSION)); @endphp
+                    @if(in_array($extInv, ['jpg', 'jpeg', 'png']))
                         <img src="{{ asset('storage/' . $pembelian->file_invoice) }}"
                              alt="File Invoice"
                              style="width:64px; height:64px; border-radius:8px; object-fit:cover;
@@ -403,7 +401,7 @@ html.dark .invoice-badge {
                             <span style="font-size:11px; text-transform:uppercase; color:var(--text-muted);
                                          background:var(--bg-card); border:1px solid var(--border);
                                          border-radius:4px; padding:1px 6px; margin-left:4px;">
-                                {{ strtoupper($ext) }}
+                                {{ strtoupper($extInv) }}
                             </span>
                         </p>
                         <p style="font-size:12px; color:var(--text-muted); margin:0;">
@@ -433,10 +431,8 @@ html.dark .invoice-badge {
                     <div id="dropPlaceholderInvoice" class="drop-zone-placeholder">
                         <i class="ri-file-text-line icon"></i>
                         <p class="title">
-                            @if($pembelian->file_invoice)
-                                Upload file baru untuk mengganti
-                            @else
-                                Klik atau seret file invoice ke sini
+                            @if($pembelian->file_invoice) Upload file baru untuk mengganti
+                            @else Klik atau seret file invoice ke sini
                             @endif
                         </p>
                         <p class="subtitle">PDF, JPG, PNG &mdash; maks. 10 MB</p>
@@ -449,13 +445,10 @@ html.dark .invoice-badge {
                                         object-fit:contain; display:block; margin:0 auto;">
                         </div>
                         <div id="previewInvoicePdf" style="display:none; margin-bottom:10px;">
-                            <i class="ri-file-pdf-2-line"
-                               style="font-size:48px; color:#EF4444;"></i>
+                            <i class="ri-file-pdf-2-line" style="font-size:48px; color:#EF4444;"></i>
                         </div>
-                        <p id="invoiceFileName"
-                           style="font-size:12px; color:var(--text-muted); margin:0;"></p>
-                        <button type="button"
-                                onclick="event.stopPropagation(); hapusInvoice()"
+                        <p id="invoiceFileName" style="font-size:12px; color:var(--text-muted); margin:0;"></p>
+                        <button type="button" onclick="event.stopPropagation(); hapusInvoice()"
                                 class="btn-hapus-file">
                             <i class="ri-delete-bin-line"></i> Batal pilih
                         </button>
@@ -473,28 +466,47 @@ html.dark .invoice-badge {
                 @enderror
             </div>
 
-            {{-- ===== BUKTI PEMBAYARAN ===== --}}
+            {{-- ===== BUKTI PEMBAYARAN (REVISI: + support PDF) ===== --}}
             <div>
                 <label class="upload-section-label">
                     Bukti Pembayaran
                     <span style="font-weight:400; color:var(--text-muted); font-size:12px;">
-                        &mdash; foto nota / kwitansi (opsional)
+                        &mdash; foto nota / kwitansi / PDF (opsional)
                     </span>
                 </label>
 
+                {{-- REVISI: existing card handle PDF juga --}}
                 @if($pembelian->bukti_transaksi)
                 <div id="existingBukti" class="existing-file-card">
-                    <img src="{{ asset('storage/' . $pembelian->bukti_transaksi) }}"
-                         alt="Bukti Pembayaran"
-                         style="width:64px; height:64px; border-radius:8px; object-fit:cover;
-                                border:1px solid var(--border); cursor:pointer; flex-shrink:0;"
-                         onclick="window.open('{{ asset('storage/' . $pembelian->bukti_transaksi) }}', '_blank')">
+                    @php $extBukti = strtolower(pathinfo($pembelian->bukti_transaksi, PATHINFO_EXTENSION)); @endphp
+                    @if($extBukti === 'pdf')
+                        {{-- ← REVISI: tampilkan icon PDF jika file adalah PDF --}}
+                        <div style="width:64px; height:64px; border-radius:8px; background:#FEF2F2;
+                                    border:1px solid #FECACA; display:flex; align-items:center;
+                                    justify-content:center; flex-shrink:0; cursor:pointer;"
+                             onclick="window.open('{{ asset('storage/' . $pembelian->bukti_transaksi) }}', '_blank')">
+                            <i class="ri-file-pdf-2-line" style="font-size:28px; color:#EF4444;"></i>
+                        </div>
+                    @else
+                        <img src="{{ asset('storage/' . $pembelian->bukti_transaksi) }}"
+                             alt="Bukti Pembayaran"
+                             style="width:64px; height:64px; border-radius:8px; object-fit:cover;
+                                    border:1px solid var(--border); cursor:pointer; flex-shrink:0;"
+                             onclick="window.open('{{ asset('storage/' . $pembelian->bukti_transaksi) }}', '_blank')">
+                    @endif
                     <div style="flex:1; min-width:0;">
                         <p style="font-size:13px; font-weight:600; color:var(--text-primary); margin:0 0 4px;">
-                            <i class="ri-image-line" style="color:var(--brand-500);"></i> Bukti tersedia
+                            <i class="ri-{{ $extBukti === 'pdf' ? 'file-pdf-2' : 'image' }}-line"
+                               style="color:var(--brand-500);"></i>
+                            Bukti tersedia
+                            <span style="font-size:11px; text-transform:uppercase; color:var(--text-muted);
+                                         background:var(--bg-card); border:1px solid var(--border);
+                                         border-radius:4px; padding:1px 6px; margin-left:4px;">
+                                {{ strtoupper($extBukti) }}
+                            </span>
                         </p>
                         <p style="font-size:12px; color:var(--text-muted); margin:0;">
-                            Klik gambar untuk lihat penuh. Upload baru untuk mengganti.
+                            Klik untuk lihat. Upload baru untuk mengganti.
                         </p>
                     </div>
                     <label style="display:flex; align-items:center; gap:6px; cursor:pointer;
@@ -518,33 +530,37 @@ html.dark .invoice-badge {
                      ondrop="handleDrop(event)">
 
                     <div id="dropPlaceholder" class="drop-zone-placeholder">
-                        <i class="ri-image-add-line icon"></i>
+                        {{-- ← REVISI: icon & teks --}}
+                        <i class="ri-file-upload-line icon"></i>
                         <p class="title">
-                            @if($pembelian->bukti_transaksi)
-                                Upload gambar baru untuk mengganti
-                            @else
-                                Klik atau seret gambar ke sini
+                            @if($pembelian->bukti_transaksi) Upload file baru untuk mengganti
+                            @else Klik atau seret file ke sini
                             @endif
                         </p>
-                        <p class="subtitle">JPG, PNG &mdash; maks. 10 MB</p>
+                        <p class="subtitle">JPG, PNG, PDF &mdash; maks. 10 MB</p>
                     </div>
 
                     <div id="previewWrap" style="display:none;">
-                        <img id="previewImg" src="" alt="Preview bukti"
-                             style="max-height:180px; max-width:100%; border-radius:8px;
-                                    object-fit:contain; display:block; margin:0 auto 10px;">
-                        <p id="previewFileName"
-                           style="font-size:12px; color:var(--text-muted); margin:0;"></p>
-                        <button type="button"
-                                onclick="event.stopPropagation(); hapusGambar()"
+                        {{-- ← REVISI: pisah wrap image & PDF --}}
+                        <div id="previewImgWrap" style="display:none; margin-bottom:10px;">
+                            <img id="previewImg" src="" alt="Preview bukti"
+                                 style="max-height:180px; max-width:100%; border-radius:8px;
+                                        object-fit:contain; display:block; margin:0 auto;">
+                        </div>
+                        <div id="previewPdfWrap" style="display:none; margin-bottom:10px;">
+                            <i class="ri-file-pdf-2-line" style="font-size:48px; color:#EF4444;"></i>
+                        </div>
+                        <p id="previewFileName" style="font-size:12px; color:var(--text-muted); margin:0;"></p>
+                        <button type="button" onclick="event.stopPropagation(); hapusGambar()"
                                 class="btn-hapus-file">
                             <i class="ri-delete-bin-line"></i> Batal pilih
                         </button>
                     </div>
                 </div>
 
+                {{-- ← REVISI: accept tambah PDF --}}
                 <input type="file" id="inputBukti" name="bukti_transaksi"
-                       accept="image/jpeg,image/png"
+                       accept="image/jpeg,image/png,application/pdf"
                        style="display:none;" onchange="previewGambar(this)">
 
                 @error('bukti_transaksi')
@@ -651,12 +667,13 @@ function filterSuggestions() {
     box.style.display = filtered.length > 0 ? 'block' : 'none';
 }
 
-// -- Preview Bukti Pembayaran --
+// ── REVISI: Preview Bukti Pembayaran (support JPG/PNG/PDF) ──
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        alert('Format file tidak didukung. Gunakan JPG atau PNG.');
+    const file    = input.files[0];
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+        alert('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.');
         input.value = '';
         return;
     }
@@ -665,16 +682,26 @@ function previewGambar(input) {
         input.value = '';
         return;
     }
-    const reader = new FileReader();
-    reader.onload = e => {
-        document.getElementById('previewImg').src                = e.target.result;
-        document.getElementById('previewFileName').textContent   = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-        document.getElementById('dropPlaceholder').style.display = 'none';
-        document.getElementById('previewWrap').style.display     = 'block';
-        document.getElementById('dropZone').style.borderColor    = 'var(--brand-500)';
-        document.getElementById('dropZone').style.background     = 'var(--bg-hover)';
-    };
-    reader.readAsDataURL(file);
+
+    document.getElementById('dropPlaceholder').style.display = 'none';
+    document.getElementById('previewWrap').style.display     = 'block';
+    document.getElementById('dropZone').style.borderColor    = 'var(--brand-500)';
+    document.getElementById('dropZone').style.background     = 'var(--bg-hover)';
+    document.getElementById('previewFileName').textContent   =
+        file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+
+    if (file.type === 'application/pdf') {
+        document.getElementById('previewImgWrap').style.display = 'none';
+        document.getElementById('previewPdfWrap').style.display = 'block';
+    } else {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('previewImg').src               = e.target.result;
+            document.getElementById('previewPdfWrap').style.display = 'none';
+            document.getElementById('previewImgWrap').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 function hapusGambar() {
@@ -682,6 +709,8 @@ function hapusGambar() {
     document.getElementById('previewImg').src                = '';
     document.getElementById('previewFileName').textContent   = '';
     document.getElementById('previewWrap').style.display     = 'none';
+    document.getElementById('previewImgWrap').style.display  = 'none';
+    document.getElementById('previewPdfWrap').style.display  = 'none';
     document.getElementById('dropPlaceholder').style.display = 'block';
     document.getElementById('dropZone').style.borderColor    = 'var(--border)';
     document.getElementById('dropZone').style.background     = 'var(--bg-primary)';
