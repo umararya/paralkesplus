@@ -80,13 +80,23 @@
     .data-table th.center, .data-table td.center { text-align:center; }
     .data-table th.right,  .data-table td.right  { text-align:right; }
 
-    .action-group { display:flex; align-items:center; gap:4px; justify-content:center; }
-    .btn-action { width:30px; height:30px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
-    .btn-action:hover { background:var(--bg-hover); color:var(--text-primary); }
-    .btn-action.edit:hover   { background:#EFF6FF; color:var(--brand-500); border-color:var(--brand-100); }
-    .btn-action.delete:hover { background:#FFF1F2; color:#E11D48; border-color:#FFE4E6; }
-    html.dark .btn-action.edit:hover   { background:rgba(29,111,164,0.15); color:#60A5FA; border-color:rgba(29,111,164,0.3); }
-    html.dark .btn-action.delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; border-color:rgba(225,29,72,0.25); }
+    /* ── DROPDOWN AKSI (sama persis seperti penyewaan) ── */
+    .action-wrap { position:relative; display:inline-block; }
+    .btn-aksi-toggle { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
+    .btn-aksi-toggle:hover { background:var(--brand-500); color:#fff; border-color:var(--brand-500); }
+    .dropdown-menu-aksi { display:none; position:absolute; right:0; top:calc(100% + 6px); background:var(--bg-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.15); z-index:200; min-width:185px; padding:5px; }
+    .dropdown-menu-aksi.open { display:block; animation:fadeDropdown 0.15s ease; }
+    @keyframes fadeDropdown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .dropdown-item { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:7px; font-size:13px; font-weight:500; color:var(--text-primary); text-decoration:none; cursor:pointer; border:none; background:none; width:100%; font-family:var(--font); transition:background 0.15s; }
+    .dropdown-item:hover { background:var(--bg-hover); }
+    .dropdown-item i { font-size:16px; width:18px; text-align:center; }
+    .dropdown-item.item-show i    { color:#F59E0B; }
+    .dropdown-item.item-edit i    { color:var(--brand-500); }
+    .dropdown-item.item-invoice i { color:#16A34A; }
+    .dropdown-item.item-delete i  { color:#EF4444; }
+    .dropdown-item.item-delete:hover { background:#FFF1F2; color:#DC2626; }
+    html.dark .dropdown-item.item-delete:hover { background:rgba(225,29,72,0.1); color:#FB7185; }
+    .dropdown-divider { height:1px; background:var(--border); margin:4px 0; }
 
     .table-footer { padding:12px 18px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
     .pagination-meta { font-size:12.5px; color:var(--text-muted); }
@@ -126,14 +136,7 @@
     .delete-warning h3 { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:7px; }
     .delete-warning p  { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
-
-    /* FIX: info box stok terdampak di modal hapus */
-    .delete-impact-box {
-        display:flex; align-items:center; gap:10px;
-        background:#FFF7ED; border:1px solid #FED7AA;
-        border-radius:10px; padding:10px 14px; margin-top:12px;
-        font-size:12.5px; color:#C2410C; text-align:left;
-    }
+    .delete-impact-box { display:flex; align-items:center; gap:10px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:10px; padding:10px 14px; margin-top:12px; font-size:12.5px; color:#C2410C; text-align:left; }
     .delete-impact-box i { font-size:18px; flex-shrink:0; }
     html.dark .delete-impact-box { background:rgba(194,65,12,0.1); border-color:rgba(194,65,12,0.3); color:#FB923C; }
 
@@ -166,21 +169,12 @@
     .bukti-thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border); transition:transform 0.15s,box-shadow 0.15s; display:block; margin:0 auto; }
     .bukti-thumb:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
     .bukti-empty { width:44px; height:44px; border-radius:8px; background:var(--bg-primary); border:1px dashed var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; }
-
-    .file-btn {
-        display:inline-flex; align-items:center; justify-content:center;
-        width:44px; height:44px; border-radius:8px; cursor:pointer;
-        border:1px solid #FECACA; background:#FEF2F2;
-        color:#EF4444; font-size:22px; margin:0 auto;
-        transition:transform 0.15s, box-shadow 0.15s;
-    }
+    .file-btn { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:8px; cursor:pointer; border:1px solid #FECACA; background:#FEF2F2; color:#EF4444; font-size:22px; margin:0 auto; transition:transform 0.15s, box-shadow 0.15s; }
     .file-btn:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-    .file-btn.invoice-file {
-        border-color:#BFDBFE; background:#EFF6FF; color:#2563EB;
-    }
+    .file-btn.invoice-file { border-color:#BFDBFE; background:#EFF6FF; color:#2563EB; }
     .file-btn.invoice-file:hover { box-shadow:0 4px 12px rgba(37,99,235,0.2); }
 
-    /* Lightbox (image) */
+    /* Lightbox */
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.5); cursor:default; }
@@ -188,7 +182,7 @@
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 
-    /* File Viewer Modal (untuk PDF) */
+    /* File Viewer Modal PDF */
     .file-modal { max-width:860px; width:100%; }
     .file-modal .modal-body { padding:0; }
     .pdf-frame { width:100%; height:72vh; border:none; border-radius:0 0 16px 16px; display:block; }
@@ -388,7 +382,7 @@
                     <th>Keterangan</th>
                     <th class="center" style="width:70px;">Bukti Bayar</th>
                     <th class="center" style="width:80px;">File Invoice</th>
-                    <th class="center" style="width:90px;">Aksi</th>
+                    <th class="center" style="width:60px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -495,14 +489,12 @@
                         @endif
                     </td>
 
-                    {{-- Kolom Bukti Pembayaran (support gambar & PDF) --}}
+                    {{-- Kolom Bukti Pembayaran --}}
                     <td class="center">
                         @if($item->bukti_transaksi)
                             @php $extBukti = strtolower(pathinfo($item->bukti_transaksi, PATHINFO_EXTENSION)); @endphp
                             @if($extBukti === 'pdf')
-                                <button type="button"
-                                        class="file-btn"
-                                        title="Lihat Bukti Pembayaran (PDF)"
+                                <button type="button" class="file-btn" title="Lihat Bukti Pembayaran (PDF)"
                                         onclick="openFileModal(
                                             '{{ asset('storage/' . $item->bukti_transaksi) }}',
                                             'Bukti Pembayaran - {{ addslashes($item->nama_barang) }}',
@@ -531,9 +523,7 @@
                         @if($item->file_invoice)
                             @php $extInv = strtolower(pathinfo($item->file_invoice, PATHINFO_EXTENSION)); @endphp
                             @if($extInv === 'pdf')
-                                <button type="button"
-                                        class="file-btn invoice-file"
-                                        title="Lihat File Invoice (PDF)"
+                                <button type="button" class="file-btn invoice-file" title="Lihat File Invoice (PDF)"
                                         onclick="openFileModal(
                                             '{{ asset('storage/' . $item->file_invoice) }}',
                                             'File Invoice - {{ addslashes($item->nama_barang) }}',
@@ -559,35 +549,42 @@
                         @endif
                     </td>
 
-                    {{-- AKSI --}}
+                    {{-- ══ AKSI DROPDOWN (titik tiga) ══ --}}
                     <td class="center">
-                        <div class="action-group">
-                            @if($item->status === 'buy_back')
-                            <a href="{{ route('pembelian.invoice', $item->id) }}"
-                               target="_blank"
-                               class="btn-action"
-                               title="Cetak Invoice Buy Back"
-                               style="color:#D97706;border-color:#FDE68A;background:#FFFBEB;">
-                                <i class="ri-printer-line"></i>
-                            </a>
-                            @endif
-                            <a href="{{ route('pembelian.edit', $item->id) }}"
-                               class="btn-action edit" title="Edit data">
-                                <i class="ri-edit-line"></i>
-                            </a>
-
-                            {{-- FIX: kirim actionUrl dari route() Laravel, bukan hardcode di JS --}}
-                            {{-- FIX: hapus form inline di dalam loop, cukup pakai formDeleteSubmit di modal --}}
-                            <button type="button"
-                                    class="btn-action delete"
-                                    title="Hapus data"
-                                    onclick="openDeleteModal(
-                                        '{{ addslashes($item->nama_barang) }}',
-                                        {{ $item->jumlah }},
-                                        '{{ route('pembelian.destroy', $item->id) }}'
-                                    )">
-                                <i class="ri-delete-bin-line"></i>
+                        <div class="action-wrap">
+                            <button class="btn-aksi-toggle"
+                                    onclick="toggleDropdown(this)"
+                                    title="Aksi">
+                                <i class="ri-more-2-fill"></i>
                             </button>
+                            <div class="dropdown-menu-aksi">
+                                <a href="{{ route('pembelian.show', $item->id) }}"
+                                   class="dropdown-item item-show">
+                                    <i class="ri-eye-line"></i> Lihat Detail
+                                </a>
+                                <a href="{{ route('pembelian.edit', $item->id) }}"
+                                   class="dropdown-item item-edit">
+                                    <i class="ri-edit-line"></i> Edit Data
+                                </a>
+                                @if($item->status === 'buy_back')
+                                <div class="dropdown-divider"></div>
+                                <a href="{{ route('pembelian.invoice', $item->id) }}"
+                                   target="_blank"
+                                   class="dropdown-item item-invoice">
+                                    <i class="ri-printer-line"></i> Cetak Invoice
+                                </a>
+                                @endif
+                                <div class="dropdown-divider"></div>
+                                <button type="button"
+                                        class="dropdown-item item-delete"
+                                        onclick="closeAllDropdowns(); openDeleteModal(
+                                            '{{ addslashes($item->nama_barang) }}',
+                                            {{ $item->jumlah }},
+                                            '{{ route('pembelian.destroy', $item->id) }}'
+                                        )">
+                                    <i class="ri-delete-bin-line"></i> Hapus Data
+                                </button>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -696,11 +693,7 @@
 </div>{{-- /table-card --}}
 
 
-{{-- =============================================
-     MODAL: KONFIRMASI HAPUS
-     FIX: tampilkan info jumlah stok terdampak
-     FIX: action di-set dari JS pakai route(), bukan hardcode
-============================================= --}}
+{{-- MODAL: KONFIRMASI HAPUS --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal" style="max-width:420px;">
         <div class="modal-header">
@@ -723,7 +716,7 @@
                     <i class="ri-archive-line"></i>
                     <span>
                         Stok inventory akan berkurang
-                        <strong id="deleteJumlah"></strong> unit.
+                        <strong id="deleteJumlah"></strong>.
                         Pastikan stok ini belum dipakai di transaksi lain.
                     </span>
                 </div>
@@ -746,7 +739,7 @@
     </div>
 </div>
 
-{{-- LIGHTBOX: untuk file GAMBAR (JPG/PNG) --}}
+{{-- LIGHTBOX: untuk file GAMBAR --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
         <i class="ri-close-line"></i>
@@ -792,7 +785,7 @@
 
 @push('scripts')
 <script>
-/* Modal helpers */
+/* ── Modal helpers ── */
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -813,15 +806,26 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         closeLightbox();
         closeFileModal();
+        closeAllDropdowns();
         document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     }
 });
 
-/*
- * FIX openDeleteModal:
- * - Terima actionUrl dari route() Laravel (bukan hardcode '/pembelian/' + id)
- * - Terima jumlah untuk ditampilkan di modal sebagai info dampak
- */
+/* ── Dropdown Aksi (titik tiga) ── */
+function toggleDropdown(btn) {
+    const menu   = btn.nextElementSibling;
+    const isOpen = menu.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) menu.classList.add('open');
+}
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu-aksi.open').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-wrap')) closeAllDropdowns();
+});
+
+/* ── Delete Modal ── */
 function openDeleteModal(namaBarang, jumlah, actionUrl) {
     document.getElementById('deleteNamaBarang').textContent = namaBarang;
     document.getElementById('deleteJumlah').textContent     = jumlah + ' unit';
@@ -829,7 +833,7 @@ function openDeleteModal(namaBarang, jumlah, actionUrl) {
     openModal('modalHapus');
 }
 
-/* Lightbox (gambar) */
+/* ── Lightbox (gambar) ── */
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;
@@ -842,7 +846,7 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
-/* File Viewer Modal (PDF) */
+/* ── File Viewer Modal (PDF) ── */
 function openFileModal(url, title, type) {
     document.getElementById('fileViewerTitleText').textContent = title;
     document.getElementById('fileViewerOpenLink').href         = url;
@@ -867,13 +871,13 @@ function openFileModal(url, title, type) {
 function closeFileModal() {
     closeModal('modalFileViewer');
     setTimeout(() => {
-        document.getElementById('pdfFrame').src                  = '';
-        document.getElementById('pdfViewerWrap').style.display   = 'block';
-        document.getElementById('pdfFallback').style.display     = 'none';
+        document.getElementById('pdfFrame').src                = '';
+        document.getElementById('pdfViewerWrap').style.display = 'block';
+        document.getElementById('pdfFallback').style.display   = 'none';
     }, 200);
 }
 
-/* Filter tanggal cepat */
+/* ── Filter tanggal cepat ── */
 function setDateRange(type) {
     const today = new Date();
     const fmt   = d => d.toISOString().split('T')[0];
