@@ -16,6 +16,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PembelianController extends Controller
 {
+    /* ═══════════════════════════════════════════
+     │  INDEX
+     ═══════════════════════════════════════════ */
     public function index(Request $request)
     {
         $search   = $request->input('search', '');
@@ -29,29 +32,24 @@ class PembelianController extends Controller
         $query = Pembelian::query()
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
-                    $sub->where('nama_barang', 'like', "%{$search}%")
-                        ->orWhere('no_invoice', 'like', "%{$search}%")
-                        ->orWhere('keterangan', 'like', "%{$search}%")
-                        ->orWhere('nama_pelanggan', 'like', "%{$search}%")
+                    $sub->where('nama_barang',       'like', "%{$search}%")
+                        ->orWhere('no_invoice',       'like', "%{$search}%")
+                        ->orWhere('keterangan',        'like', "%{$search}%")
+                        ->orWhere('nama_pelanggan',    'like', "%{$search}%")
                         ->orWhere('tanggal_pembelian', 'like', "%{$search}%")
-                        ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('CAST(jumlah AS CHAR) LIKE ?',       ["%{$search}%"])
                         ->orWhereRaw('CAST(harga_satuan AS CHAR) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('CAST(total AS CHAR) LIKE ?', ["%{$search}%"]);
+                        ->orWhereRaw('CAST(total AS CHAR) LIKE ?',        ["%{$search}%"]);
                 });
             })
-            ->when($filter !== 'semua', function ($q) use ($filter) {
-                $q->where('status', $filter);
-            })
-            ->when($dateFrom, function ($q) use ($dateFrom) {
-                $q->whereDate('tanggal_pembelian', '>=', $dateFrom);
-            })
-            ->when($dateTo, function ($q) use ($dateTo) {
-                $q->whereDate('tanggal_pembelian', '<=', $dateTo);
-            });
+            ->when($filter !== 'semua', fn ($q) => $q->where('status', $filter))
+            ->when($dateFrom,           fn ($q) => $q->whereDate('tanggal_pembelian', '>=', $dateFrom))
+            ->when($dateTo,             fn ($q) => $q->whereDate('tanggal_pembelian', '<=', $dateTo));
 
         $pembelians       = (clone $query)->orderBy('tanggal_pembelian', 'desc')->paginate($perPage)->withQueryString();
         $totalKeseluruhan = (clone $query)->sum('total');
 
+        // Tab counts — tidak terpengaruh filter aktif (desain sadar: menampilkan total global)
         $countSemua   = Pembelian::count();
         $countNormal  = Pembelian::where('status', 'normal')->count();
         $countBuyBack = Pembelian::where('status', 'buy_back')->count();
@@ -63,6 +61,9 @@ class PembelianController extends Controller
         ));
     }
 
+    /* ═══════════════════════════════════════════
+     │  EXPORT
+     ═══════════════════════════════════════════ */
     public function export(Request $request)
     {
         $search   = $request->input('search', '');
@@ -74,20 +75,26 @@ class PembelianController extends Controller
         return Excel::download(new PembelianExport($search, $filter, $dateFrom, $dateTo), $filename);
     }
 
+    /* ═══════════════════════════════════════════
+     │  CREATE
+     ═══════════════════════════════════════════ */
     public function create()
     {
         $inventoryItems = Inventory::orderBy('nama_produk')->get(['id', 'nama_produk']);
 
         $summary = [
             'total_item'     => Inventory::count(),
-            'total_tersedia' => Inventory::sum('stok_tersedia'),
-            'total_disewa'   => Inventory::sum('stok_disewa'),
-            'total_bekas'    => Inventory::sum('stok_bekas'),
+            'total_tersedia' => (int) Inventory::sum('stok_tersedia'),
+            'total_disewa'   => (int) Inventory::sum('stok_disewa'),
+            'total_bekas'    => (int) Inventory::sum('stok_bekas'),
         ];
 
         return view('admin.pembelian.create', compact('inventoryItems', 'summary'));
     }
 
+    /* ═══════════════════════════════════════════
+     │  STORE
+     ═══════════════════════════════════════════ */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -124,20 +131,16 @@ class PembelianController extends Controller
             $pembelian = Pembelian::create($validated);
             $pembelian->refresh();
 
-            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                strtolower($namaBarang)
-            ])->first();
+            $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [strtolower($namaBarang)])->first();
 
             if ($inventory) {
-                $inventory->stok_tersedia      += $jumlah;
-                $inventory->harga_beli_terakhir = $hargaSatuan;
-
+                $inventory->stok_tersedia       += $jumlah;
+                $inventory->harga_beli_terakhir  = $hargaSatuan;
                 if ($kondisi === 'baru') {
-                    $inventory->stok_baru += $jumlah;
+                    $inventory->stok_baru  += $jumlah;
                 } else {
                     $inventory->stok_bekas += $jumlah;
                 }
-
                 $inventory->save();
             } else {
                 $inventory = Inventory::create([
@@ -182,6 +185,9 @@ class PembelianController extends Controller
             ->with('success', 'Data pembelian berhasil ditambahkan dan stok inventory diperbarui.');
     }
 
+    /* ═══════════════════════════════════════════
+     │  SHOW
+     ═══════════════════════════════════════════ */
     public function show(string $id)
     {
         $pembelian = Pembelian::findOrFail($id);
@@ -193,14 +199,29 @@ class PembelianController extends Controller
         return view('admin.pembelian.show', compact('pembelian', 'inventoryItem'));
     }
 
+    /* ═══════════════════════════════════════════
+     │  EDIT
+     │  FIX: tambah $summary agar tidak error di view
+     ═══════════════════════════════════════════ */
     public function edit(string $id)
     {
         $pembelian      = Pembelian::findOrFail($id);
         $inventoryItems = Inventory::orderBy('nama_produk')->get(['id', 'nama_produk']);
 
-        return view('admin.pembelian.edit', compact('pembelian', 'inventoryItems'));
+        // FIX: kirim $summary ke view (sebelumnya tidak ada, menyebabkan error di edit.blade.php)
+        $summary = [
+            'total_item'     => Inventory::count(),
+            'total_tersedia' => (int) Inventory::sum('stok_tersedia'),
+            'total_disewa'   => (int) Inventory::sum('stok_disewa'),
+            'total_bekas'    => (int) Inventory::sum('stok_bekas'),
+        ];
+
+        return view('admin.pembelian.edit', compact('pembelian', 'inventoryItems', 'summary'));
     }
 
+    /* ═══════════════════════════════════════════
+     │  UPDATE
+     ═══════════════════════════════════════════ */
     public function update(Request $request, string $id)
     {
         $pembelian = Pembelian::findOrFail($id);
@@ -230,13 +251,14 @@ class PembelianController extends Controller
             'total'        => 'Rp ' . number_format($pembelian->attributes['total'] ?? 0, 0, ',', '.'),
         ];
 
+        // ── Handle file bukti pembayaran ──
         if ($request->hasFile('bukti_transaksi')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
             }
             $validated['bukti_transaksi'] = $request->file('bukti_transaksi')
                 ->store('pembelian/bukti', 'public');
-        } elseif ($request->has('hapus_bukti')) {
+        } elseif ($request->boolean('hapus_bukti')) {
             if ($pembelian->bukti_transaksi) {
                 Storage::disk('public')->delete($pembelian->bukti_transaksi);
             }
@@ -245,13 +267,14 @@ class PembelianController extends Controller
             unset($validated['bukti_transaksi']);
         }
 
+        // ── Handle file invoice supplier ──
         if ($request->hasFile('file_invoice')) {
             if ($pembelian->file_invoice) {
                 Storage::disk('public')->delete($pembelian->file_invoice);
             }
             $validated['file_invoice'] = $request->file('file_invoice')
                 ->store('pembelian/invoice', 'public');
-        } elseif ($request->has('hapus_file_invoice')) {
+        } elseif ($request->boolean('hapus_file_invoice')) {
             if ($pembelian->file_invoice) {
                 Storage::disk('public')->delete($pembelian->file_invoice);
             }
@@ -276,12 +299,13 @@ class PembelianController extends Controller
             $pembelian->refresh();
 
             if (!$namaBerubah) {
-                $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                    strtolower($newNama)
-                ])->first();
+                // ── Nama sama: koreksi diff stok ──
+                $inventory = Inventory::whereRaw('LOWER(nama_produk) = ?', [strtolower($newNama)])->first();
 
                 if ($inventory) {
                     $diffJumlah = $newJumlah - $oldJumlah;
+
+                    // FIX: pakai max(0, ...) agar tidak minus, tidak reset paksa ke 0
                     $inventory->stok_tersedia       = max(0, $inventory->stok_tersedia + $diffJumlah);
                     $inventory->harga_beli_terakhir = $newHarga;
 
@@ -292,6 +316,7 @@ class PembelianController extends Controller
                             $inventory->stok_bekas = max(0, $inventory->stok_bekas + $diffJumlah);
                         }
                     } else {
+                        // Kondisi berubah: rollback kondisi lama, apply kondisi baru
                         if ($oldKondisi === 'baru') {
                             $inventory->stok_baru  = max(0, $inventory->stok_baru - $oldJumlah);
                             $inventory->stok_bekas = max(0, $inventory->stok_bekas + $newJumlah);
@@ -313,45 +338,33 @@ class PembelianController extends Controller
                     ]);
                 }
             } else {
-                $invLama = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                    strtolower($oldNama)
-                ])->first();
+                // ── Nama berubah: kurangi stok lama, tambah stok baru ──
+                $invLama = Inventory::whereRaw('LOWER(nama_produk) = ?', [strtolower($oldNama)])->first();
 
                 if ($invLama) {
-                    $sisaStok = $invLama->stok_tersedia - $oldJumlah;
+                    // FIX: Hanya kurangi stok yang memang dari entri ini,
+                    // tidak reset ke 0 paksa jika masih ada stok dari transaksi lain
+                    $invLama->stok_tersedia = max(0, $invLama->stok_tersedia - $oldJumlah);
 
-                    if ($sisaStok <= 0) {
-                        $invLama->stok_tersedia = 0;
-                        $invLama->stok_baru     = 0;
-                        $invLama->stok_bekas    = 0;
-                        $invLama->save();
+                    if ($oldKondisi === 'baru') {
+                        $invLama->stok_baru  = max(0, $invLama->stok_baru - $oldJumlah);
                     } else {
-                        $invLama->stok_tersedia = $sisaStok;
-
-                        if ($oldKondisi === 'baru') {
-                            $invLama->stok_baru = max(0, $invLama->stok_baru - $oldJumlah);
-                        } else {
-                            $invLama->stok_bekas = max(0, $invLama->stok_bekas - $oldJumlah);
-                        }
-
-                        $invLama->save();
+                        $invLama->stok_bekas = max(0, $invLama->stok_bekas - $oldJumlah);
                     }
+
+                    $invLama->save();
                 }
 
-                $invBaru = Inventory::whereRaw('LOWER(nama_produk) = ?', [
-                    strtolower($newNama)
-                ])->first();
+                $invBaru = Inventory::whereRaw('LOWER(nama_produk) = ?', [strtolower($newNama)])->first();
 
                 if ($invBaru) {
-                    $invBaru->stok_tersedia      += $newJumlah;
-                    $invBaru->harga_beli_terakhir = $newHarga;
-
+                    $invBaru->stok_tersedia       += $newJumlah;
+                    $invBaru->harga_beli_terakhir  = $newHarga;
                     if ($newKondisi === 'baru') {
-                        $invBaru->stok_baru += $newJumlah;
+                        $invBaru->stok_baru  += $newJumlah;
                     } else {
                         $invBaru->stok_bekas += $newJumlah;
                     }
-
                     $invBaru->save();
                 } else {
                     $invBaru = Inventory::create([
@@ -397,6 +410,9 @@ class PembelianController extends Controller
             ->with('success', 'Data pembelian dan stok inventory berhasil diperbarui.');
     }
 
+    /* ═══════════════════════════════════════════
+     │  DESTROY
+     ═══════════════════════════════════════════ */
     public function destroy(string $id)
     {
         $pembelian = Pembelian::findOrFail($id);
@@ -407,26 +423,20 @@ class PembelianController extends Controller
             ])->first();
 
             if ($inventory) {
-                $jumlah   = (int) $pembelian->jumlah;
-                $kondisi  = $pembelian->kondisi_barang;
-                $sisaStok = $inventory->stok_tersedia - $jumlah;
+                $jumlah  = (int) $pembelian->jumlah;
+                $kondisi = $pembelian->kondisi_barang;
 
-                if ($sisaStok <= 0) {
-                    $inventory->stok_tersedia = 0;
-                    $inventory->stok_baru     = 0;
-                    $inventory->stok_bekas    = 0;
-                    $inventory->save();
-                } else {
-                    $inventory->stok_tersedia = $sisaStok;
+                // FIX: Hanya kurangi stok yang bersumber dari entri ini,
+                // tidak reset paksa ke 0,0,0 — ada transaksi lain yang mungkin menopang stok
+                $inventory->stok_tersedia = max(0, $inventory->stok_tersedia - $jumlah);
 
-                    if ($kondisi === 'baru') {
-                        $inventory->stok_baru = max(0, $inventory->stok_baru - $jumlah);
-                    } elseif ($kondisi === 'bekas') {
-                        $inventory->stok_bekas = max(0, $inventory->stok_bekas - $jumlah);
-                    }
-
-                    $inventory->save();
+                if ($kondisi === 'baru') {
+                    $inventory->stok_baru  = max(0, $inventory->stok_baru - $jumlah);
+                } elseif ($kondisi === 'bekas') {
+                    $inventory->stok_bekas = max(0, $inventory->stok_bekas - $jumlah);
                 }
+
+                $inventory->save();
             }
 
             ActivityLog::record(
@@ -460,6 +470,9 @@ class PembelianController extends Controller
             ->with('success', 'Data pembelian berhasil dihapus dan stok inventory disesuaikan.');
     }
 
+    /* ═══════════════════════════════════════════
+     │  STORE BUY BACK
+     ═══════════════════════════════════════════ */
     public function storeBuyBack(Request $request)
     {
         $request->validate([
@@ -468,7 +481,6 @@ class PembelianController extends Controller
             'items'                 => 'required|array|min:1',
             'items.*.detail_id'     => 'required|integer|exists:detail_penjualans,id',
             'items.*.qty_buyback'   => 'required|integer|min:1',
-            // nullable: fallback ke 50% kalau tidak dikirim dari form
             'items.*.harga_buyback' => 'nullable|numeric|min:0',
         ]);
 
@@ -484,24 +496,22 @@ class PembelianController extends Controller
                 $detailId = (int) $item['detail_id'];
                 $detail   = DetailPenjualan::findOrFail($detailId);
 
-                // BUG 5 FIX: cek sudah berapa qty di-buyback sebelumnya
+                // Cek sudah berapa qty di-buyback sebelumnya untuk barang ini
                 $sudahBuyback = Pembelian::where('status', 'buy_back')
                     ->where('penjualan_id', $penjualanId)
                     ->where('nama_barang', $detail->nama_barang)
                     ->sum('jumlah');
 
                 $maxBuyback = $detail->qty - $sudahBuyback;
-
                 if ($maxBuyback < 1) continue;
 
                 $qtyBuyback = min((int) $item['qty_buyback'], $maxBuyback);
-
                 if ($qtyBuyback < 1) continue;
 
-                $namaBarang  = $detail->nama_barang;
-                $hargaAsli   = (float) $detail->harga_satuan;
+                $namaBarang   = $detail->nama_barang;
+                $hargaAsli    = (float) $detail->harga_satuan;
 
-                // BUG 6 FIX: pakai nilai dari form kalau ada, fallback 50% kalau tidak
+                // Pakai harga dari form jika ada, fallback 50% harga jual
                 $hargaBuyback = (isset($item['harga_buyback']) && $item['harga_buyback'] !== '')
                     ? (float) $item['harga_buyback']
                     : round($hargaAsli * 0.5);
@@ -575,6 +585,9 @@ class PembelianController extends Controller
             ->with('success', 'Buy back berhasil! Stok bekas inventory sudah diperbarui.');
     }
 
+    /* ═══════════════════════════════════════════
+     │  CETAK INVOICE BUY BACK
+     ═══════════════════════════════════════════ */
     public function invoice(string $id)
     {
         $pembelian = Pembelian::findOrFail($id);

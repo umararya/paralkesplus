@@ -140,13 +140,13 @@ html.dark .invoice-badge {
     </div>
 </div>
 
-{{-- Info stok ringkas --}}
+{{-- FIX BUG 1: Info stok dari $summary (bukan DB::table langsung di blade) --}}
 <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
     @foreach([
-        ['label' => 'Total Item',    'value' => Illuminate\Support\Facades\DB::table('inventories')->count(),            'color' => '#3B82F6'],
-        ['label' => 'Stok Tersedia', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_tersedia'), 'color' => '#22C55E'],
-        ['label' => 'Sedang Disewa', 'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_disewa'),   'color' => '#F97316'],
-        ['label' => 'Stok Bekas',    'value' => Illuminate\Support\Facades\DB::table('inventories')->sum('stok_bekas'),    'color' => '#A855F7'],
+        ['label' => 'Total Item',    'value' => $summary['total_item'],     'color' => '#3B82F6'],
+        ['label' => 'Stok Tersedia', 'value' => $summary['total_tersedia'], 'color' => '#22C55E'],
+        ['label' => 'Sedang Disewa', 'value' => $summary['total_disewa'],   'color' => '#F97316'],
+        ['label' => 'Stok Bekas',    'value' => $summary['total_bekas'],    'color' => '#A855F7'],
     ] as $card)
     <div style="background:var(--bg-card); border:1px solid var(--border);
                 border-radius:12px; padding:14px 16px; box-shadow:var(--shadow);
@@ -376,7 +376,6 @@ html.dark .invoice-badge {
                     </span>
                 </label>
 
-                {{-- Tampilkan file invoice yang sudah ada --}}
                 @if($pembelian->file_invoice)
                 <div id="existingInvoice" class="existing-file-card">
                     @php $extInv = strtolower(pathinfo($pembelian->file_invoice, PATHINFO_EXTENSION)); @endphp
@@ -466,7 +465,7 @@ html.dark .invoice-badge {
                 @enderror
             </div>
 
-            {{-- ===== BUKTI PEMBAYARAN (REVISI: + support PDF) ===== --}}
+            {{-- ===== BUKTI PEMBAYARAN ===== --}}
             <div>
                 <label class="upload-section-label">
                     Bukti Pembayaran
@@ -475,12 +474,10 @@ html.dark .invoice-badge {
                     </span>
                 </label>
 
-                {{-- REVISI: existing card handle PDF juga --}}
                 @if($pembelian->bukti_transaksi)
                 <div id="existingBukti" class="existing-file-card">
                     @php $extBukti = strtolower(pathinfo($pembelian->bukti_transaksi, PATHINFO_EXTENSION)); @endphp
                     @if($extBukti === 'pdf')
-                        {{-- ← REVISI: tampilkan icon PDF jika file adalah PDF --}}
                         <div style="width:64px; height:64px; border-radius:8px; background:#FEF2F2;
                                     border:1px solid #FECACA; display:flex; align-items:center;
                                     justify-content:center; flex-shrink:0; cursor:pointer;"
@@ -530,7 +527,6 @@ html.dark .invoice-badge {
                      ondrop="handleDrop(event)">
 
                     <div id="dropPlaceholder" class="drop-zone-placeholder">
-                        {{-- ← REVISI: icon & teks --}}
                         <i class="ri-file-upload-line icon"></i>
                         <p class="title">
                             @if($pembelian->bukti_transaksi) Upload file baru untuk mengganti
@@ -541,7 +537,6 @@ html.dark .invoice-badge {
                     </div>
 
                     <div id="previewWrap" style="display:none;">
-                        {{-- ← REVISI: pisah wrap image & PDF --}}
                         <div id="previewImgWrap" style="display:none; margin-bottom:10px;">
                             <img id="previewImg" src="" alt="Preview bukti"
                                  style="max-height:180px; max-width:100%; border-radius:8px;
@@ -558,7 +553,6 @@ html.dark .invoice-badge {
                     </div>
                 </div>
 
-                {{-- ← REVISI: accept tambah PDF --}}
                 <input type="file" id="inputBukti" name="bukti_transaksi"
                        accept="image/jpeg,image/png,application/pdf"
                        style="display:none;" onchange="previewGambar(this)">
@@ -667,7 +661,7 @@ function filterSuggestions() {
     box.style.display = filtered.length > 0 ? 'block' : 'none';
 }
 
-// ── REVISI: Preview Bukti Pembayaran (support JPG/PNG/PDF) ──
+// Preview Bukti Pembayaran
 function previewGambar(input) {
     if (!input.files || !input.files[0]) return;
     const file    = input.files[0];
@@ -729,12 +723,22 @@ function handleDrop(event) {
     document.getElementById('dropZone').style.background  = 'var(--bg-primary)';
 }
 
+// FIX BUG 2: toggleHapusBukti — disable dropzone saat centang hapus
 function toggleHapusBukti(checkbox) {
     const existing = document.getElementById('existingBukti');
+    const dropZone = document.getElementById('dropZone');
     if (existing) existing.style.opacity = checkbox.checked ? '0.4' : '1';
+    if (dropZone) {
+        dropZone.style.opacity       = checkbox.checked ? '0.4' : '1';
+        dropZone.style.pointerEvents = checkbox.checked ? 'none' : 'auto';
+    }
+    if (checkbox.checked) {
+        document.getElementById('inputBukti').value = '';
+        hapusGambar();
+    }
 }
 
-// -- Preview File Invoice --
+// Preview File Invoice
 function previewInvoice(input) {
     if (!input.files || !input.files[0]) return;
     const file    = input.files[0];
@@ -796,9 +800,19 @@ function handleDropInvoice(event) {
     document.getElementById('dropZoneInvoice').style.background  = 'var(--bg-primary)';
 }
 
+// FIX BUG 2: toggleHapusInvoice — disable dropzone saat centang hapus
 function toggleHapusInvoice(checkbox) {
-    const existing = document.getElementById('existingInvoice');
+    const existing  = document.getElementById('existingInvoice');
+    const dropZone  = document.getElementById('dropZoneInvoice');
     if (existing) existing.style.opacity = checkbox.checked ? '0.4' : '1';
+    if (dropZone) {
+        dropZone.style.opacity       = checkbox.checked ? '0.4' : '1';
+        dropZone.style.pointerEvents = checkbox.checked ? 'none' : 'auto';
+    }
+    if (checkbox.checked) {
+        document.getElementById('inputFileInvoice').value = '';
+        hapusInvoice();
+    }
 }
 </script>
 
