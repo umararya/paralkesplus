@@ -249,13 +249,24 @@
             </div>
             @endif
 
+            {{-- REVISI: Deteksi PDF vs gambar untuk bukti transaksi utama --}}
             @if($penjualan->foto_bukti)
             <div class="info-item full">
-                <span class="info-label">Foto Bukti</span>
-                <a href="{{ Storage::url($penjualan->foto_bukti) }}" target="_blank"
-                   style="font-size:13px;color:var(--brand-500);display:inline-flex;align-items:center;gap:4px;">
-                    <i class="ri-image-line"></i> Lihat Foto
-                </a>
+                <span class="info-label">Bukti Pembayaran</span>
+                @php
+                    $extUtama = strtolower(pathinfo($penjualan->foto_bukti, PATHINFO_EXTENSION));
+                @endphp
+                @if($extUtama === 'pdf')
+                    <a href="{{ Storage::url($penjualan->foto_bukti) }}" target="_blank"
+                       style="font-size:13px;color:var(--brand-500);display:inline-flex;align-items:center;gap:4px;">
+                        <i class="ri-file-pdf-line"></i> Lihat PDF
+                    </a>
+                @else
+                    <a href="{{ Storage::url($penjualan->foto_bukti) }}" target="_blank"
+                       style="font-size:13px;color:var(--brand-500);display:inline-flex;align-items:center;gap:4px;">
+                        <i class="ri-image-line"></i> Lihat Foto
+                    </a>
+                @endif
             </div>
             @endif
 
@@ -528,12 +539,23 @@
                         </td>
                         <td style="font-size:12px;color:var(--text-muted);max-width:160px;">
                             {{ $bayar->keterangan ?? '-' }}
+                            {{-- REVISI: Deteksi PDF vs gambar untuk bukti per pembayaran --}}
                             @if($bayar->foto_bukti)
                             <br>
-                            <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
-                               style="color:var(--brand-500);font-size:11px;">
-                                <i class="ri-image-line"></i> Lihat bukti
-                            </a>
+                            @php
+                                $extBayar = strtolower(pathinfo($bayar->foto_bukti, PATHINFO_EXTENSION));
+                            @endphp
+                            @if($extBayar === 'pdf')
+                                <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
+                                   style="color:var(--brand-500);font-size:11px;">
+                                    <i class="ri-file-pdf-line"></i> Lihat PDF
+                                </a>
+                            @else
+                                <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
+                                   style="color:var(--brand-500);font-size:11px;">
+                                    <i class="ri-image-line"></i> Lihat bukti
+                                </a>
+                            @endif
                             @endif
                         </td>
                         <td>
@@ -612,9 +634,13 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto Bukti</label>
+                        <label class="form-label">Bukti Pembayaran</label>
+                        {{-- REVISI: tambah accept pdf --}}
                         <input type="file" name="foto_bukti" class="form-control"
-                               accept="image/jpg,image/jpeg,image/png,image/webp">
+                               accept="image/jpg,image/jpeg,image/png,image/webp,application/pdf">
+                        <small style="color:var(--text-muted);font-size:11px;margin-top:3px;display:block;">
+                            Format: JPG, PNG, WEBP, PDF. Maks 5 MB.
+                        </small>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Keterangan</label>

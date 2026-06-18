@@ -183,7 +183,8 @@ class PenjualanController extends Controller
             'alamat_pelanggan'     => 'required|string',
             'tanggal_penjualan'    => 'required|date',
             'diskon_global'        => 'nullable|integer|min:0',
-            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            // REVISI: tambah pdf, naikkan max size ke 5MB
+            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'keterangan'           => 'nullable|string',
             'metode_pembayaran'    => 'required|in:cash,dp,transfer',
             'metode_bayar_awal'    => 'required|in:cash,transfer,qris',
@@ -351,7 +352,8 @@ class PenjualanController extends Controller
             'tanggal_penjualan'    => 'required|date',
             'jenis_pembayaran'     => 'required|string|max:30',
             'diskon_global'        => 'nullable|integer|min:0',
-            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            // REVISI: tambah pdf, naikkan max size ke 5MB
+            'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'keterangan'           => 'nullable|string',
             'jasa_pengiriman'      => 'nullable|in:ambil_sendiri,gosend_grab,rental_mobil',
             'harga_pengiriman'     => 'nullable|integer|min:0',
@@ -447,7 +449,8 @@ class PenjualanController extends Controller
             'jumlah_bayar'  => 'required|integer|min:1',
             'tanggal_bayar' => 'required|date',
             'keterangan'    => 'nullable|string|max:500',
-            'foto_bukti'    => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            // REVISI: tambah pdf, naikkan max size ke 5MB
+            'foto_bukti'    => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
         ]);
 
         $sisaTagihan = $penjualan->sisa_tagihan ?? 0;
