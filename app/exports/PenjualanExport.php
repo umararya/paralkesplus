@@ -3,7 +3,6 @@
 
 namespace App\Exports;
 
-use App\Models\Penjualan;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class PenjualanExport implements WithMultipleSheets

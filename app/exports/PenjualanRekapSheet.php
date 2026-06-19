@@ -14,7 +14,6 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class PenjualanRekapSheet implements
@@ -31,9 +30,9 @@ class PenjualanRekapSheet implements
     protected ?string $dateTo;
     protected ?string $statusPembayaran;
     protected ?string $statusTransaksi;
+    protected int $no = 0; // FIX: instance variable, bukan static
 
-    // Jumlah kolom (A..W = 23 kolom)
-    const LAST_COL = 'W';
+    const LAST_COL     = 'W';
     const LAST_COL_IDX = 23;
 
     public function __construct(
@@ -55,19 +54,26 @@ class PenjualanRekapSheet implements
         return Penjualan::with(['details', 'user', 'pembayarans'])
             ->when($this->search, function ($q) {
                 $s = $this->search;
-                $q->where('nama_pelanggan',     'like', "%{$s}%")
-                  ->orWhere('nomor_telepon',     'like', "%{$s}%")
-                  ->orWhere('alamat_pelanggan',  'like', "%{$s}%")
-                  ->orWhere('jenis_pembayaran',  'like', "%{$s}%")
-                  ->orWhere('keterangan',        'like', "%{$s}%")
-                  ->orWhere('status_pembayaran', 'like', "%{$s}%");
+                // FIX: orWhere digroup agar tidak bypass filter lain
+                $q->where(function ($q2) use ($s) {
+                    $q2->where('nama_pelanggan',     'like', "%{$s}%")
+                       ->orWhere('nomor_telepon',     'like', "%{$s}%")
+                       ->orWhere('alamat_pelanggan',  'like', "%{$s}%")
+                       ->orWhere('jenis_pembayaran',  'like', "%{$s}%")
+                       ->orWhere('keterangan',        'like', "%{$s}%")
+                       ->orWhere('status_pembayaran', 'like', "%{$s}%");
+                });
             })
             ->when($this->dateFrom, fn($q) => $q->whereDate('tanggal_penjualan', '>=', $this->dateFrom))
             ->when($this->dateTo,   fn($q) => $q->whereDate('tanggal_penjualan', '<=', $this->dateTo))
-            ->when($this->statusPembayaran && $this->statusPembayaran !== 'semua',
-                fn($q) => $q->where('status_pembayaran', $this->statusPembayaran))
-            ->when($this->statusTransaksi && $this->statusTransaksi !== 'semua',
-                fn($q) => $q->where('status_transaksi', $this->statusTransaksi))
+            ->when(
+                $this->statusPembayaran && $this->statusPembayaran !== 'semua',
+                fn($q) => $q->where('status_pembayaran', $this->statusPembayaran)
+            )
+            ->when(
+                $this->statusTransaksi && $this->statusTransaksi !== 'semua',
+                fn($q) => $q->where('status_transaksi', $this->statusTransaksi)
+            )
             ->orderBy('tanggal_penjualan', 'desc')
             ->get();
     }
@@ -103,8 +109,8 @@ class PenjualanRekapSheet implements
 
     public function map($row): array
     {
-        static $no = 0;
-        $no++;
+        // FIX: pakai $this->no, bukan static $no
+        $this->no++;
 
         $barangDijual = $row->details->pluck('nama_barang')->filter()->implode(', ');
         $totalQty     = (int) $row->details->sum('qty');
@@ -145,7 +151,7 @@ class PenjualanRekapSheet implements
         };
 
         return [
-            $no,
+            $this->no,
             $row->id,
             Carbon::parse($row->tanggal_penjualan)->format('d/m/Y'),
             $row->nama_pelanggan       ?? '-',
@@ -173,7 +179,6 @@ class PenjualanRekapSheet implements
 
     public function columnFormats(): array
     {
-        // Kolom I s/d O = subtotal, diskon, ongkir, instalasi, tagihan, terbayar, sisa
         $currency = '"Rp "#,##0';
         return [
             'I' => $currency,

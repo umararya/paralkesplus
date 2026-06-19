@@ -80,7 +80,6 @@
     .data-table th.center, .data-table td.center { text-align:center; }
     .data-table th.right,  .data-table td.right  { text-align:right; }
 
-    /* ── DROPDOWN AKSI (sama persis seperti penyewaan) ── */
     .action-wrap { position:relative; display:inline-block; }
     .btn-aksi-toggle { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all 0.2s; }
     .btn-aksi-toggle:hover { background:var(--brand-500); color:#fff; border-color:var(--brand-500); }
@@ -119,7 +118,6 @@
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
     html.dark .alert-error   { background:rgba(190,18,60,0.12); color:#FB7185; border-color:rgba(190,18,60,0.25); }
 
-    /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(2px); }
     .modal-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
@@ -140,7 +138,6 @@
     .delete-impact-box i { font-size:18px; flex-shrink:0; }
     html.dark .delete-impact-box { background:rgba(194,65,12,0.1); border-color:rgba(194,65,12,0.3); color:#FB923C; }
 
-    /* Badge / Pill */
     .qty-badge { display:inline-flex; align-items:center; background:#EFF6FF; color:#1D4ED8; padding:2px 10px; border-radius:20px; font-size:12.5px; font-weight:700; }
     html.dark .qty-badge { background:rgba(29,78,216,0.15); color:#60A5FA; }
     .total-value { font-weight:700; color:#059669; }
@@ -165,7 +162,6 @@
 
     .tfoot-total td { padding:12px 16px; font-size:13px; font-weight:700; color:var(--text-primary); background:var(--bg-hover); border-top:2px solid var(--border); }
 
-    /* Bukti / File thumb */
     .bukti-thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border); transition:transform 0.15s,box-shadow 0.15s; display:block; margin:0 auto; }
     .bukti-thumb:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
     .bukti-empty { width:44px; height:44px; border-radius:8px; background:var(--bg-primary); border:1px dashed var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; }
@@ -174,7 +170,6 @@
     .file-btn.invoice-file { border-color:#BFDBFE; background:#EFF6FF; color:#2563EB; }
     .file-btn.invoice-file:hover { box-shadow:0 4px 12px rgba(37,99,235,0.2); }
 
-    /* Lightbox */
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.5); cursor:default; }
@@ -182,13 +177,103 @@
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 
-    /* File Viewer Modal PDF */
     .file-modal { max-width:860px; width:100%; }
     .file-modal .modal-body { padding:0; }
     .pdf-frame { width:100%; height:72vh; border:none; border-radius:0 0 16px 16px; display:block; }
     .pdf-fallback { padding:28px 24px; text-align:center; }
     .pdf-fallback i { font-size:52px; color:#EF4444; display:block; margin-bottom:12px; }
     .pdf-fallback p { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+
+    /* ── Export Panel Dropdown ── */
+    .dropdown-export-panel {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 32px rgba(0,0,0,0.15);
+        z-index: 300;
+        width: 300px;
+        overflow: hidden;
+    }
+    .dropdown-export-panel.open {
+        display: block;
+        animation: fadeDropdown 0.15s ease;
+    }
+    .export-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 12px 16px 10px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    .export-field-group {
+        padding: 10px 16px 0;
+    }
+    .export-field-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 5px;
+    }
+    .export-date-input,
+    .export-select {
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 13px;
+        font-family: var(--font);
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+    .export-date-input { width: calc(50% - 6px); }
+    .export-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
+    }
+    .export-date-input:focus,
+    .export-select:focus {
+        border-color: var(--brand-500);
+        box-shadow: 0 0 0 3px rgba(29,111,164,0.1);
+    }
+    .export-date-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .export-date-sep {
+        font-size: 11px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+    .export-panel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 16px;
+        margin-top: 10px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-primary);
+    }
 </style>
 @endpush
 
@@ -262,14 +347,83 @@
         </div>
 
         <div class="toolbar-right">
-            <a href="{{ route('pembelian.export', [
-                'search'    => $search,
-                'filter'    => $filter,
-                'date_from' => $dateFrom,
-                'date_to'   => $dateTo,
-            ]) }}" class="btn btn-export" title="Export ke Excel">
-                <i class="ri-file-excel-2-line"></i> Export XLSX
-            </a>
+
+            {{-- ══ EXPORT PANEL ══ --}}
+            <div class="action-wrap" id="exportWrap">
+                <button type="button" class="btn btn-export" id="btnToggleExport"
+                        onclick="toggleExportPanel()">
+                    <i class="ri-file-excel-2-line"></i> Export XLSX
+                    <i class="ri-arrow-down-s-line" id="exportArrow"
+                       style="font-size:16px;transition:transform 0.2s;margin-left:2px;"></i>
+                </button>
+
+                <div class="dropdown-export-panel" id="exportPanel">
+                    <div class="export-panel-header">
+                        <i class="ri-filter-3-line" style="color:#10B981;"></i>
+                        <span>Filter Export</span>
+                    </div>
+
+                    <form method="GET" action="{{ route('pembelian.export') }}" id="exportForm">
+                        <input type="hidden" name="search" value="{{ $search }}">
+
+                        {{-- Filter Tanggal --}}
+                        <div class="export-field-group">
+                            <label class="export-field-label">
+                                <i class="ri-calendar-line"></i> Rentang Tanggal
+                            </label>
+                            <div class="export-date-row">
+                                <input type="date" name="date_from"
+                                       class="export-date-input"
+                                       value="{{ $dateFrom }}">
+                                <span class="export-date-sep">s/d</span>
+                                <input type="date" name="date_to"
+                                       class="export-date-input"
+                                       value="{{ $dateTo }}">
+                            </div>
+                        </div>
+
+                        {{-- Filter Status --}}
+                        <div class="export-field-group">
+                            <label class="export-field-label">
+                                <i class="ri-list-check"></i> Status Pembelian
+                            </label>
+                            <select name="filter" class="export-select">
+                                <option value="semua"    {{ ($filter ?? 'semua') === 'semua'    ? 'selected' : '' }}>Semua Status</option>
+                                <option value="normal"   {{ ($filter ?? '') === 'normal'        ? 'selected' : '' }}>Normal</option>
+                                <option value="buy_back" {{ ($filter ?? '') === 'buy_back'      ? 'selected' : '' }}>Buy Back</option>
+                            </select>
+                        </div>
+
+                        {{-- Filter Kondisi Barang --}}
+                        <div class="export-field-group">
+                            <label class="export-field-label">
+                                <i class="ri-checkbox-blank-circle-line"></i> Kondisi Barang
+                            </label>
+                            <select name="kondisi_barang" class="export-select">
+                                <option value="semua">Semua Kondisi</option>
+                                <option value="baru">Baru</option>
+                                <option value="bekas">Bekas</option>
+                                <option value="baik">Baik</option>
+                                <option value="rusak">Rusak</option>
+                            </select>
+                        </div>
+
+                        <div class="export-panel-footer">
+                            <button type="button" class="btn btn-ghost"
+                                    style="height:34px;font-size:12.5px;"
+                                    onclick="resetExportForm()">
+                                <i class="ri-refresh-line"></i> Reset
+                            </button>
+                            <button type="submit" class="btn btn-export"
+                                    style="height:34px;font-size:12.5px;">
+                                <i class="ri-download-2-line"></i> Download
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {{-- ══ /EXPORT PANEL ══ --}}
+
             <a href="{{ route('pembelian.create') }}" class="btn btn-primary">
                 <i class="ri-add-line"></i> Tambah Pembelian
             </a>
@@ -549,7 +703,7 @@
                         @endif
                     </td>
 
-                    {{-- ══ AKSI DROPDOWN (titik tiga) ══ --}}
+                    {{-- AKSI DROPDOWN --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button class="btn-aksi-toggle"
@@ -739,7 +893,7 @@
     </div>
 </div>
 
-{{-- LIGHTBOX: untuk file GAMBAR --}}
+{{-- LIGHTBOX --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
         <i class="ri-close-line"></i>
@@ -748,7 +902,7 @@
     <div class="lightbox-caption" id="lightboxCaption"></div>
 </div>
 
-{{-- MODAL FILE VIEWER: untuk PDF --}}
+{{-- MODAL FILE VIEWER PDF --}}
 <div class="modal-overlay" id="modalFileViewer">
     <div class="modal file-modal">
         <div class="modal-header">
@@ -807,6 +961,7 @@ document.addEventListener('keydown', e => {
         closeLightbox();
         closeFileModal();
         closeAllDropdowns();
+        closeExportPanel();
         document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
     }
 });
@@ -816,6 +971,7 @@ function toggleDropdown(btn) {
     const menu   = btn.nextElementSibling;
     const isOpen = menu.classList.contains('open');
     closeAllDropdowns();
+    closeExportPanel();
     if (!isOpen) menu.classList.add('open');
 }
 function closeAllDropdowns() {
@@ -823,7 +979,36 @@ function closeAllDropdowns() {
 }
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.action-wrap')) closeAllDropdowns();
+    if (!e.target.closest('#exportWrap'))  closeExportPanel();
 });
+
+/* ── Export Panel ── */
+function toggleExportPanel() {
+    const panel  = document.getElementById('exportPanel');
+    const arrow  = document.getElementById('exportArrow');
+    const isOpen = panel.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+        panel.classList.add('open');
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        panel.classList.remove('open');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+function closeExportPanel() {
+    const panel = document.getElementById('exportPanel');
+    const arrow = document.getElementById('exportArrow');
+    if (panel) panel.classList.remove('open');
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
+}
+function resetExportForm() {
+    const form = document.getElementById('exportForm');
+    form.querySelector('[name="date_from"]').value      = '';
+    form.querySelector('[name="date_to"]').value        = '';
+    form.querySelector('[name="filter"]').value         = 'semua';
+    form.querySelector('[name="kondisi_barang"]').value = 'semua';
+}
 
 /* ── Delete Modal ── */
 function openDeleteModal(namaBarang, jumlah, actionUrl) {
@@ -833,7 +1018,7 @@ function openDeleteModal(namaBarang, jumlah, actionUrl) {
     openModal('modalHapus');
 }
 
-/* ── Lightbox (gambar) ── */
+/* ── Lightbox ── */
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;
@@ -865,7 +1050,6 @@ function openFileModal(url, title, type) {
             fallback.style.display = 'block';
         };
     }
-
     openModal('modalFileViewer');
 }
 function closeFileModal() {

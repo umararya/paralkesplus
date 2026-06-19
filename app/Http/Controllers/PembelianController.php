@@ -65,13 +65,26 @@ class PembelianController extends Controller
      ═══════════════════════════════════════════ */
     public function export(Request $request)
     {
-        $search   = $request->input('search', '');
-        $filter   = $request->input('filter', 'semua');
-        $dateFrom = $request->input('date_from', '');
-        $dateTo   = $request->input('date_to', '');
-        $filename = 'pembelian_' . now()->format('Ymd_His') . '.xlsx';
+        $search        = $request->input('search', '');
+        $filter        = $request->input('filter', 'semua');
+        $dateFrom      = $request->input('date_from', '');
+        $dateTo        = $request->input('date_to', '');
+        $kondisiBarang = $request->input('kondisi_barang', '');
 
-        return Excel::download(new PembelianExport($search, $filter, $dateFrom, $dateTo), $filename);
+        if ($dateFrom && $dateTo) {
+            $rangeLabel = \Carbon\Carbon::parse($dateFrom)->format('d-m-Y')
+                . '_sd_'
+                . \Carbon\Carbon::parse($dateTo)->format('d-m-Y');
+        } else {
+            $rangeLabel = now()->format('Ymd_His');
+        }
+
+        $filename = 'pembelian_' . $rangeLabel . '.xlsx';
+
+        return Excel::download(
+            new PembelianExport($search, $filter, $dateFrom, $dateTo, $kondisiBarang),
+            $filename
+        );
     }
 
     /* ═══════════════════════════════════════════
@@ -451,7 +464,6 @@ class PembelianController extends Controller
 
         $penjualan = \App\Models\Penjualan::with('details')->findOrFail($penjualanId);
 
-        // ── Pre-validasi batas buyback sebelum transaksi ──
         $errors = [];
         foreach ($items as $index => $item) {
             $qtyDiminta = (int) ($item['qty_buyback'] ?? 0);
@@ -461,7 +473,6 @@ class PembelianController extends Controller
             $detail   = DetailPenjualan::find($detailId);
             if (!$detail) continue;
 
-            // ✅ Pakai detail_penjualan_id — akurat & tidak terpengaruh nama duplikat
             $sudahBuyback    = Pembelian::where('status', 'buy_back')
                 ->where('detail_penjualan_id', $detailId)
                 ->sum('jumlah');
@@ -494,7 +505,6 @@ class PembelianController extends Controller
 
                 $detail = DetailPenjualan::findOrFail($detailId);
 
-                // Double-check di dalam transaksi (race condition guard)
                 $sudahBuyback = Pembelian::where('status', 'buy_back')
                     ->where('detail_penjualan_id', $detailId)
                     ->sum('jumlah');
@@ -512,7 +522,7 @@ class PembelianController extends Controller
 
                 $pembelian = Pembelian::create([
                     'penjualan_id'        => $penjualanId,
-                    'detail_penjualan_id' => $detailId,        // ✅ KUNCI tracking
+                    'detail_penjualan_id' => $detailId,
                     'tanggal_pembelian'   => now()->toDateString(),
                     'no_invoice'          => null,
                     'file_invoice'        => null,
@@ -574,7 +584,6 @@ class PembelianController extends Controller
             }
         });
 
-        // ✅ Redirect ke show — bukan index — agar tracking langsung terlihat
         return redirect()->route('penjualan.show', $penjualanId)
             ->with('success', 'Buy back berhasil! Stok bekas inventory sudah diperbarui.');
     }

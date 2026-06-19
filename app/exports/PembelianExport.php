@@ -4,18 +4,20 @@
 namespace App\Exports;
 
 use App\Models\Pembelian;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Font;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PembelianExport implements
     FromCollection,
@@ -23,26 +25,24 @@ class PembelianExport implements
     WithMapping,
     WithStyles,
     WithTitle,
+    WithColumnFormatting,
     ShouldAutoSize
 {
-    private int $rowNumber = 0;
+    protected int $no = 0; // FIX: instance variable, bukan static
 
-    // BUG 1 FIX: tambah $dateFrom dan $dateTo
     public function __construct(
-        protected string $search   = '',
-        protected string $filter   = '',
-        protected string $dateFrom = '',
-        protected string $dateTo   = '',
-    ) {
-        // BUG 3 FIX: reset di constructor
-        $this->rowNumber = 0;
-    }
+        protected string $search        = '',
+        protected string $filter        = '',
+        protected string $dateFrom      = '',
+        protected string $dateTo        = '',
+        protected string $kondisiBarang = '',
+    ) {}
 
     public function collection()
     {
         return Pembelian::query()
-            // BUG 2 FIX: wrap orWhere dalam sub-closure agar tidak bocor
             ->when($this->search, function ($q) {
+                // FIX: orWhere digroup agar tidak bypass filter lain
                 $q->where(function ($sub) {
                     $sub->where('nama_barang',      'like', "%{$this->search}%")
                         ->orWhere('no_invoice',     'like', "%{$this->search}%")
@@ -53,13 +53,15 @@ class PembelianExport implements
             ->when($this->filter && $this->filter !== 'semua', function ($q) {
                 $q->where('status', $this->filter);
             })
-            // BUG 2 FIX: tambah filter tanggal
             ->when($this->dateFrom, fn($q) =>
                 $q->whereDate('tanggal_pembelian', '>=', $this->dateFrom)
             )
             ->when($this->dateTo, fn($q) =>
                 $q->whereDate('tanggal_pembelian', '<=', $this->dateTo)
             )
+            ->when($this->kondisiBarang && $this->kondisiBarang !== 'semua', function ($q) {
+                $q->where('kondisi_barang', $this->kondisiBarang);
+            })
             ->orderBy('tanggal_pembelian', 'desc')
             ->get();
     }
@@ -71,50 +73,68 @@ class PembelianExport implements
             'Tanggal Pembelian',
             'No. Invoice / Faktur',
             'Nama Barang',
-            'Jumlah',
+            'Status',
+            'Kondisi Barang',
+            'Qty',
             'Harga Satuan (Rp)',
             'Total (Rp)',
-            'Kondisi',
-            'Status',
             'Keterangan',
             'Bukti Pembayaran',
             'File Invoice / Faktur Supplier',
         ];
     }
 
-    public function map($pembelian): array
+    public function map($row): array
     {
-        $this->rowNumber++;
+        $this->no++;
 
-        $buktiUrl = $pembelian->bukti_transaksi
-            ? url('storage/' . $pembelian->bukti_transaksi)
-            : '';
+        $statusLabel = match($row->status) {
+            'buy_back' => 'Buy Back',
+            'normal'   => 'Normal',
+            default    => ucfirst($row->status ?? '-'),
+        };
 
-        $invoiceUrl = $pembelian->file_invoice
-            ? url('storage/' . $pembelian->file_invoice)
-            : '';
+        $kondisiLabel = match($row->kondisi_barang) {
+            'baru'  => 'Baru',
+            'bekas' => 'Bekas',
+            'baik'  => 'Baik',
+            'rusak' => 'Rusak',
+            default => ucfirst($row->kondisi_barang ?? '-'),
+        };
+
+        $buktiUrl   = $row->bukti_transaksi ? url('storage/' . $row->bukti_transaksi) : '';
+        $invoiceUrl = $row->file_invoice    ? url('storage/' . $row->file_invoice)    : '';
 
         return [
-            $this->rowNumber,
-            Carbon::parse($pembelian->tanggal_pembelian)->format('d/m/Y'),
-            $pembelian->no_invoice ?? '-',
-            $pembelian->nama_barang,
-            $pembelian->jumlah,
-            $pembelian->harga_satuan,
-            $pembelian->attributes['total'] ?? ($pembelian->jumlah * $pembelian->harga_satuan),
-            ucfirst($pembelian->kondisi_barang ?? '-'),
-            $pembelian->status === 'buy_back' ? 'Buy Back' : 'Normal',
-            $pembelian->keterangan ?? '-',
+            $this->no,
+            Carbon::parse($row->tanggal_pembelian)->format('d/m/Y'),
+            $row->no_invoice ?? '-',
+            $row->nama_barang,
+            $statusLabel,
+            $kondisiLabel,
+            (int) ($row->jumlah      ?? 0),
+            (int) ($row->harga_satuan ?? 0),
+            (int) ($row->attributes['total'] ?? ($row->jumlah * $row->harga_satuan)),
+            $row->keterangan ?? '-',
             $buktiUrl   ?: 'Tidak ada',
             $invoiceUrl ?: 'Tidak ada',
         ];
     }
 
+    public function columnFormats(): array
+    {
+        $currency = '"Rp "#,##0';
+        return [
+            'H' => $currency,
+            'I' => $currency,
+        ];
+    }
+
     public function styles(Worksheet $sheet): array
     {
-        $lastRow = $this->rowNumber + 1;
+        $lastDataRow = $this->no + 1; // baris terakhir data (header = row 1)
 
-        // Header
+        // ── Header row ──
         $sheet->getStyle('A1:L1')->applyFromArray([
             'font' => [
                 'bold'  => true,
@@ -133,25 +153,25 @@ class PembelianExport implements
         ]);
 
         $sheet->freezePane('A2');
-        $sheet->getRowDimension(1)->setRowHeight(28);
+        $sheet->getRowDimension(1)->setRowHeight(30);
 
-        // Zebra stripe baris data
-        for ($row = 2; $row <= $lastRow; $row++) {
-            $bgColor = ($row % 2 === 0) ? 'FFF1F5F9' : 'FFFFFFFF';
-            $sheet->getStyle("A{$row}:L{$row}")->applyFromArray([
-                'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => $bgColor],
-                ],
-                'alignment' => [
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
+        // ── Zebra stripe baris data ──
+        for ($i = 2; $i <= $lastDataRow; $i++) {
+            if ($i % 2 === 0) {
+                $sheet->getStyle("A{$i}:L{$i}")->applyFromArray([
+                    'fill' => [
+                        'fillType'   => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFF1F5F9'],
+                    ],
+                ]);
+            }
+            $sheet->getStyle("A{$i}:L{$i}")->getAlignment()
+                  ->setVertical(Alignment::VERTICAL_CENTER);
         }
 
-        // Border seluruh tabel
-        if ($lastRow >= 2) {
-            $sheet->getStyle("A1:L{$lastRow}")->applyFromArray([
+        // ── Border seluruh tabel ──
+        if ($lastDataRow >= 2) {
+            $sheet->getStyle("A1:L{$lastDataRow}")->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -161,31 +181,84 @@ class PembelianExport implements
             ]);
         }
 
-        // Alignment angka (kolom E-G: Jumlah, Harga, Total)
-        $sheet->getStyle("E2:G{$lastRow}")
-              ->getAlignment()
-              ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-
-        // Alignment No
-        $sheet->getStyle("A2:A{$lastRow}")
+        // ── Alignment No (kolom A) ──
+        $sheet->getStyle("A2:A{$lastDataRow}")
               ->getAlignment()
               ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        // Format Rupiah Harga Satuan & Total
-        $sheet->getStyle("F2:G{$lastRow}")
-              ->getNumberFormat()
-              ->setFormatCode('#,##0');
+        // ── Alignment angka (kolom G-I: Qty, Harga, Total) ──
+        $sheet->getStyle("G2:I{$lastDataRow}")
+              ->getAlignment()
+              ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
-        // Lebar kolom URL
+        // ── Warna status (kolom E) ──
+        for ($i = 2; $i <= $lastDataRow; $i++) {
+            $val = $sheet->getCell("E{$i}")->getValue();
+            if ($val === 'Buy Back') {
+                $sheet->getStyle("E{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FFD97706'], 'bold' => true],
+                ]);
+            } elseif ($val === 'Normal') {
+                $sheet->getStyle("E{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FF1D4ED8'], 'bold' => true],
+                ]);
+            }
+        }
+
+        // ── Warna kondisi (kolom F) ──
+        for ($i = 2; $i <= $lastDataRow; $i++) {
+            $val = $sheet->getCell("F{$i}")->getValue();
+            if ($val === 'Baru') {
+                $sheet->getStyle("F{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FF1D6FA4'], 'bold' => true],
+                ]);
+            } elseif ($val === 'Bekas') {
+                $sheet->getStyle("F{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FF7C3AED'], 'bold' => true],
+                ]);
+            } elseif ($val === 'Baik') {
+                $sheet->getStyle("F{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FF16A34A'], 'bold' => true],
+                ]);
+            } elseif ($val === 'Rusak') {
+                $sheet->getStyle("F{$i}")->applyFromArray([
+                    'font' => ['color' => ['argb' => 'FFDC2626'], 'bold' => true],
+                ]);
+            }
+        }
+
+        // ── Summary row (Total Qty & Total Nilai) ──
+        if ($lastDataRow >= 2) {
+            $summaryRow = $lastDataRow + 2;
+
+            $sheet->setCellValue("F{$summaryRow}", 'TOTAL:');
+            $sheet->setCellValue("G{$summaryRow}", "=SUM(G2:G{$lastDataRow})");
+            $sheet->setCellValue("I{$summaryRow}", "=SUM(I2:I{$lastDataRow})");
+
+            $sheet->getStyle("F{$summaryRow}:I{$summaryRow}")->applyFromArray([
+                'font' => ['bold' => true, 'color' => ['argb' => 'FF1E40AF']],
+                'fill' => [
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFDBEAFE'],
+                ],
+            ]);
+
+            // Format currency pada summary
+            $sheet->getStyle("I{$summaryRow}")
+                  ->getNumberFormat()
+                  ->setFormatCode('"Rp "#,##0');
+        }
+
+        // ── Lebar kolom URL ──
         $sheet->getColumnDimension('K')->setWidth(45);
         $sheet->getColumnDimension('L')->setWidth(45);
 
-        // Hyperlink kolom K (Bukti) & L (Invoice)
-        for ($row = 2; $row <= $lastRow; $row++) {
-            $cellBukti = $sheet->getCell("K{$row}")->getValue();
+        // ── Hyperlink kolom K (Bukti) & L (Invoice) ──
+        for ($i = 2; $i <= $lastDataRow; $i++) {
+            $cellBukti = $sheet->getCell("K{$i}")->getValue();
             if ($cellBukti && $cellBukti !== 'Tidak ada') {
-                $sheet->getCell("K{$row}")->getHyperlink()->setUrl($cellBukti);
-                $sheet->getStyle("K{$row}")->applyFromArray([
+                $sheet->getCell("K{$i}")->getHyperlink()->setUrl($cellBukti);
+                $sheet->getStyle("K{$i}")->applyFromArray([
                     'font' => [
                         'color'     => ['argb' => 'FF2563EB'],
                         'underline' => Font::UNDERLINE_SINGLE,
@@ -193,10 +266,10 @@ class PembelianExport implements
                 ]);
             }
 
-            $cellInvoice = $sheet->getCell("L{$row}")->getValue();
+            $cellInvoice = $sheet->getCell("L{$i}")->getValue();
             if ($cellInvoice && $cellInvoice !== 'Tidak ada') {
-                $sheet->getCell("L{$row}")->getHyperlink()->setUrl($cellInvoice);
-                $sheet->getStyle("L{$row}")->applyFromArray([
+                $sheet->getCell("L{$i}")->getHyperlink()->setUrl($cellInvoice);
+                $sheet->getStyle("L{$i}")->applyFromArray([
                     'font' => [
                         'color'     => ['argb' => 'FF2563EB'],
                         'underline' => Font::UNDERLINE_SINGLE,

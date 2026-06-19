@@ -30,6 +30,7 @@ class PenjualanDetailSheet implements
     protected ?string $dateTo;
     protected ?string $statusPembayaran;
     protected ?string $statusTransaksi;
+    protected int $no = 0; // FIX: instance variable, bukan static
 
     const LAST_COL = 'K';
 
@@ -53,16 +54,23 @@ class PenjualanDetailSheet implements
             ->whereHas('penjualan', function ($q) {
                 $q->when($this->search, function ($q2) {
                     $s = $this->search;
-                    $q2->where('nama_pelanggan',    'like', "%{$s}%")
-                       ->orWhere('nomor_telepon',   'like', "%{$s}%")
-                       ->orWhere('alamat_pelanggan','like', "%{$s}%");
+                    // FIX: orWhere digroup agar tidak bypass filter tanggal/status
+                    $q2->where(function ($q3) use ($s) {
+                        $q3->where('nama_pelanggan',   'like', "%{$s}%")
+                           ->orWhere('nomor_telepon',   'like', "%{$s}%")
+                           ->orWhere('alamat_pelanggan','like', "%{$s}%");
+                    });
                 })
                 ->when($this->dateFrom, fn($q2) => $q2->whereDate('tanggal_penjualan', '>=', $this->dateFrom))
                 ->when($this->dateTo,   fn($q2) => $q2->whereDate('tanggal_penjualan', '<=', $this->dateTo))
-                ->when($this->statusPembayaran && $this->statusPembayaran !== 'semua',
-                    fn($q2) => $q2->where('status_pembayaran', $this->statusPembayaran))
-                ->when($this->statusTransaksi && $this->statusTransaksi !== 'semua',
-                    fn($q2) => $q2->where('status_transaksi', $this->statusTransaksi));
+                ->when(
+                    $this->statusPembayaran && $this->statusPembayaran !== 'semua',
+                    fn($q2) => $q2->where('status_pembayaran', $this->statusPembayaran)
+                )
+                ->when(
+                    $this->statusTransaksi && $this->statusTransaksi !== 'semua',
+                    fn($q2) => $q2->where('status_transaksi', $this->statusTransaksi)
+                );
             })
             ->orderBy('penjualan_id', 'desc')
             ->get();
@@ -87,8 +95,8 @@ class PenjualanDetailSheet implements
 
     public function map($row): array
     {
-        static $no = 0;
-        $no++;
+        // FIX: pakai $this->no, bukan static $no
+        $this->no++;
 
         $kondisi = match($row->kondisi) {
             'baru'  => 'Baru',
@@ -97,7 +105,7 @@ class PenjualanDetailSheet implements
         };
 
         return [
-            $no,
+            $this->no,
             $row->penjualan_id,
             $row->penjualan
                 ? Carbon::parse($row->penjualan->tanggal_penjualan)->format('d/m/Y')
