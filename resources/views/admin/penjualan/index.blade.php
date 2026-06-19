@@ -126,7 +126,6 @@
     .action-dropdown-item.item-view    i { color:var(--brand-500); }
     .action-dropdown-item.item-edit    i { color:#2563EB; }
     .action-dropdown-item.item-invoice i { color:#7C3AED; }
-    .action-dropdown-item.item-buyback i { color:#D97706; }
     .action-dropdown-item.item-delete  i { color:#EF4444; }
     .action-dropdown-item.item-delete:hover { background:#FFF1F2; color:#E11D48; }
     html.dark .action-dropdown-item.item-delete:hover { background:rgba(225,29,72,0.12); color:#FB7185; }
@@ -150,8 +149,6 @@
     .alert { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:10px; font-size:13.5px; font-weight:500; margin-bottom:18px; border:1px solid transparent; }
     .alert-success { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     html.dark .alert-success { background:rgba(21,128,61,0.12); color:#4ADE80; border-color:rgba(21,128,61,0.25); }
-    .alert-info { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
-    html.dark .alert-info { background:rgba(29,78,216,0.1); color:#60A5FA; border-color:rgba(29,78,216,0.25); }
 
     .tanggal-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-hover); padding:3px 10px; border-radius:6px; font-size:12.5px; font-weight:500; color:var(--text-primary); }
     .total-value { font-weight:700; color:#059669; }
@@ -181,15 +178,11 @@
     html.dark .status-belum-lunas { background:rgba(153,27,27,.25);  color:#FCA5A5; }
     html.dark .status-batal       { background:rgba(100,116,139,.2); color:#94A3B8; }
 
-    /* ── REVISI: Bukti thumb & file-btn (sama persis dengan pembelian) ── */
     .bukti-thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border); transition:transform 0.15s,box-shadow 0.15s; display:block; margin:0 auto; }
     .bukti-thumb:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
     .bukti-empty { width:44px; height:44px; border-radius:8px; background:var(--bg-primary); border:1px dashed var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; }
     .file-btn { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:8px; cursor:pointer; border:1px solid #FECACA; background:#FEF2F2; color:#EF4444; font-size:22px; margin:0 auto; transition:transform 0.15s,box-shadow 0.15s; }
     .file-btn:hover { transform:scale(1.08); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-
-    /* ── Hapus CSS lama (diganti di atas) ── */
-    /* .foto-thumb dan .foto-none sudah tidak dipakai */
 
     .tfoot-total td { padding:12px 14px; font-size:13px; font-weight:700; color:var(--text-primary); background:var(--bg-hover); border-top:2px solid var(--border); }
 
@@ -199,7 +192,6 @@
     @keyframes fadeOverlay { from{opacity:0;}to{opacity:1;} }
     .modal { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.2); width:100%; max-width:460px; animation:slideUp 0.2s ease; }
     .modal-xl  { max-width:720px; }
-    .modal-xxl { max-width:900px; }
     @keyframes slideUp { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
     .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
@@ -213,35 +205,7 @@
     .delete-warning p { font-size:13px; color:var(--text-muted); line-height:1.6; }
     .delete-warning strong { color:var(--text-primary); }
 
-    .buyback-info { background:var(--bg-hover); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
-    .buyback-info-row { display:flex; align-items:center; justify-content:space-between; font-size:13px; padding:4px 0; }
-    .buyback-info-label { color:var(--text-muted); display:flex; align-items:center; gap:5px; }
-    .buyback-info-value { font-weight:600; color:var(--text-primary); }
-    .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
-    .form-label { font-size:12.5px; font-weight:600; color:var(--text-secondary); }
-    .form-label .required { color:#EF4444; margin-left:2px; }
-    .form-control { height:40px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s; width:100%; box-sizing:border-box; }
-    .form-control:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(29,111,164,0.1); }
-    select.form-control { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:32px; }
-    textarea.form-control { height:70px; padding:10px 12px; resize:vertical; }
-
-    .bb-table { width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:13px; }
-    .bb-table thead tr { background:var(--bg-primary); border-bottom:1px solid var(--border); }
-    .bb-table th { padding:8px 11px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-muted); white-space:nowrap; }
-    .bb-table td { padding:10px 11px; border-bottom:1px solid var(--border); vertical-align:middle; }
-    .bb-table tbody tr:last-child td { border-bottom:none; }
-    .bb-table tfoot tr { background:var(--bg-hover); border-top:2px solid var(--border); }
-    .bb-table tfoot td { padding:10px 11px; font-weight:700; }
-    .bb-input { height:34px; padding:0 9px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); color:var(--text-primary); font-size:13px; font-family:var(--font); outline:none; transition:border-color 0.2s,box-shadow 0.2s; box-sizing:border-box; }
-    .bb-input:focus { border-color:#D97706; box-shadow:0 0 0 3px rgba(217,119,6,0.12); }
-    .bb-input:disabled { opacity:0.4; cursor:not-allowed; background:var(--bg-hover); }
-    .bb-qty-input   { width:64px; text-align:center; }
-    .bb-harga-input { width:130px; text-align:right; }
-    .bb-hint-50 { font-size:10.5px; color:var(--text-muted); margin-top:3px; cursor:pointer; user-select:none; }
-    .bb-hint-50:hover { color:#D97706; text-decoration:underline; }
-    .bb-row-disabled { opacity:0.4; }
-
-    /* ── REVISI: Lightbox ── */
+    /* ── Lightbox ── */
     .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; padding:20px; cursor:zoom-out; }
     .lightbox-overlay.open { display:flex; animation:fadeOverlay 0.18s ease; }
     .lightbox-overlay img { max-width:90vw; max-height:88vh; border-radius:10px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.5); cursor:default; }
@@ -249,16 +213,13 @@
     .lightbox-close:hover { background:rgba(255,255,255,0.28); }
     .lightbox-caption { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); font-size:13px; color:rgba(255,255,255,0.75); background:rgba(0,0,0,0.5); padding:6px 16px; border-radius:20px; white-space:nowrap; max-width:80vw; overflow:hidden; text-overflow:ellipsis; }
 
-    /* ── REVISI: File Viewer Modal PDF ── */
+    /* ── File Viewer Modal PDF ── */
     .file-modal { max-width:860px; width:100%; }
     .file-modal .modal-body { padding:0; max-height:none; overflow-y:visible; }
     .pdf-frame { width:100%; height:72vh; border:none; border-radius:0 0 16px 16px; display:block; }
     .pdf-fallback { padding:28px 24px; text-align:center; }
     .pdf-fallback i { font-size:52px; color:#EF4444; display:block; margin-bottom:12px; }
     .pdf-fallback p { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
-
-    .kondisi-baru  { background:#F0FDF4; color:#16A34A; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
-    .kondisi-bekas { background:#FFF7ED; color:#C2410C; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; }
 </style>
 @endpush
 
@@ -378,7 +339,6 @@
             @endif
         </form>
 
-        {{-- Shortcut cepat --}}
         <div class="date-shortcuts">
             <span>Cepat:</span>
             <button type="button" class="shortcut-btn" onclick="setDateRange('today')">Hari ini</button>
@@ -565,7 +525,6 @@
                         @endif
                     </td>
 
-                    {{-- Metode + Status Pembayaran --}}
                     <td>
                         @php
                             $metode = $item->jenis_pembayaran ?? 'cash';
@@ -609,7 +568,6 @@
                         </span>
                     </td>
 
-                    {{-- Kolom Pengiriman --}}
                     <td style="min-width:170px;">
                         <div class="kirim-wrap">
                             <span class="kirim-badge {{ $kirimClass }}">
@@ -655,7 +613,6 @@
                         @endif
                     </td>
 
-                    {{-- ══ REVISI: Kolom Bukti (sama dengan pembelian) ══ --}}
                     <td class="center">
                         @if($item->foto_bukti)
                             @php $extBukti = strtolower(pathinfo($item->foto_bukti, PATHINFO_EXTENSION)); @endphp
@@ -686,7 +643,7 @@
                         @endif
                     </td>
 
-                    {{-- Kolom Aksi --}}
+                    {{-- ══ Kolom Aksi (tanpa Buy Back) ══ --}}
                     <td class="center">
                         <div class="action-wrap">
                             <button type="button"
@@ -711,24 +668,12 @@
                                    target="_blank">
                                     <i class="ri-file-text-line"></i> Cetak Invoice
                                 </a>
-                                @if(!$item->isBatal())
-                                <button type="button"
-                                        class="action-dropdown-item item-buyback"
-                                        onclick="openBuyBackModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
-                                    <i class="ri-arrow-go-back-line"></i> Buy Back
-                                </button>
-                                @endif
                                 <div class="dropdown-divider"></div>
                                 <button type="button"
                                         class="action-dropdown-item item-delete"
                                         onclick="openDeleteModal({{ $item->id }}, '{{ addslashes($item->nama_pelanggan) }}');closeAllDropdowns();">
                                     <i class="ri-delete-bin-line"></i> Hapus
                                 </button>
-                                <form id="formHapus-{{ $item->id }}"
-                                      action="{{ route('penjualan.destroy', $item->id) }}"
-                                      method="POST" style="display:none;">
-                                    @csrf @method('DELETE')
-                                </form>
                             </div>
                         </div>
                     </td>
@@ -832,83 +777,6 @@
 </div>{{-- /table-card --}}
 
 
-{{-- ══ MODAL: BUY BACK ══ --}}
-<div class="modal-overlay" id="modalBuyBack">
-    <div class="modal modal-xxl">
-        <div class="modal-header">
-            <span class="modal-title">
-                <i class="ri-arrow-go-back-line" style="color:#D97706;"></i>
-                Buy Back — Pembelian Kembali
-            </span>
-            <button class="modal-close" onclick="closeModal('modalBuyBack')">
-                <i class="ri-close-line"></i>
-            </button>
-        </div>
-        <form id="formBuyBack" method="POST" action="{{ route('pembelian.buyback.store') }}">
-            @csrf
-            <input type="hidden" name="penjualan_id" id="buyBackPenjualanId">
-            <div class="modal-body">
-                <div class="buyback-info" style="margin-bottom:14px;">
-                    <div class="buyback-info-row">
-                        <span class="buyback-info-label"><i class="ri-user-line"></i> Pelanggan</span>
-                        <span class="buyback-info-value" id="buyBackNamaPelanggan">—</span>
-                    </div>
-                </div>
-                <div class="alert alert-info" style="margin-bottom:14px;align-items:flex-start;">
-                    <i class="ri-information-line" style="font-size:16px;flex-shrink:0;margin-top:1px;"></i>
-                    <span style="font-size:13px;line-height:1.6;">
-                        Centang barang yang dikembalikan, tentukan <strong>qty</strong> dan
-                        <strong>harga buy back</strong> per item secara bebas.
-                        Klik <em>"Isi 50%"</em> untuk mengisi otomatis 50% dari harga jual sebagai acuan.
-                    </span>
-                </div>
-                <div style="overflow-x:auto;margin-bottom:14px;">
-                    <table class="bb-table">
-                        <thead>
-                            <tr>
-                                <th style="width:36px;text-align:center;">✓</th>
-                                <th>Nama Barang</th>
-                                <th style="text-align:center;">Kondisi</th>
-                                <th style="text-align:right;">Harga Jual / unit</th>
-                                <th style="text-align:center;">Maks Qty</th>
-                                <th style="text-align:center;width:80px;">Qty</th>
-                                <th style="text-align:right;min-width:160px;">Harga Buyback / unit</th>
-                                <th style="text-align:right;">Total Dibayar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="buyBackTableBody"></tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="7" style="text-align:right;font-size:13px;color:var(--text-secondary);">
-                                    Total yang dibayarkan ke pelanggan:
-                                </td>
-                                <td style="text-align:right;font-size:15px;font-weight:800;color:#D97706;white-space:nowrap;"
-                                    id="buyBackGrandTotal">Rp 0</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label class="form-label">Alasan / Keterangan Buy Back
-                        <span style="font-weight:400;color:var(--text-muted);">(opsional)</span>
-                    </label>
-                    <textarea name="keterangan" class="form-control"
-                              placeholder="Contoh: Barang tidak sesuai, cacat produksi, dll."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('modalBuyBack')">Batal</button>
-                <button type="submit" id="btnSubmitBuyBack"
-                        class="btn btn-primary"
-                        style="background:#D97706;border-color:#D97706;">
-                    <i class="ri-arrow-go-back-line"></i> Proses Buy Back
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
 {{-- ══ MODAL: KONFIRMASI HAPUS ══ --}}
 <div class="modal-overlay" id="modalHapus">
     <div class="modal">
@@ -942,7 +810,7 @@
 </div>
 
 
-{{-- ══ LIGHTBOX: untuk file GAMBAR ══ --}}
+{{-- ══ LIGHTBOX ══ --}}
 <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">
         <i class="ri-close-line"></i>
@@ -952,7 +820,7 @@
 </div>
 
 
-{{-- ══ REVISI: MODAL FILE VIEWER untuk PDF ══ --}}
+{{-- ══ MODAL FILE VIEWER PDF ══ --}}
 <div class="modal-overlay" id="modalFileViewer">
     <div class="modal file-modal">
         <div class="modal-header">
@@ -986,44 +854,17 @@
     </div>
 </div>
 
-
-{{-- Data JSON untuk modal buyback --}}
-@php
-$penjualanData = $penjualans->map(function($item) {
-    return [
-        'id'             => $item->id,
-        'nama_pelanggan' => $item->nama_pelanggan,
-        'details'        => $item->details->map(fn($d) => [
-            'id'           => $d->id,
-            'inventory_id' => $d->inventory_id,
-            'nama_barang'  => $d->nama_barang,
-            'kondisi'      => $d->kondisi ?? 'baru',
-            'qty'          => $d->qty,
-            'satuan'       => $d->satuan ?? 'unit',
-            'harga_satuan' => $d->harga_satuan,
-            'diskon'       => $d->diskon ?? 0,
-            'subtotal'     => $d->subtotal,
-        ])->values(),
-    ];
-})->keyBy('id');
-@endphp
-
 @endsection
 
 @push('scripts')
 <script>
-const penjualanData = @json($penjualanData);
-const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
-
 // ── Date Filter Shortcuts ──
 function setDateRange(range) {
     const today = new Date();
     const pad   = n => String(n).padStart(2, '0');
     const ymd   = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
     let from, to;
     to = ymd(today);
-
     if (range === 'today') {
         from = to;
     } else if (range === 'week') {
@@ -1035,7 +876,6 @@ function setDateRange(range) {
     } else if (range === 'year') {
         from = `${today.getFullYear()}-01-01`;
     }
-
     document.getElementById('inputDateFrom').value = from;
     document.getElementById('inputDateTo').value   = to;
     document.getElementById('dateFilterForm').submit();
@@ -1058,7 +898,7 @@ function resetExportFilter() {
     form.querySelector('[name="status_transaksi"]').value  = 'semua';
 }
 
-// ── Modal & Dropdown ──
+// ── Modal ──
 function openModal(id) {
     document.getElementById(id).classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1084,6 +924,7 @@ document.addEventListener('keydown', e => {
     }
 });
 
+// ── Dropdown Aksi ──
 function toggleDropdown(btn, e) {
     e.stopPropagation();
     const dropdown = btn.nextElementSibling;
@@ -1118,13 +959,14 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// ── Delete Modal ──
 function openDeleteModal(id, nama) {
     document.getElementById('deleteNamaPelanggan').textContent = nama;
     document.getElementById('formDeleteSubmit').action = '/penjualan/' + id;
     openModal('modalHapus');
 }
 
-// ── REVISI: Lightbox (gambar) ──
+// ── Lightbox ──
 function openLightbox(src, caption) {
     document.getElementById('lightboxImg').src             = src;
     document.getElementById('lightboxCaption').textContent = caption;
@@ -1137,16 +979,14 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
-// ── REVISI: File Viewer Modal (PDF) ──
+// ── File Viewer Modal PDF ──
 function openFileModal(url, title, type) {
     document.getElementById('fileViewerTitleText').textContent = title;
     document.getElementById('fileViewerOpenLink').href         = url;
     document.getElementById('pdfFallbackLink').href            = url;
-
     const frame    = document.getElementById('pdfFrame');
     const wrap     = document.getElementById('pdfViewerWrap');
     const fallback = document.getElementById('pdfFallback');
-
     if (type === 'pdf') {
         frame.src              = url;
         wrap.style.display     = 'block';
@@ -1156,7 +996,6 @@ function openFileModal(url, title, type) {
             fallback.style.display = 'block';
         };
     }
-
     openModal('modalFileViewer');
 }
 function closeFileModal() {
@@ -1166,129 +1005,6 @@ function closeFileModal() {
         document.getElementById('pdfViewerWrap').style.display = 'block';
         document.getElementById('pdfFallback').style.display   = 'none';
     }, 200);
-}
-
-// ── Buy Back Modal ──
-function openBuyBackModal(id, nama) {
-    const d = penjualanData[id];
-    if (!d) return;
-
-    document.getElementById('buyBackPenjualanId').value         = id;
-    document.getElementById('buyBackNamaPelanggan').textContent = nama;
-
-    const rows = d.details.map((item, i) => {
-        const defaultHarga = Math.round(item.harga_satuan * 0.5);
-        return `
-        <tr id="bb_row_${i}"
-            data-harga-jual="${item.harga_satuan}"
-            data-default-harga="${defaultHarga}"
-            data-max-qty="${item.qty}">
-            <td style="text-align:center;">
-                <input type="checkbox" name="items[${i}][detail_id]" value="${item.id}"
-                       id="bb_chk_${i}" class="bb-checkbox"
-                       style="width:16px;height:16px;cursor:pointer;accent-color:#D97706;"
-                       checked onchange="toggleBuyBackRow(this, ${i})">
-            </td>
-            <td>
-                <div style="font-weight:600;font-size:13px;">${item.nama_barang}</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${item.satuan}</div>
-            </td>
-            <td style="text-align:center;">
-                <span class="kondisi-${item.kondisi}">${ucfirst(item.kondisi)}</span>
-                <div style="font-size:10.5px;color:#D97706;margin-top:3px;font-weight:600;">→ Bekas</div>
-            </td>
-            <td style="text-align:right;color:var(--text-secondary);font-size:13px;white-space:nowrap;">
-                ${fmt(item.harga_satuan)}
-            </td>
-            <td style="text-align:center;font-weight:600;">
-                ${item.qty} <span style="font-size:11px;color:var(--text-muted);">${item.satuan}</span>
-            </td>
-            <td style="text-align:center;">
-                <input type="number" name="items[${i}][qty_buyback]" id="bb_qty_${i}"
-                       class="bb-input bb-qty-input" value="${item.qty}"
-                       min="1" max="${item.qty}" oninput="calcBuyBackTotal()">
-            </td>
-            <td style="text-align:right;">
-                <input type="number" name="items[${i}][harga_buyback]" id="bb_harga_${i}"
-                       class="bb-input bb-harga-input" value="${defaultHarga}"
-                       min="0" oninput="calcBuyBackTotal()">
-                <div class="bb-hint-50" onclick="resetHarga50(${i})"
-                     title="Klik untuk isi ulang 50% dari harga jual">
-                    ↺ Isi 50% (${fmt(defaultHarga)})
-                </div>
-            </td>
-            <td style="text-align:right;font-weight:700;color:#059669;white-space:nowrap;font-size:13px;"
-                id="bb_subtotal_${i}">
-                ${fmt(defaultHarga * item.qty)}
-            </td>
-        </tr>`;
-    }).join('');
-
-    document.getElementById('buyBackTableBody').innerHTML = rows;
-    calcBuyBackTotal();
-    openModal('modalBuyBack');
-}
-
-function resetHarga50(i) {
-    const row   = document.getElementById('bb_row_' + i);
-    const input = document.getElementById('bb_harga_' + i);
-    if (!row || !input) return;
-    input.value = row.dataset.defaultHarga;
-    calcBuyBackTotal();
-    input.style.borderColor = '#D97706';
-    input.style.boxShadow   = '0 0 0 3px rgba(217,119,6,0.18)';
-    setTimeout(() => { input.style.borderColor = ''; input.style.boxShadow = ''; }, 800);
-}
-
-function toggleBuyBackRow(chk, i) {
-    const row        = document.getElementById('bb_row_' + i);
-    const qtyInput   = document.getElementById('bb_qty_' + i);
-    const hargaInput = document.getElementById('bb_harga_' + i);
-    if (chk.checked) {
-        row.classList.remove('bb-row-disabled');
-        qtyInput.disabled = false; hargaInput.disabled = false;
-    } else {
-        row.classList.add('bb-row-disabled');
-        qtyInput.disabled = true; hargaInput.disabled = true;
-    }
-    calcBuyBackTotal();
-}
-
-function calcBuyBackTotal() {
-    let grandTotal = 0;
-    document.querySelectorAll('#buyBackTableBody tr').forEach((row, i) => {
-        const chk        = document.getElementById('bb_chk_' + i);
-        const qtyInput   = document.getElementById('bb_qty_' + i);
-        const hargaInput = document.getElementById('bb_harga_' + i);
-        const subCell    = document.getElementById('bb_subtotal_' + i);
-        if (!chk || !qtyInput || !hargaInput || !subCell) return;
-
-        const maxQty = parseInt(row.dataset.maxQty) || 1;
-        let qty   = parseInt(qtyInput.value)     || 0;
-        let harga = parseFloat(hargaInput.value) || 0;
-
-        if (qty > maxQty) { qty = maxQty; qtyInput.value = maxQty; }
-        if (qty < 1 && chk.checked) { qty = 1; qtyInput.value = 1; }
-        if (harga < 0) { harga = 0; hargaInput.value = 0; }
-
-        const subtotal = chk.checked ? harga * qty : 0;
-        subCell.textContent = fmt(subtotal);
-        subCell.style.color = chk.checked ? '#059669' : 'var(--text-muted)';
-        grandTotal += subtotal;
-    });
-    document.getElementById('buyBackGrandTotal').textContent = fmt(grandTotal);
-
-    const anyChecked = [...document.querySelectorAll('.bb-checkbox')].some(c => c.checked);
-    const btn = document.getElementById('btnSubmitBuyBack');
-    if (btn) {
-        btn.disabled      = !anyChecked;
-        btn.style.opacity = anyChecked ? '1' : '0.5';
-        btn.style.cursor  = anyChecked ? 'pointer' : 'not-allowed';
-    }
-}
-
-function ucfirst(str) {
-    return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 </script>
 @endpush

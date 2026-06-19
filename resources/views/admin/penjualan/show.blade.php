@@ -25,17 +25,14 @@
     .badge-red    { background:#FEE2E2; color:#991B1B; }
     .badge-blue   { background:#DBEAFE; color:#1E40AF; }
     .badge-gray   { background:var(--bg-hover); color:var(--text-muted); }
+    .badge-purple { background:#EDE9FE; color:#5B21B6; }
     html.dark .badge-green  { background:rgba(6,95,70,.25);    color:#6EE7B7; }
     html.dark .badge-amber  { background:rgba(146,64,14,.25);  color:#FCD34D; }
     html.dark .badge-red    { background:rgba(153,27,27,.25);  color:#FCA5A5; }
     html.dark .badge-blue   { background:rgba(30,64,175,.25);  color:#93C5FD; }
+    html.dark .badge-purple { background:rgba(91,33,182,.25);  color:#C4B5FD; }
 
-    /* ── Pengiriman Badge ── */
-    .kirim-show-badge {
-        display:inline-flex; align-items:center; gap:8px;
-        padding:7px 14px; border-radius:10px;
-        font-size:13px; font-weight:600; border:1px solid transparent;
-    }
+    .kirim-show-badge { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:10px; font-size:13px; font-weight:600; border:1px solid transparent; }
     .kirim-show-badge i { font-size:16px; }
     .kirim-ambil  { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
     .kirim-gosend { background:#D1FAE5; color:#065F46; border-color:#A7F3D0; }
@@ -44,7 +41,6 @@
     html.dark .kirim-gosend { background:rgba(6,95,70,.2);    color:#6EE7B7; border-color:rgba(6,95,70,.35); }
     html.dark .kirim-rental { background:rgba(30,64,175,.2);  color:#93C5FD; border-color:rgba(30,64,175,.35); }
 
-    /* ── Section Divider Pengiriman ── */
     .section-divider { display:flex; align-items:center; gap:10px; margin:20px 0 16px; color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
     .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
@@ -88,6 +84,8 @@
     .btn-primary:hover { background:var(--brand-600); }
     .btn-success { background:#059669; color:#fff; }
     .btn-success:hover { background:#047857; }
+    .btn-warning { background:#D97706; color:#fff; }
+    .btn-warning:hover { background:#B45309; }
     .btn-danger  { background:#DC2626; color:#fff; }
     .btn-danger:hover  { background:#B91C1C; }
     .btn-ghost   { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
@@ -100,9 +98,11 @@
     .alert-success { background:#ECFDF5; color:#065F46; border-color:#A7F3D0; }
     .alert-error   { background:#FFF1F2; color:#BE123C; border-color:#FECDD3; }
     .alert-warning { background:#FFFBEB; color:#92400E; border-color:#FDE68A; }
+    .alert-info    { background:#EFF6FF; color:#1E40AF; border-color:#BFDBFE; }
     html.dark .alert-success { background:rgba(6,95,70,.15);   color:#6EE7B7; border-color:rgba(6,95,70,.3); }
     html.dark .alert-error   { background:rgba(190,18,60,.12); color:#FB7185; border-color:rgba(190,18,60,.25); }
     html.dark .alert-warning { background:rgba(146,64,14,.15); color:#FCD34D; border-color:rgba(146,64,14,.3); }
+    html.dark .alert-info    { background:rgba(30,64,175,.15); color:#93C5FD; border-color:rgba(30,64,175,.3); }
 
     .tambah-bayar-section { border-top:1px solid var(--border); padding-top:20px; margin-top:4px; }
     .tambah-bayar-title { font-size:13.5px; font-weight:700; color:var(--text-primary); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
@@ -110,10 +110,22 @@
 
     .modal-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
     .modal-overlay.active { display:flex; }
-    .modal-box { background:var(--bg-card); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.2); padding:24px; width:100%; max-width:440px; margin:16px; }
+    .modal-box { background:var(--bg-card); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.2); padding:24px; width:100%; max-width:560px; margin:16px; max-height:90vh; overflow-y:auto; }
     .modal-title { font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:8px; }
     .modal-desc  { font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.5; }
     .modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+
+    /* ── Buyback table ── */
+    .bb-table { width:100%; border-collapse:collapse; }
+    .bb-table th { padding:8px 10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-muted); border-bottom:2px solid var(--border); text-align:left; background:var(--bg-primary); white-space:nowrap; }
+    .bb-table td { padding:10px 10px; font-size:13px; color:var(--text-primary); border-bottom:1px solid var(--border); vertical-align:middle; }
+    .bb-table tbody tr:last-child td { border-bottom:none; }
+    .bb-row-done td { opacity:.55; }
+    .bb-qty-bar { display:flex; align-items:center; gap:8px; }
+    .bb-bar-wrap { flex:1; background:var(--border); border-radius:99px; height:6px; overflow:hidden; min-width:60px; }
+    .bb-bar-fill { height:6px; border-radius:99px; background:var(--brand-500); transition:width .3s; }
+    .bb-bar-fill.full { background:#059669; }
+    .bb-bar-fill.warn { background:#D97706; }
 </style>
 @endpush
 
@@ -145,6 +157,8 @@
 @endif
 
 @php
+    use App\Models\Pembelian;
+
     $transaksiColor = match($penjualan->status_transaksi) {
         'aktif'   => 'badge-blue',
         'selesai' => 'badge-green',
@@ -163,6 +177,25 @@
         'rental_mobil' => 'kirim-rental',
         default        => 'kirim-ambil',
     };
+
+    // ─────────────────────────────────────────────────────────────────
+    // Hitung buyback per detail item — PAKAI detail_penjualan_id
+    // agar tidak terpengaruh kesamaan nama_barang di transaksi lain
+    // ─────────────────────────────────────────────────────────────────
+    $buybackMap = [];
+    foreach ($penjualan->details as $detail) {
+        $sudah = Pembelian::where('status', 'buy_back')
+            ->where('detail_penjualan_id', $detail->id)
+            ->sum('jumlah');
+        $buybackMap[$detail->id] = [
+            'sudah' => (int) $sudah,
+            'sisa'  => max(0, $detail->qty - (int) $sudah),
+            'total' => (int) $detail->qty,
+        ];
+    }
+
+    $semuaSudahBuyback  = collect($buybackMap)->every(fn($b) => $b['sisa'] === 0);
+    $adaYangBisaBuyback = collect($buybackMap)->some(fn($b)  => $b['sisa'] > 0);
 @endphp
 
 {{-- ── Top Action Bar ── --}}
@@ -184,6 +217,20 @@
             <a href="{{ route('penjualan.edit', $penjualan->id) }}" class="btn btn-primary btn-sm">
                 <i class="ri-edit-line"></i> Edit
             </a>
+
+            {{-- Tombol Buy Back: aktif jika masih ada sisa, disabled jika semua sudah habis --}}
+            @if($adaYangBisaBuyback)
+                <button type="button" onclick="openModalBuyBack()" class="btn btn-warning btn-sm">
+                    <i class="ri-arrow-go-back-line"></i> Buy Back
+                </button>
+            @else
+                <button type="button" class="btn btn-ghost btn-sm"
+                        disabled title="Semua barang sudah di-buyback"
+                        style="cursor:not-allowed;opacity:.5;">
+                    <i class="ri-arrow-go-back-line"></i> Buy Back
+                </button>
+            @endif
+
             <button type="button" onclick="openModalBatal()" class="btn btn-danger btn-sm">
                 <i class="ri-close-circle-line"></i> Batalkan
             </button>
@@ -249,13 +296,10 @@
             </div>
             @endif
 
-            {{-- REVISI: Deteksi PDF vs gambar untuk bukti transaksi utama --}}
             @if($penjualan->foto_bukti)
             <div class="info-item full">
                 <span class="info-label">Bukti Pembayaran</span>
-                @php
-                    $extUtama = strtolower(pathinfo($penjualan->foto_bukti, PATHINFO_EXTENSION));
-                @endphp
+                @php $extUtama = strtolower(pathinfo($penjualan->foto_bukti, PATHINFO_EXTENSION)); @endphp
                 @if($extUtama === 'pdf')
                     <a href="{{ Storage::url($penjualan->foto_bukti) }}" target="_blank"
                        style="font-size:13px;color:var(--brand-500);display:inline-flex;align-items:center;gap:4px;">
@@ -272,13 +316,12 @@
 
         </div>
 
-        {{-- ──────────────── BLOK PENGIRIMAN ──────────────── --}}
+        {{-- ── Blok Pengiriman ── --}}
         <div class="section-divider">
             <i class="ri-truck-line" style="font-size:13px;"></i> Informasi Pengiriman
         </div>
 
         <div class="info-grid">
-
             <div class="info-item full">
                 <span class="info-label">Jasa Pengiriman</span>
                 <span class="info-value">
@@ -288,14 +331,11 @@
                     </span>
                 </span>
             </div>
-
             <div class="info-item">
                 <span class="info-label">Ongkos Kirim</span>
                 <span class="info-value">
                     @if(($penjualan->harga_pengiriman ?? 0) > 0)
-                        <strong style="color:var(--text-primary);">
-                            Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}
-                        </strong>
+                        <strong>Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}</strong>
                     @else
                         <span style="color:#059669;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
                             <i class="ri-check-double-line"></i> Gratis (Rp 0)
@@ -303,7 +343,6 @@
                     @endif
                 </span>
             </div>
-
             <div class="info-item">
                 <span class="info-label">Jasa Instalasi</span>
                 <span class="info-value">
@@ -317,9 +356,7 @@
                     @endif
                 </span>
             </div>
-
         </div>
-        {{-- ──────────────── END PENGIRIMAN ──────────────── --}}
 
         @if($penjualan->isBatal() && $penjualan->catatan_pembatalan)
         <div class="alert alert-error" style="margin-top:16px;margin-bottom:0;">
@@ -362,16 +399,11 @@
                 <tbody>
                     @forelse($penjualan->details as $i => $detail)
                     <tr>
-                        <td style="text-align:center;color:var(--text-muted);font-size:12px;">
-                            {{ $i + 1 }}
-                        </td>
+                        <td style="text-align:center;color:var(--text-muted);font-size:12px;">{{ $i + 1 }}</td>
                         <td>
                             <span style="font-weight:600;">{{ $detail->nama_barang }}</span>
                             @if($detail->inventory)
-                            <br>
-                            <span style="font-size:11px;color:var(--text-muted);">
-                                {{ $detail->inventory->nama_produk ?? '' }}
-                            </span>
+                            <br><span style="font-size:11px;color:var(--text-muted);">{{ $detail->inventory->nama_produk ?? '' }}</span>
                             @endif
                         </td>
                         <td>
@@ -381,20 +413,13 @@
                         </td>
                         <td style="text-align:center;">{{ $detail->qty }}</td>
                         <td style="color:var(--text-muted);">{{ $detail->satuan ?? 'unit' }}</td>
-                        <td style="text-align:right;">
-                            Rp {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}
-                        </td>
-                        <td style="text-align:center;color:var(--text-muted);">
-                            {{ $detail->diskon ?? 0 }}%
-                        </td>
-                        <td style="text-align:right;font-weight:700;">
-                            Rp {{ number_format($detail->subtotal ?? 0, 0, ',', '.') }}
-                        </td>
+                        <td style="text-align:right;">Rp {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                        <td style="text-align:center;color:var(--text-muted);">{{ $detail->diskon ?? 0 }}%</td>
+                        <td style="text-align:right;font-weight:700;">Rp {{ number_format($detail->subtotal ?? 0, 0, ',', '.') }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8"
-                            style="text-align:center;color:var(--text-muted);padding:24px;">
+                        <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">
                             Tidak ada data barang.
                         </td>
                     </tr>
@@ -402,60 +427,38 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="7" style="text-align:right;color:var(--text-muted);font-weight:400;">
-                            Subtotal Barang
-                        </td>
-                        <td style="text-align:right;">
-                            Rp {{ number_format($penjualan->total_harga ?? 0, 0, ',', '.') }}
-                        </td>
+                        <td colspan="7" style="text-align:right;color:var(--text-muted);font-weight:400;">Subtotal Barang</td>
+                        <td style="text-align:right;">Rp {{ number_format($penjualan->total_harga ?? 0, 0, ',', '.') }}</td>
                     </tr>
-
                     @if(($penjualan->diskon_global ?? 0) > 0)
                     <tr>
-                        <td colspan="7" style="text-align:right;color:#DC2626;font-weight:400;">
-                            Diskon Global
-                        </td>
-                        <td style="text-align:right;color:#DC2626;">
-                            - Rp {{ number_format($penjualan->diskon_global, 0, ',', '.') }}
-                        </td>
+                        <td colspan="7" style="text-align:right;color:#DC2626;font-weight:400;">Diskon Global</td>
+                        <td style="text-align:right;color:#DC2626;">- Rp {{ number_format($penjualan->diskon_global, 0, ',', '.') }}</td>
                     </tr>
                     @endif
-
                     @if(($penjualan->harga_pengiriman ?? 0) > 0)
                     <tr>
                         <td colspan="7" style="text-align:right;color:var(--text-secondary);font-weight:400;">
                             <span style="display:inline-flex;align-items:center;gap:5px;">
-                                <i class="ri-truck-line" style="font-size:12px;"></i>
-                                Ongkos Kirim
-                                <span style="font-size:11px;color:var(--text-muted);">
-                                    ({{ $penjualan->jasa_pengiriman_label }})
-                                </span>
+                                <i class="ri-truck-line" style="font-size:12px;"></i> Ongkos Kirim
+                                <span style="font-size:11px;color:var(--text-muted);">({{ $penjualan->jasa_pengiriman_label }})</span>
                             </span>
                         </td>
-                        <td style="text-align:right;">
-                            + Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}
-                        </td>
+                        <td style="text-align:right;">+ Rp {{ number_format($penjualan->harga_pengiriman, 0, ',', '.') }}</td>
                     </tr>
                     @endif
-
                     @if(($penjualan->jasa_instalasi ?? 0) > 0)
                     <tr>
                         <td colspan="7" style="text-align:right;color:#7C3AED;font-weight:400;">
                             <span style="display:inline-flex;align-items:center;gap:5px;">
-                                <i class="ri-tools-line" style="font-size:12px;"></i>
-                                Jasa Instalasi
+                                <i class="ri-tools-line" style="font-size:12px;"></i> Jasa Instalasi
                             </span>
                         </td>
-                        <td style="text-align:right;color:#7C3AED;">
-                            + Rp {{ number_format($penjualan->jasa_instalasi, 0, ',', '.') }}
-                        </td>
+                        <td style="text-align:right;color:#7C3AED;">+ Rp {{ number_format($penjualan->jasa_instalasi, 0, ',', '.') }}</td>
                     </tr>
                     @endif
-
                     <tr style="background:var(--bg-hover);">
-                        <td colspan="7" style="text-align:right;font-size:14px;">
-                            <strong>Total Tagihan</strong>
-                        </td>
+                        <td colspan="7" style="text-align:right;font-size:14px;"><strong>Total Tagihan</strong></td>
                         <td style="text-align:right;font-size:15px;color:var(--brand-500);">
                             <strong>Rp {{ number_format($penjualan->total_tagihan, 0, ',', '.') }}</strong>
                         </td>
@@ -466,7 +469,111 @@
     </div>
 </div>
 
-{{-- ════ CARD 3: Riwayat Pembayaran ════ --}}
+{{-- ════ CARD 3: Status Buy Back ════ --}}
+@if(!$penjualan->isBatal())
+<div class="detail-card">
+    <div class="detail-card-header">
+        <div class="detail-card-title">
+            <i class="ri-arrow-go-back-line"></i> Status Buy Back
+        </div>
+        @if($semuaSudahBuyback)
+            <span class="badge badge-green">
+                <i class="ri-check-double-line" style="margin-right:3px;"></i> Semua Sudah Di-Buyback
+            </span>
+        @elseif(collect($buybackMap)->every(fn($b) => $b['sudah'] === 0))
+            <span class="badge badge-gray">Belum Ada Buyback</span>
+        @else
+            <span class="badge badge-amber">Sebagian Di-Buyback</span>
+        @endif
+    </div>
+    <div class="detail-card-body" style="padding:0;">
+
+        {{-- Notif jika semua sudah habis --}}
+        @if($semuaSudahBuyback)
+        <div class="alert alert-info" style="margin:16px 16px 0;">
+            <i class="ri-information-line" style="font-size:17px;flex-shrink:0;margin-top:1px;"></i>
+            <div>
+                <strong>Semua barang sudah di-buyback.</strong>
+                Tidak ada barang yang bisa di-buyback lagi dari transaksi ini.
+            </div>
+        </div>
+        @endif
+
+        <div style="overflow-x:auto;padding-bottom:4px;">
+            <table class="bb-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px;">#</th>
+                        <th>Nama Barang</th>
+                        <th style="width:80px;text-align:center;">Qty Jual</th>
+                        <th style="width:110px;text-align:center;">Sudah Buyback</th>
+                        <th style="width:120px;text-align:center;">Sisa Bisa Buyback</th>
+                        <th style="min-width:140px;">Progress</th>
+                        <th style="width:90px;text-align:center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($penjualan->details as $i => $detail)
+                    @php
+                        $bb     = $buybackMap[$detail->id];
+                        $pct    = $bb['total'] > 0 ? round(($bb['sudah'] / $bb['total']) * 100) : 0;
+                        $isDone = $bb['sisa'] === 0;
+                        $barCls = $isDone ? 'full' : ($pct >= 50 ? 'warn' : '');
+                    @endphp
+                    <tr class="{{ $isDone ? 'bb-row-done' : '' }}">
+                        <td style="text-align:center;color:var(--text-muted);font-size:12px;">{{ $i + 1 }}</td>
+                        <td style="font-weight:600;">{{ $detail->nama_barang }}</td>
+                        <td style="text-align:center;">{{ $bb['total'] }}</td>
+                        <td style="text-align:center;">
+                            @if($bb['sudah'] > 0)
+                                <span style="color:#059669;font-weight:700;">{{ $bb['sudah'] }}</span>
+                            @else
+                                <span style="color:var(--text-muted);">0</span>
+                            @endif
+                        </td>
+                        <td style="text-align:center;">
+                            @if($isDone)
+                                <span style="color:#DC2626;font-weight:700;">0</span>
+                            @else
+                                <span style="color:var(--brand-500);font-weight:700;">{{ $bb['sisa'] }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="bb-qty-bar">
+                                <div class="bb-bar-wrap">
+                                    <div class="bb-bar-fill {{ $barCls }}" style="width:{{ $pct }}%;"></div>
+                                </div>
+                                <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">{{ $pct }}%</span>
+                            </div>
+                        </td>
+                        <td style="text-align:center;">
+                            @if($isDone)
+                                <span class="badge badge-green" style="font-size:10.5px;">Habis</span>
+                            @elseif($bb['sudah'] > 0)
+                                <span class="badge badge-amber" style="font-size:10.5px;">Sebagian</span>
+                            @else
+                                <span class="badge badge-gray" style="font-size:10.5px;">Belum</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if($adaYangBisaBuyback)
+        <div style="padding:14px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+            <button type="button" onclick="openModalBuyBack()" class="btn btn-warning btn-sm">
+                <i class="ri-arrow-go-back-line"></i> Proses Buy Back
+            </button>
+        </div>
+        @endif
+
+    </div>
+</div>
+@endif
+
+{{-- ════ CARD 4: Riwayat Pembayaran ════ --}}
 <div class="detail-card">
     <div class="detail-card-header">
         <div class="detail-card-title">
@@ -475,19 +582,14 @@
     </div>
     <div class="detail-card-body">
 
-        {{-- Ringkasan Keuangan --}}
         <div class="pay-summary">
             <div class="pay-summary-item">
                 <div class="pay-summary-label">Total Tagihan</div>
-                <div class="pay-summary-value">
-                    Rp {{ number_format($penjualan->total_tagihan, 0, ',', '.') }}
-                </div>
+                <div class="pay-summary-value">Rp {{ number_format($penjualan->total_tagihan, 0, ',', '.') }}</div>
             </div>
             <div class="pay-summary-item">
                 <div class="pay-summary-label">Sudah Dibayar</div>
-                <div class="pay-summary-value green">
-                    Rp {{ number_format($penjualan->total_terbayar ?? 0, 0, ',', '.') }}
-                </div>
+                <div class="pay-summary-value green">Rp {{ number_format($penjualan->total_terbayar ?? 0, 0, ',', '.') }}</div>
             </div>
             <div class="pay-summary-item">
                 <div class="pay-summary-label">Sisa Tagihan</div>
@@ -497,7 +599,6 @@
             </div>
         </div>
 
-        {{-- Tabel Riwayat Pembayaran --}}
         @if($penjualan->pembayarans->count() > 0)
         <div style="overflow-x:auto;">
             <table class="pay-table">
@@ -534,17 +635,12 @@
                         <td style="text-align:right;font-weight:700;">
                             Rp {{ number_format($bayar->jumlah_bayar ?? 0, 0, ',', '.') }}
                         </td>
-                        <td style="font-size:12px;color:var(--text-muted);">
-                            {{ $bayar->createdBy->name ?? '-' }}
-                        </td>
+                        <td style="font-size:12px;color:var(--text-muted);">{{ $bayar->createdBy->name ?? '-' }}</td>
                         <td style="font-size:12px;color:var(--text-muted);max-width:160px;">
                             {{ $bayar->keterangan ?? '-' }}
-                            {{-- REVISI: Deteksi PDF vs gambar untuk bukti per pembayaran --}}
                             @if($bayar->foto_bukti)
                             <br>
-                            @php
-                                $extBayar = strtolower(pathinfo($bayar->foto_bukti, PATHINFO_EXTENSION));
-                            @endphp
+                            @php $extBayar = strtolower(pathinfo($bayar->foto_bukti, PATHINFO_EXTENSION)); @endphp
                             @if($extBayar === 'pdf')
                                 <a href="{{ Storage::url($bayar->foto_bukti) }}" target="_blank"
                                    style="color:var(--brand-500);font-size:11px;">
@@ -577,13 +673,11 @@
         </div>
         @else
         <div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:13px;">
-            <i class="ri-wallet-line"
-               style="font-size:28px;display:block;margin-bottom:6px;opacity:.4;"></i>
+            <i class="ri-wallet-line" style="font-size:28px;display:block;margin-bottom:6px;opacity:.4;"></i>
             Belum ada riwayat pembayaran.
         </div>
         @endif
 
-        {{-- Form Tambah Pembayaran --}}
         @if($penjualan->bisaTambahPembayaran())
         <div class="tambah-bayar-section">
             <div class="tambah-bayar-title">
@@ -635,7 +729,6 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Bukti Pembayaran</label>
-                        {{-- REVISI: tambah accept pdf --}}
                         <input type="file" name="foto_bukti" class="form-control"
                                accept="image/jpg,image/jpeg,image/png,image/webp,application/pdf">
                         <small style="color:var(--text-muted);font-size:11px;margin-top:3px;display:block;">
@@ -660,6 +753,115 @@
     </div>
 </div>
 
+{{-- ════ Modal: Buy Back ════ --}}
+@if(!$penjualan->isBatal() && $adaYangBisaBuyback)
+<div class="modal-overlay" id="modalBuyBack">
+    <div class="modal-box" style="max-width:620px;">
+        <div class="modal-title">
+            <i class="ri-arrow-go-back-line" style="color:#D97706;margin-right:6px;"></i>
+            Proses Buy Back — #{{ $penjualan->id }}
+        </div>
+        <div class="modal-desc">
+            Masukkan jumlah yang ingin di-buyback. Item yang sudah habis tidak bisa diisi.
+        </div>
+
+        <form method="POST" action="{{ route('pembelian.buyback.store') }}">
+            @csrf
+            <input type="hidden" name="penjualan_id" value="{{ $penjualan->id }}">
+
+            <div style="margin-bottom:14px;">
+                @foreach($penjualan->details as $i => $detail)
+                @php
+                    $bb     = $buybackMap[$detail->id];
+                    $isDone = $bb['sisa'] === 0;
+                @endphp
+                <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;
+                            background:{{ $isDone ? 'var(--bg-hover)' : 'var(--bg-primary)' }};
+                            {{ $isDone ? 'opacity:.55;' : '' }}">
+
+                    <input type="hidden" name="items[{{ $i }}][detail_id]" value="{{ $detail->id }}">
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                        <div>
+                            <span style="font-weight:700;font-size:13.5px;">{{ $detail->nama_barang }}</span>
+                            <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                                Terjual: <strong>{{ $bb['total'] }}</strong>
+                                &nbsp;|&nbsp;
+                                Sudah buyback: <strong style="color:{{ $bb['sudah'] > 0 ? '#059669' : 'var(--text-muted)' }};">{{ $bb['sudah'] }}</strong>
+                                &nbsp;|&nbsp;
+                                Sisa bisa buyback: <strong style="color:{{ $isDone ? '#DC2626' : 'var(--brand-500)' }};">{{ $bb['sisa'] }}</strong>
+                            </div>
+                        </div>
+                        @if($isDone)
+                            <span class="badge badge-red" style="font-size:11px;">
+                                <i class="ri-close-circle-line" style="margin-right:3px;"></i> Sudah Habis
+                            </span>
+                        @endif
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Qty Buyback
+                                @if(!$isDone)<span class="req">*</span>@endif
+                            </label>
+                            <input type="number"
+                                   name="items[{{ $i }}][qty_buyback]"
+                                   class="form-control"
+                                   min="0"
+                                   max="{{ $bb['sisa'] }}"
+                                   value="{{ $isDone ? 0 : $bb['sisa'] }}"
+                                   @if($isDone) disabled readonly @endif
+                                   placeholder="Maks {{ $bb['sisa'] }}">
+                            @if($isDone)
+                                <small style="color:#DC2626;font-size:11px;">Tidak bisa di-buyback lagi</small>
+                            @else
+                                <small style="color:var(--text-muted);font-size:11px;">Maks: {{ $bb['sisa'] }} unit</small>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Harga Buyback / unit</label>
+                            <div class="input-prefix-wrap">
+                                <span class="input-prefix">Rp</span>
+                                <input type="number"
+                                       name="items[{{ $i }}][harga_buyback]"
+                                       class="form-control"
+                                       min="0"
+                                       value="{{ round(($detail->harga_satuan ?? 0) * 0.5) }}"
+                                       placeholder="Default 50% harga jual"
+                                       @if($isDone) disabled readonly @endif>
+                            </div>
+                            @if(!$isDone)
+                            <small style="color:var(--text-muted);font-size:11px;">
+                                Harga jual: Rp {{ number_format($detail->harga_satuan ?? 0, 0, ',', '.') }}
+                            </small>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">Keterangan (opsional)</label>
+                <textarea name="keterangan" class="form-control" rows="2"
+                          placeholder="Catatan buy back..."
+                          style="resize:vertical;">{{ old('keterangan') }}</textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="closeModalBuyBack()" class="btn btn-ghost btn-sm">
+                    Batal
+                </button>
+                <button type="submit" class="btn btn-warning btn-sm">
+                    <i class="ri-arrow-go-back-line"></i> Proses Buy Back
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 {{-- ════ Modal: Batalkan Transaksi ════ --}}
 @if(!$penjualan->isBatal())
 <div class="modal-overlay" id="modalBatal">
@@ -683,8 +885,7 @@
                           style="resize:vertical;min-height:80px;">{{ old('catatan_pembatalan') }}</textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModalBatal()"
-                        class="btn btn-ghost btn-sm">Batal</button>
+                <button type="button" onclick="closeModalBatal()" class="btn btn-ghost btn-sm">Batal</button>
                 <button type="submit" class="btn btn-danger btn-sm">
                     <i class="ri-close-circle-line"></i> Ya, Batalkan
                 </button>
@@ -698,6 +899,16 @@
 
 @push('scripts')
 <script>
+function openModalBuyBack() {
+    document.getElementById('modalBuyBack')?.classList.add('active');
+}
+function closeModalBuyBack() {
+    document.getElementById('modalBuyBack')?.classList.remove('active');
+}
+document.getElementById('modalBuyBack')?.addEventListener('click', function(e) {
+    if (e.target === this) closeModalBuyBack();
+});
+
 function openModalBatal() {
     document.getElementById('modalBatal')?.classList.add('active');
 }
@@ -707,9 +918,14 @@ function closeModalBatal() {
 document.getElementById('modalBatal')?.addEventListener('click', function(e) {
     if (e.target === this) closeModalBatal();
 });
+
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModalBatal();
+    if (e.key === 'Escape') {
+        closeModalBuyBack();
+        closeModalBatal();
+    }
 });
+
 @if($errors->has('catatan_pembatalan'))
     document.addEventListener('DOMContentLoaded', () => openModalBatal());
 @endif

@@ -9,16 +9,17 @@ class Pembelian extends Model
 {
     protected $fillable = [
         'tanggal_pembelian',
-        'no_invoice',         // ← TAMBAHAN
+        'no_invoice',
+        'file_invoice',
         'nama_barang',
         'jumlah',
         'harga_satuan',
         'kondisi_barang',
         'keterangan',
         'bukti_transaksi',
-        'file_invoice',
         'status',
         'penjualan_id',
+        'detail_penjualan_id',  // ← TAMBAHAN KUNCI
         'nama_pelanggan',
     ];
 
@@ -38,6 +39,11 @@ class Pembelian extends Model
     public function penjualan()
     {
         return $this->belongsTo(Penjualan::class, 'penjualan_id');
+    }
+
+    public function detailPenjualan()
+    {
+        return $this->belongsTo(DetailPenjualan::class, 'detail_penjualan_id');
     }
 
     public function isBuyBack(): bool
