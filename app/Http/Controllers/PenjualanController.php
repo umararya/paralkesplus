@@ -6,6 +6,7 @@ use App\Exports\PenjualanExport;
 use App\Models\ActivityLog;
 use App\Models\DetailPenjualan;
 use App\Models\Inventory;
+use App\Models\Pembelian;
 use App\Models\PembayaranPenjualan;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
@@ -101,6 +102,35 @@ class PenjualanController extends Controller
     }
 
     // =========================================================
+    //  [FIX BUYBACK] PRIVATE HELPER — rollback buyback terkait
+    //  Dipanggil saat penjualan dihapus atau dibatalkan.
+    //  Kurangi stok inventory sebesar qty buyback, lalu hapus
+    //  semua record pembelian buy_back milik penjualan ini.
+    // =========================================================
+
+    private function rollbackBuybacks(Penjualan $penjualan): void
+    {
+        $buybacks = Pembelian::where('penjualan_id', $penjualan->id)
+            ->where('status', 'buy_back')
+            ->get();
+
+        foreach ($buybacks as $bb) {
+            $inv = Inventory::whereRaw('LOWER(nama_produk) = ?', [strtolower($bb->nama_barang)])->first();
+            if ($inv) {
+                $inv->stok_tersedia = max(0, $inv->stok_tersedia - $bb->jumlah);
+                $inv->stok_bekas    = max(0, $inv->stok_bekas    - $bb->jumlah);
+                $inv->save();
+            }
+
+            if ($bb->bukti_transaksi && Storage::disk('public')->exists($bb->bukti_transaksi)) {
+                Storage::disk('public')->delete($bb->bukti_transaksi);
+            }
+
+            $bb->delete();
+        }
+    }
+
+    // =========================================================
     //  INDEX — dengan filter tanggal
     // =========================================================
 
@@ -183,7 +213,6 @@ class PenjualanController extends Controller
             'alamat_pelanggan'     => 'required|string',
             'tanggal_penjualan'    => 'required|date',
             'diskon_global'        => 'nullable|integer|min:0',
-            // REVISI: tambah pdf, naikkan max size ke 5MB
             'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'keterangan'           => 'nullable|string',
             'metode_pembayaran'    => 'required|in:cash,dp,transfer',
@@ -352,7 +381,6 @@ class PenjualanController extends Controller
             'tanggal_penjualan'    => 'required|date',
             'jenis_pembayaran'     => 'required|string|max:30',
             'diskon_global'        => 'nullable|integer|min:0',
-            // REVISI: tambah pdf, naikkan max size ke 5MB
             'foto_bukti'           => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'keterangan'           => 'nullable|string',
             'jasa_pengiriman'      => 'nullable|in:ambil_sendiri,gosend_grab,rental_mobil',
@@ -449,7 +477,6 @@ class PenjualanController extends Controller
             'jumlah_bayar'  => 'required|integer|min:1',
             'tanggal_bayar' => 'required|date',
             'keterangan'    => 'nullable|string|max:500',
-            // REVISI: tambah pdf, naikkan max size ke 5MB
             'foto_bukti'    => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
         ]);
 
@@ -540,12 +567,16 @@ class PenjualanController extends Controller
         ]);
 
         DB::transaction(function () use ($penjualan, $request) {
+            // Kembalikan stok dari detail penjualan
             foreach ($penjualan->details as $detail) {
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
                     if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru');
                 }
             }
+
+            // [FIX BUYBACK] Rollback semua buyback terkait penjualan ini
+            $this->rollbackBuybacks($penjualan);
 
             $penjualan->update([
                 'status_transaksi'   => 'batal',
@@ -578,6 +609,7 @@ class PenjualanController extends Controller
             $isBatal = method_exists($penjualan, 'isBatal') && $penjualan->isBatal();
 
             if (!$isBatal) {
+                // Kembalikan stok dari detail penjualan
                 foreach ($penjualan->details as $detail) {
                     if ($detail->inventory_id) {
                         $inv = Inventory::find($detail->inventory_id);
@@ -585,6 +617,10 @@ class PenjualanController extends Controller
                     }
                 }
             }
+
+            // [FIX BUYBACK] Rollback buyback meski penjualan sudah batal sekalipun.
+            // Buyback tetap harus dihapus karena penjualan induknya sudah tidak ada.
+            $this->rollbackBuybacks($penjualan);
 
             if ($penjualan->foto_bukti &&
                 Storage::disk('public')->exists($penjualan->foto_bukti)) {
