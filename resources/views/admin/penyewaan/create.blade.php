@@ -27,6 +27,32 @@
     textarea.form-control { resize:vertical; min-height:80px; }
     select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
     .invalid-feedback { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; }
+    .invalid-feedback-global { margin-top:10px; font-size:12px; color:#EF4444; display:flex; align-items:flex-start; gap:6px; }
+    .alert-danger-global {
+        margin-bottom:18px;
+        padding:14px 16px;
+        border-radius:10px;
+        border:1px solid #FECACA;
+        background:#FEF2F2;
+        color:#991B1B;
+    }
+    .alert-danger-global-title {
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font-size:13px;
+        font-weight:700;
+        margin-bottom:8px;
+    }
+    .alert-danger-global ul {
+        margin:0;
+        padding-left:18px;
+    }
+    .alert-danger-global li {
+        margin:4px 0;
+        font-size:12.5px;
+        line-height:1.45;
+    }
     .date-range-wrap { display:flex; align-items:center; gap:8px; }
     .date-range-wrap .form-control { flex:1; }
     .date-range-sep { font-size:13px; color:var(--text-muted); white-space:nowrap; }
@@ -55,6 +81,7 @@
     .items-table td { padding:7px 6px; border-bottom:1px solid var(--border); vertical-align:middle; }
     .items-table tbody tr:nth-child(even) td { background:var(--bg-hover); }
     .items-table .form-control { padding:7px 10px; font-size:13px; }
+    .item-row-invalid td { background:rgba(239,68,68,0.05) !important; }
     .subtotal-cell { font-size:13px; font-weight:600; color:var(--brand-500); white-space:nowrap; min-width:110px; text-align:right; }
     .btn-remove-row { width:28px; height:28px; border-radius:6px; background:rgba(239,68,68,0.1); color:#EF4444; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.2s; }
     .btn-remove-row:hover { background:rgba(239,68,68,0.2); }
@@ -78,6 +105,7 @@
     .btn-cancel:hover { background:var(--bg-hover); color:var(--text-primary); }
     .btn-save { background:var(--brand-500); color:#fff; border:1px solid var(--brand-500); }
     .btn-save:hover { background:var(--brand-600); border-color:var(--brand-600); }
+    .btn-save[disabled] { opacity:.7; cursor:not-allowed; }
     .select2-container { width: 100% !important; }
     .select2-container--default .select2-selection--single { height:36px; border:1px solid var(--border); border-radius:7px; background:var(--bg-primary); display:flex; align-items:center; padding:0 10px; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { color:var(--text-primary); font-size:13px; line-height:1; padding:0; }
@@ -93,7 +121,6 @@
     .badge-baru  { background:#DBEAFE; color:#1E40AF; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .badge-bekas { background:#FEF3C7; color:#92400E; padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
     .file-error { font-size:12px; color:#EF4444; display:flex; align-items:center; gap:4px; margin-top:4px; }
-    /* ── Status badge (create = always berjalan) ── */
     .status-badge-create { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12.5px; font-weight:600; background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; margin-top:4px; }
     html.dark .status-badge-create { background:rgba(22,163,74,0.12); color:#4ADE80; border-color:rgba(22,163,74,0.25); }
 </style>
@@ -119,6 +146,22 @@
 <div class="form-card">
     <form action="{{ route('penyewaan.store') }}" method="POST" enctype="multipart/form-data" id="form-penyewaan">
         @csrf
+
+        @if ($errors->any())
+            <div class="form-section" style="padding-bottom:0; border-bottom:none;">
+                <div class="alert-danger-global" id="global-error-box">
+                    <div class="alert-danger-global-title">
+                        <i class="ri-error-warning-line"></i>
+                        <span>Form gagal disimpan. Periksa data berikut:</span>
+                    </div>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
 
         {{-- ===================== DATA PENYEWA ===================== --}}
         <div class="form-section">
@@ -184,6 +227,22 @@
         <div class="form-section">
             <div class="section-title"><i class="ri-stethoscope-line"></i> Item Penyewaan</div>
 
+            @if ($errors->has('stok'))
+                <div class="alert-danger-global">
+                    <div class="alert-danger-global-title">
+                        <i class="ri-alert-line"></i>
+                        <span>Stok barang tidak mencukupi:</span>
+                    </div>
+                    <ul>
+                        @foreach ((array) $errors->get('stok') as $stokGroup)
+                            @foreach ((array) $stokGroup as $stokItem)
+                                <li>{{ $stokItem }}</li>
+                            @endforeach
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div style="overflow-x:auto;">
                 <table class="items-table" id="items-table">
                     <thead>
@@ -202,6 +261,45 @@
                     <tbody id="items-body"></tbody>
                 </table>
             </div>
+
+            <div id="items-client-error" class="invalid-feedback-global" style="display:none;">
+                <i class="ri-error-warning-line"></i>
+                <span id="items-client-error-text"></span>
+            </div>
+
+            @if (
+                $errors->has('items') ||
+                $errors->has('items.*.nama_alat') ||
+                $errors->has('items.*.qty') ||
+                $errors->has('items.*.harga_satuan')
+            )
+                <div class="alert-danger-global" style="margin-top:14px;">
+                    <div class="alert-danger-global-title">
+                        <i class="ri-list-check-2"></i>
+                        <span>Periksa data item penyewaan:</span>
+                    </div>
+                    <ul>
+                        @foreach ($errors->get('items') as $msg)
+                            <li>{{ $msg }}</li>
+                        @endforeach
+                        @foreach ($errors->get('items.*.nama_alat') as $group)
+                            @foreach ((array) $group as $msg)
+                                <li>{{ $msg }}</li>
+                            @endforeach
+                        @endforeach
+                        @foreach ($errors->get('items.*.qty') as $group)
+                            @foreach ((array) $group as $msg)
+                                <li>{{ $msg }}</li>
+                            @endforeach
+                        @endforeach
+                        @foreach ($errors->get('items.*.harga_satuan') as $group)
+                            @foreach ((array) $group as $msg)
+                                <li>{{ $msg }}</li>
+                            @endforeach
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <button type="button" class="btn-add-row" onclick="addRow()">
                 <i class="ri-add-line"></i> Tambah Item
@@ -332,7 +430,6 @@
                     @enderror
                 </div>
 
-                {{-- ── Status (read-only saat create, selalu berjalan) ── --}}
                 <div class="form-group">
                     <label class="form-label">Status</label>
                     <input type="hidden" name="status" value="berjalan">
@@ -344,7 +441,6 @@
                     </span>
                 </div>
 
-                {{-- ===== BUKTI PEMBAYARAN - DRAG & DROP (jpg/png/pdf) ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">
                         Bukti Pembayaran
@@ -378,7 +474,6 @@
                     @enderror
                 </div>
 
-                {{-- ===== FOTO KTP / SIM ===== --}}
                 <div class="form-group" style="grid-column:1/-1;">
                     <label class="form-label">Foto KTP / SIM <span class="hint">(jpg/png/pdf, maks 5MB)</span></label>
                     <div class="dropzone" id="dropzone-ktp" tabindex="0" role="button"
@@ -425,7 +520,7 @@
                 <i class="ri-close-line"></i> Batal
             </a>
             <button type="submit" class="btn btn-save" id="btn-submit">
-                <i class="ri-save-line"></i> Simpan Penyewaan
+                <i class="ri-save-line"></i> <span id="btn-submit-text">Simpan Penyewaan</span>
             </button>
         </div>
 
@@ -440,7 +535,6 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-// ── FLATPICKR ──
 const fpMulai = flatpickr('#tgl_mulai', {
     locale: 'id', dateFormat: 'Y-m-d', allowInput: false,
     defaultDate: '{{ old("tgl_mulai") }}',
@@ -472,7 +566,6 @@ function hitungDurasi() {
     }
 }
 
-// ── HELPER NOTES ──
 function updatePengirimanNote() {
     const v = document.getElementById('pengiriman').value;
     const n = {
@@ -493,7 +586,6 @@ function updateMetodeInfo() {
     document.getElementById('metode-info-text').textContent = i[v] || 'Pilih metode pembayaran';
 }
 
-// ── SELECT2 TEMPLATE ──
 function templateInventory(item) {
     if (!item.id) return item.text || 'Cari nama alat...';
     const badgeClass = { ok: 'stok-ok', low: 'stok-low', zero: 'stok-zero' }[item.stok_status] || 'stok-ok';
@@ -516,7 +608,6 @@ function templateInventorySelection(item) {
     return $(`<span>${item.text}&nbsp;<span class="${badgeClass}" style="font-size:11px">${stokLabel}</span></span>`);
 }
 
-// ── ITEMS TABLE ──
 let rowIndex = 0;
 
 function addRow(data = {}) {
@@ -525,6 +616,7 @@ function addRow(data = {}) {
     const tbody = document.getElementById('items-body');
     const tr    = document.createElement('tr');
     tr.id       = `row-${idx}`;
+    tr.dataset.index = idx;
 
     const satuanList = ['unit', 'pcs', 'set', 'buah', 'pasang'];
     if (data.satuan && !satuanList.includes(data.satuan)) satuanList.push(data.satuan);
@@ -543,12 +635,16 @@ function addRow(data = {}) {
                    value="${(data.nama_alat || '').replace(/"/g, '&quot;')}">
             <select name="items[${idx}][inventory_id]"
                     id="inv-select-${idx}"
-                    class="form-control" required>
+                    class="form-control">
                 ${data.inventory_id
                     ? `<option value="${data.inventory_id}" selected>${data.nama_alat || ''}</option>`
                     : ''}
             </select>
             <div class="stok-info-row" id="stok-info-${idx}"></div>
+            <div class="invalid-feedback-global" id="item-error-${idx}" style="display:none;">
+                <i class="ri-error-warning-line"></i>
+                <span></span>
+            </div>
         </td>
         <td>
             <select name="items[${idx}][kondisi]"
@@ -634,6 +730,8 @@ function addRow(data = {}) {
              <span class="${badgeClass}">${item.stok_label || ''}</span>
              <span style="color:var(--text-muted);font-size:11px">| Kategori: ${item.kategori || '-'}</span>`
         );
+
+        clearItemError(idx);
         hitungSubtotal(idx);
     })
     .on('select2:clear', function () {
@@ -652,6 +750,37 @@ function removeRow(idx) {
     $(`#inv-select-${idx}`).select2('destroy');
     document.getElementById(`row-${idx}`)?.remove();
     hitungRingkasan();
+}
+
+function showItemError(idx, message) {
+    const row = document.getElementById(`row-${idx}`);
+    const box = document.getElementById(`item-error-${idx}`);
+    if (row) row.classList.add('item-row-invalid');
+    if (box) {
+        box.style.display = 'flex';
+        box.querySelector('span').textContent = message;
+    }
+}
+
+function clearItemError(idx) {
+    const row = document.getElementById(`row-${idx}`);
+    const box = document.getElementById(`item-error-${idx}`);
+    if (row) row.classList.remove('item-row-invalid');
+    if (box) {
+        box.style.display = 'none';
+        box.querySelector('span').textContent = '';
+    }
+}
+
+function clearAllItemErrors() {
+    document.querySelectorAll('#items-body tr').forEach(row => row.classList.remove('item-row-invalid'));
+    document.querySelectorAll('[id^="item-error-"]').forEach(box => {
+        box.style.display = 'none';
+        const span = box.querySelector('span');
+        if (span) span.textContent = '';
+    });
+    document.getElementById('items-client-error').style.display = 'none';
+    document.getElementById('items-client-error-text').textContent = '';
 }
 
 function hitungSubtotal(idx) {
@@ -678,7 +807,6 @@ function hitungRingkasan() {
     document.getElementById('r-total').textContent    = 'Rp ' + grand.toLocaleString('id-ID');
 }
 
-// ── DROPZONE GENERIC (KTP) ──
 function initDropzone(inputId, previewId, zoneId, maxMB) {
     const input   = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
@@ -715,7 +843,6 @@ function removeFile(inputId, previewId, zoneId) {
     document.getElementById(zoneId).style.display = '';
 }
 
-// ── DROPZONE BUKTI PEMBAYARAN (jpg/png/pdf, maks 10 MB) ──
 const BUKTI_MAX_MB  = 10;
 const BUKTI_ALLOWED = ['image/jpeg', 'image/png', 'application/pdf'];
 
@@ -790,34 +917,61 @@ function removeBuktiFile() {
     document.getElementById('bukti-error').style.display            = 'none';
 }
 
-// ── INIT ──
+function validateItemsBeforeSubmit() {
+    clearAllItemErrors();
+
+    const rows = document.querySelectorAll('#items-body tr');
+    if (!rows.length) {
+        document.getElementById('items-client-error').style.display = 'flex';
+        document.getElementById('items-client-error-text').textContent = 'Tambahkan minimal 1 item penyewaan.';
+        return false;
+    }
+
+    let firstInvalid = null;
+    let valid = true;
+
+    rows.forEach(row => {
+        const idx = row.dataset.index;
+        const namaAlat = document.getElementById(`nama-alat-${idx}`)?.value?.trim() || '';
+        const inventoryId = document.getElementById(`inv-select-${idx}`)?.value || '';
+        const qty = parseInt(document.getElementById(`qty-${idx}`)?.value || '0', 10);
+        const harga = parseInt(document.getElementById(`harga-${idx}`)?.value || '0', 10);
+
+        if (!inventoryId || !namaAlat) {
+            valid = false;
+            showItemError(idx, 'Pilih alat terlebih dahulu dari daftar.');
+            if (!firstInvalid) firstInvalid = row;
+            return;
+        }
+
+        if (!qty || qty < 1) {
+            valid = false;
+            showItemError(idx, 'Qty minimal 1.');
+            if (!firstInvalid) firstInvalid = row;
+            return;
+        }
+
+        if (harga < 0) {
+            valid = false;
+            showItemError(idx, 'Harga satuan tidak boleh negatif.');
+            if (!firstInvalid) firstInvalid = row;
+            return;
+        }
+    });
+
+    if (!valid) {
+        document.getElementById('items-client-error').style.display = 'flex';
+        document.getElementById('items-client-error-text').textContent = 'Periksa kembali item penyewaan yang ditandai merah.';
+        firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return valid;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     initDropzone('foto_ktp_sim', 'ktp-preview', 'dropzone-ktp', 5);
     initDropzoneBukti();
 
-    // Validasi client sebelum submit
-    document.getElementById('form-penyewaan').addEventListener('submit', function (e) {
-        const input = document.getElementById('bukti_pembayaran');
-        if (input.files[0]) {
-            const file = input.files[0];
-            if (!BUKTI_ALLOWED.includes(file.type)) {
-                e.preventDefault();
-                document.getElementById('bukti-error-text').textContent =
-                    'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
-                document.getElementById('bukti-error').style.display = 'flex';
-                return;
-            }
-            if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
-                e.preventDefault();
-                document.getElementById('bukti-error-text').textContent =
-                    `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
-                document.getElementById('bukti-error').style.display = 'flex';
-                return;
-            }
-        }
-    });
-
-    // Restore old items jika validasi gagal
     @if(old('items'))
         @foreach(old('items') as $i => $oldItem)
             addRow({
@@ -836,6 +990,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if ('{{ old("pengiriman") }}') updatePengirimanNote();
     if ('{{ old("metode_pembayaran") }}') updateMetodeInfo();
+
+    hitungDurasi();
+    hitungRingkasan();
+
+    @if ($errors->any())
+        const box = document.getElementById('global-error-box');
+        if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    @endif
+
+    document.getElementById('form-penyewaan').addEventListener('submit', function (e) {
+        const input = document.getElementById('bukti_pembayaran');
+
+        if (input.files[0]) {
+            const file = input.files[0];
+            if (!BUKTI_ALLOWED.includes(file.type)) {
+                e.preventDefault();
+                document.getElementById('bukti-error-text').textContent =
+                    'Format tidak didukung. Gunakan JPG, PNG, atau PDF.';
+                document.getElementById('bukti-error').style.display = 'flex';
+                return;
+            }
+            if (file.size > BUKTI_MAX_MB * 1024 * 1024) {
+                e.preventDefault();
+                document.getElementById('bukti-error-text').textContent =
+                    `Ukuran file melebihi batas maksimal ${BUKTI_MAX_MB} MB.`;
+                document.getElementById('bukti-error').style.display = 'flex';
+                return;
+            }
+        }
+
+        if (!validateItemsBeforeSubmit()) {
+            e.preventDefault();
+            return;
+        }
+
+        const btn = document.getElementById('btn-submit');
+        const btnText = document.getElementById('btn-submit-text');
+        btn.disabled = true;
+        btnText.textContent = 'Menyimpan...';
+    });
 });
 </script>
 @endpush

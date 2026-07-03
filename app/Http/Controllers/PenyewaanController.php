@@ -96,13 +96,13 @@ class PenyewaanController extends Controller
             $namaAlat = trim($item['nama_alat'] ?? '');
             if ($namaAlat === '') continue;
 
-            $qtyBaru     = max(1, (int) ($item['qty']          ?? 1));
+            $qtyBaru     = max(1, (int) ($item['qty'] ?? 1));
             $harga       = max(0, (int) ($item['harga_satuan'] ?? 0));
             $diskon      = max(0, min(100, (int) ($item['diskon'] ?? 0)));
             $inventoryId = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
             $kondisi     = in_array($item['kondisi'] ?? '', ['baru', 'bekas'])
-                           ? $item['kondisi']
-                           : 'baru';
+                ? $item['kondisi']
+                : 'baru';
             $subtotal    = (int) round($qtyBaru * $harga * (1 - $diskon / 100));
 
             $data = [
@@ -129,7 +129,7 @@ class PenyewaanController extends Controller
                     $kondisiLama = $detailLama ? ($detailLama->kondisi ?? 'baru') : $kondisi;
                     $selisih     = $qtyBaru - $qtyLama;
 
-                    if ($kondisiLama !== $kondisi && $detailLama) {
+                    if ($detailLama && $kondisiLama !== $kondisi) {
                         $inv->tambahStok($qtyLama, $kondisiLama, true);
                         $inv->kurangiStok($qtyBaru, $kondisi, true);
                     } elseif ($selisih > 0) {
@@ -154,6 +154,7 @@ class PenyewaanController extends Controller
         $toDelete = array_diff($existingIds, $submittedIds);
         if (!empty($toDelete)) {
             $detailsToDelete = DetailPenyewaan::whereIn('id', $toDelete)->get();
+
             foreach ($detailsToDelete as $detail) {
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
@@ -162,6 +163,7 @@ class PenyewaanController extends Controller
                     }
                 }
             }
+
             DetailPenyewaan::whereIn('id', $toDelete)->delete();
         }
 
@@ -181,6 +183,8 @@ class PenyewaanController extends Controller
 
     // =========================================================
     //  PRIVATE HELPER — validasi stok sebelum store/update
+    //  FIX: stok inventory dianggap current-state, jadi tidak
+    //  dikurangi lagi dengan detail penyewaan aktif.
     // =========================================================
 
     private function validateStok(array $items, ?int $excludePenyewaanId = null): array
@@ -190,43 +194,31 @@ class PenyewaanController extends Controller
 
         foreach ($items as $item) {
             $invId   = !empty($item['inventory_id']) ? (int) $item['inventory_id'] : null;
-            $kondisi = in_array($item['kondisi'] ?? '', ['baru', 'bekas']) ? $item['kondisi'] : 'baru';
+            $kondisi = in_array($item['kondisi'] ?? '', ['baru', 'bekas'])
+                ? $item['kondisi']
+                : 'baru';
             $qty     = max(1, (int) ($item['qty'] ?? 1));
+
             if (!$invId) continue;
+
             $key = $invId . '_' . $kondisi;
             $requested[$key] = ($requested[$key] ?? 0) + $qty;
         }
 
         foreach ($requested as $key => $totalQtyDiminta) {
             [$invId, $kondisi] = explode('_', $key, 2);
-            $inv = Inventory::find((int) $invId);
-            if (!$inv) continue;
 
-            $qtyDipakai = 0;
-            if ($excludePenyewaanId) {
-                $qtyDipakai = DetailPenyewaan::where('inventory_id', $invId)
-                    ->where('kondisi', $kondisi)
-                    ->whereHas('penyewaan', function ($q) use ($excludePenyewaanId) {
-                        $q->whereIn('status', ['berjalan', 'segera_konfirmasi'])
-                          ->where('id', '!=', $excludePenyewaanId);
-                    })
-                    ->sum('qty');
-            } else {
-                $qtyDipakai = DetailPenyewaan::where('inventory_id', $invId)
-                    ->where('kondisi', $kondisi)
-                    ->whereHas('penyewaan', function ($q) {
-                        $q->whereIn('status', ['berjalan', 'segera_konfirmasi']);
-                    })
-                    ->sum('qty');
+            $inv = Inventory::find((int) $invId);
+            if (!$inv) {
+                $errors[] = "Data inventory dengan ID {$invId} tidak ditemukan.";
+                continue;
             }
 
             $stokField  = $kondisi === 'baru' ? 'stok_baru' : 'stok_bekas';
-            $stokTotal  = (int) ($inv->$stokField ?? 0);
-            $stokAktual = max(0, $stokTotal - $qtyDipakai);
+            $stokAktual = max(0, (int) ($inv->$stokField ?? 0));
 
             if ($totalQtyDiminta > $stokAktual) {
-                $errors[] = "Stok {$kondisi} \"{$inv->nama_produk}\" tidak cukup. "
-                          . "Diminta: {$totalQtyDiminta}, tersedia: {$stokAktual}.";
+                $errors[] = "Stok {$kondisi} \"{$inv->nama_produk}\" tidak cukup. Diminta: {$totalQtyDiminta}, tersedia: {$stokAktual}.";
             }
         }
 
@@ -244,8 +236,8 @@ class PenyewaanController extends Controller
         $dateTo   = $request->input('date_to', '');
         $status   = $request->input('status', '');
         $perPage  = in_array($request->input('per_page'), [5, 10, 25, 50])
-                    ? (int) $request->input('per_page')
-                    : 10;
+            ? (int) $request->input('per_page')
+            : 10;
 
         $aktif = Penyewaan::whereIn('status', ['berjalan', 'segera_konfirmasi'])->get();
         foreach ($aktif as $item) {
@@ -254,16 +246,16 @@ class PenyewaanController extends Controller
 
         $penyewaans = Penyewaan::with('details')
             ->when($search, function ($q) use ($search) {
-                $q->where('nama_penyewa',       'like', "%{$search}%")
-                  ->orWhere('nomor_telepon',     'like', "%{$search}%")
-                  ->orWhere('produk_alkes',      'like', "%{$search}%")
-                  ->orWhere('status',            'like', "%{$search}%")
-                  ->orWhere('pengiriman',        'like', "%{$search}%")
-                  ->orWhere('alamat_penyewa',    'like', "%{$search}%")
-                  ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                  ->orWhere('keterangan',        'like', "%{$search}%")
-                  ->orWhere('tgl_mulai',         'like', "%{$search}%")
-                  ->orWhere('tgl_selesai',       'like', "%{$search}%");
+                $q->where('nama_penyewa', 'like', "%{$search}%")
+                    ->orWhere('nomor_telepon', 'like', "%{$search}%")
+                    ->orWhere('produk_alkes', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('pengiriman', 'like', "%{$search}%")
+                    ->orWhere('alamat_penyewa', 'like', "%{$search}%")
+                    ->orWhere('metode_pembayaran', 'like', "%{$search}%")
+                    ->orWhere('keterangan', 'like', "%{$search}%")
+                    ->orWhere('tgl_mulai', 'like', "%{$search}%")
+                    ->orWhere('tgl_selesai', 'like', "%{$search}%");
             })
             ->when($dateFrom, function ($q) use ($dateFrom) {
                 $q->whereDate('tgl_mulai', '>=', $dateFrom);
@@ -287,7 +279,13 @@ class PenyewaanController extends Controller
         ];
 
         return view('admin.penyewaan.index', compact(
-            'penyewaans', 'search', 'perPage', 'dateFrom', 'dateTo', 'status', 'statusCounts'
+            'penyewaans',
+            'search',
+            'perPage',
+            'dateFrom',
+            'dateTo',
+            'status',
+            'statusCounts'
         ));
     }
 
@@ -304,7 +302,6 @@ class PenyewaanController extends Controller
 
         $this->syncStatus($penyewaan);
 
-        // Cari ID extend terbaru yang masih aktif (untuk keperluan UI)
         $latestActiveExtendId = $penyewaan->extends
             ->where('status_extend', 'aktif')
             ->sortByDesc('id')
@@ -326,24 +323,24 @@ class PenyewaanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_penyewa'        => 'required|string|max:255',
-            'nomor_telepon'       => 'required|string|max:20',
-            'tempat_tanggal_lahir'=> 'nullable|string|max:255',
-            'nomor_ktp'           => 'nullable|string|max:30',
-            'alamat_penyewa'      => 'required|string|max:500',
-            'tgl_mulai'           => 'required|date',
-            'tgl_selesai'         => 'required|date|after_or_equal:tgl_mulai',
-            'pengiriman'          => 'required|string',
-            'biaya_ongkir'        => 'nullable|integer|min:0',
-            'diskon_global'       => 'nullable|integer|min:0',
-            'metode_pembayaran'   => 'required|string|max:100',
-            'bukti_pembayaran'    => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'foto_ktp_sim'        => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'keterangan'          => 'nullable|string|max:1000',
-            'items'               => 'required|array|min:1',
-            'items.*.nama_alat'   => 'required|string|max:255',
-            'items.*.qty'         => 'required|integer|min:1',
-            'items.*.harga_satuan'=> 'required|integer|min:0',
+            'nama_penyewa'         => 'required|string|max:255',
+            'nomor_telepon'        => 'required|string|max:20',
+            'tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'nomor_ktp'            => 'nullable|string|max:30',
+            'alamat_penyewa'       => 'required|string|max:500',
+            'tgl_mulai'            => 'required|date',
+            'tgl_selesai'          => 'required|date|after_or_equal:tgl_mulai',
+            'pengiriman'           => 'required|string',
+            'biaya_ongkir'         => 'nullable|integer|min:0',
+            'diskon_global'        => 'nullable|integer|min:0',
+            'metode_pembayaran'    => 'required|string|max:100',
+            'bukti_pembayaran'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'foto_ktp_sim'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'keterangan'           => 'nullable|string|max:1000',
+            'items'                => 'required|array|min:1',
+            'items.*.nama_alat'    => 'required|string|max:255',
+            'items.*.qty'          => 'required|integer|min:1',
+            'items.*.harga_satuan' => 'required|integer|min:0',
         ]);
 
         $stokErrors = $this->validateStok($request->items);
@@ -358,11 +355,11 @@ class PenyewaanController extends Controller
         $status     = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
 
         $buktiPath = $request->hasFile('bukti_pembayaran')
-                     ? $request->file('bukti_pembayaran')->store('penyewaan/bukti', 'public')
-                     : null;
+            ? $request->file('bukti_pembayaran')->store('penyewaan/bukti', 'public')
+            : null;
         $ktpPath   = $request->hasFile('foto_ktp_sim')
-                     ? $request->file('foto_ktp_sim')->store('penyewaan/ktp', 'public')
-                     : null;
+            ? $request->file('foto_ktp_sim')->store('penyewaan/ktp', 'public')
+            : null;
 
         $penyewaan = Penyewaan::create([
             'nama_penyewa'         => $request->nama_penyewa,
@@ -388,10 +385,10 @@ class PenyewaanController extends Controller
         $this->syncDetails($penyewaan, $request->items);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'create',
-            subject:  $penyewaan->nama_penyewa,
-            oldValue:  [],
+            module: 'Penyewaan',
+            action: 'create',
+            subject: $penyewaan->nama_penyewa,
+            oldValue: [],
             newValue: [
                 'id'          => $penyewaan->id,
                 'tgl_mulai'   => $tglMulai->format('d M Y'),
@@ -403,7 +400,7 @@ class PenyewaanController extends Controller
         );
 
         return redirect()->route('penyewaan.index')
-                         ->with('success', 'Data penyewaan berhasil disimpan.');
+            ->with('success', 'Data penyewaan berhasil disimpan.');
     }
 
     // =========================================================
@@ -422,24 +419,24 @@ class PenyewaanController extends Controller
         $penyewaan = Penyewaan::with('details')->findOrFail($id);
 
         $request->validate([
-            'nama_penyewa'        => 'required|string|max:255',
-            'nomor_telepon'       => 'required|string|max:20',
-            'tempat_tanggal_lahir'=> 'nullable|string|max:255',
-            'nomor_ktp'           => 'nullable|string|max:30',
-            'alamat_penyewa'      => 'required|string|max:500',
-            'tgl_mulai'           => 'required|date',
-            'tgl_selesai'         => 'required|date|after_or_equal:tgl_mulai',
-            'pengiriman'          => 'required|string',
-            'biaya_ongkir'        => 'nullable|integer|min:0',
-            'diskon_global'       => 'nullable|integer|min:0',
-            'metode_pembayaran'   => 'required|string|max:100',
-            'bukti_pembayaran'    => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'foto_ktp_sim'        => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'keterangan'          => 'nullable|string|max:1000',
-            'items'               => 'required|array|min:1',
-            'items.*.nama_alat'   => 'required|string|max:255',
-            'items.*.qty'         => 'required|integer|min:1',
-            'items.*.harga_satuan'=> 'required|integer|min:0',
+            'nama_penyewa'         => 'required|string|max:255',
+            'nomor_telepon'        => 'required|string|max:20',
+            'tempat_tanggal_lahir' => 'nullable|string|max:255',
+            'nomor_ktp'            => 'nullable|string|max:30',
+            'alamat_penyewa'       => 'required|string|max:500',
+            'tgl_mulai'            => 'required|date',
+            'tgl_selesai'          => 'required|date|after_or_equal:tgl_mulai',
+            'pengiriman'           => 'required|string',
+            'biaya_ongkir'         => 'nullable|integer|min:0',
+            'diskon_global'        => 'nullable|integer|min:0',
+            'metode_pembayaran'    => 'required|string|max:100',
+            'bukti_pembayaran'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'foto_ktp_sim'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'keterangan'           => 'nullable|string|max:1000',
+            'items'                => 'required|array|min:1',
+            'items.*.nama_alat'    => 'required|string|max:255',
+            'items.*.qty'          => 'required|integer|min:1',
+            'items.*.harga_satuan' => 'required|integer|min:0',
         ]);
 
         $stokErrors = $this->validateStok($request->items, (int) $id);
@@ -452,7 +449,7 @@ class PenyewaanController extends Controller
         $durasiHari = (int) $tglMulai->diffInDays($tglSelesai);
         $sisaHari   = (int) Carbon::today()->startOfDay()->diffInDays($tglSelesai, false);
 
-        if (! in_array($penyewaan->status, ['selesai', 'dibatalkan'])) {
+        if (!in_array($penyewaan->status, ['selesai', 'dibatalkan'])) {
             $status = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
         } else {
             $status = $penyewaan->status;
@@ -499,9 +496,9 @@ class PenyewaanController extends Controller
         $this->syncDetails($penyewaan, $request->items);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: $penyewaan->nama_penyewa,
             oldValue: $oldValues,
             newValue: [
                 'tgl_mulai'   => $tglMulai->format('d M Y'),
@@ -513,7 +510,7 @@ class PenyewaanController extends Controller
         );
 
         return redirect()->route('penyewaan.index')
-                         ->with('success', 'Data penyewaan berhasil diperbarui.');
+            ->with('success', 'Data penyewaan berhasil diperbarui.');
     }
 
     // =========================================================
@@ -527,6 +524,7 @@ class PenyewaanController extends Controller
         if ($penyewaan->bukti_pembayaran) {
             \Storage::disk('public')->delete($penyewaan->bukti_pembayaran);
         }
+
         if ($penyewaan->foto_ktp_sim) {
             \Storage::disk('public')->delete($penyewaan->foto_ktp_sim);
         }
@@ -535,24 +533,26 @@ class PenyewaanController extends Controller
             foreach ($penyewaan->details as $detail) {
                 if ($detail->inventory_id) {
                     $inv = Inventory::find($detail->inventory_id);
-                    if ($inv) $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
+                    if ($inv) {
+                        $inv->tambahStok($detail->qty, $detail->kondisi ?? 'baru', true);
+                    }
                 }
             }
         }
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'delete',
-            subject:  $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'delete',
+            subject: $penyewaan->nama_penyewa,
             oldValue: ['status' => $penyewaan->status],
             newValue: [],
-            pageUrl:  'penyewaan'
+            pageUrl: 'penyewaan'
         );
 
         $penyewaan->delete();
 
         return redirect()->route('penyewaan.index')
-                         ->with('success', 'Data penyewaan berhasil dihapus.');
+            ->with('success', 'Data penyewaan berhasil dihapus.');
     }
 
     // =========================================================
@@ -587,9 +587,9 @@ class PenyewaanController extends Controller
         }
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: 'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['status' => $statusLama],
             newValue: [
                 'status'        => 'dibatalkan',
@@ -632,9 +632,9 @@ class PenyewaanController extends Controller
         $this->kurangiStokPenyewaan($penyewaan);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: 'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['status' => 'dibatalkan'],
             newValue: [
                 'status'     => $newStatus,
@@ -655,7 +655,7 @@ class PenyewaanController extends Controller
 
     public function export(Request $request)
     {
-        $search   = $request->get('search',   '');
+        $search   = $request->get('search', '');
         $dateFrom = $request->get('date_from');
         $dateTo   = $request->get('date_to');
         $status   = $request->get('status', 'semua');
@@ -766,9 +766,9 @@ class PenyewaanController extends Controller
             $this->kembalikanStok($penyewaan);
 
             ActivityLog::record(
-                module:   'Penyewaan',
-                action:   'update',
-                subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+                module: 'Penyewaan',
+                action: 'update',
+                subject: 'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
                 oldValue: ['status' => $oldStatus],
                 newValue: [
                     'status'       => 'selesai',
@@ -826,9 +826,9 @@ class PenyewaanController extends Controller
         ]);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: 'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['tgl_selesai' => $tglLama],
             newValue: [
                 'tgl_selesai' => $tglBaru->format('d M Y'),
@@ -885,8 +885,7 @@ class PenyewaanController extends Controller
 
         $pathBukti = null;
         if ($request->hasFile('bukti_transfer')) {
-            $pathBukti = $request->file('bukti_transfer')
-                ->store('penyewaan/extend', 'public');
+            $pathBukti = $request->file('bukti_transfer')->store('penyewaan/extend', 'public');
         }
 
         $penyewaan->update([
@@ -904,13 +903,13 @@ class PenyewaanController extends Controller
             'metode_bayar'     => $request->metode_bayar,
             'bukti_transfer'   => $pathBukti,
             'catatan'          => $request->catatan ?? null,
-            'status_extend'    => 'aktif',   // ← eksplisit default
+            'status_extend'    => 'aktif',
         ]);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: 'No. Sewa #' . $penyewaan->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: ['tgl_selesai' => $tglLamaLabel],
             newValue: [
                 'tgl_selesai'  => $tglBaru->format('d M Y'),
@@ -934,7 +933,7 @@ class PenyewaanController extends Controller
     }
 
     // =========================================================
-    //  BATALKAN EXTEND ← BARU
+    //  BATALKAN EXTEND
     // =========================================================
 
     public function batalkanExtend(Request $request, string $extendId)
@@ -942,7 +941,6 @@ class PenyewaanController extends Controller
         $extend    = PenyewaanExtend::with('penyewaan')->findOrFail($extendId);
         $penyewaan = $extend->penyewaan;
 
-        // ── Guard 1: extend sudah dibatalkan ──
         if ($extend->status_extend === 'dibatalkan') {
             return response()->json([
                 'success' => false,
@@ -950,7 +948,6 @@ class PenyewaanController extends Controller
             ], 422);
         }
 
-        // ── Guard 2: penyewaan sudah selesai/dibatalkan ──
         if (in_array($penyewaan->status, ['selesai', 'dibatalkan'])) {
             return response()->json([
                 'success' => false,
@@ -958,7 +955,6 @@ class PenyewaanController extends Controller
             ], 422);
         }
 
-        // ── Guard 3: hanya extend TERBARU yang aktif yang bisa dibatalkan ──
         $latestActiveExtend = PenyewaanExtend::where('penyewaan_id', $penyewaan->id)
             ->where('status_extend', 'aktif')
             ->orderByDesc('id')
@@ -967,8 +963,7 @@ class PenyewaanController extends Controller
         if (!$latestActiveExtend || $latestActiveExtend->id !== $extend->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Hanya extend terbaru yang aktif yang dapat dibatalkan. '
-                           . 'Batalkan extend yang lebih baru terlebih dahulu.',
+                'message' => 'Hanya extend terbaru yang aktif yang dapat dibatalkan. Batalkan extend yang lebih baru terlebih dahulu.',
             ], 422);
         }
 
@@ -976,21 +971,18 @@ class PenyewaanController extends Controller
             'alasan_batal_extend' => 'nullable|string|max:1000',
         ]);
 
-        // ── Rollback tgl_selesai penyewaan ke tgl_selesai_lama extend ini ──
         $tglRollback = Carbon::parse($extend->tgl_selesai_lama->format('Y-m-d'))->startOfDay();
         $tglMulai    = Carbon::parse($penyewaan->tgl_mulai->format('Y-m-d'))->startOfDay();
         $durasiHari  = (int) $tglMulai->diffInDays($tglRollback);
         $sisaHari    = (int) Carbon::today()->startOfDay()->diffInDays($tglRollback, false);
         $newStatus   = $sisaHari > 7 ? 'berjalan' : 'segera_konfirmasi';
 
-        // ── Update extend: tandai dibatalkan ──
         $extend->update([
             'status_extend'        => 'dibatalkan',
             'alasan_batal_extend'  => $request->alasan_batal_extend ?: null,
             'dibatalkan_extend_at' => now(),
         ]);
 
-        // ── Update penyewaan: rollback tgl_selesai & durasi ──
         $penyewaan->update([
             'tgl_selesai' => $tglRollback->format('Y-m-d'),
             'durasi_hari' => $durasiHari,
@@ -998,12 +990,12 @@ class PenyewaanController extends Controller
         ]);
 
         ActivityLog::record(
-            module:   'Penyewaan',
-            action:   'update',
-            subject:  'Batalkan Extend #' . $extend->id . ' — ' . $penyewaan->nama_penyewa,
+            module: 'Penyewaan',
+            action: 'update',
+            subject: 'Batalkan Extend #' . $extend->id . ' — ' . $penyewaan->nama_penyewa,
             oldValue: [
-                'tgl_selesai'    => $extend->tgl_selesai_baru->format('d M Y'),
-                'status_extend'  => 'aktif',
+                'tgl_selesai'   => $extend->tgl_selesai_baru->format('d M Y'),
+                'status_extend' => 'aktif',
             ],
             newValue: [
                 'tgl_selesai'         => $tglRollback->format('d M Y'),
@@ -1015,12 +1007,11 @@ class PenyewaanController extends Controller
         );
 
         return response()->json([
-            'success'           => true,
-            'message'           => 'Extend berhasil dibatalkan. Deadline dikembalikan ke '
-                                 . $tglRollback->format('d M Y') . '.',
-            'tgl_selesai_baru'  => $tglRollback->format('d M Y'),
-            'durasi_hari'       => $durasiHari,
-            'status'            => $newStatus,
+            'success'          => true,
+            'message'          => 'Extend berhasil dibatalkan. Deadline dikembalikan ke ' . $tglRollback->format('d M Y') . '.',
+            'tgl_selesai_baru' => $tglRollback->format('d M Y'),
+            'durasi_hari'      => $durasiHari,
+            'status'           => $newStatus,
         ]);
     }
 
